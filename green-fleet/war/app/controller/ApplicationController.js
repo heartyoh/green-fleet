@@ -3,7 +3,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 
 	stores : [ 'CompanyStore' ],
 	models : [],
-	views : [ 'company.Company' ],
+	views : [ 'company.Company', 'map.Map' ],
 
 	init : function() {
 		this.control({

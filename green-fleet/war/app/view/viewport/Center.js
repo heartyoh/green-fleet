@@ -7,6 +7,9 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	alias : 'widget.viewport.center',
 
 	items : [ {
+		xtype : 'map',
+		closable : false
+	}, {
 		xtype : 'obd',
 		closable : false
 	}, {
