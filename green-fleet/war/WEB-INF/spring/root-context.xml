@@ -9,6 +9,8 @@
    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
    http://www.springframework.org/schema/aop 
    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+   
+   	<import resource="security-context.xml"/>	
 
 	<!-- <import resource="infrastructure-context.xml"/> <import resource="security-context.xml"/> 
 		<import resource="cometd-context.xml"/> <import resource="cache-context.xml"/> 

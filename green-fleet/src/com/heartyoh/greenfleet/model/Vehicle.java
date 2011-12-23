@@ -1,5 +1,7 @@
 package com.heartyoh.greenfleet.model;
 
+import java.util.Date;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -14,7 +16,7 @@ public class Vehicle {
     private Key key;
 	
 	@Persistent
-	private String vehicle;
+	private String id;
 	@Persistent
 	private String registrationNumber;
 	@Persistent
@@ -49,12 +51,22 @@ public class Vehicle {
 	private String timingBeltStatus;
 	@Persistent
 	private String sparkPlugStatus;
+	@Persistent
+	private Date createdAt;
+	@Persistent
+	private Date updatedAt;
 	
-	public String getVehicle() {
-		return vehicle;
+	public Key getKey() {
+		return key;
 	}
-	public void setVehicle(String vehicle) {
-		this.vehicle = vehicle;
+	public void setKey(Key key) {
+		this.key = key;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	public String getRegistrationNumber() {
 		return registrationNumber;
@@ -158,8 +170,17 @@ public class Vehicle {
 	public void setSparkPlugStatus(String sparkPlugStatus) {
 		this.sparkPlugStatus = sparkPlugStatus;
 	}
-	public Key getKey() {
-		return key;
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 	
 }

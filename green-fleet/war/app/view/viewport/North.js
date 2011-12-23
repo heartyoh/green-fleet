@@ -16,6 +16,6 @@ Ext.define('GreenFleet.view.viewport.North', {
 		flex : 1
 	}, {
 		xtype : 'system_menu',
-		width : 130
+		width : 180
 	} ]
 });

@@ -17,7 +17,8 @@ public class GreenFleetController {
 
 	private static final Logger logger = LoggerFactory.getLogger(GreenFleetController.class);
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+//	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/home1", method = RequestMethod.GET)
 	public String home() {
 		return "redirect:home";
 	}
@@ -30,7 +31,8 @@ public class GreenFleetController {
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = "/home", method = RequestMethod.GET)
+//	@RequestMapping(value = "/home", method = RequestMethod.GET)
+	@RequestMapping(value = "/home2", method = RequestMethod.GET)
 	public String main(Locale locale, Model model) {
 		return "home";
 	}

@@ -5,14 +5,20 @@ Ext.define('GreenFleet.view.SystemMenu', {
 
 	items : [ {
 		type : 'help',
-		text : 'help',
+		text : login.username,
 		handler : function() {
 		}
 	}, {
-		itemId : 'refresh',
-		type : 'refresh',
-		text : 'refresh',
+		itemId : 'logout',
+		type : 'logout',
+		text : 'logout',
 		handler : function() {
+			Ext.MessageBox.confirm('Confirm', 'Are you sure you want to do that?', function(confirm) {
+				if (confirm === 'yes') {
+					document.location.href = '/logout.htm';
+				}
+
+			});
 		}
 	}, {
 		type : 'search',
