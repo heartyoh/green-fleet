@@ -18,9 +18,9 @@ public class Incident {
 	@Persistent
 	private Date incidentTime;
 	@Persistent
-	private String lattitude;
+	private double lattitude;
 	@Persistent
-	private String longitude;
+	private double longitude;
 	@Persistent
 	private double impulse;
 	@Persistent

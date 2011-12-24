@@ -16,8 +16,6 @@ public class Vehicle {
     private Key key;
 	
 	@Persistent
-	private String id;
-	@Persistent
 	private String registrationNumber;
 	@Persistent
 	private String manufacturer;
@@ -34,7 +32,7 @@ public class Vehicle {
 	@Persistent
 	private double totalDistance;
 	@Persistent
-	private double ramainingFuel;
+	private double remainingFuel;
 	@Persistent
 	private double distanceSinceNewOil;
 	@Persistent
@@ -61,12 +59,6 @@ public class Vehicle {
 	}
 	public void setKey(Key key) {
 		this.key = key;
-	}
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
 	}
 	public String getRegistrationNumber() {
 		return registrationNumber;
@@ -116,11 +108,11 @@ public class Vehicle {
 	public void setTotalDistance(double totalDistance) {
 		this.totalDistance = totalDistance;
 	}
-	public double getRamainingFuel() {
-		return ramainingFuel;
+	public double getRemainingFuel() {
+		return remainingFuel;
 	}
-	public void setRamainingFuel(double ramainingFuel) {
-		this.ramainingFuel = ramainingFuel;
+	public void setRemainingFuel(double remainingFuel) {
+		this.remainingFuel = remainingFuel;
 	}
 	public double getDistanceSinceNewOil() {
 		return distanceSinceNewOil;

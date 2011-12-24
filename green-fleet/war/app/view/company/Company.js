@@ -98,7 +98,7 @@ Ext.define('GreenFleet.view.company.Company', {
 					grid.onSearch(grid);
 				}
 			}, {
-				text : 'refresh',
+				text : 'reset',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);

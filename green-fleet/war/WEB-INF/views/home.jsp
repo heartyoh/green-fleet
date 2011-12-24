@@ -23,7 +23,8 @@
 		
 		<script>
 		var login = {
-			username : '<sec:authentication property="principal.forename"/> <sec:authentication property="principal.surname"/>'
+			username : '<sec:authentication property="principal.nickname"/>',
+			company : '<sec:authentication property="principal.company"/>'
 		};
 		
 		var uploadUrl = '<%= blobstoreService.createUploadUrl("/upload") %>';

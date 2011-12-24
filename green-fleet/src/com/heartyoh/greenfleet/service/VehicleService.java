@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.heartyoh.greenfleet.model.Vehicle;
 import com.heartyoh.util.PMF;
 
@@ -30,35 +33,71 @@ public class VehicleService {
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
-		String id = request.getParameter("id");
-		String name = request.getParameter("name");
+		UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
+
+		String registrationNumber = request.getParameter("registrationNumber");
+		String manufacturer = request.getParameter("manufacturer");
+		String vehicleType = request.getParameter("vehicleType");
+		String birthYear = request.getParameter("birthYear");
+		String ownershipType = request.getParameter("ownershipType");
+		String status = request.getParameter("status");
+		String imageClip = request.getParameter("imageClip");
+		double totalDistance = Double.parseDouble(request.getParameter("totalDistance"));
+		double remainingFuel = Double.parseDouble(request.getParameter("remainingFuel"));
+		double distanceSinceNewOil = Double.parseDouble(request.getParameter("distanceSinceNewOil"));
+		String engineOilStatus = request.getParameter("engineOilStatus");
+		String fuelFilterStatus = request.getParameter("fuelFilterStatus");
+		String brakeOilStatus = request.getParameter("brakeOilStatus");
+		String brakePedalStatus = request.getParameter("brakePedalStatus");
+		String coolingWaterStatus = request.getParameter("coolingWaterStatus");
+		String timingBeltStatus = request.getParameter("timingBeltStatus");
+		String sparkPlugStatus = request.getParameter("sparkPlugStatus");
 
 		Date now = new Date();
 
-		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), id);
+		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), registrationNumber);
 
 		boolean created = false;
-		Vehicle Vehicle = null;
+		Vehicle vehicle = null;
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
 			try {
-				Vehicle = pm.getObjectById(Vehicle.class, key);
+				vehicle = pm.getObjectById(Vehicle.class, key);
 			} catch (JDOObjectNotFoundException e) {
-				Vehicle = new Vehicle();
-				Vehicle.setKey(key);
-				Vehicle.setId(id);
-				Vehicle.setCreatedAt(now);
+				vehicle = new Vehicle();
+				vehicle.setKey(key);
+				vehicle.setRegistrationNumber(registrationNumber);
+				vehicle.setCreatedAt(now);
 
 				created = true;
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
-			Vehicle.setUpdatedAt(now);
 
-			Vehicle = pm.makePersistent(Vehicle);
+			vehicle.setManufacturer(manufacturer);
+			vehicle.setVehicleType(vehicleType);
+			vehicle.setBirthYear(birthYear);
+			vehicle.setOwnershipType(ownershipType);
+			vehicle.setStatus(status);
+			vehicle.setImageClip(imageClip);
+			vehicle.setTotalDistance(totalDistance);
+			vehicle.setRegistrationNumber(registrationNumber);
+			vehicle.setRemainingFuel(remainingFuel);
+			vehicle.setDistanceSinceNewOil(distanceSinceNewOil);
+			vehicle.setEngineOilStatus(engineOilStatus);
+			vehicle.setFuelFilterStatus(fuelFilterStatus);
+			vehicle.setBrakeOilStatus(brakeOilStatus);
+			vehicle.setBrakePedalStatus(brakePedalStatus);
+			vehicle.setCoolingWaterStatus(coolingWaterStatus);
+			vehicle.setTimingBeltStatus(timingBeltStatus);
+			vehicle.setSparkPlugStatus(sparkPlugStatus);
+			vehicle.setUpdatedAt(now);
+
+			vehicle = pm.makePersistent(vehicle);
 		} finally {
 			pm.close();
 		}
@@ -66,7 +105,7 @@ public class VehicleService {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", true);
 		result.put("msg", created ? "Vehicle created." : "Vehicle updated");
-		result.put("key", KeyFactory.keyToString(Vehicle.getKey()));
+		result.put("key", KeyFactory.keyToString(vehicle.getKey()));
 
 		return result;
 	}
@@ -74,9 +113,9 @@ public class VehicleService {
 	@RequestMapping(value = "/vehicle/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> deleteVehicle(HttpServletRequest request, HttpServletResponse response) {
-		String id = request.getParameter("id");
+		String registrationNumber = request.getParameter("registrationNumber");
 
-		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), id);
+		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), registrationNumber);
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 

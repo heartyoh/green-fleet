@@ -27,6 +27,7 @@ public class DatastoreUserDaoImpl implements UserDao {
     private static final String USER_EMAIL = "email";
     private static final String USER_ENABLED = "enabled";
     private static final String USER_AUTHORITIES = "authorities";
+    private static final String USER_COMPANY = "company";
 
     public CustomUser findUser(String userId) {
         Key key = KeyFactory.createKey(USER_TYPE, userId);
@@ -51,6 +52,7 @@ public class DatastoreUserDaoImpl implements UserDao {
                     (String)user.getProperty(USER_FORENAME),
                     (String)user.getProperty(USER_SURNAME),
                     roles,
+                    (String)user.getProperty(USER_COMPANY),
                     (Boolean)user.getProperty(USER_ENABLED));
 
             return gaeUser;
@@ -70,6 +72,7 @@ public class DatastoreUserDaoImpl implements UserDao {
         user.setProperty(USER_NICKNAME, newUser.getNickname());
         user.setProperty(USER_FORENAME, newUser.getForename());
         user.setProperty(USER_SURNAME, newUser.getSurname());
+        user.setProperty(USER_COMPANY, newUser.getCompany());
         user.setUnindexedProperty(USER_ENABLED, newUser.isEnabled());
 
         Collection<AppRole> roles = newUser.getAuthorities();

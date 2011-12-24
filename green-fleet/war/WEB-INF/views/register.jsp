@@ -23,6 +23,11 @@ retrieved.
 
 <form:form id="register" method="post" modelAttribute="registrationForm">
   	<fieldset>
+  		<form:label path="company">
+  		Company:
+ 		</form:label> <form:errors path="company" cssClass="fieldError" /><br />
+  		<form:input path="company" /> <br />
+
   		<form:label path="forename">
   		Forename:
  		</form:label> <form:errors path="forename" cssClass="fieldError" /><br />

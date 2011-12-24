@@ -1,13 +1,12 @@
 package com.heartyoh.security.service;
 
-/**
- * @author Luke Taylor
- */
 public class RegistrationForm {
 
     private String forename;
 
     private String surname;
+    
+    private String company;
 
     public String getForename() {
         return forename;
@@ -23,5 +22,13 @@ public class RegistrationForm {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+    
+    public void setCompany(String company) {
+        this.company = company;
     }
 }

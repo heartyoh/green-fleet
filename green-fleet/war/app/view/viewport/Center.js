@@ -18,5 +18,8 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	}, {
 		xtype : 'company',
 		closable : false
+	}, {
+		xtype : 'vehicle',
+		closable : false
 	} ]
 });

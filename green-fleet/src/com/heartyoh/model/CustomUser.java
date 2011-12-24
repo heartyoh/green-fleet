@@ -7,11 +7,7 @@ import java.util.Set;
 
 import com.heartyoh.security.AppRole;
 
-/**
- * Custom user object for the application.
- * 
- * @author Luke Taylor
- */
+@SuppressWarnings("serial")
 public class CustomUser implements Serializable {
 	private final String userId;
 	private final String email;
@@ -19,6 +15,7 @@ public class CustomUser implements Serializable {
 	private final String forename;
 	private final String surname;
 	private final Set<AppRole> authorities;
+	private final String company;
 	private final boolean enabled;
 
 	/**
@@ -33,6 +30,7 @@ public class CustomUser implements Serializable {
 		this.forename = null;
 		this.surname = null;
 		this.email = email;
+		this.company = null;
 		this.enabled = true;
 	}
 
@@ -40,13 +38,14 @@ public class CustomUser implements Serializable {
 	 * Post-registration constructor
 	 */
 	public CustomUser(String userId, String nickname, String email, String forename, String surname,
-			Set<AppRole> authorities, boolean enabled) {
+			Set<AppRole> authorities, String company, boolean enabled) {
 		this.userId = userId;
 		this.nickname = nickname;
 		this.email = email;
 		this.authorities = authorities;
 		this.forename = forename;
 		this.surname = surname;
+		this.company = company;
 		this.enabled = enabled;
 	}
 
@@ -70,6 +69,10 @@ public class CustomUser implements Serializable {
 		return surname;
 	}
 
+	public String getCompany() {
+		return company;
+	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -81,6 +84,6 @@ public class CustomUser implements Serializable {
 	@Override
 	public String toString() {
 		return "GaeUser{" + "userId='" + userId + '\'' + ", nickname='" + nickname + '\'' + ", forename='" + forename
-				+ '\'' + ", surname='" + surname + '\'' + ", authorities=" + authorities + '}';
+				+ '\'' + ", surname='" + surname + '\'' + ", company='" + company + '\'' + ", authorities=" + authorities + '}';
 	}
 }

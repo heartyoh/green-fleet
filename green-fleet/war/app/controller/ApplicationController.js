@@ -1,9 +1,9 @@
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore' ],
+	stores : [ 'CompanyStore', 'VehicleStore' ],
 	models : [],
-	views : [ 'company.Company', 'map.Map' ],
+	views : [ 'company.Company', 'vehicle.Vehicle', 'map.Map' ],
 
 	init : function() {
 		this.control({
