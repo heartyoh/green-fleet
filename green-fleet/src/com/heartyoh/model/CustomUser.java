@@ -1,4 +1,4 @@
-package com.heartyoh.user;
+package com.heartyoh.model;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import com.heartyoh.security.AppRole;
  * 
  * @author Luke Taylor
  */
-public class GaeUser implements Serializable {
+public class CustomUser implements Serializable {
 	private final String userId;
 	private final String email;
 	private final String nickname;
@@ -26,7 +26,7 @@ public class GaeUser implements Serializable {
 	 * 
 	 * Assigns the user the "NEW_USER" role only.
 	 */
-	public GaeUser(String userId, String nickname, String email) {
+	public CustomUser(String userId, String nickname, String email) {
 		this.userId = userId;
 		this.nickname = nickname;
 		this.authorities = EnumSet.of(AppRole.NEW_USER);
@@ -39,7 +39,7 @@ public class GaeUser implements Serializable {
 	/**
 	 * Post-registration constructor
 	 */
-	public GaeUser(String userId, String nickname, String email, String forename, String surname,
+	public CustomUser(String userId, String nickname, String email, String forename, String surname,
 			Set<AppRole> authorities, boolean enabled) {
 		this.userId = userId;
 		this.nickname = nickname;

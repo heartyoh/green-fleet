@@ -6,14 +6,14 @@ import java.util.HashSet;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import com.heartyoh.user.GaeUser;
+import com.heartyoh.model.CustomUser;
 
 public class GaeUserAuthentication implements Authentication {
-	private final GaeUser principal;
+	private final CustomUser principal;
 	private final Object details;
 	private boolean authenticated;
 
-	public GaeUserAuthentication(GaeUser principal, Object details) {
+	public GaeUserAuthentication(CustomUser principal, Object details) {
 		this.principal = principal;
 		this.details = details;
 		authenticated = true;

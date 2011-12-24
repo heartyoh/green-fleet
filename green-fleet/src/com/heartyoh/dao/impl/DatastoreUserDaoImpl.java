@@ -1,4 +1,4 @@
-package com.heartyoh.user;
+package com.heartyoh.dao.impl;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -13,17 +13,14 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.heartyoh.dao.UserDao;
+import com.heartyoh.model.CustomUser;
 import com.heartyoh.security.AppRole;
 
-/**
- * UserRegistry implementation which uses GAE's low-level Datastore APIs.
- *
- * @author Luke Taylor
- */
-public class GaeDatastoreUserRegistry implements UserRegistry {
+public class DatastoreUserDaoImpl implements UserDao {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String USER_TYPE = "GaeUser";
+    private static final String USER_TYPE = "CustomUser";
     private static final String USER_FORENAME = "forename";
     private static final String USER_SURNAME = "surname";
     private static final String USER_NICKNAME = "nickname";
@@ -31,7 +28,7 @@ public class GaeDatastoreUserRegistry implements UserRegistry {
     private static final String USER_ENABLED = "enabled";
     private static final String USER_AUTHORITIES = "authorities";
 
-    public GaeUser findUser(String userId) {
+    public CustomUser findUser(String userId) {
         Key key = KeyFactory.createKey(USER_TYPE, userId);
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
@@ -47,7 +44,7 @@ public class GaeDatastoreUserRegistry implements UserRegistry {
                 }
             }
 
-            GaeUser gaeUser = new GaeUser(
+            CustomUser gaeUser = new CustomUser(
                     user.getKey().getName(),
                     (String)user.getProperty(USER_NICKNAME),
                     (String)user.getProperty(USER_EMAIL),
@@ -64,7 +61,7 @@ public class GaeDatastoreUserRegistry implements UserRegistry {
         }
     }
 
-    public void registerUser(GaeUser newUser) {
+    public void registerUser(CustomUser newUser) {
         logger.debug("Attempting to create new user " + newUser);
 
         Key key = KeyFactory.createKey(USER_TYPE, newUser.getUserId());
