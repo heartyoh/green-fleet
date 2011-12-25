@@ -1,21 +1,34 @@
 package com.heartyoh.model;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.jdo.annotations.Extension;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.Order;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import com.heartyoh.greenfleet.model.Driver;
 
 @PersistenceCapable
 public class Company {
 	@PrimaryKey
-	private Key key;
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+    private String key;
 
 	@Persistent
 	private String id;
 
+	@JsonIgnore
+	@Persistent(mappedBy = "company")
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
+    private List<Driver> drivers;
+	
 	@Persistent
 	private String name;
 
@@ -25,11 +38,11 @@ public class Company {
 	@Persistent
 	private Date updatedAt;
 
-	public Key getKey() {
+	public String getKey() {
 		return key;
 	}
 
-	public void setKey(Key key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 
@@ -63,6 +76,14 @@ public class Company {
 
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public List<Driver> getDrivers() {
+		return drivers;
+	}
+
+	public void setDrivers(List<Driver> drivers) {
+		this.drivers = drivers;
 	}
 
 }

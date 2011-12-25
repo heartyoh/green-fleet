@@ -4,10 +4,13 @@ Ext.define('GreenFleet.store.DriverStore', {
 	autoLoad : false,
 
 	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
 		name : 'name',
 		type : 'string'
 	}, {
-		name : 'employeeId',
+		name : 'id',
 		type : 'string'
 	}, {
 		name : 'division',

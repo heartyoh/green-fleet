@@ -2,19 +2,20 @@ package com.heartyoh.greenfleet.model;
 
 import java.util.Date;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
 import com.heartyoh.model.Company;
 
 @PersistenceCapable
 public class Driver {
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+    private String key;
 	
 	@Persistent
     private Company company;
@@ -22,7 +23,7 @@ public class Driver {
 	@Persistent
 	private String name;
 	@Persistent
-	private String employeeId;
+	private String id;
 	@Persistent
 	private String division;
 	@Persistent
@@ -34,10 +35,10 @@ public class Driver {
 	@Persistent
 	private Date updatedAt;
 	
-	public Key getKey() {
+	public String getKey() {
 		return key;
 	}
-	public void setKey(Key key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 	public Company getCompany() {
@@ -52,11 +53,11 @@ public class Driver {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getEmployeeId() {
-		return employeeId;
+	public String getId() {
+		return id;
 	}
-	public void setEmployeeId(String employeeId) {
-		this.employeeId = employeeId;
+	public void setId(String id) {
+		this.id = id;
 	}
 	public String getDivision() {
 		return division;

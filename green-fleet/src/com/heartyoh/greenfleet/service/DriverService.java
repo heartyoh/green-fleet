@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,78 +30,96 @@ import com.heartyoh.util.SessionUtils;
 @Controller
 public class DriverService {
 	private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
+	private static final Class<Driver> clazz = Driver.class;
 
 	@RequestMapping(value = "/driver/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
-		String employeeId = request.getParameter("employeeId");
+		String key = request.getParameter("key");
+		String id = request.getParameter("id");
 		String name = request.getParameter("name");
 		String division = request.getParameter("division");
 		String title = request.getParameter("title");
 		String imageClip = request.getParameter("imageClip");
+		
+		Key objKey = null;
+		boolean creating = false;
+		
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+		Company company = pm.getObjectById(Company.class, companyKey);
+		Driver obj = null;
 
+		if(key != null && key.trim().length() > 0) {
+			objKey = KeyFactory.stringToKey(key);
+		} else {
+			objKey = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
+			try {
+				obj = pm.getObjectById(clazz, objKey);
+			} catch(JDOObjectNotFoundException e) {
+				// It's OK.
+				creating = true;
+				
+			}
+			// It's Not OK. You try to add duplicated identifier.
+			if(obj != null)
+				throw new EntityExistsException(clazz.getSimpleName() + " with id(" + id + ") already Exist.");
+		}
+		
 		Date now = new Date();
 
-		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
-		Key key = KeyFactory.createKey(Driver.class.getSimpleName(), employeeId);
-
-		boolean created = false;
-		Driver driver = null;
-
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-
 		try {
-			Company company = pm.getObjectById(Company.class, companyKey);
-
-			try {
-				driver = pm.getObjectById(Driver.class, key);
-			} catch (JDOObjectNotFoundException e) {
-				driver = new Driver();
-				driver.setCompany(company);
-				driver.setKey(key);
-				driver.setEmployeeId(employeeId);
-				driver.setCreatedAt(now);
-
-				created = true;
+			if(creating) {
+				obj = new Driver();
+				obj.setKey(KeyFactory.keyToString(objKey));
+				obj.setCompany(company);
+				obj.setId(id);
+				obj.setCreatedAt(now);
+			} else {
+				obj = pm.getObjectById(clazz, objKey);				
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-			driver.setName(name);
-			driver.setTitle(title);
-			driver.setDivision(division);
-			driver.setImageClip(imageClip);
-			driver.setUpdatedAt(now);
+			if(name != null)
+				obj.setName(name);
+			if(title != null)
+				obj.setTitle(title);
+			if(division != null)
+				obj.setDivision(division);
+			if(imageClip != null)
+				obj.setImageClip(imageClip);
 
-			driver = pm.makePersistent(driver);
+			obj.setUpdatedAt(now);
+
+			obj = pm.makePersistent(obj);
 		} finally {
 			pm.close();
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
+		
 		result.put("success", true);
-		result.put("msg", created ? "Driver created." : "Driver updated");
-		result.put("key", KeyFactory.keyToString(driver.getKey()));
+		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
+		result.put("key", obj.getKey());
 
 		return result;
 	}
 
 	@RequestMapping(value = "/driver/delete", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> deleteVehicle(HttpServletRequest request, HttpServletResponse response) {
-		String employeeId = request.getParameter("employeeId");
-
-		Key key = KeyFactory.createKey(Driver.class.getSimpleName(), employeeId);
+	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
+		String key = request.getParameter("key");
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
-			Driver Vehicle = pm.getObjectById(Driver.class, key);
+			Driver obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
 
-			pm.deletePersistent(Vehicle);
+			pm.deletePersistent(obj);
 		} finally {
 			pm.close();
 		}
@@ -115,17 +134,24 @@ public class DriverService {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/driver", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Driver> getObdData(HttpServletRequest request, HttpServletResponse response) {
-
+	List<Driver> retrieve(HttpServletRequest request, HttpServletResponse response) {
+		CustomUser user = SessionUtils.currentUser();
+		
+		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+		
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		Query query = pm.newQuery(Driver.class);
+		Company company = pm.getObjectById(Company.class, companyKey);
+		Query query = pm.newQuery(clazz);
+		
+//		query.setGrouping(user.getCompany());
 
-		// query.setFilter();
+		 query.setFilter("company == companyParam");
+		 query.declareParameters(Company.class.getName() + " companyParam");
 		// query.setOrdering();
 		// query.declareParameters();
 
-		return (List<Driver>) query.execute();
+		return (List<Driver>) query.execute(company);
 	}
 
 }

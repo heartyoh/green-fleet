@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,65 +27,83 @@ import com.heartyoh.util.PMF;
 @Controller
 public class CompanyService {
 	private static final Logger logger = LoggerFactory.getLogger(CompanyService.class);
+	private static final Class<Company> clazz = Company.class;
 
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> createCompany(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> create(HttpServletRequest request, HttpServletResponse response) {
+		String key = request.getParameter("key");
 		String id = request.getParameter("id");
 		String name = request.getParameter("name");
 
-		Date now = new Date();
-
-		Key key = KeyFactory.createKey(Company.class.getSimpleName(), id);
-
-		boolean created = false;
-		Company company = null;
-
+		Key objKey = null;
+		boolean creating = false;
+		
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		try {
-			try {
-				company = pm.getObjectById(Company.class, key);
-			} catch (JDOObjectNotFoundException e) {
-				company = new Company();
-				company.setKey(key);
-				company.setId(id);
-				company.setCreatedAt(now);
+		Company obj = null;
+		
+		if(key != null && key.trim().length() > 0) {
+			objKey = KeyFactory.stringToKey(key);
+		} else {
+			objKey = KeyFactory.createKey(clazz.getSimpleName(), id);
 
-				created = true;
+			try {
+				obj = pm.getObjectById(clazz, objKey);
+			} catch(JDOObjectNotFoundException e) {
+				// It's OK.
+				creating = true;
+				
+			}
+			// It's Not OK. You try to add duplicated identifier.
+			if(obj != null)
+				throw new EntityExistsException(clazz.getSimpleName() + " with id(" + id + ") already Exist.");
+		}
+		
+		Date now = new Date();
+
+		try {
+			if(creating) {
+				obj = new Company();
+				obj.setKey(KeyFactory.keyToString(objKey));
+				obj.setId(id);
+				obj.setCreatedAt(now);
+			} else {
+				obj = pm.getObjectById(Company.class, objKey);				
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
-			company.setName(name);
-			company.setUpdatedAt(now);
 
-			company = pm.makePersistent(company);
+			if(name != null)
+				obj.setName(name);
+
+			obj.setUpdatedAt(now);
+
+			obj = pm.makePersistent(obj);
 		} finally {
 			pm.close();
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", true);
-		result.put("msg", created ? "Company created." : "Company updated");
-		result.put("key", KeyFactory.keyToString(company.getKey()));
+		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
+		result.put("key", obj.getKey());
 
 		return result;
 	}
 
 	@RequestMapping(value = "/company/delete", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> deleteCompany(HttpServletRequest request, HttpServletResponse response) {
-		String id = request.getParameter("id");
-
-		Key key = KeyFactory.createKey(Company.class.getSimpleName(), id);
+	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
+		String key = request.getParameter("key");
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
-			Company company = pm.getObjectById(Company.class, key);
+			Company obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
 
-			pm.deletePersistent(company);
+			pm.deletePersistent(obj);
 		} finally {
 			pm.close();
 		}
@@ -99,11 +118,11 @@ public class CompanyService {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/company", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Company> getObdData(HttpServletRequest request, HttpServletResponse response) {
+	List<Company> retrieve(HttpServletRequest request, HttpServletResponse response) {
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		Query query = pm.newQuery(Company.class);
+		Query query = pm.newQuery(clazz);
 
 		// query.setFilter();
 		// query.setOrdering();

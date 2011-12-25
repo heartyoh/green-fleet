@@ -17,32 +17,6 @@ Ext.define('GreenFleet.view.driver.Driver', {
 		this.add(this.buildForm(this));
 	},
 
-	fields : [ {
-		name : 'name',
-		type : 'string'
-	}, {
-		name : 'employeeId',
-		type : 'string'
-	}, {
-		name : 'division',
-		type : 'string'
-	}, {
-		name : 'title',
-		type : 'string'
-	}, {
-		name : 'imageClip',
-		type : 'string'
-	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'createdAt',
-		type : 'date'
-	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
-	} ],
-
-	
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -51,11 +25,16 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
 				dataIndex : 'name',
 				text : 'Name',
 				type : 'string'
 			}, {
-				dataIndex : 'employeeId',
+				dataIndex : 'id',
 				text : 'Employee Id',
 				type : 'string'
 			}, {
@@ -91,12 +70,12 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				}
 			},
 			onSearch : function(grid) {
-				var employeeIdFilter = grid.down('textfield[name=employeeIdFilter]');
+				var idFilter = grid.down('textfield[name=idFilter]');
 				var namefilter = grid.down('textfield[name=nameFilter]');
 				grid.store.load({
 					filters : [ {
-						property : 'employeeId',
-						value : employeeIdFilter.getValue()
+						property : 'id',
+						value : idFilter.getValue()
 					}, {
 						property : 'name',
 						value : namefilter.getValue()
@@ -104,12 +83,12 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				});
 			},
 			onReset : function(grid) {
-				grid.down('textfield[name=employeeIdFilter]').setValue('');
+				grid.down('textfield[name=idFilter]').setValue('');
 				grid.down('textfield[name=nameFilter]').setValue('');
 			},
 			tbar : [ 'ID', {
 				xtype : 'textfield',
-				name : 'employeeIdFilter',
+				name : 'idFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -160,12 +139,18 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			flex : 1,
 			items : [ {
 				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
 				name : 'name',
 				fieldLabel : 'Name',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
-				name : 'employeeId',
+				name : 'id',
 				fieldLabel : 'Employee Id',
 				anchor : '100%'
 			}, {
@@ -216,7 +201,7 @@ Ext.define('GreenFleet.view.driver.Driver', {
 									main.down('gridpanel').store.load();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
@@ -235,14 +220,14 @@ Ext.define('GreenFleet.view.driver.Driver', {
 									form.reset();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
 					}
 				}, {
 					xtype : 'button',
-					text : 'Reset',
+					text : 'New',
 					handler : function() {
 						this.up('form').getForm().reset();
 					}
