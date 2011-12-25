@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.heartyoh.greenfleet.model.Vehicle;
+import com.heartyoh.model.Company;
+import com.heartyoh.model.CustomUser;
 import com.heartyoh.util.PMF;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class VehicleService {
@@ -33,8 +33,7 @@ public class VehicleService {
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
-		UserService userService = UserServiceFactory.getUserService();
-        User user = userService.getCurrentUser();
+		CustomUser user = SessionUtils.currentUser();
 
 		String registrationNumber = request.getParameter("registrationNumber");
 		String manufacturer = request.getParameter("manufacturer");
@@ -56,6 +55,7 @@ public class VehicleService {
 
 		Date now = new Date();
 
+		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), registrationNumber);
 
 		boolean created = false;
@@ -64,10 +64,13 @@ public class VehicleService {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
+			Company company = pm.getObjectById(Company.class, companyKey);
+			
 			try {
 				vehicle = pm.getObjectById(Vehicle.class, key);
 			} catch (JDOObjectNotFoundException e) {
 				vehicle = new Vehicle();
+				vehicle.setCompany(company);
 				vehicle.setKey(key);
 				vehicle.setRegistrationNumber(registrationNumber);
 				vehicle.setCreatedAt(now);

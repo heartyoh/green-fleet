@@ -11,7 +11,7 @@
 
   <body>
   <div id="content">
-  <h3>Spring Security GAE Application</h3>
+  <h3>Green Fleet Application</h3>
 
   <p>
   This application demonstrates the integration of Spring Security

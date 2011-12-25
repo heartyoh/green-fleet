@@ -21,5 +21,14 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	}, {
 		xtype : 'vehicle',
 		closable : false
+	}, {
+		xtype : 'driver',
+		closable : false
+	}, {
+		xtype : 'reservation',
+		closable : false
+	}, {
+		xtype : 'incident',
+		closable : false
 	} ]
 });

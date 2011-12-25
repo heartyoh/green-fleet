@@ -26,7 +26,7 @@ public class SecurityService {
 
 	@RequestMapping(value = "/home.htm", method = RequestMethod.GET)
 	public String home() {
-		return "test";
+		return "home";
 	}
 
 	@RequestMapping(value = "/disabled.htm", method = RequestMethod.GET)

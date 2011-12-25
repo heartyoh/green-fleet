@@ -8,12 +8,16 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
+import com.heartyoh.model.Company;
 
 @PersistenceCapable
 public class Vehicle {
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
+	
+	@Persistent
+    private Company company;
 	
 	@Persistent
 	private String registrationNumber;
@@ -59,6 +63,12 @@ public class Vehicle {
 	}
 	public void setKey(Key key) {
 		this.key = key;
+	}
+	public Company getCompany() {
+		return company;
+	}
+	public void setCompany(Company company) {
+		this.company = company;
 	}
 	public String getRegistrationNumber() {
 		return registrationNumber;

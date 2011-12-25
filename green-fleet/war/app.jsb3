@@ -34,12 +34,44 @@
                     "name": "Company.js"
                 },
                 {
+                    "path": "app/view/vehicle/",
+                    "name": "Vehicle.js"
+                },
+                {
+                    "path": "app/view/vehicle/",
+                    "name": "Reservation.js"
+                },
+                {
+                    "path": "app/view/vehicle/",
+                    "name": "Incident.js"
+                },
+                {
+                    "path": "app/view/driver/",
+                    "name": "Driver.js"
+                },
+                {
                     "path": "app/view/map/",
                     "name": "Map.js"
                 },
                 {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "VehicleStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ReservationStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "IncidentStore.js"
                 },
                 {
                     "path": "app/view/viewport/",
