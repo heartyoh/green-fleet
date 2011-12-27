@@ -1,24 +1,36 @@
 package com.heartyoh.greenfleet.model;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.Order;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import com.heartyoh.model.Company;
 
 @PersistenceCapable
 public class Vehicle {
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+    private String key;
 	
 	@Persistent
     private Company company;
 	
+	@JsonIgnore
+	@Persistent(mappedBy = "vehicle")
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
+    private List<Incident> incidents;
+	
+	@Persistent
+	private String id;
 	@Persistent
 	private String registrationNumber;
 	@Persistent
@@ -58,10 +70,10 @@ public class Vehicle {
 	@Persistent
 	private Date updatedAt;
 	
-	public Key getKey() {
+	public String getKey() {
 		return key;
 	}
-	public void setKey(Key key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 	public Company getCompany() {
@@ -69,6 +81,12 @@ public class Vehicle {
 	}
 	public void setCompany(Company company) {
 		this.company = company;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	public String getRegistrationNumber() {
 		return registrationNumber;
@@ -183,6 +201,12 @@ public class Vehicle {
 	}
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+	public List<Incident> getIncidents() {
+		return incidents;
+	}
+	public void setIncidents(List<Incident> incidents) {
+		this.incidents = incidents;
 	}
 	
 }

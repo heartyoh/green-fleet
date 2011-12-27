@@ -25,6 +25,15 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : 'Vehicle Id',
+				type : 'string'
+			}, {
 				dataIndex : 'registrationNumber',
 				text : 'RegistrationNumber',
 				type : 'string'
@@ -107,31 +116,34 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
 				}
 			},
 			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=registrationNumberFilter]');
-				var namefilter = grid.down('textfield[name=manufacturerFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'registrationNumber',
-						value : idfilter.getValue()
-					}, {
-						property : 'manufacturer',
-						value : namefilter.getValue()
-					} ]
-				});
+				var idFilter = grid.down('textfield[name=idFilter]');
+				var namefilter = grid.down('textfield[name=nameFilter]');
+				grid.store.clearFilter();
+
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'registrationNumber',
+					value : namefilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
-				grid.down('textfield[name=registrationNumberFilter]').setValue('');
-				grid.down('textfield[name=manufacturerFilter]').setValue('');
+				grid.down('textfield[name=idFilter]').setValue('');
+				grid.down('textfield[name=nameFilter]').setValue('');
 			},
-			tbar : [ 'Registration Number', {
+			tbar : [ 'ID', {
 				xtype : 'textfield',
-				name : 'registrationNumberFilter',
+				name : 'idFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -142,9 +154,9 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 						}
 					}
 				}
-			}, 'Manufacturer', {
+			}, 'Registeration Number', {
 				xtype : 'textfield',
-				name : 'manufacturerFilter',
+				name : 'nameFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -181,6 +193,17 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 			autoScroll : true,
 			flex : 1,
 			items : [ {
+				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
+				name : 'id',
+				fieldLabel : 'Vehicle Id',
+				anchor : '100%'
+			}, {
 				xtype : 'textfield',
 				name : 'registrationNumber',
 				fieldLabel : 'Registration Number',
@@ -293,7 +316,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 									main.down('gridpanel').store.load();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
@@ -312,14 +335,14 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 									form.reset();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
 					}
 				}, {
 					xtype : 'button',
-					text : 'Reset',
+					text : 'New',
 					handler : function() {
 						this.up('form').getForm().reset();
 					}

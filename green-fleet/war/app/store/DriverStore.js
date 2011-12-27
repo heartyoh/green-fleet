@@ -2,7 +2,7 @@ Ext.define('GreenFleet.store.DriverStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
-
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'

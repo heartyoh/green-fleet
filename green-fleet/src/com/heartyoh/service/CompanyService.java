@@ -110,7 +110,7 @@ public class CompanyService {
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", true);
-		result.put("msg", "Company destroyed.");
+		result.put("msg", clazz.getSimpleName() + " destroyed.");
 
 		return result;
 	}
@@ -119,14 +119,9 @@ public class CompanyService {
 	@RequestMapping(value = "/company", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Company> retrieve(HttpServletRequest request, HttpServletResponse response) {
-
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		Query query = pm.newQuery(clazz);
-
-		// query.setFilter();
-		// query.setOrdering();
-		// query.declareParameters();
 
 		return (List<Company>) query.execute();
 	}

@@ -11,7 +11,7 @@ Ext.define('GreenFleet.view.Viewport', {
 	items : [ {
 		xtype : 'viewport.north',
 		region : 'north',
-		height : 48
+		height : 64
 	}, {
 		xtype : 'viewport.west',
 		region : 'west',

@@ -2,27 +2,27 @@ package com.heartyoh.greenfleet.model;
 
 import java.util.Date;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
-import com.heartyoh.model.Company;
-
 @PersistenceCapable
 public class Incident {
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+    private String key;
 
 	@Persistent
 	private String id;
 	
 	@Persistent
-	private String vehicle;
+	private Vehicle vehicle;
+	
 	@Persistent
-	private String driver;
+	private Driver driver;
 
 	@Persistent
 	private Date incidentTime;
@@ -40,10 +40,10 @@ public class Incident {
 	@Persistent
 	private Date updatedAt;
 	
-	public Key getKey() {
+	public String getKey() {
 		return key;
 	}
-	public void setKey(Key key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 	public String getId() {
@@ -52,16 +52,16 @@ public class Incident {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getVehicle() {
+	public Vehicle getVehicle() {
 		return vehicle;
 	}
-	public void setVehicle(String vehicle) {
+	public void setVehicle(Vehicle vehicle) {
 		this.vehicle = vehicle;
 	}
-	public String getDriver() {
+	public Driver getDriver() {
 		return driver;
 	}
-	public void setDriver(String driver) {
+	public void setDriver(Driver driver) {
 		this.driver = driver;
 	}
 	public Date getIncidentTime() {

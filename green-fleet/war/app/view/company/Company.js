@@ -25,6 +25,11 @@ Ext.define('GreenFleet.view.company.Company', {
 			store : 'CompanyStore',
 			flex : 3,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
 				dataIndex : 'id',
 				text : 'ID'
 			}, {
@@ -41,23 +46,26 @@ Ext.define('GreenFleet.view.company.Company', {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
 				}
 			},
 			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=idFilter]');
-				var namefilter = grid.down('textfield[name=nameFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'id',
-						value : idfilter.getValue()
-					}, {
-						property : 'name',
-						value : namefilter.getValue()
-					} ]
-				});
+				var idFilter = grid.down('textfield[name=idFilter]');
+				var nameFilter = grid.down('textfield[name=nameFilter]');
+				grid.store.clearFilter();
+
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'name',
+					value : nameFilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
 				grid.down('textfield[name=idFilter]').setValue('');
@@ -114,6 +122,12 @@ Ext.define('GreenFleet.view.company.Company', {
 			title : 'Company Details',
 			flex : 2,
 			items : [ {
+				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
 				xtype : 'textfield',
 				name : 'id',
 				fieldLabel : 'ID',

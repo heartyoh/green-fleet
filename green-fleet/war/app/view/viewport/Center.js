@@ -1,34 +1,28 @@
 Ext.define('GreenFleet.view.viewport.Center', {
 
-	extend : 'Ext.tab.Panel',
+	extend : 'Ext.panel.Panel',
 
 	id : 'content',
 
 	alias : 'widget.viewport.center',
+	
+//	tabBar : {
+//		renderTo : Ext.getCmp('tabPosition')
+//	},
+	preventHeader : true,
+	
+	layout : 'card',
+	
+//	listeners : {
+//		'render' : function(panel) {
+//			var tab = panel.getTabBar();
+//			tab.
+//		}
+//	},
+	
+	defaults : {
+		preventHeader : true
+	},
 
-	items : [ {
-		xtype : 'map',
-		closable : false
-	}, {
-		xtype : 'obd',
-		closable : false
-	}, {
-		xtype : 'filemanager',
-		closable : false
-	}, {
-		xtype : 'company',
-		closable : false
-	}, {
-		xtype : 'vehicle',
-		closable : false
-	}, {
-		xtype : 'driver',
-		closable : false
-	}, {
-		xtype : 'reservation',
-		closable : false
-	}, {
-		xtype : 'incident',
-		closable : false
-	} ]
+//	items : [  ]
 });

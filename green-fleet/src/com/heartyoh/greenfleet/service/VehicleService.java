@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,12 +29,15 @@ import com.heartyoh.util.SessionUtils;
 @Controller
 public class VehicleService {
 	private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
+	private static final Class<Vehicle> clazz = Vehicle.class;
 
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
+		String key = request.getParameter("key");
+		String id = request.getParameter("id");
 		String registrationNumber = request.getParameter("registrationNumber");
 		String manufacturer = request.getParameter("manufacturer");
 		String vehicleType = request.getParameter("vehicleType");
@@ -42,9 +45,9 @@ public class VehicleService {
 		String ownershipType = request.getParameter("ownershipType");
 		String status = request.getParameter("status");
 		String imageClip = request.getParameter("imageClip");
-		double totalDistance = Double.parseDouble(request.getParameter("totalDistance"));
-		double remainingFuel = Double.parseDouble(request.getParameter("remainingFuel"));
-		double distanceSinceNewOil = Double.parseDouble(request.getParameter("distanceSinceNewOil"));
+		String totalDistance = request.getParameter("totalDistance");
+		String remainingFuel = request.getParameter("remainingFuel");
+		String distanceSinceNewOil = request.getParameter("distanceSinceNewOil");
 		String engineOilStatus = request.getParameter("engineOilStatus");
 		String fuelFilterStatus = request.getParameter("fuelFilterStatus");
 		String brakeOilStatus = request.getParameter("brakeOilStatus");
@@ -53,62 +56,93 @@ public class VehicleService {
 		String timingBeltStatus = request.getParameter("timingBeltStatus");
 		String sparkPlugStatus = request.getParameter("sparkPlugStatus");
 
-		Date now = new Date();
-
-		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
-		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), registrationNumber);
-
-		boolean created = false;
-		Vehicle vehicle = null;
+		Key objKey = null;
+		boolean creating = false;
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+		Company company = pm.getObjectById(Company.class, companyKey);
+		Vehicle obj = null;
+
+		if (key != null && key.trim().length() > 0) {
+			objKey = KeyFactory.stringToKey(key);
+		} else {
+			objKey = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
+			try {
+				obj = pm.getObjectById(clazz, objKey);
+			} catch (JDOObjectNotFoundException e) {
+				// It's OK.
+				creating = true;
+
+			}
+			// It's Not OK. You try to add duplicated identifier.
+			if (obj != null)
+				throw new EntityExistsException(clazz.getSimpleName() + " with id(" + id + ") already Exist.");
+		}
+
+		Date now = new Date();
 
 		try {
-			Company company = pm.getObjectById(Company.class, companyKey);
-			
-			try {
-				vehicle = pm.getObjectById(Vehicle.class, key);
-			} catch (JDOObjectNotFoundException e) {
-				vehicle = new Vehicle();
-				vehicle.setCompany(company);
-				vehicle.setKey(key);
-				vehicle.setRegistrationNumber(registrationNumber);
-				vehicle.setCreatedAt(now);
-
-				created = true;
+			if (creating) {
+				obj = new Vehicle();
+				obj.setKey(KeyFactory.keyToString(objKey));
+				obj.setCompany(company);
+				obj.setId(id);
+				obj.setCreatedAt(now);
+			} else {
+				obj = pm.getObjectById(clazz, objKey);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-			vehicle.setManufacturer(manufacturer);
-			vehicle.setVehicleType(vehicleType);
-			vehicle.setBirthYear(birthYear);
-			vehicle.setOwnershipType(ownershipType);
-			vehicle.setStatus(status);
-			vehicle.setImageClip(imageClip);
-			vehicle.setTotalDistance(totalDistance);
-			vehicle.setRegistrationNumber(registrationNumber);
-			vehicle.setRemainingFuel(remainingFuel);
-			vehicle.setDistanceSinceNewOil(distanceSinceNewOil);
-			vehicle.setEngineOilStatus(engineOilStatus);
-			vehicle.setFuelFilterStatus(fuelFilterStatus);
-			vehicle.setBrakeOilStatus(brakeOilStatus);
-			vehicle.setBrakePedalStatus(brakePedalStatus);
-			vehicle.setCoolingWaterStatus(coolingWaterStatus);
-			vehicle.setTimingBeltStatus(timingBeltStatus);
-			vehicle.setSparkPlugStatus(sparkPlugStatus);
-			vehicle.setUpdatedAt(now);
+			if(manufacturer != null)
+				obj.setManufacturer(manufacturer);
+			if(vehicleType != null)
+				obj.setVehicleType(vehicleType);
+			if(birthYear != null)
+				obj.setBirthYear(birthYear);
+			if(ownershipType != null)
+				obj.setOwnershipType(ownershipType);
+			if(status != null)
+				obj.setStatus(status);
+			if(imageClip != null)
+				obj.setImageClip(imageClip);
+			if(totalDistance != null)
+				obj.setTotalDistance(Double.parseDouble(totalDistance));
+			if(registrationNumber != null)
+				obj.setRegistrationNumber(registrationNumber);
+			if(remainingFuel != null)
+				obj.setRemainingFuel(Double.parseDouble(remainingFuel));
+			if(distanceSinceNewOil != null)
+				obj.setDistanceSinceNewOil(Double.parseDouble(distanceSinceNewOil));
+			if(engineOilStatus != null)
+				obj.setEngineOilStatus(engineOilStatus);
+			if(fuelFilterStatus != null)
+				obj.setFuelFilterStatus(fuelFilterStatus);
+			if(brakeOilStatus != null)
+				obj.setBrakeOilStatus(brakeOilStatus);
+			if(brakePedalStatus != null)
+				obj.setBrakePedalStatus(brakePedalStatus);
+			if(brakePedalStatus != null)
+				obj.setCoolingWaterStatus(coolingWaterStatus);
+			if(timingBeltStatus != null)
+				obj.setTimingBeltStatus(timingBeltStatus);
+			if(sparkPlugStatus != null)
+				obj.setSparkPlugStatus(sparkPlugStatus);
 
-			vehicle = pm.makePersistent(vehicle);
+			obj.setUpdatedAt(now);
+
+			obj = pm.makePersistent(obj);
 		} finally {
 			pm.close();
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
+
 		result.put("success", true);
-		result.put("msg", created ? "Vehicle created." : "Vehicle updated");
-		result.put("key", KeyFactory.keyToString(vehicle.getKey()));
+		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
+		result.put("key", obj.getKey());
 
 		return result;
 	}
@@ -116,23 +150,21 @@ public class VehicleService {
 	@RequestMapping(value = "/vehicle/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> deleteVehicle(HttpServletRequest request, HttpServletResponse response) {
-		String registrationNumber = request.getParameter("registrationNumber");
-
-		Key key = KeyFactory.createKey(Vehicle.class.getSimpleName(), registrationNumber);
+		String key = request.getParameter("key");
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
-			Vehicle Vehicle = pm.getObjectById(Vehicle.class, key);
+			Vehicle obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
 
-			pm.deletePersistent(Vehicle);
+			pm.deletePersistent(obj);
 		} finally {
 			pm.close();
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", true);
-		result.put("msg", "Vehicle destroyed.");
+		result.put("msg", clazz.getSimpleName() + " destroyed.");
 
 		return result;
 	}
@@ -141,17 +173,15 @@ public class VehicleService {
 	@RequestMapping(value = "/vehicle", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Vehicle> getObdData(HttpServletRequest request, HttpServletResponse response) {
+		CustomUser user = SessionUtils.currentUser();
+
+		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		Query query = pm.newQuery(Vehicle.class);
+		Company company = pm.getObjectById(Company.class, companyKey);
 
-		// query.setFilter();
-		// query.setOrdering();
-		// query.declareParameters();
-
-		return (List<Vehicle>) query.execute();
+		return company.getVehicles();
 	}
-
 
 }

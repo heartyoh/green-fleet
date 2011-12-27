@@ -4,6 +4,12 @@ Ext.define('GreenFleet.store.VehicleStore', {
 	autoLoad : false,
 
 	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
 		name : 'registrationNumber',
 		type : 'string'
 	}, {

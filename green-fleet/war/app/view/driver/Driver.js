@@ -64,6 +64,9 @@ Ext.define('GreenFleet.view.driver.Driver', {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
@@ -72,15 +75,15 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			onSearch : function(grid) {
 				var idFilter = grid.down('textfield[name=idFilter]');
 				var namefilter = grid.down('textfield[name=nameFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'id',
-						value : idFilter.getValue()
-					}, {
-						property : 'name',
-						value : namefilter.getValue()
-					} ]
-				});
+				grid.store.clearFilter();
+				
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'name',
+					value : namefilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
 				grid.down('textfield[name=idFilter]').setValue('');
