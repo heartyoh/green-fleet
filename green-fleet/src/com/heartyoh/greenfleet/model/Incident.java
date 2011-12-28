@@ -8,6 +8,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.heartyoh.model.Company;
+
 @PersistenceCapable
 public class Incident {
 	@PrimaryKey
@@ -19,10 +21,13 @@ public class Incident {
 	private String id;
 	
 	@Persistent
-	private Vehicle vehicle;
+    private Company company;
 	
 	@Persistent
-	private Driver driver;
+	private String vehicle;
+	
+	@Persistent
+	private String driver;
 
 	@Persistent
 	private Date incidentTime;
@@ -52,16 +57,16 @@ public class Incident {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public Vehicle getVehicle() {
+	public String getVehicle() {
 		return vehicle;
 	}
-	public void setVehicle(Vehicle vehicle) {
+	public void setVehicle(String vehicle) {
 		this.vehicle = vehicle;
 	}
-	public Driver getDriver() {
+	public String getDriver() {
 		return driver;
 	}
-	public void setDriver(Driver driver) {
+	public void setDriver(String driver) {
 		this.driver = driver;
 	}
 	public Date getIncidentTime() {

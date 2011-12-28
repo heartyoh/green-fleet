@@ -24,9 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.heartyoh.greenfleet.model.Driver;
 import com.heartyoh.greenfleet.model.Incident;
-import com.heartyoh.greenfleet.model.Vehicle;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
@@ -68,7 +66,7 @@ public class IncidentService {
 		if (key != null && key.trim().length() > 0) {
 			objKey = KeyFactory.stringToKey(key);
 		} else {
-			objKey = KeyFactory.createKey(vehicleKey, clazz.getSimpleName(), id);
+			objKey = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
 			try {
 				obj = pm.getObjectById(clazz, objKey);
 			} catch (JDOObjectNotFoundException e) {
@@ -87,8 +85,8 @@ public class IncidentService {
 			if (creating) {
 				obj = new Incident();
 				obj.setKey(KeyFactory.keyToString(objKey));
-				obj.setVehicle(pm.getObjectById(Vehicle.class, vehicleKey));
-				obj.setDriver(pm.getObjectById(Driver.class, driverKey));
+				obj.setVehicle(vehicle);
+				obj.setDriver(driver);
 				obj.setId(id);
 				obj.setIncidentTime(incidentTime);
 				obj.setCreatedAt(now);
