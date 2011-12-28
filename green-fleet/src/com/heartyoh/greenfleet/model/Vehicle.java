@@ -24,11 +24,6 @@ public class Vehicle {
 	@Persistent
     private Company company;
 	
-	@JsonIgnore
-	@Persistent(mappedBy = "vehicle")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
-    private List<Incident> incidents;
-	
 	@Persistent
 	private String id;
 	@Persistent
@@ -201,12 +196,6 @@ public class Vehicle {
 	}
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
-	}
-	public List<Incident> getIncidents() {
-		return incidents;
-	}
-	public void setIncidents(List<Incident> incidents) {
-		this.incidents = incidents;
 	}
 	
 }
