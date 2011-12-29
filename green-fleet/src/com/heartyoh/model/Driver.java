@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.model;
+package com.heartyoh.model;
 
 import java.util.Date;
 import java.util.Set;
@@ -12,7 +12,6 @@ import javax.jdo.annotations.PrimaryKey;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.google.appengine.api.datastore.Key;
-import com.heartyoh.model.Company;
 
 @PersistenceCapable
 public class Driver {

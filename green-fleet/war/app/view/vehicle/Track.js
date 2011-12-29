@@ -1,9 +1,9 @@
 Ext.define('GreenFleet.view.vehicle.Track', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.incident',
+	alias : 'widget.track',
 
-	title : 'Incident',
+	title : 'Track',
 
 	layout : {
 		align : 'stretch',
@@ -20,14 +20,15 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Incident List',
-			store : 'IncidentStore',
+			title : 'Track List',
+			store : 'TrackStore',
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
-				dataIndex : 'id',
-				text : 'ID',
-				type : 'string'
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
 			}, {
 				dataIndex : 'vehicle',
 				text : 'Vehicle',
@@ -44,7 +45,7 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:'d/m/Y'
+				format:'d-m-Y H:i:s'
 			} ],
 			viewConfig : {
 
@@ -56,39 +57,26 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				}
 			},
 			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=idFilter]');
 				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
 				grid.store.load({
 					filters : [ {
-						property : 'id',
-						value : idfilter.getValue()
-					}, {
 						property : 'vehicle',
 						value : vehicleFilter.getValue()
 					} ]
 				});
 			},
 			onReset : function(grid) {
-				grid.down('textfield[name=idFilter]').setValue('');
 				grid.down('textfield[name=vehicleFilter]').setValue('');
 			},
-			tbar : [ 'ID', {
-				xtype : 'textfield',
-				name : 'idFilter',
-				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
-			}, 'Vehicle', {
-				xtype : 'textfield',
+			tbar : [ {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'key',
+				fieldLabel : 'Vehicle',
 				name : 'vehicleFilter',
-				hideLabel : true,
 				width : 200,
 				listeners : {
 					specialkey : function(field, e) {
@@ -101,7 +89,7 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 			}, {
 				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Incident',
+				tooltip : 'Find Track',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onSearch(grid);
@@ -125,12 +113,17 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 			flex : 1,
 			items : [ {
 				xtype : 'textfield',
-				name : 'id',
-				fieldLabel : 'Incident ID',
-				anchor : '100%'
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'key',
 				fieldLabel : 'Vehicle',
 				anchor : '100%'
 			}, {
@@ -145,10 +138,10 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
-				name : 'updatedAt',
+				name : 'createdAt',
 				disabled : true,
-				fieldLabel : 'Updated At',
-				format: 'd/m/Y',
+				fieldLabel : 'Created At',
+				format: 'd-m-Y H:i:s',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {

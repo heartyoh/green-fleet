@@ -103,6 +103,13 @@ Ext.define('GreenFleet.view.viewport.North', {
 					xtype : 'incident',
 					itemId : 'incident'
 				}
+			}, {
+				text : 'Track',
+				itemId : 'track',
+				view : {
+					xtype : 'track',
+					itemId : 'track'
+				}
 			}]
 		} ]
 	} ]

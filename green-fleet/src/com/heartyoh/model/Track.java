@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.model;
+package com.heartyoh.model;
 
 import java.util.Date;
 
@@ -8,7 +8,6 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.heartyoh.model.Company;
 
 @PersistenceCapable
 public class Track {
@@ -17,9 +16,6 @@ public class Track {
 	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
     private String key;
 
-	@Persistent
-	private String id;
-	
 	@Persistent
     private Company company;
 	
@@ -39,12 +35,6 @@ public class Track {
 	}
 	public void setKey(String key) {
 		this.key = key;
-	}
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
 	}
 	public Company getCompany() {
 		return company;

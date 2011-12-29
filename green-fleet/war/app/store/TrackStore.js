@@ -4,10 +4,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 	autoLoad : false,
 
 	fields : [ {
-		name : 'id',
-		type : 'string'
-	}, {
-		name : 'driver',
+		name : 'key',
 		type : 'string'
 	}, {
 		name : 'vehicle',
