@@ -102,15 +102,15 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				text : 'SparkPlugStatus',
 				type : 'string'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
 				dataIndex : 'createdAt',
-				text : 'CreatedAt',
-				type : 'date'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'updaatedAt',
-				text : 'UpdaatedAt',
-				type : 'date'
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
@@ -209,13 +209,21 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				fieldLabel : 'Registration Number',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'manufacturer',
+				queryMode: 'local',
+				store : 'ManufacturerStore',
+				displayField: 'name',
+			    valueField: 'name',
 				fieldLabel : 'Manufacturer',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'vehicleType',
+				queryMode: 'local',
+				store : 'VehicleTypeStore',
+				displayField: 'desc',
+			    valueField: 'name',
 				fieldLabel : 'Vehicle Type',
 				anchor : '100%'
 			}, {
@@ -224,8 +232,12 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				fieldLabel : 'BirthYear',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'ownershipType',
+				queryMode: 'local',
+				store : 'OwnershipStore',
+				displayField: 'desc',
+			    valueField: 'name',
 				fieldLabel : 'Ownership Type',
 				anchor : '100%'
 			}, {
@@ -284,16 +296,18 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				fieldLabel : 'SparkPlugStatus',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {

@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.controller.VehicleController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [],
+	stores : [ 'ManufacturerStore', 'VehicleTypeStore' , 'OwnershipStore'],
 	models : [],
 	views : [ 'vehicle.OBDCollector' ],
 

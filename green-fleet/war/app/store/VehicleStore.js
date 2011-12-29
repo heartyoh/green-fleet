@@ -61,13 +61,13 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'sparkPlugStatus',
 		type : 'string'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
 		name : 'createdAt',
-		type : 'date'
+		type : 'date',
+		dateFormat:'time'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
 	} ],
 	
 	proxy : {

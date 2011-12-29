@@ -27,7 +27,6 @@ Ext.define('GreenFleet.view.company.Company', {
 			columns : [ {
 				dataIndex : 'key',
 				text : 'Key',
-				type : 'string',
 				hidden : true
 			}, {
 				dataIndex : 'id',
@@ -37,10 +36,14 @@ Ext.define('GreenFleet.view.company.Company', {
 				text : 'Name'
 			}, {
 				dataIndex : 'createdAt',
-				text : 'Created At'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
 				dataIndex : 'updatedAt',
-				text : 'Updated At'
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
@@ -138,16 +141,18 @@ Ext.define('GreenFleet.view.company.Company', {
 				fieldLabel : 'Name',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
