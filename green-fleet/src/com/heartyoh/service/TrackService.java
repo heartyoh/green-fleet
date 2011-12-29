@@ -6,10 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
-import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -53,7 +51,6 @@ public class TrackService {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 		Company company = pm.getObjectById(Company.class, companyKey);
-		Key vehicleKey = KeyFactory.stringToKey(vehicle);
 		
 		Track obj = null;
 
@@ -77,7 +74,6 @@ public class TrackService {
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
-
 
 			if(lattitude != null)
 				obj.setLattitude(Double.parseDouble(lattitude));
@@ -161,20 +157,20 @@ public class TrackService {
 
 		Query query = pm.newQuery(clazz);
 
-		String vehicleKey = null;
+		String vehicle = null;
 		
 		if (filters != null) {
 			Iterator<Filter> it = filters.iterator();
 			while (it.hasNext()) {
 				Filter filter = it.next();
 				if(filter.getProperty().equals("vehicle"))
-					vehicleKey = filter.getValue(); 
+					vehicle = filter.getValue();
 			}
 		}
-		
+
 		String strFilter = "company == companyParam";
 		String strParameter = Company.class.getName() + " companyParam";
-		if(vehicleKey != null && vehicleKey.length() > 0) {
+		if(vehicle != null) {
 			strFilter += " && vehicle == vehicleParam";
 			strParameter += ", String vehicleParam";
 		}
@@ -186,8 +182,8 @@ public class TrackService {
 		// query.setOrdering();
 		// query.declareParameters();
 
-		if(vehicleKey != null && vehicleKey.length() > 0)
-			return (List<Track>)query.execute(company, vehicleKey);
+		if(vehicle != null)
+			return (List<Track>)query.execute(company, vehicle);
 		else
 			return (List<Track>) query.execute(company);
 	}

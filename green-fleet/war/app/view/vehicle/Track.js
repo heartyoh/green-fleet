@@ -74,7 +74,7 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				queryMode: 'local',
 				store : 'VehicleStore',
 				displayField: 'id',
-			    valueField: 'key',
+			    valueField: 'id',
 				fieldLabel : 'Vehicle',
 				name : 'vehicleFilter',
 				width : 200,
@@ -123,7 +123,7 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				queryMode: 'local',
 				store : 'VehicleStore',
 				displayField: 'id',
-			    valueField: 'key',
+			    valueField: 'id',
 				fieldLabel : 'Vehicle',
 				anchor : '100%'
 			}, {
