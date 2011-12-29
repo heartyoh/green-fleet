@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.heartyoh.greenfleet.model.Incident;
+import com.heartyoh.greenfleet.model.Track;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
@@ -33,11 +33,11 @@ import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
-public class IncidentService {
-	private static final Logger logger = LoggerFactory.getLogger(IncidentService.class);
-	private static final Class<Incident> clazz = Incident.class;
+public class TrackService {
+	private static final Logger logger = LoggerFactory.getLogger(TrackService.class);
+	private static final Class<Track> clazz = Track.class;
 
-	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/track/save", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
@@ -45,12 +45,8 @@ public class IncidentService {
 		String key = request.getParameter("key");
 		String id = request.getParameter("id");
 		String vehicle = request.getParameter("vehicle");
-		String driver = request.getParameter("driver");
-		Date incidentTime = new Date(request.getParameter("incidentTime"));
 		String lattitude = request.getParameter("lattitude");
 		String longitude = request.getParameter("longitude");
-		String impulse = request.getParameter("impulse");
-		String videoClip = request.getParameter("videoClip");
 
 		Key objKey = null;
 		boolean creating = false;
@@ -59,9 +55,8 @@ public class IncidentService {
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 		Company company = pm.getObjectById(Company.class, companyKey);
 		Key vehicleKey = KeyFactory.stringToKey(vehicle);
-		Key driverKey = KeyFactory.stringToKey(driver);
 		
-		Incident obj = null;
+		Track obj = null;
 
 		if (key != null && key.trim().length() > 0) {
 			objKey = KeyFactory.stringToKey(key);
@@ -83,12 +78,10 @@ public class IncidentService {
 
 		try {
 			if (creating) {
-				obj = new Incident();
+				obj = new Track();
 				obj.setKey(KeyFactory.keyToString(objKey));
 				obj.setVehicle(vehicle);
-				obj.setDriver(driver);
 				obj.setId(id);
-				obj.setIncidentTime(incidentTime);
 				obj.setCreatedAt(now);
 			} else {
 				obj = pm.getObjectById(clazz, objKey);
@@ -102,12 +95,6 @@ public class IncidentService {
 				obj.setLattitude(Double.parseDouble(lattitude));
 			if(longitude != null)
 				obj.setLongitude(Double.parseDouble(longitude));
-			if(impulse != null)
-				obj.setImpulse(Double.parseDouble(impulse));
-			if(videoClip != null)
-				obj.setVideoClip(videoClip);
-
-			obj.setUpdatedAt(now);
 
 			obj = pm.makePersistent(obj);
 		} finally {
@@ -123,7 +110,7 @@ public class IncidentService {
 		return result;
 	}
 
-	@RequestMapping(value = "/incident/delete", method = RequestMethod.POST)
+	@RequestMapping(value = "/track/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
@@ -131,7 +118,7 @@ public class IncidentService {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
-			Incident obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
+			Track obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
 
 			pm.deletePersistent(obj);
 		} finally {
@@ -146,9 +133,9 @@ public class IncidentService {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/incident", method = RequestMethod.GET)
+	@RequestMapping(value = "/track", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Incident> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	List<Track> retrieve(HttpServletRequest request, HttpServletResponse response) {
 //		String vehicle = request.getParameter("vehicle");
 //
 //		Key vehicleKey = KeyFactory.stringToKey(vehicle);
@@ -204,7 +191,7 @@ public class IncidentService {
 		// query.setOrdering();
 		// query.declareParameters();
 
-		return (List<Incident>) query.execute(company, idFilter, idFilter + "\ufffd");
+		return (List<Track>) query.execute(company, idFilter, idFilter + "\ufffd");
 	}
 
 }

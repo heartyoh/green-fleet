@@ -31,7 +31,7 @@ public class CompanyService {
 
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> create(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
 		String id = request.getParameter("id");
 		String name = request.getParameter("name");

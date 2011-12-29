@@ -32,7 +32,7 @@ public class ReservationService {
 
 	@RequestMapping(value = "/reservation/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
 		String id = request.getParameter("id");
