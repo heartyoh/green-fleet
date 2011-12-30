@@ -9,14 +9,14 @@ import com.heartyoh.security.AppRole;
 
 @SuppressWarnings("serial")
 public class CustomUser implements Serializable {
-	private final String userId;
-	private final String email;
-	private final String nickname;
-	private final String forename;
-	private final String surname;
-	private final Set<AppRole> authorities;
-	private final String company;
-	private final boolean enabled;
+	private String userId;
+	private String email;
+	private String nickname;
+	private String forename;
+	private String surname;
+	private Set<AppRole> authorities;
+	private String company;
+	private boolean enabled;
 
 	/**
 	 * Pre-registration constructor.

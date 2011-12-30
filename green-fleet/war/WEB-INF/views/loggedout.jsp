@@ -11,7 +11,7 @@
 
   <body>
   <div id="content">
-  <p>You've been logged out of the application. <a href="/home.htm">Log back in</a>.</p>
+  <p>You've been logged out of the application. <a href="/home">Log back in</a>.</p>
   </div>
   </body>
 </html>

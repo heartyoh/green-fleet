@@ -11,39 +11,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.appengine.api.users.UserServiceFactory;
 
-/**
- * 
- * @author Luke Taylor
- * 
- */
 @Controller
 public class SecurityService {
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String landing() {
-		return "landing";
+		return "home";
 	}
 
-	@RequestMapping(value = "/home.htm", method = RequestMethod.GET)
+	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public String home() {
 		return "home";
 	}
 
-	@RequestMapping(value = "/disabled.htm", method = RequestMethod.GET)
+	@RequestMapping(value = "/disabled", method = RequestMethod.GET)
 	public String disabled() {
 		return "disabled";
 	}
 
-	@RequestMapping(value = "/logout.htm", method = RequestMethod.GET)
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
 
-		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout.htm");
+		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout");
 
 		response.sendRedirect(logoutUrl);
 	}
 
-	@RequestMapping(value = "/loggedout.htm", method = RequestMethod.GET)
+	@RequestMapping(value = "/loggedout", method = RequestMethod.GET)
 	public String loggedOut() {
 		return "loggedout";
 	}

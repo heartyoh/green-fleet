@@ -18,7 +18,7 @@ import com.heartyoh.security.AppRole;
 import com.heartyoh.security.GaeUserAuthentication;
 
 @Controller
-@RequestMapping(value = "/register.htm")
+@RequestMapping(value = "/register")
 public class RegistrationService {
 
 	@Autowired
@@ -52,6 +52,6 @@ public class RegistrationService {
 		SecurityContextHolder.getContext().setAuthentication(
 				new GaeUserAuthentication(user, authentication.getDetails()));
 
-		return "redirect:/home.htm";
+		return "redirect:/home";
 	}
 }

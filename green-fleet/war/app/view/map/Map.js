@@ -118,13 +118,13 @@ Ext.define('GreenFleet.view.map.Map', {
 				driver : 'V001',
 				tooltip : vehicle + "(김형용)"
 			});
-			
+
 			var label = new Label({
 				map : this.mapbox.map
 			});
 			label.bindTo('position', marker, 'position');
 			label.bindTo('text', marker, 'tooltip');
-			
+
 			this.markers[vehicle] = marker;
 
 			var mapbox = this.mapbox;
@@ -133,12 +133,12 @@ Ext.define('GreenFleet.view.map.Map', {
 					vehicle : vehicle,
 					driver : 'V001'
 				}).show();
-				
-//				var infowindow = new google.maps.InfoWindow({
-//					content : marker.getTitle(),
-//					size : new google.maps.Size(100, 100)
-//				});
-//				infowindow.open(mapbox.map, marker);
+
+				// var infowindow = new google.maps.InfoWindow({
+				// content : marker.getTitle(),
+				// size : new google.maps.Size(100, 100)
+				// });
+				// infowindow.open(mapbox.map, marker);
 			});
 		}, this);
 	},
@@ -169,17 +169,59 @@ Ext.define('GreenFleet.view.map.Map', {
 		return {
 			xtype : 'panel',
 			width : 200,
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			},
 			items : [ {
+				xtype : 'combo',
+				fieldLabel : 'Search',
+				itemId : 'search'
+			}, {
+				xtype : 'component',
+				itemId : 'time',
+				html : Ext.Date.format(new Date(), 'D Y-m-d H:i:s')
+			}, {
+				xtype : 'component',
+				itemId : 'vehicle_count',
+				html : 'Total Running Vehicles 6'
+			}, {
 				xtype : 'checkbox',
 				fieldLabel : 'Markers',
 				checked : true,
-				name : 'markers',
+				itemId : 'markers',
 				scope : this,
 				handler : function(field, newValue) {
 					for ( var vehicle in this.markers) {
 						this.markers[vehicle].setVisible(newValue);
 					}
 				}
+			}, {
+				xtype : 'panel',
+				title : '상황별 운행 현황',
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ {
+					xtype : 'component',
+					flex : 1,
+					html : '주행'
+				}, {
+					xtype : 'component',
+					flex : 1,
+					html : '정지'
+				}, {
+					xtype : 'component',
+					flex : 1,
+					html : '정지'
+				} ]
+			}, {
+				xtype : 'panel',
+				title : 'Group'
+			}, {
+				xtype : 'panel',
+				title : 'Incidents Alarm'
 			} ]
 		}
 	}

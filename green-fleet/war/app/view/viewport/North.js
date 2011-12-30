@@ -55,13 +55,6 @@ Ext.define('GreenFleet.view.viewport.North', {
 					itemId : 'map'
 				}
 			}, {
-				text : 'OBD',
-				itemId : 'obd',
-				view : {
-					xtype : 'obd',
-					itemId : 'obd'
-				}
-			}, {
 				text : 'File',
 				itemId : 'filemanager',
 				view : {
