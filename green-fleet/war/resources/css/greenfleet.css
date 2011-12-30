@@ -3,16 +3,23 @@
 /*header style*/
 .header{background:url('../image/bgLogo.gif') no-repeat}
 .header .x-panel-body-default,.x-toolbar-default{background-color:transparent}
-.header .x-tab-bar-top .x-tab-bar-body{border:none;height:23px}
+.header .x-tab-bar-top .x-tab-bar-body{border:none;height:22px}
 .header .x-border-box .x-tab-bar-top .x-tab-bar-body{height:23px !important}
 .header .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:13px}
 .header .x-btn-default-toolbar-small{border:0;}
 .header .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:0}
+.header .x-tab-bar{background:none}
+.header .x-tab-default-top{background-color:#111d2e;background-image:none;border:1px solid #111d2e;box-shadow:none;height:22px}
+.header .x-tab button {color:#a9bbcc;font-size:12px;font-weight:normal}
+.header .x-tab-default-over,.header .x-tab-default-active{background-color:#fdfdfd;background-image:none;border:1px solid #111d2e;box-shadow:none;height:22px}
+.header .x-tab-default-active.x-tab button,.header .x-tab-default-over.x-tab button{color:#333;font-weight:bold}
+.header h1{background:url('../image/logoGreenfleet.gif') no-repeat;width:125px;height:45px;display:block;margin:7px 0 0 4px}
 
 .appMenu.x-toolbar{padding:0}
-.appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:13px}
-.appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:7px 0 0 0}
-.appMenu .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:7px 0 0 0;color:#fff}
+.appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:14px}
+.appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:8px 5px 0 5px;margin-right:10px}
+.appMenu .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff}
+.appMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff}
 .tool{background:url('../image/bgTool.gif') repeat-y}
 
 .x-panel-body-default,.x-toolbar{border:none;background:none;background-color:transparent}
