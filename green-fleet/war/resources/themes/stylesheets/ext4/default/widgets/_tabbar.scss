@@ -28,7 +28,64 @@
         zoom: 1;
     }
 
-    @mixin tab-bar-top($toolbarCls, $bodyCls, $stripCls, $body-padding, $body-border-width, $strip-border-width, $strip-height) {
+    
+
+
+    /* Top Tabs */
+    @include tab-bar-top(
+        "tab-bar-top",
+        "tab-bar-body",
+        "tab-bar-strip",
+        $tabbar-top-body-padding,
+        $tabbar-top-body-border-width,
+        $tabbar-top-strip-border-width,
+        $tabbar-strip-height
+    );
+    @include tab-bar-top(
+        "tab-bar-top",
+        "tab-bar-body-default-plain",
+        "tab-bar-strip-default-plain",
+        $tabbar-top-plain-body-padding,
+        $tabbar-top-plain-body-border-width,
+        $tabbar-top-strip-border-width,
+        $tabbar-strip-height
+    );
+
+    /* Bottom Tabs */
+    @include tab-bar-bottom(
+        "tab-bar-bottom",
+        "tab-bar-body",
+        "tab-bar-strip",
+        $tabbar-bottom-body-padding,
+        $tabbar-bottom-body-border-width,
+        $tabbar-bottom-strip-border-width,
+        $tabbar-strip-height
+    );
+    
+    @include tab-bar-bottom(
+        "tab-bar-bottom",
+        "tab-bar-body-default-plain",
+        "tab-bar-strip-default-plain",
+        $tabbar-bottom-plain-body-padding,
+        $tabbar-bottom-plain-body-border-width,
+        $tabbar-bottom-strip-border-width,
+        $tabbar-strip-height
+    );
+
+    .#{$prefix}tab-bar-strip-default,
+    .#{$prefix}tab-bar-strip-default-plain {
+        font-size: 0;
+        line-height: 0;
+        position: absolute;
+        z-index: 1;
+        border-style: solid;
+        overflow: hidden;
+        border-color: $tabbar-strip-border-color;
+        background-color: $tabbar-strip-background-color;
+        zoom: 1;
+    }
+}
+@mixin tab-bar-top($toolbarCls, $bodyCls, $stripCls, $body-padding, $body-border-width, $strip-border-width, $strip-height) {
         .#{$prefix}#{$toolbarCls} {
             .#{$prefix}#{$bodyCls} {
                 height: $tab-height;
@@ -93,59 +150,3 @@
             }
         }
     }
-
-
-    /* Top Tabs */
-    @include tab-bar-top(
-        "tab-bar-top",
-        "tab-bar-body",
-        "tab-bar-strip",
-        $tabbar-top-body-padding,
-        $tabbar-top-body-border-width,
-        $tabbar-top-strip-border-width,
-        $tabbar-strip-height
-    );
-    @include tab-bar-top(
-        "tab-bar-top",
-        "tab-bar-body-default-plain",
-        "tab-bar-strip-default-plain",
-        $tabbar-top-plain-body-padding,
-        $tabbar-top-plain-body-border-width,
-        $tabbar-top-strip-border-width,
-        $tabbar-strip-height
-    );
-
-    /* Bottom Tabs */
-    @include tab-bar-bottom(
-        "tab-bar-bottom",
-        "tab-bar-body",
-        "tab-bar-strip",
-        $tabbar-bottom-body-padding,
-        $tabbar-bottom-body-border-width,
-        $tabbar-bottom-strip-border-width,
-        $tabbar-strip-height
-    );
-    
-    @include tab-bar-bottom(
-        "tab-bar-bottom",
-        "tab-bar-body-default-plain",
-        "tab-bar-strip-default-plain",
-        $tabbar-bottom-plain-body-padding,
-        $tabbar-bottom-plain-body-border-width,
-        $tabbar-bottom-strip-border-width,
-        $tabbar-strip-height
-    );
-
-    .#{$prefix}tab-bar-strip-default,
-    .#{$prefix}tab-bar-strip-default-plain {
-        font-size: 0;
-        line-height: 0;
-        position: absolute;
-        z-index: 1;
-        border-style: solid;
-        overflow: hidden;
-        border-color: $tabbar-strip-border-color;
-        background-color: $tabbar-strip-background-color;
-        zoom: 1;
-    }
-}

@@ -28,7 +28,8 @@
 		<include path="/app/**.*" />
 		<include path="/data/**.*" />
 		<include path="/lib/**.*" />
-		<include path="/resources/css/ext-all.css" />
+		<include path="/resources/css/*.css" />
+		<include path="/resources/image/**.*" />
 		<include path="/resources/themes/images/default/**.*" />
 	</static-files>
 

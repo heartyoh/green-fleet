@@ -2,6 +2,7 @@ Ext.define('GreenFleet.view.Viewport', {
 	extend : 'Ext.container.Viewport',
 
 	layout : 'border',
+	cls :'wrap',
 
 	defaults : {
 		split : false,
@@ -11,11 +12,13 @@ Ext.define('GreenFleet.view.Viewport', {
 	items : [ {
 		xtype : 'viewport.north',
 		region : 'north',
-		height : 64
+		cls : 'header',
+		height : 62
 	}, {
 		xtype : 'viewport.west',
 		region : 'west',
-		width : 70
+		cls : 'tool',
+		width : 50
 	}, {
 		xtype : 'viewport.center',
 		region : 'center'
