@@ -151,6 +151,7 @@ Ext.define('GreenFleet.view.Viewport', {
 	extend : 'Ext.container.Viewport',
 
 	layout : 'border',
+	cls :'wrap',
 
 	defaults : {
 		split : false,
@@ -160,11 +161,13 @@ Ext.define('GreenFleet.view.Viewport', {
 	items : [ {
 		xtype : 'viewport.north',
 		region : 'north',
-		height : 48
+		cls : 'header',
+		height : 62
 	}, {
 		xtype : 'viewport.west',
 		region : 'west',
-		width : 70
+		cls : 'tool',
+		width : 50
 	}, {
 		xtype : 'viewport.center',
 		region : 'center'
@@ -198,6 +201,10 @@ Ext.define('GreenFleet.view.company.Company', {
 			store : 'CompanyStore',
 			flex : 3,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
 				dataIndex : 'id',
 				text : 'ID'
 			}, {
@@ -205,32 +212,39 @@ Ext.define('GreenFleet.view.company.Company', {
 				text : 'Name'
 			}, {
 				dataIndex : 'createdAt',
-				text : 'Created At'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
 				dataIndex : 'updatedAt',
-				text : 'Updated At'
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
 				}
 			},
 			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=idFilter]');
-				var namefilter = grid.down('textfield[name=nameFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'id',
-						value : idfilter.getValue()
-					}, {
-						property : 'name',
-						value : namefilter.getValue()
-					} ]
-				});
+				var idFilter = grid.down('textfield[name=idFilter]');
+				var nameFilter = grid.down('textfield[name=nameFilter]');
+				grid.store.clearFilter();
+
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'name',
+					value : nameFilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
 				grid.down('textfield[name=idFilter]').setValue('');
@@ -288,6 +302,12 @@ Ext.define('GreenFleet.view.company.Company', {
 			flex : 2,
 			items : [ {
 				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
 				name : 'id',
 				fieldLabel : 'ID',
 				anchor : '100%'
@@ -297,16 +317,18 @@ Ext.define('GreenFleet.view.company.Company', {
 				fieldLabel : 'Name',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -391,6 +413,15 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : 'Vehicle Id',
+				type : 'string'
+			}, {
 				dataIndex : 'registrationNumber',
 				text : 'RegistrationNumber',
 				type : 'string'
@@ -459,45 +490,54 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				text : 'SparkPlugStatus',
 				type : 'string'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'createdAt',
-				text : 'CreatedAt',
-				type : 'date'
+				dataIndex : 'lattitude',
+				text : 'Lattitude'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'updaatedAt',
-				text : 'UpdaatedAt',
-				type : 'date'
+				dataIndex : 'longitude',
+				text : 'Longitude'
+			}, {
+				dataIndex : 'createdAt',
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
+			}, {
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
 				}
 			},
 			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=registrationNumberFilter]');
-				var namefilter = grid.down('textfield[name=manufacturerFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'registrationNumber',
-						value : idfilter.getValue()
-					}, {
-						property : 'manufacturer',
-						value : namefilter.getValue()
-					} ]
-				});
+				var idFilter = grid.down('textfield[name=idFilter]');
+				var namefilter = grid.down('textfield[name=nameFilter]');
+				grid.store.clearFilter();
+
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'registrationNumber',
+					value : namefilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
-				grid.down('textfield[name=registrationNumberFilter]').setValue('');
-				grid.down('textfield[name=manufacturerFilter]').setValue('');
+				grid.down('textfield[name=idFilter]').setValue('');
+				grid.down('textfield[name=nameFilter]').setValue('');
 			},
-			tbar : [ 'Registration Number', {
+			tbar : [ 'ID', {
 				xtype : 'textfield',
-				name : 'registrationNumberFilter',
+				name : 'idFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -508,9 +548,9 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 						}
 					}
 				}
-			}, 'Manufacturer', {
+			}, 'Registeration Number', {
 				xtype : 'textfield',
-				name : 'manufacturerFilter',
+				name : 'nameFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -548,17 +588,36 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 			flex : 1,
 			items : [ {
 				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
+				name : 'id',
+				fieldLabel : 'Vehicle Id',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
 				name : 'registrationNumber',
 				fieldLabel : 'Registration Number',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'manufacturer',
+				queryMode: 'local',
+				store : 'ManufacturerStore',
+				displayField: 'name',
+			    valueField: 'name',
 				fieldLabel : 'Manufacturer',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'vehicleType',
+				queryMode: 'local',
+				store : 'VehicleTypeStore',
+				displayField: 'desc',
+			    valueField: 'name',
 				fieldLabel : 'Vehicle Type',
 				anchor : '100%'
 			}, {
@@ -567,13 +626,21 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				fieldLabel : 'BirthYear',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'ownershipType',
+				queryMode: 'local',
+				store : 'OwnershipStore',
+				displayField: 'desc',
+			    valueField: 'name',
 				fieldLabel : 'Ownership Type',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'status',
+				queryMode: 'local',
+				store : 'VehicleStatusStore',
+				displayField: 'desc',
+			    valueField: 'status',
 				fieldLabel : 'Status',
 				anchor : '100%'
 			}, {
@@ -628,15 +695,29 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
-				name : 'updatedAt',
+				name : 'lattitude',
+				fieldLabel : 'Lattitude',
 				disabled : true,
-				fieldLabel : 'Updated At',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
+				name : 'longitude',
+				fieldLabel : 'Longitude',
+				disabled : true,
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'updatedAt',
+				disabled : true,
+				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -659,7 +740,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 									main.down('gridpanel').store.load();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
@@ -678,14 +759,14 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 									form.reset();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
 					}
 				}, {
 					xtype : 'button',
-					text : 'Reset',
+					text : 'New',
 					handler : function() {
 						this.up('form').getForm().reset();
 					}
@@ -757,15 +838,15 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 				text : 'Status',
 				type : 'string'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
 				dataIndex : 'createdAt',
-				text : 'CreatedAt',
-				type : 'date'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'updaatedAt',
-				text : 'UpdaatedAt',
-				type : 'date'
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
@@ -861,13 +942,21 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 				fieldLabel : 'Vehicle Type',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'key',
 				fieldLabel : 'Vehicle',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'name',
+			    valueField: 'key',
 				fieldLabel : 'Driver',
 				anchor : '100%'
 			}, {
@@ -891,16 +980,18 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 				fieldLabel : 'Purpose',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -1017,15 +1108,15 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 				text : 'VideoClip',
 				type : 'string'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
 				dataIndex : 'createdAt',
-				text : 'CreatedAt',
-				type : 'date'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'updaatedAt',
-				text : 'UpdaatedAt',
-				type : 'date'
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
@@ -1164,16 +1255,18 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 				fieldLabel : 'VideoClip',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -1250,32 +1343,6 @@ Ext.define('GreenFleet.view.driver.Driver', {
 		this.add(this.buildForm(this));
 	},
 
-	fields : [ {
-		name : 'name',
-		type : 'string'
-	}, {
-		name : 'employeeId',
-		type : 'string'
-	}, {
-		name : 'division',
-		type : 'string'
-	}, {
-		name : 'title',
-		type : 'string'
-	}, {
-		name : 'imageClip',
-		type : 'string'
-	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'createdAt',
-		type : 'date'
-	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
-	} ],
-
-	
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -1284,11 +1351,16 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
 				dataIndex : 'name',
 				text : 'Name',
 				type : 'string'
 			}, {
-				dataIndex : 'employeeId',
+				dataIndex : 'id',
 				text : 'Employee Id',
 				type : 'string'
 			}, {
@@ -1304,45 +1376,48 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				text : 'ImageClip',
 				type : 'string'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
 				dataIndex : 'createdAt',
-				text : 'CreatedAt',
-				type : 'date'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'updaatedAt',
-				text : 'UpdaatedAt',
-				type : 'date'
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
 				}
 			},
 			onSearch : function(grid) {
-				var employeeIdFilter = grid.down('textfield[name=employeeIdFilter]');
+				var idFilter = grid.down('textfield[name=idFilter]');
 				var namefilter = grid.down('textfield[name=nameFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'employeeId',
-						value : employeeIdFilter.getValue()
-					}, {
-						property : 'name',
-						value : namefilter.getValue()
-					} ]
-				});
+				grid.store.clearFilter();
+				
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'name',
+					value : namefilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
-				grid.down('textfield[name=employeeIdFilter]').setValue('');
+				grid.down('textfield[name=idFilter]').setValue('');
 				grid.down('textfield[name=nameFilter]').setValue('');
 			},
 			tbar : [ 'ID', {
 				xtype : 'textfield',
-				name : 'employeeIdFilter',
+				name : 'idFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -1393,12 +1468,18 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			flex : 1,
 			items : [ {
 				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
 				name : 'name',
 				fieldLabel : 'Name',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
-				name : 'employeeId',
+				name : 'id',
 				fieldLabel : 'Employee Id',
 				anchor : '100%'
 			}, {
@@ -1417,16 +1498,18 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				fieldLabel : 'ImageClip',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -1449,7 +1532,7 @@ Ext.define('GreenFleet.view.driver.Driver', {
 									main.down('gridpanel').store.load();
 								},
 								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+									GreenFleet.msg('Failed', action.result);
 								}
 							});
 						}
@@ -1463,6 +1546,429 @@ Ext.define('GreenFleet.view.driver.Driver', {
 						if (form.isValid()) {
 							form.submit({
 								url : 'driver/delete',
+								success : function(form, action) {
+									main.down('gridpanel').store.load();
+									form.reset();
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result);
+								}
+							});
+						}
+					}
+				}, {
+					xtype : 'button',
+					text : 'New',
+					handler : function() {
+						this.up('form').getForm().reset();
+					}
+				} ]
+			} ]
+		}
+	}
+});
+function Label(opt_options) {
+	// Initialization
+	this.setValues(opt_options);
+
+	// Label specific
+	var span = this.span_ = document.createElement('span');
+	span.style.cssText = 'position: relative; left: -50%; top: -50px; '
+			+ 'white-space: nowrap; border: 1px solid blue; ' + 'padding: 2px; background-color: white';
+
+	var div = this.div_ = document.createElement('div');
+	div.appendChild(span);
+	div.style.cssText = 'position: absolute; display: none';
+};
+Label.prototype = new google.maps.OverlayView;
+
+// Implement onAdd
+Label.prototype.onAdd = function() {
+	var pane = this.getPanes().overlayLayer;
+	pane.appendChild(this.div_);
+
+	// Ensures the label is redrawn if the text or position is changed.
+	var me = this;
+	this.listeners_ = [ google.maps.event.addListener(this, 'position_changed', function() {
+		me.draw();
+	}), google.maps.event.addListener(this, 'text_changed', function() {
+		me.draw();
+	}) ];
+};
+
+// Implement onRemove
+Label.prototype.onRemove = function() {
+	this.div_.parentNode.removeChild(this.div_);
+
+	// Label is removed from the map, stop updating its position/text.
+	for ( var i = 0, I = this.listeners_.length; i < I; ++i) {
+		google.maps.event.removeListener(this.listeners_[i]);
+	}
+};
+
+// Implement draw
+Label.prototype.draw = function() {
+	var projection = this.getProjection();
+	var position = projection.fromLatLngToDivPixel(this.get('position'));
+
+	var div = this.div_;
+	div.style.left = position.x + 'px';
+	div.style.top = position.y + 'px';
+	div.style.display = 'block';
+
+	this.span_.innerHTML = this.get('text').toString();
+};
+
+Ext.define('GreenFleet.view.map.Map', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.map',
+
+	title : 'Maps',
+
+	layout : {
+		type : 'hbox',
+		align : 'stretch'
+	},
+
+	initComponent : function() {
+		this.callParent();
+
+		this.mapbox = this.add(this.buildMap(this));
+		this.board = this.add(this.buildBoard(this));
+	},
+
+	displayMap : function(mapbox, lat, lng) {
+		/*
+		 * Setting map options
+		 */
+		var options = {
+			zoom : 10,
+			center : new google.maps.LatLng(lat, lng),
+			mapTypeId : google.maps.MapTypeId.ROADMAP
+		};
+
+		/*
+		 * Draw map
+		 */
+		mapbox.map = new google.maps.Map(mapbox.getEl().first('.map').dom, options);
+
+		/*
+		 * Set map event listeners
+		 */
+		google.maps.event.addListener(mapbox.map, 'zoom_changed', function() {
+			// setTimeout(function() {
+			// mapbox.map.setCenter(options.center);
+			// }, 3000);
+		});
+
+		/*
+		 * Set map markers
+		 */
+		this.buildMarkers(mapbox);
+	},
+
+	/*
+	 * refreshMarkers : scope
+	 */
+	refreshMarkers : function(store) {
+		for ( var vehicle in this.markers) {
+			this.markers[vehicle].setMap(null);
+		}
+		this.markers = {};
+
+		store.each(function(record) {
+			var vehicle = record.get('id');
+			var marker = new google.maps.Marker({
+				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
+				map : this.mapbox.map,
+				title : vehicle,
+				vehicle : vehicle,
+				driver : 'V001',
+				tooltip : vehicle + "(김형용)"
+			});
+			
+			var label = new Label({
+				map : this.mapbox.map
+			});
+			label.bindTo('position', marker, 'position');
+			label.bindTo('text', marker, 'tooltip');
+			
+			this.markers[vehicle] = marker;
+
+			var mapbox = this.mapbox;
+			google.maps.event.addListener(marker, 'click', function() {
+				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
+					vehicle : vehicle,
+					driver : 'V001'
+				}).show();
+				
+//				var infowindow = new google.maps.InfoWindow({
+//					content : marker.getTitle(),
+//					size : new google.maps.Size(100, 100)
+//				});
+//				infowindow.open(mapbox.map, marker);
+			});
+		}, this);
+	},
+
+	buildMarkers : function() {
+		this.markers = {};
+
+		var vehicleStore = Ext.getStore('VehicleStore');
+		vehicleStore.on('datachanged', this.refreshMarkers, this);
+
+		this.refreshMarkers(vehicleStore);
+	},
+
+	buildMap : function(parent) {
+		return {
+			xtype : 'box',
+			flex : 1,
+			html : '<div class="map" style="height:100%"></div>',
+			listeners : {
+				afterrender : function() {
+					parent.displayMap(this, 37.56, 126.97);
+				}
+			}
+		};
+	},
+
+	buildBoard : function(parent) {
+		return {
+			xtype : 'panel',
+			width : 200,
+			items : [ {
+				xtype : 'checkbox',
+				fieldLabel : 'Markers',
+				checked : true,
+				name : 'markers',
+				scope : this,
+				handler : function(field, newValue) {
+					for ( var vehicle in this.markers) {
+						this.markers[vehicle].setVisible(newValue);
+					}
+				}
+			} ]
+		}
+	}
+});
+Ext.define('GreenFleet.view.vehicle.Track', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.track',
+
+	title : 'Track',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	initComponent : function() {
+		this.callParent(arguments);
+
+		this.add(this.buildList(this));
+		this.add(this.buildForm(this));
+	},
+
+	buildList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			title : 'Track List',
+			store : 'TrackStore',
+			autoScroll : true,
+			flex : 1,
+			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
+				dataIndex : 'vehicle',
+				text : 'Vehicle',
+				type : 'string'
+			}, {
+				dataIndex : 'driver',
+				text : 'Driver',
+				type : 'string'
+			}, {
+				dataIndex : 'lattitude',
+				text : 'Lattitude',
+				type : 'number'
+			}, {
+				dataIndex : 'longitude',
+				text : 'Longitude',
+				type : 'number'
+			}, {
+				dataIndex : 'createdAt',
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d-m-Y H:i:s'
+			} ],
+			viewConfig : {
+
+			},
+			listeners : {
+				itemclick : function(grid, record) {
+					var form = main.down('form');
+					form.loadRecord(record);
+				}
+			},
+			onSearch : function(grid) {
+				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
+				var driverFilter = grid.down('textfield[name=driverFilter]');
+				grid.store.load({
+					filters : [ {
+						property : 'vehicle',
+						value : vehicleFilter.getValue()
+					},{
+						property : 'driver',
+						value : driverFilter.getValue()
+					} ]
+				});
+			},
+			onReset : function(grid) {
+				grid.down('textfield[name=vehicleFilter]').setValue('');
+				grid.down('textfield[name=driverFilter]').setValue('');
+			},
+			tbar : [ {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Vehicle',
+				name : 'vehicleFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Driver',
+				name : 'driverFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'button',
+				text : 'Search',
+				tooltip : 'Find Track',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onSearch(grid);
+				}
+			}, {
+				text : 'reset',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onReset(grid);
+				}
+			} ]
+		}
+	},
+
+	buildForm : function(main) {
+		return {
+			xtype : 'form',
+			bodyPadding : 10,
+			title : 'Tracking Details',
+			autoScroll : true,
+			flex : 1,
+			items : [ {
+				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Vehicle',
+				anchor : '100%'
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Driver',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'lattitude',
+				fieldLabel : 'Lattitude',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'longitude',
+				fieldLabel : 'Longitude',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'createdAt',
+				disabled : true,
+				fieldLabel : 'Created At',
+				format: 'd-m-Y H:i:s',
+				anchor : '100%'
+			} ],
+			dockedItems : [ {
+				xtype : 'toolbar',
+				dock : 'bottom',
+				layout : {
+					align : 'middle',
+					type : 'hbox'
+				},
+				items : [ {
+					xtype : 'button',
+					text : 'Save',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'track/save',
+								success : function(form, action) {
+									main.down('gridpanel').store.load();
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result.msg);
+								}
+							});
+						}
+					}
+				}, {
+					xtype : 'button',
+					text : 'Delete',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'track/delete',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 									form.reset();
@@ -1484,118 +1990,376 @@ Ext.define('GreenFleet.view.driver.Driver', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.map.Map', {
-	extend : 'Ext.panel.Panel',
+Ext.define('GreenFleet.view.vehicle.ControlData', {
+	extend : 'Ext.container.Container',
 
-	alias : 'widget.map',
+	alias : 'widget.control_data',
 
-	title : 'Maps',
+	title : 'ControlData',
 
-	height : 100,
-
-	width : 100,
-
-	layout : 'fit',
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
 
 	initComponent : function() {
-		Ext.applyIf(this, {
-			items : [ this.buildMap(this) ],
-		});
+		this.callParent(arguments);
 
-		this.callParent();
+		this.add(this.buildList(this));
+		this.add(this.buildForm(this));
 	},
 
-	displayMap : function(mapbox, lat, lng) {
-		var options = {
-			zoom : 12,
-			center : new google.maps.LatLng(lat, lng),
-			mapTypeId : google.maps.MapTypeId.ROADMAP
-		};
-
-		mapbox.map = new google.maps.Map(mapbox.getEl().first('.map').dom, options);
-
-		google.maps.event.addListener(mapbox.map, 'zoom_changed', function() {
-			setTimeout(function() {
-				mapbox.map.setCenter(options.center);
-			}, 3000);
-		});
-
-		var marker = new google.maps.Marker({
-			position : options.center,
-			map : mapbox.map,
-			title : "Hello World!"
-		});
-
-		google.maps.event.addListener(marker, 'click', function() {
-			var infowindow = new google.maps.InfoWindow({
-				content : marker.getTitle(),
-				size : new google.maps.Size(50, 50)
-			});
-			infowindow.open(mapbox.map, marker);
-		});
-	},
-
-	buildMap : function(parent) {
+	buildList : function(main) {
 		return {
-			xtype : 'box',
+			xtype : 'gridpanel',
+			title : 'ControlData List',
+			store : 'ControlDataStore',
+			autoScroll : true,
 			flex : 1,
-			html : '<div class="map" style="height:100%"></div>',
+			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
+				dataIndex : 'vehicle',
+				text : 'Vehicle',
+			}, {
+				dataIndex : 'driver',
+				text : 'Driver',
+			}, {
+				dataIndex : 'date',
+				text : 'Date',
+				xtype:'datecolumn',
+				format:'d-m-Y'
+			}, {
+				dataIndex : 'startTime',
+				text : 'Start Time',
+				xtype:'datecolumn',
+				format:'d-m-Y H:i:s'
+			}, {
+				dataIndex : 'endTime',
+				text : 'End Time',
+				xtype:'datecolumn',
+				format:'d-m-Y H:i:s'
+			}, {
+				dataIndex : 'distance',
+				text : 'Distance',
+			}, {
+				dataIndex : 'runningTime',
+				text : 'Running Time',
+			}, {
+				dataIndex : 'averageSpeed',
+				text : 'Average Speed',
+			}, {
+				dataIndex : 'highestSpeed',
+				text : 'Highest Speed',
+			}, {
+				dataIndex : 'suddenAccelCount',
+				text : 'Sudden Accel Count',
+			}, {
+				dataIndex : 'suddenBrakeCount',
+				text : 'Sudden Brake Count',
+			}, {
+				dataIndex : 'econoDrivingRatio',
+				text : 'Econo Driving Ratio',
+			}, {
+				dataIndex : 'fuelEfficiency',
+				text : 'Fuel Efficiency',
+			}, {
+				dataIndex : 'longitude',
+				text : 'Longitude',
+			}, {
+				dataIndex : 'createdAt',
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d-m-Y H:i:s'
+			}, {
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d-m-Y H:i:s'
+			} ],
+			viewConfig : {
+
+			},
 			listeners : {
-				afterrender : function() {
-					console.log(this);
-					parent.displayMap(this, 37.56, 126.97);
+				itemclick : function(grid, record) {
+					var form = main.down('form');
+					form.loadRecord(record);
 				}
-			}
+			},
+			onSearch : function(grid) {
+				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
+				var driverFilter = grid.down('textfield[name=driverFilter]');
+				grid.store.load({
+					filters : [ {
+						property : 'vehicle',
+						value : vehicleFilter.getValue()
+					},{
+						property : 'driver',
+						value : driverFilter.getValue()
+					} ]
+				});
+			},
+			onReset : function(grid) {
+				grid.down('textfield[name=vehicleFilter]').setValue('');
+				grid.down('textfield[name=driverFilter]').setValue('');
+			},
+			tbar : [ {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Vehicle',
+				name : 'vehicleFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Driver',
+				name : 'driverFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'button',
+				text : 'Search',
+				tooltip : 'Find ControlData',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onSearch(grid);
+				}
+			}, {
+				text : 'reset',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onReset(grid);
+				}
+			} ]
+		}
+	},
+
+	buildForm : function(main) {
+		return {
+			xtype : 'form',
+			bodyPadding : 10,
+			title : 'ControlData Details',
+			autoScroll : true,
+			flex : 1,
+			items : [ {
+				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode: 'local',
+				store : 'VehicleStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Vehicle',
+				anchor : '100%'
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Driver',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'date',
+				fieldLabel : 'Date',
+				format: 'd-m-Y H:i:s',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'startTime',
+				fieldLabel : 'Start Time',
+				format: 'd-m-Y H:i:s',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'endTime',
+				fieldLabel : 'End Time',
+				format: 'd-m-Y H:i:s',
+				anchor : '100%'
+			}, {
+				name : 'distance',
+				fieldLabel : 'Distance',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'runningTime',
+				fieldLabel : 'Running Time',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'averageSpeed',
+				fieldLabel : 'Average Speed',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'highestSpeed',
+				fieldLabel : 'Highest Speed',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'suddenAccelCount',
+				fieldLabel : 'Sudden Accel Count',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'suddenBrakeCount',
+				fieldLabel : 'Sudden Brake Count',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'econoDrivingRatio',
+				fieldLabel : 'Econo Driving Ratio',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'fuelEfficiency',
+				fieldLabel : 'Fuel Efficiency',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'createdAt',
+				disabled : true,
+				fieldLabel : 'Created At',
+				format: 'd-m-Y H:i:s',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'updatedAt',
+				disabled : true,
+				fieldLabel : 'Updated At',
+				format: 'd-m-Y H:i:s',
+				anchor : '100%'
+			} ],
+			dockedItems : [ {
+				xtype : 'toolbar',
+				dock : 'bottom',
+				layout : {
+					align : 'middle',
+					type : 'hbox'
+				},
+				items : [ {
+					xtype : 'button',
+					text : 'Save',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'control_data/save',
+								success : function(form, action) {
+									main.down('gridpanel').store.load();
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result.msg);
+								}
+							});
+						}
+					}
+				}, {
+					xtype : 'button',
+					text : 'Delete',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'control_data/delete',
+								success : function(form, action) {
+									main.down('gridpanel').store.load();
+									form.reset();
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result.msg);
+								}
+							});
+						}
+					}
+				}, {
+					xtype : 'button',
+					text : 'Reset',
+					handler : function() {
+						this.up('form').getForm().reset();
+					}
+				} ]
+			} ]
 		}
 	}
 });
 Ext.define('GreenFleet.store.CompanyStore', {
-    extend: 'Ext.data.Store',
-    
-    autoLoad: false,
+	extend : 'Ext.data.Store',
 
-    constructor: function(cfg) {
-        var me = this;
-        
-        cfg = cfg || {};
+	autoLoad : true,
 
-        me.callParent([Ext.apply({
-            proxy: {
-                type: 'ajax',
-                url: 'company',
-                reader: {
-                    type: 'json'
-                }
-            },
-            fields: [
-                {
-                    name: 'id',
-                    type: 'string'
-                },
-                {
-                    name: 'name',
-                    type: 'string'
-                },
-                {
-                    dateFormat: 'YYYY-MM-DD',
-                    name: 'createdAt',
-                    type: 'date'
-                },
-                {
-                    dateFormat: 'YYYY-MM-DD',
-                    name: 'updaatedAt',
-                    type: 'date'
-                }
-            ]
-        }, cfg)]);
-    }
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'name',
+		type : 'string'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	proxy : {
+		type : 'ajax',
+		url : 'company',
+		reader : {
+			type : 'json'
+		}
+	}
 });
 Ext.define('GreenFleet.store.VehicleStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : false,
+	autoLoad : true,
 
 	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
 		name : 'registrationNumber',
 		type : 'string'
 	}, {
@@ -1647,13 +2411,22 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'sparkPlugStatus',
 		type : 'string'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'createdAt',
-		type : 'date'
+		name : 'driver',
+		type : 'string'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
+		name : 'lattitude',
+		type : 'float'
+	}, {
+		name : 'longitude',
+		type : 'float'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
 	} ],
 	
 	proxy : {
@@ -1667,13 +2440,16 @@ Ext.define('GreenFleet.store.VehicleStore', {
 Ext.define('GreenFleet.store.DriverStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : false,
-
+	autoLoad : true,
+	
 	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
 		name : 'name',
 		type : 'string'
 	}, {
-		name : 'employeeId',
+		name : 'id',
 		type : 'string'
 	}, {
 		name : 'division',
@@ -1685,13 +2461,13 @@ Ext.define('GreenFleet.store.DriverStore', {
 		name : 'imageClip',
 		type : 'string'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
 		name : 'createdAt',
-		type : 'date'
+		type : 'date',
+		dateFormat:'time'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
 	} ],
 	
 	proxy : {
@@ -1712,7 +2488,8 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		type : 'string'
 	}, {
 		name : 'reservedDate',
-		type : 'string'
+		type : 'date',
+		dateFormat : 'timestamp'
 	}, {
 		name : 'driver',
 		type : 'string'
@@ -1735,13 +2512,13 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		name : 'status',
 		type : 'string'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
 		name : 'createdAt',
-		type : 'date'
+		type : 'date',
+		dateFormat:'time'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
 	} ],
 	
 	proxy : {
@@ -1771,24 +2548,24 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'string'
 	}, {
 		name : 'lattitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'longitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'impulse',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'videoClip',
 		type : 'string'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
 		name : 'createdAt',
-		type : 'date'
+		type : 'date',
+		dateFormat:'time'
 	}, {
-		dateFormat : 'YYYY-MM-DD',
-		name : 'updaatedAt',
-		type : 'date'
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
 	} ],
 	
 	proxy : {
@@ -1799,61 +2576,192 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		}
 	}
 });
+Ext.define('GreenFleet.store.TrackStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'vehicle',
+		type : 'string'
+	}, {
+		name : 'driver',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'number'
+	}, {
+		name : 'longitude',
+		type : 'number'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'track',
+		reader : {
+			type : 'json'
+		}
+	}
+});
 Ext.define('GreenFleet.view.viewport.Center', {
 
-	extend : 'Ext.tab.Panel',
+	extend : 'Ext.panel.Panel',
 
 	id : 'content',
 
 	alias : 'widget.viewport.center',
+	
+//	tabBar : {
+//		renderTo : Ext.getCmp('tabPosition')
+//	},
+	preventHeader : true,
+	
+	layout : 'card',
+	
+//	listeners : {
+//		'render' : function(panel) {
+//			var tab = panel.getTabBar();
+//			tab.
+//		}
+//	},
+	
+	defaults : {
+		preventHeader : true
+	},
 
-	items : [ {
-		xtype : 'map',
-		closable : false
-	}, {
-		xtype : 'obd',
-		closable : false
-	}, {
-		xtype : 'filemanager',
-		closable : false
-	}, {
-		xtype : 'company',
-		closable : false
-	}, {
-		xtype : 'vehicle',
-		closable : false
-	}, {
-		xtype : 'driver',
-		closable : false
-	}, {
-		xtype : 'reservation',
-		closable : false
-	}, {
-		xtype : 'incident',
-		closable : false
-	} ]
+//	items : [  ]
 });
 Ext.define('GreenFleet.view.viewport.North', {
-	extend : 'Ext.panel.Panel',
+	extend : 'Ext.Container',
 
 	alias : 'widget.viewport.north',
-
+	
 	layout : {
 		type : 'hbox',
 		align : 'stretch'
 	},
-	
+
 	items : [ {
 		xtype : 'brand',
-		width : 100
+		width : 128
 	}, {
-		xtype : 'main_menu',
-		flex : 1
-	}, {
-		xtype : 'system_menu',
-		width : 180
+		xtype : 'container',
+		flex : 1,
+		layout : {
+			type : 'vbox',
+			align : 'stretch'
+		},
+		items : [ {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ {
+				xtype : 'main_menu',
+				flex : 1
+			}, {
+				xtype : 'system_menu',
+				width : 180
+			} ]
+		}, {
+			xtype : 'tabbar',
+			height: 23,
+			defaults : {
+				handler : function(item) {
+					var content = Ext.getCmp('content');
+					var comp = content.getComponent(item.itemId);
+					if(!comp) {
+						comp = content.add(item.view);
+					}
+					content.getLayout().setActiveItem(comp);
+					item.setActive(true);
+				},
+				closable : false
+			},
+			items : [{
+				text : 'Map',
+				itemId : 'map',
+				view : {
+					xtype : 'map',
+					itemId : 'map'
+				}
+			}, {
+				text : 'OBD',
+				itemId : 'obd',
+				view : {
+					xtype : 'obd',
+					itemId : 'obd'
+				}
+			}, {
+				text : 'File',
+				itemId : 'filemanager',
+				view : {
+					xtype : 'filemanager',
+					itemId : 'filemanager'
+				}
+			}, {
+				text : 'Company',
+				itemId : 'company',
+				view : {
+					xtype : 'company',
+					itemId : 'company'
+				}
+			}, {
+				text : 'Vehicle',
+				itemId : 'vehicle',
+				view : {
+					xtype : 'vehicle',
+					itemId : 'vehicle'
+				}
+			}, {
+				text : 'Driver',
+				itemId : 'driver',
+				view : {
+					xtype : 'driver',
+					itemId : 'driver'
+				}
+			}, {
+				text : 'Reservation',
+				itemId : 'reservation',
+				view : {
+					xtype : 'reservation',
+					itemId : 'reservation'
+				}
+			}, {
+				text : 'Incident',
+				itemId : 'incident',
+				view : {
+					xtype : 'incident',
+					itemId : 'incident'
+				}
+			}, {
+				text : 'Track',
+				itemId : 'track',
+				view : {
+					xtype : 'track',
+					itemId : 'track'
+				}
+			}, {
+				text : 'ControlData',
+				itemId : 'control_data',
+				view : {
+					xtype : 'control_data',
+					itemId : 'control_data'
+				}
+			}]
+		} ]
 	} ]
 });
+
 Ext.define('GreenFleet.view.viewport.West', {
 	extend : 'Ext.panel.Panel',
 
@@ -1906,7 +2814,7 @@ Ext.create('Ext.data.Store', {
 
 Ext.define('GreenFleet.view.MainMenu', {
 	extend : 'Ext.toolbar.Toolbar',
-
+	cls : 'appMenu',
 	alias : 'widget.main_menu',
 	
 	items : [{
@@ -1954,79 +2862,350 @@ Ext.define('GreenFleet.view.SystemMenu', {
 		}
 	} ]
 });
-Ext.define('GreenFleet.view.vehicle.OBDCollector', {
-	extend : 'Ext.form.Panel',
+Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
+	extend : 'Ext.window.Window',
+	alias : 'widget.vehiclepopup',
 	
-	alias : 'widget.obd',
+	title : 'Control Information',
 	
-	title : 'Collection OBD Information',
+	closable : true,
 	
-//    url: 'obd',
-
-    layout: 'anchor',
-    defaults: {
-        anchor: '100%'
-    },
-    
-    items : [{
-		xtype : 'textfield',
-		name : 'vehicle',
-		fieldLabel : 'Vehicle',
-		value : '1234567890'
-	}, {
-		xtype : 'textfield',
-		name : 'speed',
-		fieldLabel : 'Speed',
-		value : 120
-	}, {
-		xtype : 'textfield',
-		name : 'gas',
-		fieldLabel : 'Gas',
-		value : 65
-	}, {
-		xtype : 'textfield',
-		name : 'tirePressure',
-		fieldLabel : 'Tire Pressure',
-		value : 23
-	}, {
-		xtype : 'textfield',
-		name : 'longitude',
-		fieldLabel : 'Longitude',
-		value : '126°58\'40.63"E'
-	}, {
-		xtype : 'textfield',
-		name : 'latitude',
-		fieldLabel : 'Latitude',
-		value : '37°33\'58.87"N'
-	}],
+	modal : true,
 	
-    buttons: [{
-        text: 'Reset',
-        handler: function() {
-            this.up('form').getForm().reset();
-        }
-    }, {
-        text: 'Submit',
-        formBind: true, //only enabled once the form is valid
-        disabled: true,
-        handler: function() {
-            var form = this.up('form').getForm();
-            console.log(form);
-            if (form.isValid()) {
-                form.submit({
-                	url : 'obd',
-                    success: function(form, action) {
-                       GreenFleet.msg('Success', action.result.msg);
-                    },
-                    failure: function(form, action) {
-                        GreenFleet.msg('Failed', action.result.msg);
-                    }
-                });
-            }
-        }
-    }]
+	width : 600,
+	height : 400,
+	
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+	
+	items : [{
+		xtype : 'container',
+		flex : 2,
+		layout : {
+			type : 'vbox',
+			align : 'stretch'
+		},
+		items : [{
+			xtype : 'form',
+			height : 140,
+			items : [{
+				xtype : 'textfield',
+				name : 'driver',
+				fieldLabel : 'Driver'
+			}, {
+				xtype : 'textfield',
+				name : 'vehicle',
+				fieldLabel : 'Vehicle'
+			}, {
+				xtype : 'textfield',
+				name : 'position',
+				fieldLabel : 'Current Position'
+			}, {
+				xtype : 'textfield',
+				name : 'distance',
+				fieldLabel : 'Running Distance'
+			}, {
+				xtype : 'textfield',
+				name : 'runningTime',
+				fieldLabel : 'Running Time'
+			}]
+		}, {
+			xtype : 'panel',
+			flex : 1, 
+			title : 'Incidents', 
+			layout : 'fit',
+			items : [{
+				xtype : 'container',
+				layout : {
+					type : 'hbox',
+					align : 'left'
+				},
+				items : [{
+					xtype : 'box',
+					height : 100,
+					width : 100,
+					html : '<div>HAHAHA001</div>'
+				},{
+					xtype : 'box',
+					height : 100,
+					width : 100,
+					html : '<div>HAHAHA002</div>'
+				},{
+					xtype : 'box',
+					height : 100,
+					width : 100,
+					html : '<div>HAHAHA003</div>'
+				},{
+					xtype : 'box',
+					height : 100,
+					width : 100,
+					html : '<div>HAHAHA004</div>'
+				}]
+			}]
+		}]
+	}, {
+		xtype : 'tabpanel',
+		flex : 1,
+		items : [{
+			xtype : 'gridpanel',
+			title : 'Information',
+			store : 'VehicleStore',
+			autoScroll : true,
+			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : 'Vehicle Id',
+				type : 'string'
+			}, {
+				dataIndex : 'registrationNumber',
+				text : 'RegistrationNumber',
+				type : 'string'
+			}, {
+				dataIndex : 'manufacturer',
+				text : 'Manufacturer',
+				type : 'string'
+			}, {
+				dataIndex : 'vehicleType',
+				text : 'VehicleType',
+				type : 'string'
+			}, {
+				dataIndex : 'birthYear',
+				text : 'BirthYear',
+				type : 'string'
+			}, {
+				dataIndex : 'ownershipType',
+				text : 'OwnershipType',
+				type : 'string'
+			}, {
+				dataIndex : 'status',
+				text : 'Status',
+				type : 'string'
+			}, {
+				dataIndex : 'imageClip',
+				text : 'ImageClip',
+				type : 'string'
+			}, {
+				dataIndex : 'totalDistance',
+				text : 'TotalDistance',
+				type : 'string'
+			}, {
+				dataIndex : 'remainingFuel',
+				text : 'RemainingFuel',
+				type : 'string'
+			}, {
+				dataIndex : 'distanceSinceNewOil',
+				text : 'DistanceSinceNewOil',
+				type : 'string'
+			}, {
+				dataIndex : 'engineOilStatus',
+				text : 'EngineOilStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'fuelFilterStatus',
+				text : 'FuelFilterStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'brakeOilStatus',
+				text : 'BrakeOilStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'brakePedalStatus',
+				text : 'BrakePedalStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'coolingWaterStatus',
+				text : 'CoolingWaterStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'timingBeltStatus',
+				text : 'TimingBeltStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'sparkPlugStatus',
+				text : 'SparkPlugStatus',
+				type : 'string'
+			}, {
+				dataIndex : 'lattitude',
+				text : 'Lattitude'
+			}, {
+				dataIndex : 'longitude',
+				text : 'Longitude'
+			}, {
+				dataIndex : 'createdAt',
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
+			}, {
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
+			} ]
+		}, {
+			title : 'Control - Vehicle'
+		}, {
+			title : 'Control - Driver'
+		}, {
+			title : 'Control - Maintenance'
+		}]
+	}]
 });
+Ext.define('GreenFleet.store.ManufacturerStore', {
+	extend : 'Ext.data.Store',
 
+	storeId : 'manufacturer_store',
+
+	fields : [ 'name' ],
+
+	data : [ {
+		"name" : "Audi"
+	}, {
+		"name" : "Volkswagon"
+	}, {
+		"name" : "Mercedes-Benz"
+	}, {
+		"name" : "Hyundai"
+	}, {
+		"name" : "Kia"
+	} ]
+});
+Ext.define('GreenFleet.store.VehicleTypeStore', {
+	extend : 'Ext.data.Store',
+
+	storeId : 'vehicletype_store',
+
+	fields : [ 'name', 'desc' ],
+
+	data : [ {
+		"name" : "A",
+		"desc" : "A 800-"
+	}, {
+		"name" : "B",
+		"desc" : "B 800~1000"
+	}, {
+		"name" : "C",
+		"desc" : "C 1000~1500"
+	}, {
+		"name" : "D",
+		"desc" : "D 1500~1800"
+	}, {
+		"name" : "E",
+		"desc" : "E 1800~2000"
+	}, {
+		"name" : "F",
+		"desc" : "F 2000+"
+	} ]
+});
+Ext.define('GreenFleet.store.OwnershipStore', {
+	extend : 'Ext.data.Store',
+
+	storeId : 'ownership_store',
+
+	fields : [ 'name', 'desc' ],
+
+	data : [ {
+		"name" : "A",
+		"desc" : "A Self"
+	}, {
+		"name" : "B",
+		"desc" : "B Company"
+	}, {
+		"name" : "C",
+		"desc" : "C Rent"
+	} ]
+});
+Ext.define('GreenFleet.store.VehicleStatusStore', {
+	extend : 'Ext.data.Store',
+
+	storeId : 'vehiclestatus_store',
+
+	fields : [ 'status', 'desc' ],
+
+	data : [ {
+		"name" : "Running",
+		"desc" : "Running"
+	}, {
+		"name" : "Incident",
+		"desc" : "Incident"
+	}, {
+		"name" : "Idle",
+		"desc" : "Idle"
+	} ]
+});
+Ext.define('GreenFleet.store.ControlDataStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'vehicle',
+		type : 'string'
+	}, {
+		name : 'driver',
+		type : 'string'
+	}, {
+		name : 'distance',
+		type : 'float'
+	}, {
+		name : 'runningTime',
+		type : 'float'
+	}, {
+		name : 'averageSpeed',
+		type : 'float'
+	}, {
+		name : 'highestSpeed',
+		type : 'float'
+	}, {
+		name : 'suddenAccelCount',
+		type : 'float'
+	}, {
+		name : 'suddenBrakeCount',
+		type : 'float'
+	}, {
+		name : 'econoDrivingRatio',
+		type : 'float'
+	}, {
+		name : 'fuelEfficiency',
+		type : 'float'
+	}, {
+		name : 'date',
+		type : 'date',
+		dateFormat:'timestamp'
+	}, {
+		name : 'startTime',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'endTime',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'control_data',
+		reader : {
+			type : 'json'
+		}
+	}
+});
 Ext.define('GreenFleet.model.File', {
     extend: 'Ext.data.Model',
     
@@ -2086,10 +3265,10 @@ Ext.define('GreenFleet.store.FileStore', {
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore' ],
+	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'TrackStore' ],
 	models : [],
 	views : [ 'company.Company', 'vehicle.Vehicle', 'vehicle.Reservation', 'vehicle.Incident', 'driver.Driver',
-			'map.Map' ],
+			'map.Map', 'vehicle.Track', 'vehicle.ControlData' ],
 
 	init : function() {
 		this.control({
@@ -2126,9 +3305,9 @@ Ext.define('GreenFleet.controller.FrameController', {
 Ext.define('GreenFleet.controller.VehicleController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [],
+	stores : [ 'ManufacturerStore', 'VehicleTypeStore' , 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore'],
 	models : [],
-	views : [ 'vehicle.OBDCollector' ],
+	views : [ 'vehicle.VehiclePopup' ],
 
 	init : function() {
 		this.control({

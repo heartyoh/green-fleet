@@ -16,8 +16,9 @@
 		<title>Green Fleet</title>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 
-		<link rel="stylesheet" href="resources/css/ext-all.css"></link>
-
+		<link rel="stylesheet" href="resources/css/ext-greenfleet.css"></link>
+		<link rel="stylesheet" href="resources/css/greenfleet.css"></link>
+		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR"></script>
 		<script src="lib/uploader/fileuploader.js"></script>
 		

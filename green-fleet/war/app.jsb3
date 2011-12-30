@@ -54,6 +54,14 @@
                     "name": "Map.js"
                 },
                 {
+                    "path": "app/view/vehicle/",
+                    "name": "Track.js"
+                },
+                {
+                    "path": "app/view/vehicle/",
+                    "name": "ControlData.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -72,6 +80,10 @@
                 {
                     "path": "app/store/",
                     "name": "IncidentStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "TrackStore.js"
                 },
                 {
                     "path": "app/view/viewport/",
@@ -99,7 +111,27 @@
                 },
                 {
                     "path": "app/view/vehicle/",
-                    "name": "OBDCollector.js"
+                    "name": "VehiclePopup.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ManufacturerStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "VehicleTypeStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "OwnershipStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "VehicleStatusStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ControlDataStore.js"
                 },
                 {
                     "path": "app/model/",
