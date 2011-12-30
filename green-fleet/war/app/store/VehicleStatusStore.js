@@ -6,13 +6,13 @@ Ext.define('GreenFleet.store.VehicleStatusStore', {
 	fields : [ 'status', 'desc' ],
 
 	data : [ {
-		"name" : "Running",
+		"status" : "Running",
 		"desc" : "Running"
 	}, {
-		"name" : "Incident",
+		"status" : "Incident",
 		"desc" : "Incident"
 	}, {
-		"name" : "Idle",
+		"status" : "Idle",
 		"desc" : "Idle"
 	} ]
 });

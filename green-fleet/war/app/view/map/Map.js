@@ -107,12 +107,19 @@ Ext.define('GreenFleet.view.map.Map', {
 			this.markers[vehicle].setMap(null);
 		}
 		this.markers = {};
+		
+		var images = {
+			'Running' : 'resources/image/statusDriving.png',
+			'Idle' : 'resources/image/statusStop.png',
+			'Incident' : 'resources/image/statusIncident.png'
+		};
 
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var marker = new google.maps.Marker({
 				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
 				map : this.mapbox.map,
+				icon : images[record.get('status')],
 				title : vehicle,
 				vehicle : vehicle,
 				driver : 'V001',
