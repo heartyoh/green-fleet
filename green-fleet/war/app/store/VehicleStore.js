@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.store.VehicleStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : false,
+	autoLoad : true,
 
 	fields : [ {
 		name : 'key',
@@ -59,6 +59,12 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'string'
 	}, {
 		name : 'sparkPlugStatus',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'string'
+	}, {
+		name : 'longitude',
 		type : 'string'
 	}, {
 		name : 'createdAt',

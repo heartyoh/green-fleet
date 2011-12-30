@@ -102,6 +102,12 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				text : 'SparkPlugStatus',
 				type : 'string'
 			}, {
+				dataIndex : 'lattitude',
+				text : 'Lattitude'
+			}, {
+				dataIndex : 'longitude',
+				text : 'Longitude'
+			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -241,8 +247,12 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				fieldLabel : 'Ownership Type',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'combo',
 				name : 'status',
+				queryMode: 'local',
+				store : 'VehicleStatusStore',
+				displayField: 'desc',
+			    valueField: 'status',
 				fieldLabel : 'Status',
 				anchor : '100%'
 			}, {
@@ -294,6 +304,18 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 				xtype : 'textfield',
 				name : 'sparkPlugStatus',
 				fieldLabel : 'SparkPlugStatus',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'lattitude',
+				fieldLabel : 'Lattitude',
+				disabled : true,
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'longitude',
+				fieldLabel : 'Longitude',
+				disabled : true,
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',

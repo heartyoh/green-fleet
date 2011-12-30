@@ -27,6 +27,7 @@ import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.model.Track;
+import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
@@ -52,6 +53,9 @@ public class TrackService {
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 		Company company = pm.getObjectById(Company.class, companyKey);
 		
+		Key vehicleKey = KeyFactory.createKey(companyKey, Vehicle.class.getSimpleName(), vehicle);
+		Vehicle objVehicle = pm.getObjectById(Vehicle.class, vehicleKey);
+		
 		Track obj = null;
 
 		if (key != null && key.trim().length() > 0) {
@@ -75,12 +79,19 @@ public class TrackService {
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-			if(lattitude != null)
-				obj.setLattitude(Double.parseDouble(lattitude));
-			if(longitude != null)
-				obj.setLongitude(Double.parseDouble(longitude));
+			if(lattitude != null) {
+				double dblLattitude = Double.parseDouble(lattitude);
+				obj.setLattitude(dblLattitude);
+				objVehicle.setLattitude(dblLattitude);
+			}
+			if(longitude != null) {
+				double dblLongitude = Double.parseDouble(longitude);
+				obj.setLongitude(dblLongitude);
+				objVehicle.setLongitude(dblLongitude);
+			}
 
 			obj = pm.makePersistent(obj);
+			objVehicle = pm.makePersistent(objVehicle);
 		} finally {
 			pm.close();
 		}
