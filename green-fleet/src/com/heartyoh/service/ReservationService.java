@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.service;
+package com.heartyoh.service;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.heartyoh.greenfleet.model.Reservation;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
+import com.heartyoh.model.Reservation;
 import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
@@ -32,7 +32,7 @@ public class ReservationService {
 
 	@RequestMapping(value = "/reservation/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
 		String id = request.getParameter("id");

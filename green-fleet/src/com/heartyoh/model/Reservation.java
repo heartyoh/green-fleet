@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.model;
+package com.heartyoh.model;
 
 import java.util.Date;
 
@@ -8,7 +8,6 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
-import com.heartyoh.model.Company;
 
 //* [차량 예약 정보]
 //* 운행 예약일,

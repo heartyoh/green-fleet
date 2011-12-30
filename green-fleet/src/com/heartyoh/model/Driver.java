@@ -1,18 +1,17 @@
-package com.heartyoh.greenfleet.model;
+package com.heartyoh.model;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.Order;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.heartyoh.model.Company;
+import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable
 public class Driver {
@@ -25,9 +24,8 @@ public class Driver {
     private Company company;
 	
 	@JsonIgnore
-	@Persistent(mappedBy = "driver")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
-    private List<Incident> incidents;
+    @Persistent
+    private Set<Key> incidents;
 	
 	@Persistent
 	private String name;
@@ -98,10 +96,10 @@ public class Driver {
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-	public List<Incident> getIncidents() {
+	public Set<Key> getIncidents() {
 		return incidents;
 	}
-	public void setIncidents(List<Incident> incidents) {
+	public void setIncidents(Set<Key> incidents) {
 		this.incidents = incidents;
 	}
 

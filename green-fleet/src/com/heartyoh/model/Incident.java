@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.model;
+package com.heartyoh.model;
 
 import java.util.Date;
 
@@ -7,6 +7,7 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
 
 @PersistenceCapable
 public class Incident {
@@ -19,10 +20,13 @@ public class Incident {
 	private String id;
 	
 	@Persistent
-	private Vehicle vehicle;
+    private Company company;
 	
 	@Persistent
-	private Driver driver;
+	private String vehicle;
+	
+	@Persistent
+	private String driver;
 
 	@Persistent
 	private Date incidentTime;
@@ -52,16 +56,22 @@ public class Incident {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public Vehicle getVehicle() {
+	public Company getCompany() {
+		return company;
+	}
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+	public String getVehicle() {
 		return vehicle;
 	}
-	public void setVehicle(Vehicle vehicle) {
+	public void setVehicle(String vehicle) {
 		this.vehicle = vehicle;
 	}
-	public Driver getDriver() {
+	public String getDriver() {
 		return driver;
 	}
-	public void setDriver(Driver driver) {
+	public void setDriver(String driver) {
 		this.driver = driver;
 	}
 	public Date getIncidentTime() {

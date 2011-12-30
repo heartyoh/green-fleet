@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.service;
+package com.heartyoh.service;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -24,35 +24,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.heartyoh.greenfleet.model.Driver;
-import com.heartyoh.greenfleet.model.Incident;
-import com.heartyoh.greenfleet.model.Vehicle;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
+import com.heartyoh.model.Driver;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
-public class IncidentService {
-	private static final Logger logger = LoggerFactory.getLogger(IncidentService.class);
-	private static final Class<Incident> clazz = Incident.class;
+public class DriverService {
+	private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
+	private static final Class<Driver> clazz = Driver.class;
 
-	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/driver/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
 		String id = request.getParameter("id");
-		String vehicle = request.getParameter("vehicle");
-		String driver = request.getParameter("driver");
-		Date incidentTime = new Date(request.getParameter("incidentTime"));
-		String lattitude = request.getParameter("lattitude");
-		String longitude = request.getParameter("longitude");
-		String impulse = request.getParameter("impulse");
-		String videoClip = request.getParameter("videoClip");
+		String name = request.getParameter("name");
+		String division = request.getParameter("division");
+		String title = request.getParameter("title");
+		String imageClip = request.getParameter("imageClip");
 
 		Key objKey = null;
 		boolean creating = false;
@@ -60,15 +55,12 @@ public class IncidentService {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 		Company company = pm.getObjectById(Company.class, companyKey);
-		Key vehicleKey = KeyFactory.stringToKey(vehicle);
-		Key driverKey = KeyFactory.stringToKey(driver);
-		
-		Incident obj = null;
+		Driver obj = null;
 
 		if (key != null && key.trim().length() > 0) {
 			objKey = KeyFactory.stringToKey(key);
 		} else {
-			objKey = KeyFactory.createKey(vehicleKey, clazz.getSimpleName(), id);
+			objKey = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
 			try {
 				obj = pm.getObjectById(clazz, objKey);
 			} catch (JDOObjectNotFoundException e) {
@@ -85,12 +77,10 @@ public class IncidentService {
 
 		try {
 			if (creating) {
-				obj = new Incident();
+				obj = new Driver();
 				obj.setKey(KeyFactory.keyToString(objKey));
-				obj.setVehicle(pm.getObjectById(Vehicle.class, vehicleKey));
-				obj.setDriver(pm.getObjectById(Driver.class, driverKey));
+				obj.setCompany(company);
 				obj.setId(id);
-				obj.setIncidentTime(incidentTime);
 				obj.setCreatedAt(now);
 			} else {
 				obj = pm.getObjectById(clazz, objKey);
@@ -99,15 +89,14 @@ public class IncidentService {
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-
-			if(lattitude != null)
-				obj.setLattitude(Double.parseDouble(lattitude));
-			if(longitude != null)
-				obj.setLongitude(Double.parseDouble(longitude));
-			if(impulse != null)
-				obj.setImpulse(Double.parseDouble(impulse));
-			if(videoClip != null)
-				obj.setVideoClip(videoClip);
+			if (name != null)
+				obj.setName(name);
+			if (title != null)
+				obj.setTitle(title);
+			if (division != null)
+				obj.setDivision(division);
+			if (imageClip != null)
+				obj.setImageClip(imageClip);
 
 			obj.setUpdatedAt(now);
 
@@ -125,15 +114,15 @@ public class IncidentService {
 		return result;
 	}
 
-	@RequestMapping(value = "/incident/delete", method = RequestMethod.POST)
+	@RequestMapping(value = "/driver/delete", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> deleteVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
-			Incident obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
+			Driver obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
 
 			pm.deletePersistent(obj);
 		} finally {
@@ -148,65 +137,57 @@ public class IncidentService {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/incident", method = RequestMethod.GET)
+	@RequestMapping(value = "/driver", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Incident> getObdData(HttpServletRequest request, HttpServletResponse response) {
-//		String vehicle = request.getParameter("vehicle");
-//
-//		Key vehicleKey = KeyFactory.stringToKey(vehicle);
-//
-//		PersistenceManager pm = PMF.get().getPersistenceManager();
-//
-//		Vehicle objVehicle = pm.getObjectById(Vehicle.class, vehicleKey);
-//
-//		return objVehicle.getIncidents();
-		
+	List<Driver> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
-		String jsonFilter = request.getParameter("filter");
-		String jsonSorter = request.getParameter("sort");
-		
-		List<Filter> filters = null;
-		List<Sorter> sorters = null;
-
-		try {
-			if(jsonFilter != null) {
-				filters = new ObjectMapper().readValue(request.getParameter("filter"), new TypeReference<List<Filter>>(){ });
-			}
-			if(jsonSorter != null) {
-				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>(){ });
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		String jsonFilter = request.getParameter("filter");
+//		String jsonSorter = request.getParameter("sort");
+//		
+//		List<Filter> filters = null;
+//		List<Sorter> sorters = null;
+//
+//		
+//		
+//		try {
+//			if(jsonFilter != null) {
+//				filters = new ObjectMapper().readValue(request.getParameter("filter"), new TypeReference<List<Filter>>(){ });
+//			}
+//			if(jsonSorter != null) {
+//				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>(){ });
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		Company company = pm.getObjectById(Company.class, companyKey);
-
-		Query query = pm.newQuery(clazz);
-
-		query.setFilter("company == companyParam && id >= idParam1 && id < idParam2");
-		query.declareParameters(Company.class.getName() + " companyParam, String idParam1, String idParam2");
-		
-		String idFilter = null;
-		
-		if (filters != null) {
-			Iterator<Filter> it = filters.iterator();
-			while (it.hasNext()) {
-				Filter filter = it.next();
-				if(filter.getProperty().equals("id"))
-					idFilter = filter.getValue(); 
-			}
-		}
+//		Query query = pm.newQuery(clazz);
+//
+//		query.setFilter("company == companyParam && id >= idParam1 && id < idParam2");
+//		query.declareParameters(Company.class.getName() + " companyParam, String idParam1, String idParam2");
+//		
+//		String idFilter = null;
+//		
+//		if (filters != null) {
+//			Iterator<Filter> it = filters.iterator();
+//			while (it.hasNext()) {
+//				Filter filter = it.next();
+//				if(filter.getProperty().equals("id"))
+//					idFilter = filter.getValue(); 
+//			}
+//		}
 		
 		// query.setGrouping(user.getCompany());
 		// query.setOrdering();
 		// query.declareParameters();
 
-		return (List<Incident>) query.execute(company, idFilter, idFilter + "\ufffd");
+//		return (List<Driver>) query.execute(company, idFilter, idFilter + "\ufffd");
+		return company.getDrivers();
 	}
 
 }

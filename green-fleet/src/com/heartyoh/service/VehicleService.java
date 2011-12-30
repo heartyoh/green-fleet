@@ -1,4 +1,4 @@
-package com.heartyoh.greenfleet.service;
+package com.heartyoh.service;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.heartyoh.greenfleet.model.Vehicle;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
+import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
@@ -33,7 +33,7 @@ public class VehicleService {
 
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> createVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
@@ -149,7 +149,7 @@ public class VehicleService {
 
 	@RequestMapping(value = "/vehicle/delete", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> deleteVehicle(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -172,7 +172,7 @@ public class VehicleService {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/vehicle", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Vehicle> getObdData(HttpServletRequest request, HttpServletResponse response) {
+	List<Vehicle> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());

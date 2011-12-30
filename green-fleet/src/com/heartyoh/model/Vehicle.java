@@ -1,18 +1,17 @@
-package com.heartyoh.greenfleet.model;
+package com.heartyoh.model;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.Order;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.heartyoh.model.Company;
+import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable
 public class Vehicle {
@@ -24,6 +23,10 @@ public class Vehicle {
 	@Persistent
     private Company company;
 	
+	@JsonIgnore
+    @Persistent
+    private Set<Key> incidents;
+    
 	@Persistent
 	private String id;
 	@Persistent
@@ -196,6 +199,12 @@ public class Vehicle {
 	}
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+	public Set<Key> getIncidents() {
+		return incidents;
+	}
+	public void setIncidents(Set<Key> incidents) {
+		this.incidents = incidents;
 	}
 	
 }

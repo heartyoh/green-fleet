@@ -50,15 +50,15 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				text : 'ImageClip',
 				type : 'string'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
 				dataIndex : 'createdAt',
-				text : 'CreatedAt',
-				type : 'date'
+				text : 'Created At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			}, {
-				dateFormat : 'YYYY-MM-DD',
-				dataIndex : 'updaatedAt',
-				text : 'UpdaatedAt',
-				type : 'date'
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:'d/m/Y'
 			} ],
 			viewConfig : {
 
@@ -172,16 +172,18 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				fieldLabel : 'ImageClip',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
+				format: 'd/m/Y',
 				anchor : '100%'
 			} ],
 			dockedItems : [ {

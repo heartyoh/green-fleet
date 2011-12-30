@@ -1,4 +1,4 @@
-Ext.define('GreenFleet.store.CompanyStore', {
+Ext.define('GreenFleet.store.TrackStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
@@ -7,23 +7,23 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'key',
 		type : 'string'
 	}, {
-		name : 'id',
+		name : 'vehicle',
 		type : 'string'
 	}, {
-		name : 'name',
-		type : 'string'
+		name : 'lattitude',
+		type : 'number'
+	}, {
+		name : 'longitude',
+		type : 'number'
 	}, {
 		name : 'createdAt',
 		type : 'date',
 		dateFormat:'time'
-	}, {
-		name : 'updatedAt',
-		type : 'date',
-		dateFormat:'time'
 	} ],
+	
 	proxy : {
 		type : 'ajax',
-		url : 'company',
+		url : 'track',
 		reader : {
 			type : 'json'
 		}

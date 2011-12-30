@@ -12,9 +12,6 @@ import javax.jdo.annotations.PrimaryKey;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.heartyoh.greenfleet.model.Driver;
-import com.heartyoh.greenfleet.model.Incident;
-import com.heartyoh.greenfleet.model.Vehicle;
 
 @PersistenceCapable
 public class Company {
@@ -40,6 +37,11 @@ public class Company {
 	@Persistent(mappedBy = "company")
 	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
     private List<Incident> incidents;
+	
+	@JsonIgnore
+	@Persistent(mappedBy = "company")
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="createdAt desc"))
+    private List<Track> tracks;
 	
 	@Persistent
 	private String name;
@@ -111,6 +113,13 @@ public class Company {
 	}
 	public void setIncidents(List<Incident> incidents) {
 		this.incidents = incidents;
+	}
+
+	public List<Track> getTracks() {
+		return tracks;
+	}
+	public void setTracks(List<Track> tracks) {
+		this.tracks = tracks;
 	}
 
 }
