@@ -1,0 +1,18 @@
+.wrap{background:url('../image/bgHeader.gif') repeat-x}
+
+/*header style*/
+.header{background:url('../image/bgLogo.gif') no-repeat}
+.header .x-panel-body-default,.x-toolbar-default{background-color:transparent}
+.header .x-tab-bar-top .x-tab-bar-body{border:none;height:23px}
+.header .x-border-box .x-tab-bar-top .x-tab-bar-body{height:23px !important}
+.header .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:13px}
+.header .x-btn-default-toolbar-small{border:0;}
+.header .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:0}
+
+.appMenu.x-toolbar{padding:0}
+.appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:13px}
+.appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:7px 0 0 0}
+.appMenu .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:7px 0 0 0;color:#fff}
+.tool{background:url('../image/bgTool.gif') repeat-y}
+
+.x-panel-body-default,.x-toolbar{border:none;background:none;background-color:transparent}

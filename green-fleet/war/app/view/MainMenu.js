@@ -38,7 +38,7 @@ Ext.create('Ext.data.Store', {
 
 Ext.define('GreenFleet.view.MainMenu', {
 	extend : 'Ext.toolbar.Toolbar',
-
+	cls : 'appMenu',
 	alias : 'widget.main_menu',
 	
 	items : [{
