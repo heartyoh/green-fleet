@@ -110,6 +110,13 @@ Ext.define('GreenFleet.view.viewport.North', {
 					xtype : 'track',
 					itemId : 'track'
 				}
+			}, {
+				text : 'ControlData',
+				itemId : 'control_data',
+				view : {
+					xtype : 'control_data',
+					itemId : 'control_data'
+				}
 			}]
 		} ]
 	} ]

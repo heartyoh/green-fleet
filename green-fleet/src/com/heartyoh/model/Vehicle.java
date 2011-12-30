@@ -68,6 +68,8 @@ public class Vehicle {
 	@Persistent
 	private double longitude;
 	@Persistent
+	private String driver;
+	@Persistent
 	private Date createdAt;
 	@Persistent
 	private Date updatedAt;
@@ -191,6 +193,12 @@ public class Vehicle {
 	}
 	public void setSparkPlugStatus(String sparkPlugStatus) {
 		this.sparkPlugStatus = sparkPlugStatus;
+	}
+	public String getDriver() {
+		return driver;
+	}
+	public void setDriver(String driver) {
+		this.driver = driver;
 	}
 	public double getLattitude() {
 		return lattitude;

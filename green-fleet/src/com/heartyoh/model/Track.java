@@ -8,10 +8,6 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
-import com.google.appengine.api.datastore.Key;
-
 
 @PersistenceCapable
 public class Track {
@@ -25,6 +21,9 @@ public class Track {
 	
 	@Persistent
 	private String vehicle;
+
+	@Persistent
+	private String driver;
 
 	@Persistent
 	private double lattitude;
@@ -51,6 +50,12 @@ public class Track {
 	}
 	public void setVehicle(String vehicle) {
 		this.vehicle = vehicle;
+	}
+	public String getDriver() {
+		return driver;
+	}
+	public void setDriver(String driver) {
+		this.driver = driver;
 	}
 	public double getLattitude() {
 		return lattitude;

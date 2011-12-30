@@ -1,14 +1,12 @@
 package com.heartyoh.model;
 
 import java.util.Date;
-import java.util.List;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
-import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable
 public class ControlData {
@@ -23,8 +21,12 @@ public class ControlData {
 	
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+    private String key;
 
+	@Persistent
+    private Company company;
+	
 	@Persistent
 	private Date date;
 	@Persistent
@@ -51,6 +53,113 @@ public class ControlData {
 	private double econoDrivingRatio;
 	@Persistent
 	private double fuelEfficiency;
+
 	@Persistent
-	private List<Incident> incidents;
+	private Date createdAt;
+	@Persistent
+	private Date updatedAt;
+	
+	public String getKey() {
+		return key;
+	}
+	public void setKey(String key) {
+		this.key = key;
+	}
+	public Company getCompany() {
+		return company;
+	}
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	public String getDriver() {
+		return driver;
+	}
+	public void setDriver(String driver) {
+		this.driver = driver;
+	}
+	public String getVehicle() {
+		return vehicle;
+	}
+	public void setVehicle(String vehicle) {
+		this.vehicle = vehicle;
+	}
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+	public double getDistance() {
+		return distance;
+	}
+	public void setDistance(double distance) {
+		this.distance = distance;
+	}
+	public double getRunningTime() {
+		return runningTime;
+	}
+	public void setRunningTime(double runningTime) {
+		this.runningTime = runningTime;
+	}
+	public double getAverageSpeed() {
+		return averageSpeed;
+	}
+	public void setAverageSpeed(double averageSpeed) {
+		this.averageSpeed = averageSpeed;
+	}
+	public double getHighestSpeed() {
+		return highestSpeed;
+	}
+	public void setHighestSpeed(double highestSpeed) {
+		this.highestSpeed = highestSpeed;
+	}
+	public double getSuddenAccelCount() {
+		return suddenAccelCount;
+	}
+	public void setSuddenAccelCount(double suddenAccelCount) {
+		this.suddenAccelCount = suddenAccelCount;
+	}
+	public double getSuddenBrakeCount() {
+		return suddenBrakeCount;
+	}
+	public void setSuddenBrakeCount(double suddenBrakeCount) {
+		this.suddenBrakeCount = suddenBrakeCount;
+	}
+	public double getEconoDrivingRatio() {
+		return econoDrivingRatio;
+	}
+	public void setEconoDrivingRatio(double econoDrivingRatio) {
+		this.econoDrivingRatio = econoDrivingRatio;
+	}
+	public double getFuelEfficiency() {
+		return fuelEfficiency;
+	}
+	public void setFuelEfficiency(double fuelEfficiency) {
+		this.fuelEfficiency = fuelEfficiency;
+	}
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
 }

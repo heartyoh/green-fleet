@@ -8,7 +8,8 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		type : 'string'
 	}, {
 		name : 'reservedDate',
-		type : 'string'
+		type : 'date',
+		dateFormat : 'timestamp'
 	}, {
 		name : 'driver',
 		type : 'string'

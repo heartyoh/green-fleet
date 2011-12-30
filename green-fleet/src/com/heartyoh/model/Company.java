@@ -43,6 +43,11 @@ public class Company {
 	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="createdAt desc"))
     private List<Track> tracks;
 	
+	@JsonIgnore
+	@Persistent(mappedBy = "company")
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="createdAt desc"))
+    private List<ControlData> controlDatas;
+	
 	@Persistent
 	private String name;
 
@@ -120,6 +125,14 @@ public class Company {
 	}
 	public void setTracks(List<Track> tracks) {
 		this.tracks = tracks;
+	}
+
+	public List<ControlData> getControlDatas() {
+		return controlDatas;
+	}
+
+	public void setControlDatas(List<ControlData> controlDatas) {
+		this.controlDatas = controlDatas;
 	}
 
 }

@@ -17,13 +17,13 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'string'
 	}, {
 		name : 'lattitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'longitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'impulse',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'videoClip',
 		type : 'string'

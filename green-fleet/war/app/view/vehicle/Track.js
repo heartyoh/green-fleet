@@ -34,6 +34,10 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				text : 'Vehicle',
 				type : 'string'
 			}, {
+				dataIndex : 'driver',
+				text : 'Driver',
+				type : 'string'
+			}, {
 				dataIndex : 'lattitude',
 				text : 'Lattitude',
 				type : 'number'
@@ -58,15 +62,20 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 			},
 			onSearch : function(grid) {
 				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
+				var driverFilter = grid.down('textfield[name=driverFilter]');
 				grid.store.load({
 					filters : [ {
 						property : 'vehicle',
 						value : vehicleFilter.getValue()
+					},{
+						property : 'driver',
+						value : driverFilter.getValue()
 					} ]
 				});
 			},
 			onReset : function(grid) {
 				grid.down('textfield[name=vehicleFilter]').setValue('');
+				grid.down('textfield[name=driverFilter]').setValue('');
 			},
 			tbar : [ {
 				xtype : 'combo',
@@ -77,6 +86,24 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 			    valueField: 'id',
 				fieldLabel : 'Vehicle',
 				name : 'vehicleFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Driver',
+				name : 'driverFilter',
 				width : 200,
 				listeners : {
 					specialkey : function(field, e) {
@@ -125,6 +152,15 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 				displayField: 'id',
 			    valueField: 'id',
 				fieldLabel : 'Vehicle',
+				anchor : '100%'
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode: 'local',
+				store : 'DriverStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Driver',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',

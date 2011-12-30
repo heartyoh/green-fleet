@@ -24,6 +24,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
+import com.heartyoh.model.Driver;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.model.Track;
@@ -43,6 +44,7 @@ public class TrackService {
 
 		String key = request.getParameter("key");
 		String vehicle = request.getParameter("vehicle");
+		String driver = request.getParameter("driver");
 		String lattitude = request.getParameter("lattitude");
 		String longitude = request.getParameter("longitude");
 
@@ -55,6 +57,9 @@ public class TrackService {
 		
 		Key vehicleKey = KeyFactory.createKey(companyKey, Vehicle.class.getSimpleName(), vehicle);
 		Vehicle objVehicle = pm.getObjectById(Vehicle.class, vehicleKey);
+		
+//		Key driverKey = KeyFactory.createKey(companyKey, Driver.class.getSimpleName(), driver);
+//		Driver objDriver = pm.getObjectById(Driver.class, driverKey);
 		
 		Track obj = null;
 
@@ -69,7 +74,6 @@ public class TrackService {
 		try {
 			if (creating) {
 				obj = new Track();
-				obj.setVehicle(vehicle);
 				obj.setCompany(company);
 				obj.setCreatedAt(now);
 			} else {
@@ -89,6 +93,10 @@ public class TrackService {
 				obj.setLongitude(dblLongitude);
 				objVehicle.setLongitude(dblLongitude);
 			}
+			obj.setVehicle(vehicle);
+			obj.setDriver(driver);
+
+			objVehicle.setDriver(driver);
 
 			obj = pm.makePersistent(obj);
 			objVehicle = pm.makePersistent(objVehicle);
@@ -131,16 +139,6 @@ public class TrackService {
 	@RequestMapping(value = "/track", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Track> retrieve(HttpServletRequest request, HttpServletResponse response) {
-//		String vehicle = request.getParameter("vehicle");
-//
-//		Key vehicleKey = KeyFactory.stringToKey(vehicle);
-//
-//		PersistenceManager pm = PMF.get().getPersistenceManager();
-//
-//		Vehicle objVehicle = pm.getObjectById(Vehicle.class, vehicleKey);
-//
-//		return objVehicle.getIncidents();
-		
 		CustomUser user = SessionUtils.currentUser();
 
 		String jsonFilter = request.getParameter("filter");
@@ -169,6 +167,7 @@ public class TrackService {
 		Query query = pm.newQuery(clazz);
 
 		String vehicle = null;
+		String driver = null;
 		
 		if (filters != null) {
 			Iterator<Filter> it = filters.iterator();
@@ -176,6 +175,8 @@ public class TrackService {
 				Filter filter = it.next();
 				if(filter.getProperty().equals("vehicle"))
 					vehicle = filter.getValue();
+				else if(filter.getProperty().equals("driver"))
+					driver = filter.getValue();
 			}
 		}
 
@@ -185,6 +186,11 @@ public class TrackService {
 			strFilter += " && vehicle == vehicleParam";
 			strParameter += ", String vehicleParam";
 		}
+		if(driver != null) {
+			strFilter += " && driver == driverParam";
+			strParameter += ", String driverParam";
+		}
+
 		query.setFilter(strFilter);
 		query.declareParameters(strParameter);
 //		query.setOrdering("createdAt ASC");
@@ -193,8 +199,12 @@ public class TrackService {
 		// query.setOrdering();
 		// query.declareParameters();
 
+		if(vehicle != null && driver != null)
+			return (List<Track>)query.execute(company, vehicle, driver);
 		if(vehicle != null)
 			return (List<Track>)query.execute(company, vehicle);
+		if(driver != null)
+			return (List<Track>)query.execute(company, driver);
 		else
 			return (List<Track>) query.execute(company);
 	}

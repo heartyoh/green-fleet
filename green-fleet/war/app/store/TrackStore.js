@@ -10,6 +10,9 @@ Ext.define('GreenFleet.store.TrackStore', {
 		name : 'vehicle',
 		type : 'string'
 	}, {
+		name : 'driver',
+		type : 'string'
+	}, {
 		name : 'lattitude',
 		type : 'number'
 	}, {
