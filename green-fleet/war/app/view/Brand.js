@@ -3,5 +3,5 @@ Ext.define('GreenFleet.view.Brand', {
 	
 	alias : 'widget.brand',
 	
-	html : '<h1></h1>'
+	html : '<a></a>'
 });

@@ -10,7 +10,7 @@ Ext.define('GreenFleet.view.viewport.North', {
 
 	items : [ {
 		xtype : 'brand',
-		width : 128
+		width : 135
 	}, {
 		xtype : 'container',
 		flex : 1,

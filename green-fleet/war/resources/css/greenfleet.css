@@ -13,7 +13,8 @@
 .header .x-tab button {color:#a9bbcc;font-size:12px;font-weight:normal}
 .header .x-tab-default-over,.header .x-tab-default-active{background-color:#fdfdfd;background-image:none;border:1px solid #111d2e;box-shadow:none;height:22px}
 .header .x-tab-default-active.x-tab button,.header .x-tab-default-over.x-tab button{color:#333;font-weight:bold}
-.header h1{background:url('../image/logoGreenfleet.gif') no-repeat;width:125px;height:45px;display:block;margin:7px 0 0 4px}
+.header a{background:url('../image/logoGreenfleet.gif') no-repeat;width:125px;height:45px;display:block;margin:7px 0 0 4px}
+.header .x-tab-bar-top .x-tab-bar-strip{height:0px;border:0}
 
 .appMenu.x-toolbar{padding:0}
 .appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:14px}
@@ -23,3 +24,25 @@
 .tool{background:url('../image/bgTool.gif') repeat-y}
 
 .x-panel-body-default,.x-toolbar{border:none;background:none;background-color:transparent}
+
+/*map style*/
+.summaryBoard{border-width:0px;border-left:2px solid #2f3137;background-color:#43464f}
+.summaryBoard .searchField{background:url('../image/bgSearchField.gif') repeat-x;height:35px;border-bottom:1px solid #23252d;color:#959595}
+.summaryBoard .x-form-item-label{padding:10px 0 0 7px;font-size:11px}
+.summaryBoard .time{background:url('../image/iconTime.gif') 6px 4px no-repeat;color:#77bdff;padding:4px 3px 2px 25px;font-size:15px}
+.summaryBoard .count{background:url('../image/iconBus.gif') 6px 4px no-repeat;color:#fff;padding:4px 3px 2px 25px;}
+.summaryBoard .x-panel-header-default{background:none;background-color:transparent;border:none}
+.summaryBoard .x-panel-header-text-default{color:#6493c7;font-weight:normal}
+.summaryBoard .x-panel-header-default-top{box-shadow:none;border-top:1px solid #323641}
+.summaryBoard .statusPanel,.summaryBoard .groupPanel,.summaryBoard .incidentPanel{background:url('../image/bgSummaryPanel.gif') 0 100% repeat-x;}
+.statusPanel .x-btn-default-small{background:none;background-color:transparent;border:0}
+.statusPanel .btnDriving,.statusPanel .btnStop,.statusPanel .btnIncident{width:43px;height:90px;margin:5px 0 5px 18px;padding-top:50px;color:#ccc;text-align:center;font-size:12px}
+.statusPanel .btnDriving.x-btn-default-small{background:url('../image/statusDriving.png') no-repeat;}
+.statusPanel .btnStop.x-btn-default-small{background:url('../image/statusStop.png') no-repeat;}
+.statusPanel .btnIncident.x-btn-default-small{background:url('../image/statusIncident.png') no-repeat;}
+.statusPanel .x-btn-default-small span{font-size:17px;color:#fff}
+.groupPanel,.incidentPanel{padding-bottom:5px}
+.groupPanel a{background:url('../image/dotGray.gif') 8px 50% no-repeat;color:#ccc;padding:1px 0 4px 15px;text-decoration:none;display:block}
+.groupPanel a span,.groupPanel a:hover{color:#fff}
+.incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;color:#fff;padding:1px 0 4px 20px;text-decoration:none;display:block}
+.incidentPanel a span{display:block;font-size:11px;color:#a5a5a5;}
