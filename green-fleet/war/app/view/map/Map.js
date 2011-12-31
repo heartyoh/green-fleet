@@ -82,7 +82,7 @@ Ext.define('GreenFleet.view.map.Map', {
 		/*
 		 * Draw map
 		 */
-		mapbox.map = new google.maps.Map(mapbox.getEl().first('.map').dom, options);
+		mapbox.map = new google.maps.Map(mapbox.getEl().down('.map').dom, options);
 
 		/*
 		 * Set map event listeners
@@ -116,14 +116,14 @@ Ext.define('GreenFleet.view.map.Map', {
 
 		store.each(function(record) {
 			var vehicle = record.get('id');
+			var driver = record.get('driver');
+			
 			var marker = new google.maps.Marker({
 				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
 				map : this.mapbox.map,
 				icon : images[record.get('status')],
 				title : vehicle,
-				vehicle : vehicle,
-				driver : 'V001',
-				tooltip : vehicle + "(김형용)"
+				tooltip : vehicle + "(" + driver + ")"
 			});
 
 			var label = new Label({
@@ -137,15 +137,8 @@ Ext.define('GreenFleet.view.map.Map', {
 			var mapbox = this.mapbox;
 			google.maps.event.addListener(marker, 'click', function() {
 				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
-					vehicle : vehicle,
-					driver : 'V001'
+					vehicle : record,
 				}).show();
-
-				// var infowindow = new google.maps.InfoWindow({
-				// content : marker.getTitle(),
-				// size : new google.maps.Size(100, 100)
-				// });
-				// infowindow.open(mapbox.map, marker);
 			});
 		}, this);
 	},
@@ -161,8 +154,24 @@ Ext.define('GreenFleet.view.map.Map', {
 
 	buildMap : function(parent) {
 		return {
-			xtype : 'box',
+			xtype : 'panel',
 			flex : 1,
+			title : 'Information',
+			tools : [{
+				xtype : 'checkbox',
+				fieldLabel : 'Markers',
+				checked : true,
+				boxLabelAlign : 'before',
+				labelWidth : 45,
+				labelSeparator : '',
+				itemId : 'markers',
+				scope : this,
+				handler : function(field, newValue) {
+					for ( var vehicle in this.markers) {
+						this.markers[vehicle].setVisible(newValue);
+					}
+				}
+			}],
 			html : '<div class="map" style="height:100%"></div>',
 			listeners : {
 				afterrender : function() {
@@ -185,6 +194,8 @@ Ext.define('GreenFleet.view.map.Map', {
 				xtype : 'combo',
 				cls : 'searchField',
 				fieldLabel : 'Search',
+				labelWidth : 50,
+				labelSeparator : '',
 				itemId : 'search'
 			}, {
 				xtype : 'component',
@@ -196,17 +207,6 @@ Ext.define('GreenFleet.view.map.Map', {
 				cls : 'count',
 				itemId : 'vehicle_count',
 				html : 'Total Running Vehicles : 6'
-			}, {
-				xtype : 'checkbox',
-				fieldLabel : 'Markers',
-				checked : true,
-				itemId : 'markers',
-				scope : this,
-				handler : function(field, newValue) {
-					for ( var vehicle in this.markers) {
-						this.markers[vehicle].setVisible(newValue);
-					}
-				}
 			}, {
 				xtype : 'panel',
 				title : '상황별 운행 현황',

@@ -202,7 +202,7 @@ Ext.define('GreenFleet.view.vehicle.ControlData', {
 				xtype : 'datefield',
 				name : 'date',
 				fieldLabel : 'Date',
-				format: 'd-m-Y H:i:s',
+				format: 'd-m-Y',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',

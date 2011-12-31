@@ -8,8 +8,15 @@ Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
 	
 	modal : true,
 	
-	width : 600,
-	height : 400,
+	width : 800,
+	height : 600,
+	
+	listeners : {
+		afterrender : function(popup) {
+			var form = popup.down('form');
+			form.loadRecord(popup.vehicle);
+		}
+	},
 	
 	layout : {
 		type : 'vbox',
@@ -18,7 +25,7 @@ Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
 	
 	items : [{
 		xtype : 'container',
-		flex : 2,
+		height : 200,
 		layout : {
 			type : 'vbox',
 			align : 'stretch'
@@ -28,15 +35,15 @@ Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
 			height : 140,
 			items : [{
 				xtype : 'textfield',
+				name : 'id',
+				fieldLabel : 'Vehicle'
+			}, {
+				xtype : 'textfield',
 				name : 'driver',
 				fieldLabel : 'Driver'
 			}, {
 				xtype : 'textfield',
-				name : 'vehicle',
-				fieldLabel : 'Vehicle'
-			}, {
-				xtype : 'textfield',
-				name : 'position',
+				name : 'location',
 				fieldLabel : 'Current Position'
 			}, {
 				xtype : 'textfield',
@@ -85,110 +92,13 @@ Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [{
-			xtype : 'gridpanel',
-			title : 'Information',
-			store : 'VehicleStore',
-			autoScroll : true,
-			columns : [ {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'id',
-				text : 'Vehicle Id',
-				type : 'string'
-			}, {
-				dataIndex : 'registrationNumber',
-				text : 'RegistrationNumber',
-				type : 'string'
-			}, {
-				dataIndex : 'manufacturer',
-				text : 'Manufacturer',
-				type : 'string'
-			}, {
-				dataIndex : 'vehicleType',
-				text : 'VehicleType',
-				type : 'string'
-			}, {
-				dataIndex : 'birthYear',
-				text : 'BirthYear',
-				type : 'string'
-			}, {
-				dataIndex : 'ownershipType',
-				text : 'OwnershipType',
-				type : 'string'
-			}, {
-				dataIndex : 'status',
-				text : 'Status',
-				type : 'string'
-			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
-				type : 'string'
-			}, {
-				dataIndex : 'totalDistance',
-				text : 'TotalDistance',
-				type : 'string'
-			}, {
-				dataIndex : 'remainingFuel',
-				text : 'RemainingFuel',
-				type : 'string'
-			}, {
-				dataIndex : 'distanceSinceNewOil',
-				text : 'DistanceSinceNewOil',
-				type : 'string'
-			}, {
-				dataIndex : 'engineOilStatus',
-				text : 'EngineOilStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'fuelFilterStatus',
-				text : 'FuelFilterStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'brakeOilStatus',
-				text : 'BrakeOilStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'brakePedalStatus',
-				text : 'BrakePedalStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'coolingWaterStatus',
-				text : 'CoolingWaterStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'timingBeltStatus',
-				text : 'TimingBeltStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'sparkPlugStatus',
-				text : 'SparkPlugStatus',
-				type : 'string'
-			}, {
-				dataIndex : 'lattitude',
-				text : 'Lattitude'
-			}, {
-				dataIndex : 'longitude',
-				text : 'Longitude'
-			}, {
-				dataIndex : 'createdAt',
-				text : 'Created At',
-				xtype:'datecolumn',
-				format:'d/m/Y'
-			}, {
-				dataIndex : 'updatedAt',
-				text : 'Updated At',
-				xtype:'datecolumn',
-				format:'d/m/Y'
-			} ]
+			xtype : 'info_by_vehicle',
 		}, {
-			title : 'Control - Vehicle'
+			xtype : 'control_by_vehicle',
 		}, {
-			title : 'Control - Driver'
+			xtype : 'control_by_vehicle',
 		}, {
-			title : 'Control - Maintenance'
+			xtype : 'control_by_vehicle',
 		}]
 	}]
 });
