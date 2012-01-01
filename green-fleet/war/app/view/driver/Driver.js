@@ -211,7 +211,7 @@ Ext.define('GreenFleet.view.driver.Driver', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : driverUploadUrl,//'driver/save',
+								url : 'driver/save',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 								},
