@@ -4,8 +4,7 @@ function Label(opt_options) {
 
 	// Label specific
 	var span = this.span_ = document.createElement('span');
-	span.style.cssText = 'position: relative; left: -50%; top: -65px; '
-			+ 'white-space: nowrap; border: 1px solid #7499b5; ' + 'padding: 2px; background-color: white';
+	this.span_.setAttribute('class', 'mapTipID');
 
 	var div = this.div_ = document.createElement('div');
 	div.appendChild(span);
@@ -67,8 +66,9 @@ Ext.define('GreenFleet.view.map.Map', {
 		
 		var title = this.add({
 			xtype : 'panel',
+			cls :'pageTitle',
 			html : '<h1>Information</h1>',
-			height : 25,
+			height: 35,
 			rbar : [{
 				xtype : 'checkbox',
 				fieldLabel : 'Markers',

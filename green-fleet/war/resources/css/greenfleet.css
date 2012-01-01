@@ -45,12 +45,19 @@
 .tool .btnExport{background:url('../image/iconExportOff.png') 58% 2px no-repeat;}
 .tool .btnExport.x-btn-default-small-over{background:url('../image/iconExportOn.png') 58% 2px no-repeat;color:#fff}
 
-/*map style*/
+
+/*summary board style*/
 .summaryBoard{border-width:0px;border-left:2px solid #2f3137;background-color:#43464f}
 .summaryBoard .searchField{background:url('../image/bgSearchField.gif') repeat-x;height:35px;border-bottom:1px solid #23252d;color:#959595}
+.searchField .x-form-text, textarea.x-form-field{
+	background:none;background-color:#31343f;border:1px solid #616670;padding-right:25px;width:120px;
+	-webkit-border-radius: 12px;-moz-border-radius: 12px;border-radius: 12px;
+}
+.searchField .x-form-item-body{top:5px}
+.searchField .x-form-trigger{background:url('../image/btnSearchIcon.gif') no-repeat;border:none;margin-left:-9px;width:27px}
 .summaryBoard .x-form-item-label{padding:10px 0 0 7px;font-size:11px}
 .summaryBoard .time{background:url('../image/iconTime.gif') 6px 4px no-repeat;color:#77bdff;padding:4px 3px 2px 25px;font-size:15px}
-.summaryBoard .count{background:url('../image/iconBus.gif') 6px 4px no-repeat;color:#fff;padding:4px 3px 2px 25px;}
+.summaryBoard .count{background:url('../image/iconBus.gif') 6px 4px no-repeat;color:#fff;padding:4px 3px 2px 25px;margin-bottom:10px}
 .summaryBoard .x-panel-header-default{background:none;background-color:transparent;border:none}
 .summaryBoard .x-panel-header-text-default{color:#6493c7;font-weight:normal}
 .summaryBoard .x-panel-header-default-top{box-shadow:none;border-top:1px solid #323641}
@@ -66,3 +73,14 @@
 .groupPanel a span,.groupPanel a:hover{color:#fff}
 .incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;color:#fff;padding:1px 0 4px 20px;text-decoration:none;display:block}
 .incidentPanel a span{display:block;font-size:11px;color:#a5a5a5;}
+
+/*common style*/
+.pageTitle{background:url('../image/bgH1.gif') repeat-x;border-bottom:1px solid #aeaeae;padding:5px 5px 0 10px}
+.pageTitle h1{background:url('../image/iconH1.png') no-repeat;padding:1px 0 0 30px;height:26px;color:#333;font-size:19px;font-weight:normal}
+
+/*map style*/
+span.mapTipID{
+	position:relative;left:-50%;top:-65px;white-space:nowrap;border:1px solid #7499b5;padding:2px 5px;font-size:11px;
+	background:url('../image/bgMapTip.gif') repeat-x;
+	-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
+}
