@@ -6,8 +6,6 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 	alias : 'widget.viewport.center',
 
-	preventHeader : true,
-
 	layout : 'card',
 
 	listeners : {
@@ -27,7 +25,6 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	},
 
 	defaults : {
-		preventHeader : true,
 		listeners : {
 			activate : function(item) {
 				var menutab = Ext.getCmp('menutab');

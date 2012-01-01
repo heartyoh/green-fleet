@@ -20,6 +20,11 @@ Ext.define('GreenFleet.view.Viewport', {
 		cls : 'tool',
 		width : 50
 	}, {
+		xtype : 'viewport.east',
+		region : 'east',
+		cls : 'summaryBoard',
+		width : 200
+	}, {
 		xtype : 'viewport.center',
 		region : 'center'
 	} ]

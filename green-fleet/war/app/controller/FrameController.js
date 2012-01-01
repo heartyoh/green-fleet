@@ -3,7 +3,7 @@ Ext.define('GreenFleet.controller.FrameController', {
 
 	stores : [],
 	models : [],
-	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'Brand', 'MainMenu', 'SideMenu' ],
+	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu' ],
 
 	init : function() {
 		this.control({
