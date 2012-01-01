@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.SystemMenu', {
+Ext.define('GreenFleet.view.SideMenu', {
 	extend : 'Ext.toolbar.Toolbar',
 
-	alias : 'widget.system_menu',
+	alias : 'widget.side_menu',
 
 	items : [ {
 		type : 'help',

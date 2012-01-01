@@ -111,7 +111,7 @@ Ext.define('GreenFleet.view.vehicle.InfoByVehicle', {
 			grid.store.load();
 		},
 		itemclick : function(grid, record) {
-			var form = grid.up('window').down('form');
+			var form = grid.up('information').down('form');
 			form.loadRecord(record);
 		}
 	},

@@ -13,8 +13,9 @@
 
 <html lang='en'>
 	<head>
-		<title>Green Fleet</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"> 
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<title>Green Fleet</title>
 
 		<link rel="stylesheet" href="resources/css/ext-greenfleet.css"></link>
 		<link rel="stylesheet" href="resources/css/greenfleet.css"></link>
@@ -29,6 +30,7 @@
 		};
 		
 		var uploadUrl = '<%= blobstoreService.createUploadUrl("/upload") %>';
+		var driverUploadUrl = '<%= blobstoreService.createUploadUrl("/driver/save") %>';
 		</script>
 		
 		<script src="ext-all.js"></script>
