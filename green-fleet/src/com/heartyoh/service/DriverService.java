@@ -1,10 +1,7 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.files.AppEngineFile;
@@ -41,7 +36,6 @@ import com.heartyoh.util.SessionUtils;
 @Controller
 public class DriverService {
 	private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
-	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 	private static final Class<Driver> clazz = Driver.class;
 
 	@RequestMapping(value = "/driver/save", method = RequestMethod.POST)
