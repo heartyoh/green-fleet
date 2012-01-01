@@ -167,10 +167,20 @@ Ext.define('GreenFleet.view.driver.Driver', {
 				fieldLabel : 'Title',
 				anchor : '100%'
 			}, {
-				xtype : 'textfield',
+				xtype : 'filefield',
 				name : 'imageClip',
-				fieldLabel : 'ImageClip',
-				anchor : '100%'
+				fieldLabel : 'Image Upload',
+//				labelWidth : 50,
+				msgTarget : 'side',
+				allowBlank : true,
+				anchor : '100%',
+				buttonText : 'file...'
+
+					
+//				xtype : 'textfield',
+//				name : 'imageClip',
+//				fieldLabel : 'ImageClip',
+//				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'updatedAt',
@@ -201,7 +211,7 @@ Ext.define('GreenFleet.view.driver.Driver', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : 'driver/save',
+								url : driverUploadUrl,//'driver/save',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 								},

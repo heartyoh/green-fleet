@@ -64,24 +64,12 @@ Ext.define('GreenFleet.mixin.UI', {
 		Ext.getCmp('statusbar').clearStatus();
 	},
 
+	getMenu : function(menu) {
+		return Ext.getCmp('content').getComponent(menu);
+	},
+	
 	doMenu : function(menu) {
-		if (menu.viewModel) {
-			Ext.require(menu.viewModel, function() {
-				GreenFleet.addContentView(Ext.create(menu.viewModel, {
-					title : menu.text,
-					tabConfig : {
-						tooltip : menu.tooltip
-					},
-					closable : true
-				}));
-			});
-		} else {
-			GreenFleet.status.set({
-				text : 'View Not Found!',
-				iconCls : 'x-status-error',
-				clear : true
-			// auto-clear after a set interval
-			});
-		}
+		var content = Ext.getCmp('content');
+		content.getLayout().setActiveItem(content.getComponent(menu));
 	}
 });

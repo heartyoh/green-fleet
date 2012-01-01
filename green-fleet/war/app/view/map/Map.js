@@ -136,9 +136,11 @@ Ext.define('GreenFleet.view.map.Map', {
 
 			var mapbox = this.mapbox;
 			google.maps.event.addListener(marker, 'click', function() {
-				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
-					vehicle : record,
-				}).show();
+				GreenFleet.getMenu('information').vehicle = record;
+				GreenFleet.doMenu('information');
+//				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
+//					vehicle : record,
+//				}).show();
 			});
 		}, this);
 	},

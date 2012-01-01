@@ -1,53 +1,58 @@
 package com.heartyoh.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Driver;
-import com.heartyoh.model.Filter;
-import com.heartyoh.model.Sorter;
 import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class DriverService {
 	private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
+	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 	private static final Class<Driver> clazz = Driver.class;
 
 	@RequestMapping(value = "/driver/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
+	String save2(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String id = request.getParameter("id");
-		String name = request.getParameter("name");
-		String division = request.getParameter("division");
-		String title = request.getParameter("title");
+		String id = new String(request.getParameter("id").getBytes(response.getCharacterEncoding()));
+		String name = new String(request.getParameter("name").getBytes(response.getCharacterEncoding()));
+		
+		String division = new String(request.getParameter("division").getBytes(response.getCharacterEncoding()));
+		String title = new String(request.getParameter("title").getBytes(response.getCharacterEncoding()));
 		String imageClip = request.getParameter("imageClip");
+
+		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(request);
+	    BlobKey blobKey = blobs.get("imageClip");
 
 		Key objKey = null;
 		boolean creating = false;
@@ -95,8 +100,13 @@ public class DriverService {
 				obj.setTitle(title);
 			if (division != null)
 				obj.setDivision(division);
-			if (imageClip != null)
-				obj.setImageClip(imageClip);
+//			if (imageClip != null)
+//				obj.setImageClip(imageClip);
+//			Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(request);
+//		    BlobKey blobKey = blobs.get("imageClip");
+		    if(blobKey != null)
+		    	obj.setImageClip(blobKey.getKeyString());
+		    
 
 			obj.setUpdatedAt(now);
 
@@ -105,13 +115,17 @@ public class DriverService {
 			pm.close();
 		}
 
-		Map<String, Object> result = new HashMap<String, Object>();
+	    response.setContentType("text/html");
 
-		result.put("success", true);
-		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
-		result.put("key", obj.getKey());
+    	return "{ \"success\" : true, \"key\" : \"" + obj.getKey() + "\" }";
 
-		return result;
+//		Map<String, Object> result = new HashMap<String, Object>();
+//
+//		result.put("success", true);
+//		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
+//		result.put("key", obj.getKey());
+//
+//		return result;
 	}
 
 	@RequestMapping(value = "/driver/delete", method = RequestMethod.POST)
