@@ -2,6 +2,7 @@ Ext.define('GreenFleet.view.SystemMenu', {
 	extend : 'Ext.toolbar.Toolbar',
 
 	alias : 'widget.system_menu',
+	cls : 'sideMenu',
 
 	items : [ {
 		type : 'help',
@@ -9,9 +10,27 @@ Ext.define('GreenFleet.view.SystemMenu', {
 		handler : function() {
 		}
 	}, {
+		itemId : 'home',
+		type : 'home',
+		cls : 'btnHome',
+		handler : function() {
+		}
+	}, {
+		itemId : 'report',
+		type : 'report',
+		cls : 'btnReport',
+		handler : function() {
+		}
+	}, {
+		itemId : 'setting',
+		type : 'setting',
+		cls : 'btnSetting',
+		handler : function() {
+		}
+	}, {
 		itemId : 'logout',
 		type : 'logout',
-		text : 'logout',
+		cls : 'btnLogout',
 		handler : function() {
 			Ext.MessageBox.confirm('Confirm', 'Are you sure you want to do that?', function(confirm) {
 				if (confirm === 'yes') {
@@ -20,10 +39,10 @@ Ext.define('GreenFleet.view.SystemMenu', {
 
 			});
 		}
-	}, {
+	}/*, {
 		type : 'search',
 		text : 'search',
 		handler : function(event, target, owner, tool) {
 		}
-	} ]
+	}*/ ]
 });

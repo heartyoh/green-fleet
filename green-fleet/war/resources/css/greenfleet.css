@@ -3,11 +3,9 @@
 /*header style*/
 .header{background:url('../image/bgLogo.gif') no-repeat}
 .header .x-panel-body-default,.x-toolbar-default{background-color:transparent}
-.header .x-tab-bar-top .x-tab-bar-body{border:none;height:22px}
+.header .x-tab-bar-top .x-tab-bar-body{border:none;height:22px;margin-top:1px}
 .header .x-border-box .x-tab-bar-top .x-tab-bar-body{height:23px !important}
-.header .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:13px}
 .header .x-btn-default-toolbar-small{border:0;}
-.header .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:0}
 .header .x-tab-bar{background:none}
 .header .x-tab-default-top{background-color:#111d2e;background-image:none;border:1px solid #111d2e;box-shadow:none;height:22px}
 .header .x-tab button {color:#a9bbcc;font-size:12px;font-weight:normal}
@@ -21,9 +19,31 @@
 .appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:8px 5px 0 5px;margin-right:10px}
 .appMenu .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff}
 .appMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff}
+.sideMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:11px}
+.sideMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff;font-size:11px}
 .tool{background:url('../image/bgTool.gif') repeat-y}
 
 .x-panel-body-default,.x-toolbar{border:none;background:none;background-color:transparent}
+.btnLogout{background:url('../image/iconLogout.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
+.btnHome{background:url('../image/iconHome.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
+.btnReport{background:url('../image/iconReport.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
+.btnSetting{background:url('../image/iconSetting.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
+
+/*tool style*/
+.tool{padding:10px 0 0 0}
+.tool .x-btn-default-small{width:38px;height:45px;margin:0 0 7px 4px;padding-top:25px;font-size:10px;color:#ccc;text-transform:capitalize;text-align:center;border:0;border-bottom:1px solid #474b55}
+.tool .btnAdd{background:url('../image/iconAddOff.png') 58% 2px no-repeat;}
+.tool .btnAdd.x-btn-default-small-over{background:url('../image/iconAddOn.png') 58% 2px no-repeat;color:#fff}
+.tool .btnRemove{background:url('../image/iconDeleteOff.png') 58% 2px no-repeat;}
+.tool .btnRemove.x-btn-default-small-over{background:url('../image/iconDeleteOn.png') 58% 2px no-repeat;color:#fff}
+.tool .btnRefresh{background:url('../image/iconRefreshOff.png') 58% 2px no-repeat;}
+.tool .btnRefresh.x-btn-default-small-over{background:url('../image/iconRefreshOn.png') 58% 2px no-repeat;color:#fff}
+.tool .btnEvent{background:url('../image/iconEventOff.png') 58% 2px no-repeat;}
+.tool .btnEvent.x-btn-default-small-over{background:url('../image/iconEventOn.png') 58% 2px no-repeat;color:#fff}
+.tool .btnSave{background:url('../image/iconSaveOff.png') 58% 2px no-repeat;}
+.tool .btnSave.x-btn-default-small-over{background:url('../image/iconSaveOn.png') 58% 2px no-repeat;color:#fff}
+.tool .btnExport{background:url('../image/iconExportOff.png') 58% 2px no-repeat;}
+.tool .btnExport.x-btn-default-small-over{background:url('../image/iconExportOn.png') 58% 2px no-repeat;color:#fff}
 
 /*map style*/
 .summaryBoard{border-width:0px;border-left:2px solid #2f3137;background-color:#43464f}
