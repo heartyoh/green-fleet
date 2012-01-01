@@ -58,13 +58,33 @@ Ext.define('GreenFleet.view.map.Map', {
 	title : 'Maps',
 
 	layout : {
-		type : 'hbox',
+		type : 'vbox',
 		align : 'stretch'
 	},
 
 	initComponent : function() {
 		this.callParent();
-
+		
+		var title = this.add({
+			xtype : 'panel',
+			html : '<h1>Information</h1>',
+			height : 25,
+			rbar : [{
+				xtype : 'checkbox',
+				fieldLabel : 'Markers',
+				checked : true,
+				boxLabelAlign : 'before',
+				labelWidth : 45,
+				labelSeparator : '',
+				itemId : 'markers',
+				scope : this,
+				handler : function(field, newValue) {
+					for ( var vehicle in this.markers) {
+						this.markers[vehicle].setVisible(newValue);
+					}
+				}
+			}]
+		});
 		this.mapbox = this.add(this.buildMap(this));
 	},
 
@@ -157,22 +177,6 @@ Ext.define('GreenFleet.view.map.Map', {
 		return {
 			xtype : 'panel',
 			flex : 1,
-			title : 'Information',
-			tools : [{
-				xtype : 'checkbox',
-				fieldLabel : 'Markers',
-				checked : true,
-				boxLabelAlign : 'before',
-				labelWidth : 45,
-				labelSeparator : '',
-				itemId : 'markers',
-				scope : this,
-				handler : function(field, newValue) {
-					for ( var vehicle in this.markers) {
-						this.markers[vehicle].setVisible(newValue);
-					}
-				}
-			}],
 			html : '<div class="map" style="height:100%"></div>',
 			listeners : {
 				afterrender : function() {
