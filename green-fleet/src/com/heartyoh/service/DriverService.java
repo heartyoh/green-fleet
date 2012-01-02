@@ -44,7 +44,7 @@ public class DriverService {
 		String imageClip = null;
 		if (request instanceof MultipartHttpServletRequest) {
 			// process the uploaded file
-			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageClip");
+			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageFile");
 
 			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
 			String filename = new String(imageFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
@@ -57,7 +57,7 @@ public class DriverService {
 
 			writeChannel.closeFinally();
 
-			imageClip = file.getFullPath();
+			imageClip = fileService.getBlobKey(file).getKeyString();
 		}
 		
 		CustomUser user = SessionUtils.currentUser();

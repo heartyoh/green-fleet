@@ -139,62 +139,92 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			bodyPadding : 10,
 			title : 'Vehicle Details',
 			autoScroll : true,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'	
+			},
 			flex : 1,
 			items : [ {
-				xtype : 'textfield',
-				name : 'key',
-				fieldLabel : 'Key',
-				anchor : '100%',
-				hidden : true
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'	
+				},
+				items : [{
+					xtype : 'textfield',
+					name : 'key',
+					fieldLabel : 'Key',
+					anchor : '100%',
+					hidden : true
+				}, {
+					xtype : 'textfield',
+					name : 'name',
+					fieldLabel : 'Name',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'id',
+					fieldLabel : 'Employee Id',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'division',
+					fieldLabel : 'Division',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'title',
+					fieldLabel : 'Title',
+					anchor : '100%'
+				}, {
+					xtype : 'filefield',
+					name : 'imageFile',
+					fieldLabel : 'Image Upload',
+					msgTarget : 'side',
+					allowBlank : true,
+					anchor : '100%',
+					buttonText : 'file...'
+				}, {
+					xtype : 'datefield',
+					name : 'updatedAt',
+					disabled : true,
+					fieldLabel : 'Updated At',
+					format: 'd/m/Y',
+					anchor : '100%'
+				}, {
+					xtype : 'datefield',
+					name : 'createdAt',
+					disabled : true,
+					fieldLabel : 'Created At',
+					format: 'd/m/Y',
+					anchor : '100%'
+				}]
 			}, {
-				xtype : 'textfield',
-				name : 'name',
-				fieldLabel : 'Name',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'id',
-				fieldLabel : 'Employee Id',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'division',
-				fieldLabel : 'Division',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'title',
-				fieldLabel : 'Title',
-				anchor : '100%'
-			}, {
-				xtype : 'filefield',
-				name : 'imageClip',
-				fieldLabel : 'Image Upload',
-//				labelWidth : 50,
-				msgTarget : 'side',
-				allowBlank : true,
-				anchor : '100%',
-				buttonText : 'file...'
-
-					
-//				xtype : 'textfield',
-//				name : 'imageClip',
-//				fieldLabel : 'ImageClip',
-//				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'updatedAt',
-				disabled : true,
-				fieldLabel : 'Updated At',
-				format: 'd/m/Y',
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'createdAt',
-				disabled : true,
-				fieldLabel : 'Created At',
-				format: 'd/m/Y',
-				anchor : '100%'
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'	
+				},
+				items : [ {
+					xtype : 'image',
+					height : 200,
+					itemId : 'image'
+				}, {
+					xtype : 'displayfield',
+					name : 'imageClip',
+					hidden : true,
+					listeners : {
+						change : function(field, value) {
+							var img = field.previousSibling('image');
+							if(value != null && value.length > 0)
+								img.setSrc('download?blob-key=' + value);
+							else
+								img.setSrc('');
+						}
+					}
+				} ]
 			} ],
 			dockedItems : [ {
 				xtype : 'toolbar',
