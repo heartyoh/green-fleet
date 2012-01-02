@@ -13,8 +13,8 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 	initComponent : function() {
 		this.callParent(arguments);
 
-		this.add(this.buildList(this));
-		this.add(this.buildForm(this));
+		this.list = this.add(this.buildList(this));
+		this.form = this.add(this.buildForm(this));
 	},
 
 	buildList : function(main) {
@@ -56,7 +56,7 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 			},
 			listeners : {
 				itemclick : function(grid, record) {
-					var form = main.down('form');
+					var form = main.form;
 					form.loadRecord(record);
 				}
 			},
@@ -122,11 +122,40 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 					grid.onSearch(grid);
 				}
 			}, {
-				text : 'reset',
+				text : 'Reset',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
+			} ],
+			rbar : [{
+				xtype : 'form',
+				items : [{
+					xtype : 'filefield',
+					name : 'file',
+					fieldLabel : 'Import(CSV)',
+					msgTarget : 'side',
+					allowBlank : true,
+					buttonText : 'file...' 
+				},{
+					xtype : 'button',
+					text : 'Import',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'track/import',
+								success : function(form, action) {
+									main.down('gridpanel').store.load();
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result);
+								}
+							});
+						}
+					}
+				}]
 			} ]
 		}
 	},

@@ -1,5 +1,8 @@
 package com.heartyoh.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,12 +22,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
-import com.heartyoh.model.Driver;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.model.Track;
@@ -36,6 +40,79 @@ import com.heartyoh.util.SessionUtils;
 public class TrackService {
 	private static final Logger logger = LoggerFactory.getLogger(TrackService.class);
 	private static final Class<Track> clazz = Track.class;
+
+	@RequestMapping(value = "/track/import", method = RequestMethod.POST)
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+		CustomUser user = SessionUtils.currentUser();
+
+		MultipartFile file = request.getFile("file");
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+
+		String line = br.readLine();
+		/*
+		 * First line for the header Information
+		 */
+		String[] keys = line.split(",");
+
+		/*
+		 * Next lines for the values
+		 */
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+			Company company = pm.getObjectById(Company.class, companyKey);
+
+			Date now = new Date();
+
+			while ((line = br.readLine()) != null) {
+				String[] values = line.split(",");
+
+				Map<String, String> map = new HashMap<String, String>();
+
+				for (int i = 0; i < keys.length; i++) {
+					map.put(keys[i].trim(), values[i].trim());
+				}
+
+				Track track = new Track();
+
+				try {
+					String vehicle = map.get("vehicle");
+					String driver = map.get("driver");
+					double lattitude = Double.parseDouble(map.get("lattitude"));
+					double longitude = Double.parseDouble(map.get("longitude"));
+					
+					track.setCompany(company);
+					track.setVehicle(vehicle);
+					track.setDriver(driver);
+					track.setLattitude(lattitude);
+					track.setLongitude(longitude);
+					track.setCreatedAt(now);
+
+					track = pm.makePersistent(track);
+					
+					Key vehicleKey = KeyFactory.createKey(companyKey, Vehicle.class.getSimpleName(), vehicle);
+					Vehicle objVehicle = pm.getObjectById(Vehicle.class, vehicleKey);
+					
+					objVehicle.setLattitude(lattitude);
+					objVehicle.setLongitude(longitude);
+					objVehicle.setDriver(driver);
+					
+					objVehicle = pm.makePersistent(objVehicle);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} finally {
+			pm.close();
+		}
+
+		response.setContentType("text/html");
+
+		return "{ \"success\" : true }";
+	}
 
 	@RequestMapping(value = "/track/save", method = RequestMethod.POST)
 	public @ResponseBody

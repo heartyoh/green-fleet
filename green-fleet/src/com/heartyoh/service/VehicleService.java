@@ -1,5 +1,8 @@
 package com.heartyoh.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -31,6 +36,85 @@ public class VehicleService {
 	private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
 	private static final Class<Vehicle> clazz = Vehicle.class;
 
+	@RequestMapping(value = "/vehicle/import", method = RequestMethod.POST)
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+		CustomUser user = SessionUtils.currentUser();
+
+		MultipartFile file = request.getFile("file");
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+
+		String line = br.readLine();
+		/*
+		 * First line for the header Information
+		 */
+		String[] keys = line.split(",");
+
+		/*
+		 * Next lines for the values
+		 */
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+			Company company = pm.getObjectById(Company.class, companyKey);
+
+			Date now = new Date();
+
+			while ((line = br.readLine()) != null) {
+				String[] values = line.split(",");
+
+				Map<String, String> map = new HashMap<String, String>();
+
+				for (int i = 0; i < keys.length; i++) {
+					map.put(keys[i].trim(), values[i].trim());
+				}
+
+				Vehicle vehicle = new Vehicle();
+
+				try {
+					String id = map.get("id");
+					Key key = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
+
+					vehicle.setKey(KeyFactory.keyToString(key));
+					vehicle.setCompany(company);
+					vehicle.setId(id);
+
+					vehicle.setManufacturer(map.get("manufacturer"));
+					vehicle.setVehicleType(map.get("vehicleType"));
+					vehicle.setBirthYear(map.get("birthYear"));
+					vehicle.setOwnershipType(map.get("ownershipType"));
+					vehicle.setStatus(map.get("status"));
+					vehicle.setTotalDistance(Double.parseDouble(map.get("totalDistance")));
+					vehicle.setRegistrationNumber(map.get("registrationNumber"));
+					vehicle.setRemainingFuel(Double.parseDouble(map.get("remainingFuel")));
+					vehicle.setDistanceSinceNewOil(Double.parseDouble(map.get("distanceSinceNewOil")));
+					vehicle.setEngineOilStatus(map.get("engineOilStatus"));
+					vehicle.setFuelFilterStatus(map.get("fuelFilterStatus"));
+					vehicle.setBrakeOilStatus(map.get("brakeOilStatus"));
+					vehicle.setBrakePedalStatus(map.get("brakePedalStatus"));
+					vehicle.setCoolingWaterStatus(map.get("coolingWaterStatus"));
+					vehicle.setTimingBeltStatus(map.get("timingBeltStatus"));
+					vehicle.setSparkPlugStatus(map.get("sparkPlugStatus"));
+					
+					vehicle.setCreatedAt(now);
+					vehicle.setUpdatedAt(now);
+
+					vehicle = pm.makePersistent(vehicle);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} finally {
+			pm.close();
+		}
+
+		response.setContentType("text/html");
+
+		return "{ \"success\" : true }";
+	}
+
+	
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {

@@ -1,6 +1,8 @@
 package com.heartyoh.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +40,69 @@ public class DriverService {
 	private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 	private static final Class<Driver> clazz = Driver.class;
 
+	@RequestMapping(value = "/driver/import", method = RequestMethod.POST)
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+		CustomUser user = SessionUtils.currentUser();
+
+		MultipartFile file = request.getFile("file");
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+
+		String line = br.readLine();
+		/*
+		 * First line for the header Information
+		 */
+		String[] keys = line.split(",");
+
+		/*
+		 * Next lines for the values
+		 */
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+			Company company = pm.getObjectById(Company.class, companyKey);
+
+			Date now = new Date();
+
+			while ((line = br.readLine()) != null) {
+				String[] values = line.split(",");
+
+				Map<String, String> map = new HashMap<String, String>();
+
+				for (int i = 0; i < keys.length; i++) {
+					map.put(keys[i].trim(), values[i].trim());
+				}
+
+				Driver driver = new Driver();
+
+				try {
+					String id = map.get("id");
+					Key key = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
+
+					driver.setKey(KeyFactory.keyToString(key));
+					driver.setCompany(company);
+					driver.setDivision(map.get("division"));
+					driver.setId(id);
+					driver.setName(map.get("name"));
+					driver.setTitle(map.get("title"));
+					driver.setCreatedAt(now);
+					driver.setUpdatedAt(now);
+
+					driver = pm.makePersistent(driver);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} finally {
+			pm.close();
+		}
+
+		response.setContentType("text/html");
+
+		return "{ \"success\" : true }";
+	}
+
 	@RequestMapping(value = "/driver/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -59,7 +124,7 @@ public class DriverService {
 
 			imageClip = fileService.getBlobKey(file).getKeyString();
 		}
-		
+
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
@@ -68,10 +133,6 @@ public class DriverService {
 
 		String division = new String(request.getParameter("division").getBytes(response.getCharacterEncoding()));
 		String title = new String(request.getParameter("title").getBytes(response.getCharacterEncoding()));
-
-		// Map<String, BlobKey> blobs =
-		// blobstoreService.getUploadedBlobs(request);
-		// BlobKey blobKey = blobs.get("imageClip");
 
 		Key objKey = null;
 		boolean creating = false;
@@ -119,8 +180,8 @@ public class DriverService {
 				obj.setTitle(title);
 			if (division != null)
 				obj.setDivision(division);
-			 if (imageClip != null)
-				 obj.setImageClip(imageClip);
+			if (imageClip != null)
+				obj.setImageClip(imageClip);
 
 			obj.setUpdatedAt(now);
 
@@ -132,15 +193,6 @@ public class DriverService {
 		response.setContentType("text/html");
 
 		return "{ \"success\" : true, \"key\" : \"" + obj.getKey() + "\" }";
-
-		// Map<String, Object> result = new HashMap<String, Object>();
-		//
-		// result.put("success", true);
-		// result.put("msg", clazz.getSimpleName() + (creating ? " created." :
-		// " updated"));
-		// result.put("key", obj.getKey());
-		//
-		// return result;
 	}
 
 	@RequestMapping(value = "/driver/delete", method = RequestMethod.POST)
@@ -171,56 +223,12 @@ public class DriverService {
 	List<Driver> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
-		// String jsonFilter = request.getParameter("filter");
-		// String jsonSorter = request.getParameter("sort");
-		//
-		// List<Filter> filters = null;
-		// List<Sorter> sorters = null;
-		//
-		//
-		//
-		// try {
-		// if(jsonFilter != null) {
-		// filters = new
-		// ObjectMapper().readValue(request.getParameter("filter"), new
-		// TypeReference<List<Filter>>(){ });
-		// }
-		// if(jsonSorter != null) {
-		// sorters = new ObjectMapper().readValue(request.getParameter("sort"),
-		// new TypeReference<List<Sorter>>(){ });
-		// }
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		Company company = pm.getObjectById(Company.class, companyKey);
-		// Query query = pm.newQuery(clazz);
-		//
-		// query.setFilter("company == companyParam && id >= idParam1 && id < idParam2");
-		// query.declareParameters(Company.class.getName() +
-		// " companyParam, String idParam1, String idParam2");
-		//
-		// String idFilter = null;
-		//
-		// if (filters != null) {
-		// Iterator<Filter> it = filters.iterator();
-		// while (it.hasNext()) {
-		// Filter filter = it.next();
-		// if(filter.getProperty().equals("id"))
-		// idFilter = filter.getValue();
-		// }
-		// }
 
-		// query.setGrouping(user.getCompany());
-		// query.setOrdering();
-		// query.declareParameters();
-
-		// return (List<Driver>) query.execute(company, idFilter, idFilter +
-		// "\ufffd");
 		return company.getDrivers();
 	}
 
