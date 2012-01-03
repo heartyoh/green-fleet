@@ -4,9 +4,6 @@ Ext.define('GreenFleet.store.IncidentStore', {
 	autoLoad : false,
 
 	fields : [ {
-		name : 'id',
-		type : 'string'
-	}, {
 		name : 'incidentTime',
 		type : 'string'
 	}, {

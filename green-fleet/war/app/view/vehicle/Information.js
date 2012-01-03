@@ -2,6 +2,40 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 	extend : 'Ext.Container',
 	alias : 'widget.information',
 	
+	initComponent : function() {
+		this.callParent();
+		
+		var form = this.down('form');
+		form.getComponent('id').on('change', function(field) {
+			var record = form.getRecord();
+			var location = record.get('location');
+			if(location == null || location.length == 0) {
+				var lattitude = record.get('lattitude');
+				var longitude = record.get('longitude');
+
+				if (!lattitude || !longitude)
+					return;
+
+				var latlng = new google.maps.LatLng(lattitude, longitude);
+
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode({
+					'latLng' : latlng
+				}, function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[1]) {
+							var address = results[1].formatted_address
+							record.set('location', address);
+							form.getComponent('location').setValue(address); 
+						}
+					} else {
+						console.log("Geocoder failed due to: " + status);
+					}
+				});
+			}
+		});
+	},
+	
 	listeners : {
 		activate : function(panel) {
 			var form = panel.down('form');
@@ -30,7 +64,8 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 			items : [{
 				xtype : 'textfield',
 				name : 'id',
-				fieldLabel : 'Vehicle'
+				fieldLabel : 'Vehicle',
+				itemId : 'id'
 			}, {
 				xtype : 'textfield',
 				name : 'driver',
@@ -38,7 +73,8 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 			}, {
 				xtype : 'textfield',
 				name : 'location',
-				fieldLabel : 'Current Position'
+				fieldLabel : 'Current Location',
+				itemId : 'location'
 			}, {
 				xtype : 'textfield',
 				name : 'distance',

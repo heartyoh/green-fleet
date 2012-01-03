@@ -3,31 +3,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 
 	autoLoad : true,
 	
-	listeners : {
-		datachanged : function(store) {
-			store.each(function(record) {
-				var lattitude = record.get('lattitude');
-				var longitude = record.get('longitude');
-				
-				if(!lattitude || !longitude)
-					return;
-				
-			    var latlng = new google.maps.LatLng(lattitude, longitude);
-			    
-				geocoder = new google.maps.Geocoder();
-			    geocoder.geocode({'latLng': latlng}, function(results, status) {
-			        if (status == google.maps.GeocoderStatus.OK) {
-			          if (results[1]) {
-			            record.set('location', results[1].formatted_address);
-			          }
-			        } else {
-			          console.log("Geocoder failed due to: " + status);
-			        }
-			      });
-			});
-		}
-	},
-
 	fields : [ {
 		name : 'key',
 		type : 'string'

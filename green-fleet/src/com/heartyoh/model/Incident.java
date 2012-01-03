@@ -17,9 +17,6 @@ public class Incident {
     private String key;
 
 	@Persistent
-	private String id;
-	
-	@Persistent
     private Company company;
 	
 	@Persistent
@@ -49,12 +46,6 @@ public class Incident {
 	}
 	public void setKey(String key) {
 		this.key = key;
-	}
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
 	}
 	public Company getCompany() {
 		return company;

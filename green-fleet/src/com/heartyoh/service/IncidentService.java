@@ -1,15 +1,16 @@
 package com.heartyoh.service;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
-import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,9 +22,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.files.AppEngineFile;
+import com.google.appengine.api.files.FileServiceFactory;
+import com.google.appengine.api.files.FileWriteChannel;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
@@ -39,72 +45,75 @@ public class IncidentService {
 
 	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
+	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String videoClip = null;
+		if (request instanceof MultipartHttpServletRequest) {
+			// process the uploaded file
+			MultipartFile videoFile = ((MultipartHttpServletRequest) request).getFile("videoFile");
+
+			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+			String filename = new String(videoFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
+			AppEngineFile file = fileService.createNewBlobFile(videoFile.getContentType(), filename);
+
+			boolean lock = true;
+			FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+
+			writeChannel.write(ByteBuffer.wrap(videoFile.getBytes()));
+
+			writeChannel.closeFinally();
+
+			videoClip = fileService.getBlobKey(file).getKeyString();
+		}
+
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String id = request.getParameter("id");
-		String vehicle = request.getParameter("vehicle");
-		String driver = request.getParameter("driver");
-		Date incidentTime = new Date(request.getParameter("incidentTime"));
-		String lattitude = request.getParameter("lattitude");
-		String longitude = request.getParameter("longitude");
-		String impulse = request.getParameter("impulse");
-		String videoClip = request.getParameter("videoClip");
-
-		Key objKey = null;
-		boolean creating = false;
+		String vehicle = new String(request.getParameter("vehicle").getBytes(response.getCharacterEncoding()));
+		String driver = new String(request.getParameter("driver").getBytes(response.getCharacterEncoding()));
+		String incidentTime = new String(request.getParameter("incidentTime").getBytes(response.getCharacterEncoding()));
+		String lattitude = new String(request.getParameter("lattitude").getBytes(response.getCharacterEncoding()));
+		String longitude = new String(request.getParameter("longitude").getBytes(response.getCharacterEncoding()));
+		String impulse = new String(request.getParameter("impulse").getBytes(response.getCharacterEncoding()));
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
-		Company company = pm.getObjectById(Company.class, companyKey);
-		Key vehicleKey = KeyFactory.stringToKey(vehicle);
-		Key driverKey = KeyFactory.stringToKey(driver);
-		
+
 		Incident obj = null;
-
-		if (key != null && key.trim().length() > 0) {
-			objKey = KeyFactory.stringToKey(key);
-		} else {
-			objKey = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
-			try {
-				obj = pm.getObjectById(clazz, objKey);
-			} catch (JDOObjectNotFoundException e) {
-				// It's OK.
-				creating = true;
-
-			}
-			// It's Not OK. You try to add duplicated identifier.
-			if (obj != null)
-				throw new EntityExistsException(clazz.getSimpleName() + " with id(" + id + ") already Exist.");
-		}
 
 		Date now = new Date();
 
 		try {
-			if (creating) {
-				obj = new Incident();
-				obj.setKey(KeyFactory.keyToString(objKey));
-				obj.setVehicle(vehicle);
-				obj.setDriver(driver);
-				obj.setId(id);
-				obj.setIncidentTime(incidentTime);
-				obj.setCreatedAt(now);
+			obj = new Incident();
+			if (key != null && key.trim().length() > 0) {
+				obj = pm.getObjectById(clazz, KeyFactory.stringToKey(key));
 			} else {
-				obj = pm.getObjectById(clazz, objKey);
+				Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+				Company company = pm.getObjectById(Company.class, companyKey);
+
+				obj.setCompany(company);
+				obj.setCreatedAt(now);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-
-			if(lattitude != null)
+			if (vehicle != null)
+				obj.setVehicle(vehicle);
+			if (driver != null)
+				obj.setDriver(driver);
+			if (driver != null)
+				obj.setDriver(driver);
+			if (incidentTime != null) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(incidentTime));
+				obj.setIncidentTime(cal.getTime());
+			}
+			if (lattitude != null)
 				obj.setLattitude(Double.parseDouble(lattitude));
-			if(longitude != null)
+			if (longitude != null)
 				obj.setLongitude(Double.parseDouble(longitude));
-			if(impulse != null)
+			if (impulse != null)
 				obj.setImpulse(Double.parseDouble(impulse));
-			if(videoClip != null)
+			if (videoClip != null)
 				obj.setVideoClip(videoClip);
 
 			obj.setUpdatedAt(now);
@@ -114,13 +123,9 @@ public class IncidentService {
 			pm.close();
 		}
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		response.setContentType("text/html");
 
-		result.put("success", true);
-		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
-		result.put("key", obj.getKey());
-
-		return result;
+		return "{ \"success\" : true, \"key\" : \"" + obj.getKey() + "\" }";
 	}
 
 	@RequestMapping(value = "/incident/delete", method = RequestMethod.POST)
@@ -149,16 +154,6 @@ public class IncidentService {
 	@RequestMapping(value = "/incident", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Incident> retrieve(HttpServletRequest request, HttpServletResponse response) {
-//		String vehicle = request.getParameter("vehicle");
-//
-//		Key vehicleKey = KeyFactory.stringToKey(vehicle);
-//
-//		PersistenceManager pm = PMF.get().getPersistenceManager();
-//
-//		Vehicle objVehicle = pm.getObjectById(Vehicle.class, vehicleKey);
-//
-//		return objVehicle.getIncidents();
-		
 		CustomUser user = SessionUtils.currentUser();
 
 		String jsonFilter = request.getParameter("filter");
@@ -186,25 +181,47 @@ public class IncidentService {
 
 		Query query = pm.newQuery(clazz);
 
-		query.setFilter("company == companyParam && id >= idParam1 && id < idParam2");
-		query.declareParameters(Company.class.getName() + " companyParam, String idParam1, String idParam2");
-		
-		String idFilter = null;
+		String vehicle = null;
+		String driver = null;
 		
 		if (filters != null) {
 			Iterator<Filter> it = filters.iterator();
 			while (it.hasNext()) {
 				Filter filter = it.next();
-				if(filter.getProperty().equals("id"))
-					idFilter = filter.getValue(); 
+				if(filter.getProperty().equals("vehicle"))
+					vehicle = filter.getValue();
+				else if(filter.getProperty().equals("driver"))
+					driver = filter.getValue();
 			}
 		}
+
+		String strFilter = "company == companyParam";
+		String strParameter = Company.class.getName() + " companyParam";
+		if(vehicle != null) {
+			strFilter += " && vehicle == vehicleParam";
+			strParameter += ", String vehicleParam";
+		}
+		if(driver != null) {
+			strFilter += " && driver == driverParam";
+			strParameter += ", String driverParam";
+		}
+
+		query.setFilter(strFilter);
+		query.declareParameters(strParameter);
+//		query.setOrdering("createdAt ASC");
 		
 		// query.setGrouping(user.getCompany());
 		// query.setOrdering();
 		// query.declareParameters();
 
-		return (List<Incident>) query.execute(company, idFilter, idFilter + "\ufffd");
+		if(vehicle != null && driver != null)
+			return (List<Incident>)query.execute(company, vehicle, driver);
+		if(vehicle != null)
+			return (List<Incident>)query.execute(company, vehicle);
+		if(driver != null)
+			return (List<Incident>)query.execute(company, driver);
+		else
+			return (List<Incident>) query.execute(company);
 	}
 
 }
