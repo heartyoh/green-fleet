@@ -6,8 +6,19 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 		this.callParent();
 		
 		var form = this.down('form');
+		var driverImage = this.down('image');
+		
 		form.getComponent('id').on('change', function(field) {
 			var record = form.getRecord();
+			var driverStore = Ext.getStore('DriverStore');
+			var driverRecord = driverStore.findRecord('id', record.get('driver'));
+			var driverImageClip = driverRecord.get('imageClip');
+			if(driverImageClip) {
+				driverImage.setSrc('download?blob-key=' + driverImageClip);
+			} else {
+				driverImage.setSrc('');
+			}
+
 			var location = record.get('location');
 			if(location == null || location.length == 0) {
 				var lattitude = record.get('lattitude');
@@ -62,7 +73,7 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 			type : 'hbox'
 		},
 		items : [ {
-			xtype : 'box',
+			xtype : 'image',
 			cls : 'imgDriver'
 		}, {
 			xtype : 'form',
