@@ -1,4 +1,5 @@
 .wrap{background:url('../image/bgHeader.gif') repeat-x}
+#content-body{background-color:#efefef}
 
 /*header style*/
 .header{background:url('../image/bgLogo.gif') no-repeat}
@@ -77,6 +78,17 @@
 /*common style*/
 .pageTitle{background:url('../image/bgH1.gif') repeat-x;border-bottom:1px solid #aeaeae;padding:5px 5px 0 10px}
 .pageTitle h1{background:url('../image/iconH1.png') no-repeat;padding:1px 0 0 30px;height:26px;color:#333;font-size:19px;font-weight:normal}
+.x-panel-header-default{box-shadow:none}
+.x-panel-header-text-default,.x-tab-active button{color:#4b638f}
+.imgDriver{background:url('../image/bgDriver.png') 4px 4px no-repeat;width:120px;height:125px;background-color:#fff;border:1px solid #c0c0c0;margin-right:20px}
+.paddingPanel{padding:3px 13px}
+#content-body .x-tab-bar{background:url('../image/bgTab.gif') repeat-x;}
+#content-body .x-tab-default-top{background:url('../image/bgTabItem.gif') repeat-x;box-shadow:none;border-bottom:0}
+#content-body .x-tab-default-top.x-tab button{color:#51698b;font-weight:normal}
+#content-body .x-tab-default-top-active{background:url('../image/bgTabItemActive.gif') repeat-x;}
+#content-body .x-tab-default-top-active.x-tab button{color:#51698b;font-weight:normal}
+#content-body .x-tab-bar-body{border:0}
+.x-column-header-align-left,.x-column-header-align-center,.x-column-header-align-right{text-align:center}
 
 /*map style*/
 span.mapTipID{

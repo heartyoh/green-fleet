@@ -5,5 +5,15 @@ $font-family: Trebuchet MS,tahoma,arial,verdana,sans-serif !default;
 //toolbar
 $toolbar-background-gradient:none;
 
+//panel
+$panel-body-border-style:none;
+$panel-header-border-width:0px;
+$panel-header-background-gradient:none;
+$panel-header-background-color:#efefef;
+
+$tab-top-border-radius: 5px 5px 0 0 !default;
+$tab-bottom-border-radius: 0 0 5px 5px !default;
+$tab-border-color:#506b93;
+
 @import 'compass';
 @import 'ext4/default/all';
