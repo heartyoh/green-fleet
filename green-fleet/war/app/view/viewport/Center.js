@@ -38,10 +38,10 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	},
 
 	items : [ {
-//		title : 'Dashboard',
-//		xtype : 'map',
-//		itemId : 'map'
-//	}, {
+		title : 'Dashboard',
+		xtype : 'map',
+		itemId : 'map'
+	}, {
 		title : 'Info',
 		xtype : 'information',
 		itemId : 'information'
