@@ -32,8 +32,8 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 			}, {
 				dataIndex : 'incidentTime',
 				text : 'Incident Time',
-				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				xtype : 'datecolumn',
+				format : 'd-m-Y H:i:s'
 			}, {
 				dataIndex : 'driver',
 				text : 'Driver',
@@ -57,13 +57,13 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				xtype : 'datecolumn',
+				format : 'd-m-Y H:i:s'
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				xtype : 'datecolumn',
+				format : 'd-m-Y H:i:s'
 			} ],
 			viewConfig : {
 
@@ -91,10 +91,15 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 				grid.down('textfield[name=vehicleFilter]').setValue('');
 				grid.down('textfield[name=driverFilter]').setValue('');
 			},
-			tbar : [ 'Vehicle', {
-				xtype : 'textfield',
+			tbar : [ {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode : 'local',
+				store : 'VehicleStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : 'Vehicle',
 				name : 'vehicleFilter',
-				hideLabel : true,
 				width : 200,
 				listeners : {
 					specialkey : function(field, e) {
@@ -104,10 +109,15 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 						}
 					}
 				}
-			}, 'Driver', {
-				xtype : 'textfield',
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode : 'local',
+				store : 'DriverStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : 'Driver',
 				name : 'driverFilter',
-				hideLabel : true,
 				width : 200,
 				listeners : {
 					specialkey : function(field, e) {
@@ -126,12 +136,12 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 					grid.onSearch(grid);
 				}
 			}, {
-				text : 'reset',
+				text : 'Reset',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ]
+			} ],
 		}
 	},
 
@@ -141,74 +151,117 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 			bodyPadding : 10,
 			title : 'Incident Details',
 			autoScroll : true,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
 			flex : 1,
-			items : [ {
-				xtype : 'textfield',
-				name : 'key',
-				fieldLabel : 'Key',
-				anchor : '100%',
-				hidden : true
-			}, {
-				xtype : 'datefield',
-				name : 'incidentTime',
-				fieldLabel : 'Incident Time',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'vehicle',
-				queryMode: 'local',
-				store : 'VehicleStore',
-				displayField: 'id',
-			    valueField: 'id',
-				fieldLabel : 'Vehicle',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'driver',
-				queryMode: 'local',
-				store : 'DriverStore',
-				displayField: 'id',
-			    valueField: 'id',
-				fieldLabel : 'Driver',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'lattitude',
-				fieldLabel : 'Lattitude',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'longitude',
-				fieldLabel : 'Longitude',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'impulse',
-				fieldLabel : 'Impulse',
-				anchor : '100%'
-			}, {
-				xtype : 'filefield',
-				name : 'videoFile',
-				fieldLabel : 'Video Upload',
-				msgTarget : 'side',
-				allowBlank : true,
-				anchor : '100%',
-				buttonText : 'file...'
-			}, {
-				xtype : 'datefield',
-				name : 'updatedAt',
-				disabled : true,
-				fieldLabel : 'Updated At',
-				format: 'd-m-Y H:i:s',
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'createdAt',
-				disabled : true,
-				fieldLabel : 'Created At',
-				format: 'd-m-Y H:i:s',
-				anchor : '100%'
-			} ],
+			items : [
+					{
+						xtype : 'container',
+						flex : 1,
+						layout : {
+							type : 'vbox',
+							align : 'stretch'
+						},
+						items : [ {
+							xtype : 'textfield',
+							name : 'key',
+							fieldLabel : 'Key',
+							anchor : '100%',
+							hidden : true
+						}, {
+							xtype : 'datefield',
+							name : 'incidentTime',
+							fieldLabel : 'Incident Time',
+							anchor : '100%',
+							submitFormat : 'U'
+						}, {
+							xtype : 'combo',
+							name : 'vehicle',
+							queryMode : 'local',
+							store : 'VehicleStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Vehicle',
+							anchor : '100%'
+						}, {
+							xtype : 'combo',
+							name : 'driver',
+							queryMode : 'local',
+							store : 'DriverStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Driver',
+							anchor : '100%'
+						}, {
+							xtype : 'textfield',
+							name : 'lattitude',
+							fieldLabel : 'Lattitude',
+							anchor : '100%'
+						}, {
+							xtype : 'textfield',
+							name : 'longitude',
+							fieldLabel : 'Longitude',
+							anchor : '100%'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse',
+							fieldLabel : 'Impulse',
+							anchor : '100%'
+						}, {
+							xtype : 'filefield',
+							name : 'videoFile',
+							fieldLabel : 'Video Upload',
+							msgTarget : 'side',
+							allowBlank : true,
+							anchor : '100%',
+							buttonText : 'file...'
+						}, {
+							xtype : 'datefield',
+							name : 'updatedAt',
+							disabled : true,
+							fieldLabel : 'Updated At',
+							format : 'd-m-Y H:i:s',
+							anchor : '100%'
+						}, {
+							xtype : 'datefield',
+							name : 'createdAt',
+							disabled : true,
+							fieldLabel : 'Created At',
+							format : 'd-m-Y H:i:s',
+							anchor : '100%'
+						} ]
+					},
+					{
+						xtype : 'container',
+						flex : 1,
+						layout : {
+							type : 'vbox',
+							align : 'stretch'
+						},
+						items : [
+								{
+									xtype : 'box',
+									itemId : 'video',
+									tpl : [ '<video controls="controls">',
+											'<source src="download?blob-key={value}" type="video/mp4" />',
+											'Your browser does not support the video tag.', '</video>' ]
+								}, {
+									xtype : 'displayfield',
+									name : 'videoClip',
+									hidden : true,
+									listeners : {
+										change : function(field, value) {
+											var video = field.previousSibling('box');
+											video.update({
+												value : value
+											});
+										}
+									}
+								} ]
+					} ],
+
 			dockedItems : [ {
 				xtype : 'toolbar',
 				dock : 'bottom',

@@ -35,17 +35,17 @@ public class Company {
 	
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="vehicle asc, incidentTime desc"))
     private List<Incident> incidents;
 	
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="createdAt desc"))
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="vehicle asc, createdAt desc"))
     private List<Track> tracks;
 	
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="createdAt desc"))
+	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="vehicle asc, startTime desc"))
     private List<ControlData> controlDatas;
 	
 	@Persistent
