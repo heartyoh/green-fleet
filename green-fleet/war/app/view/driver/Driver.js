@@ -14,7 +14,8 @@ Ext.define('GreenFleet.view.driver.Driver', {
 		this.callParent(arguments);
 
 		this.list = this.add(this.buildList(this));
-		this.form = this.add(this.buildForm(this));
+		var detail = this.add(this.buildForm(this));
+		this.form = detail.down('form');
 	},
 
 	buildList : function(main) {
@@ -137,6 +138,7 @@ Ext.define('GreenFleet.view.driver.Driver', {
 					name : 'file',
 					fieldLabel : 'Import(CSV)',
 					msgTarget : 'side',
+					labelAlign : 'top',
 					allowBlank : true,
 					buttonText : 'file...' 
 				},{
@@ -164,10 +166,10 @@ Ext.define('GreenFleet.view.driver.Driver', {
 
 	buildForm : function(main) {
 		return {
-			xtype : 'form',
+			xtype : 'panel',
 			itemId : 'details',
 			bodyPadding : 10,
-			title : 'Vehicle Details',
+			title : 'Driver Details',
 			autoScroll : true,
 			layout : {
 				type : 'hbox',
@@ -175,12 +177,8 @@ Ext.define('GreenFleet.view.driver.Driver', {
 			},
 			flex : 1,
 			items : [ {
-				xtype : 'container',
+				xtype : 'form',
 				flex : 1,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'	
-				},
 				items : [{
 					xtype : 'textfield',
 					name : 'key',
@@ -229,7 +227,20 @@ Ext.define('GreenFleet.view.driver.Driver', {
 					fieldLabel : 'Created At',
 					format: 'd/m/Y',
 					anchor : '100%'
-				}]
+				}, {
+					xtype : 'displayfield',
+					name : 'imageClip',
+					hidden : true,
+					listeners : {
+						change : function(field, value) {
+							var img = field.up('form').nextSibling('container').down('image');
+							if(value != null && value.length > 0)
+								img.setSrc('download?blob-key=' + value);
+							else
+								img.setSrc('resources/image/bgDriver.png');
+						}
+					}
+				} ]
 			}, {
 				xtype : 'container',
 				flex : 1,
@@ -241,19 +252,6 @@ Ext.define('GreenFleet.view.driver.Driver', {
 					xtype : 'image',
 					height : 200,
 					itemId : 'image'
-				}, {
-					xtype : 'displayfield',
-					name : 'imageClip',
-					hidden : true,
-					listeners : {
-						change : function(field, value) {
-							var img = field.previousSibling('image');
-							if(value != null && value.length > 0)
-								img.setSrc('download?blob-key=' + value);
-							else
-								img.setSrc('resources/image/bgDriver.png');
-						}
-					}
 				} ]
 			} ],
 			dockedItems : [ {

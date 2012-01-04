@@ -3,6 +3,8 @@ package com.heartyoh.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.files.AppEngineFile;
+import com.google.appengine.api.files.FileServiceFactory;
+import com.google.appengine.api.files.FileWriteChannel;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Vehicle;
@@ -117,28 +122,46 @@ public class VehicleService {
 	
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
+	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String imageClip = null;
+		if (request instanceof MultipartHttpServletRequest) {
+			// process the uploaded file
+			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageFile");
+
+			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+			String filename = new String(imageFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
+			AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType(), filename);
+
+			boolean lock = true;
+			FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+
+			writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
+
+			writeChannel.closeFinally();
+
+			imageClip = fileService.getBlobKey(file).getKeyString();
+		}
+
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String id = request.getParameter("id");
-		String registrationNumber = request.getParameter("registrationNumber");
-		String manufacturer = request.getParameter("manufacturer");
-		String vehicleType = request.getParameter("vehicleType");
-		String birthYear = request.getParameter("birthYear");
-		String ownershipType = request.getParameter("ownershipType");
-		String status = request.getParameter("status");
-		String imageClip = request.getParameter("imageClip");
-		String totalDistance = request.getParameter("totalDistance");
-		String remainingFuel = request.getParameter("remainingFuel");
-		String distanceSinceNewOil = request.getParameter("distanceSinceNewOil");
-		String engineOilStatus = request.getParameter("engineOilStatus");
-		String fuelFilterStatus = request.getParameter("fuelFilterStatus");
-		String brakeOilStatus = request.getParameter("brakeOilStatus");
-		String brakePedalStatus = request.getParameter("brakePedalStatus");
-		String coolingWaterStatus = request.getParameter("coolingWaterStatus");
-		String timingBeltStatus = request.getParameter("timingBeltStatus");
-		String sparkPlugStatus = request.getParameter("sparkPlugStatus");
+		String id = new String(request.getParameter("id").getBytes(response.getCharacterEncoding()));;
+		String registrationNumber = new String(request.getParameter("registrationNumber").getBytes(response.getCharacterEncoding()));;
+		String manufacturer = new String(request.getParameter("manufacturer").getBytes(response.getCharacterEncoding()));;
+		String vehicleType = new String(request.getParameter("vehicleType").getBytes(response.getCharacterEncoding()));;
+		String birthYear = new String(request.getParameter("birthYear").getBytes(response.getCharacterEncoding()));;
+		String ownershipType = new String(request.getParameter("ownershipType").getBytes(response.getCharacterEncoding()));;
+		String status = new String(request.getParameter("status").getBytes(response.getCharacterEncoding()));;
+		String totalDistance = new String(request.getParameter("totalDistance").getBytes(response.getCharacterEncoding()));;
+		String remainingFuel = new String(request.getParameter("remainingFuel").getBytes(response.getCharacterEncoding()));;
+		String distanceSinceNewOil = new String(request.getParameter("distanceSinceNewOil").getBytes(response.getCharacterEncoding()));;
+		String engineOilStatus = new String(request.getParameter("engineOilStatus").getBytes(response.getCharacterEncoding()));;
+		String fuelFilterStatus = new String(request.getParameter("fuelFilterStatus").getBytes(response.getCharacterEncoding()));;
+		String brakeOilStatus = new String(request.getParameter("brakeOilStatus").getBytes(response.getCharacterEncoding()));;
+		String brakePedalStatus = new String(request.getParameter("brakePedalStatus").getBytes(response.getCharacterEncoding()));;
+		String coolingWaterStatus = new String(request.getParameter("coolingWaterStatus").getBytes(response.getCharacterEncoding()));;
+		String timingBeltStatus = new String(request.getParameter("timingBeltStatus").getBytes(response.getCharacterEncoding()));;
+		String sparkPlugStatus = new String(request.getParameter("sparkPlugStatus").getBytes(response.getCharacterEncoding()));;
 
 		Key objKey = null;
 		boolean creating = false;
@@ -222,13 +245,9 @@ public class VehicleService {
 			pm.close();
 		}
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		response.setContentType("text/html");
 
-		result.put("success", true);
-		result.put("msg", clazz.getSimpleName() + (creating ? " created." : " updated"));
-		result.put("key", obj.getKey());
-
-		return result;
+		return "{ \"success\" : true, \"key\" : \"" + obj.getKey() + "\" }";
 	}
 
 	@RequestMapping(value = "/vehicle/delete", method = RequestMethod.POST)

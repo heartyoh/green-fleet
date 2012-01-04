@@ -14,7 +14,8 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 		this.callParent(arguments);
 
 		this.list = this.add(this.buildList(this));
-		this.form = this.add(this.buildForm(this));
+		var detail = this.add(this.buildForm(this));
+		this.form = detail.down('form'); 
 	},
 
 	buildList : function(main) {
@@ -44,6 +45,10 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 			}, {
 				dataIndex : 'vehicleType',
 				text : 'VehicleType',
+				type : 'string'
+			}, {
+				dataIndex : 'imageClip',
+				text : 'ImageClip',
 				type : 'string'
 			}, {
 				dataIndex : 'birthYear',
@@ -110,13 +115,13 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:'d/m/Y'
+				xtype : 'datecolumn',
+				format : 'd/m/Y'
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:'d/m/Y'
+				xtype : 'datecolumn',
+				format : 'd/m/Y'
 			} ],
 			viewConfig : {
 
@@ -188,16 +193,17 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 					grid.onReset(grid);
 				}
 			} ],
-			rbar : [{
+			rbar : [ {
 				xtype : 'form',
-				items : [{
+				items : [ {
 					xtype : 'filefield',
 					name : 'file',
 					fieldLabel : 'Import(CSV)',
 					msgTarget : 'side',
+					labelAlign : 'top',
 					allowBlank : true,
-					buttonText : 'file...' 
-				},{
+					buttonText : 'file...'
+				}, {
 					xtype : 'button',
 					text : 'Import',
 					handler : function() {
@@ -215,151 +221,194 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 							});
 						}
 					}
-				}]
+				} ]
 			} ]
 		}
 	},
 
 	buildForm : function(main) {
 		return {
-			xtype : 'form',
+			xtype : 'panel',
 			bodyPadding : 10,
 			title : 'Vehicle Details',
-			autoScroll : true,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
 			flex : 1,
 			items : [ {
-				xtype : 'textfield',
-				name : 'key',
-				fieldLabel : 'Key',
-				anchor : '100%',
-				hidden : true
+				xtype : 'form',
+				flex : 1,
+				autoScroll : true,
+				defaults : {
+					anchor : '100%',
+				},
+				items : [ {
+					xtype : 'textfield',
+					name : 'key',
+					fieldLabel : 'Key',
+					hidden : true
+				}, {
+					xtype : 'textfield',
+					name : 'id',
+					fieldLabel : 'Vehicle Id',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'registrationNumber',
+					fieldLabel : 'Registration Number',
+					anchor : '100%'
+				}, {
+					xtype : 'combo',
+					name : 'manufacturer',
+					queryMode : 'local',
+					store : 'ManufacturerStore',
+					displayField : 'name',
+					valueField : 'name',
+					fieldLabel : 'Manufacturer',
+					anchor : '100%'
+				}, {
+					xtype : 'combo',
+					name : 'vehicleType',
+					queryMode : 'local',
+					store : 'VehicleTypeStore',
+					displayField : 'desc',
+					valueField : 'name',
+					fieldLabel : 'Vehicle Type',
+					anchor : '100%'
+				}, {
+					xtype : 'filefield',
+					name : 'imageFile',
+					fieldLabel : 'Image Upload',
+					msgTarget : 'side',
+					allowBlank : true,
+					anchor : '100%',
+					buttonText : 'file...'
+				}, {
+					xtype : 'textfield',
+					name : 'birthYear',
+					fieldLabel : 'BirthYear',
+					anchor : '100%'
+				}, {
+					xtype : 'combo',
+					name : 'ownershipType',
+					queryMode : 'local',
+					store : 'OwnershipStore',
+					displayField : 'desc',
+					valueField : 'name',
+					fieldLabel : 'Ownership Type',
+					anchor : '100%'
+				}, {
+					xtype : 'combo',
+					name : 'status',
+					queryMode : 'local',
+					store : 'VehicleStatusStore',
+					displayField : 'desc',
+					valueField : 'status',
+					fieldLabel : 'Status',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'totalDistance',
+					fieldLabel : 'Total Distance',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'remainingFuel',
+					fieldLabel : 'Remaining Fuel',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'distanceSinceNewOil',
+					fieldLabel : 'Distance Since NewOil',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'engineOilStatus',
+					fieldLabel : 'EngineOil Status',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'fuelFilterStatus',
+					fieldLabel : 'FuelFilter Status',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'brakeOilStatus',
+					fieldLabel : 'BrakeOil Status',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'brakePedalStatus',
+					fieldLabel : 'BrakePedal Status',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'coolingWaterStatus',
+					fieldLabel : 'CoolingWater Status',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'timingBeltStatus',
+					fieldLabel : 'TimingBeltStatus',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'sparkPlugStatus',
+					fieldLabel : 'SparkPlugStatus',
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'lattitude',
+					fieldLabel : 'Lattitude',
+					disabled : true,
+					anchor : '100%'
+				}, {
+					xtype : 'textfield',
+					name : 'longitude',
+					fieldLabel : 'Longitude',
+					disabled : true,
+					anchor : '100%'
+				}, {
+					xtype : 'datefield',
+					name : 'updatedAt',
+					disabled : true,
+					fieldLabel : 'Updated At',
+					format : 'd/m/Y',
+					anchor : '100%'
+				}, {
+					xtype : 'datefield',
+					name : 'createdAt',
+					disabled : true,
+					fieldLabel : 'Created At',
+					format : 'd/m/Y',
+					anchor : '100%'
+				}, {
+					xtype : 'displayfield',
+					name : 'imageClip',
+					hidden : true,
+					listeners : {
+						change : function(field, value) {
+							var img = field.up('form').nextSibling('container').down('image');
+							if(value != null && value.length > 0)
+								img.setSrc('download?blob-key=' + value);
+							else
+								img.setSrc('resources/image/bgVehicle.png');
+						}
+					}
+				} ]
 			}, {
-				xtype : 'textfield',
-				name : 'id',
-				fieldLabel : 'Vehicle Id',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'registrationNumber',
-				fieldLabel : 'Registration Number',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'manufacturer',
-				queryMode: 'local',
-				store : 'ManufacturerStore',
-				displayField: 'name',
-			    valueField: 'name',
-				fieldLabel : 'Manufacturer',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'vehicleType',
-				queryMode: 'local',
-				store : 'VehicleTypeStore',
-				displayField: 'desc',
-			    valueField: 'name',
-				fieldLabel : 'Vehicle Type',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'birthYear',
-				fieldLabel : 'BirthYear',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'ownershipType',
-				queryMode: 'local',
-				store : 'OwnershipStore',
-				displayField: 'desc',
-			    valueField: 'name',
-				fieldLabel : 'Ownership Type',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'status',
-				queryMode: 'local',
-				store : 'VehicleStatusStore',
-				displayField: 'desc',
-			    valueField: 'status',
-				fieldLabel : 'Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'totalDistance',
-				fieldLabel : 'Total Distance',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'remainingFuel',
-				fieldLabel : 'Remaining Fuel',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'distanceSinceNewOil',
-				fieldLabel : 'Distance Since NewOil',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'engineOilStatus',
-				fieldLabel : 'EngineOil Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'fuelFilterStatus',
-				fieldLabel : 'FuelFilter Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'brakeOilStatus',
-				fieldLabel : 'BrakeOil Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'brakePedalStatus',
-				fieldLabel : 'BrakePedal Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'coolingWaterStatus',
-				fieldLabel : 'CoolingWater Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'timingBeltStatus',
-				fieldLabel : 'TimingBeltStatus',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'sparkPlugStatus',
-				fieldLabel : 'SparkPlugStatus',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'lattitude',
-				fieldLabel : 'Lattitude',
-				disabled : true,
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'longitude',
-				fieldLabel : 'Longitude',
-				disabled : true,
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'updatedAt',
-				disabled : true,
-				fieldLabel : 'Updated At',
-				format: 'd/m/Y',
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'createdAt',
-				disabled : true,
-				fieldLabel : 'Created At',
-				format: 'd/m/Y',
-				anchor : '100%'
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'	
+				},
+				items : [ {
+					xtype : 'image',
+					height : 200,
+					itemId : 'image'
+				} ]
 			} ],
 			dockedItems : [ {
 				xtype : 'toolbar',

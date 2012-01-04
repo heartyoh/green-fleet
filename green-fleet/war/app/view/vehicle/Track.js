@@ -134,6 +134,7 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 					xtype : 'filefield',
 					name : 'file',
 					fieldLabel : 'Import(CSV)',
+					labelAlign : 'top',
 					msgTarget : 'side',
 					allowBlank : true,
 					buttonText : 'file...' 
