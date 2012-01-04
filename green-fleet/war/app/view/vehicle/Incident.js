@@ -13,8 +13,9 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 	initComponent : function() {
 		this.callParent(arguments);
 
-		this.add(this.buildList(this));
-		this.add(this.buildForm(this));
+		this.list = this.add(this.buildList(this));
+		var detail = this.add(this.buildForm(this));
+		this.form = detail.down('form');
 	},
 
 	buildList : function(main) {
@@ -147,7 +148,7 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 
 	buildForm : function(main) {
 		return {
-			xtype : 'form',
+			xtype : 'panel',
 			bodyPadding : 10,
 			title : 'Incident Details',
 			autoScroll : true,
@@ -158,23 +159,21 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 			flex : 1,
 			items : [
 					{
-						xtype : 'container',
+						xtype : 'form',
 						flex : 1,
-						layout : {
-							type : 'vbox',
-							align : 'stretch'
+						autoScroll : true,
+						defaults : {
+							anchor : '100%'
 						},
 						items : [ {
 							xtype : 'textfield',
 							name : 'key',
 							fieldLabel : 'Key',
-							anchor : '100%',
 							hidden : true
 						}, {
 							xtype : 'datefield',
 							name : 'incidentTime',
 							fieldLabel : 'Incident Time',
-							anchor : '100%',
 							submitFormat : 'U'
 						}, {
 							xtype : 'combo',
@@ -183,8 +182,7 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 							store : 'VehicleStore',
 							displayField : 'id',
 							valueField : 'id',
-							fieldLabel : 'Vehicle',
-							anchor : '100%'
+							fieldLabel : 'Vehicle'
 						}, {
 							xtype : 'combo',
 							name : 'driver',
@@ -192,45 +190,50 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 							store : 'DriverStore',
 							displayField : 'id',
 							valueField : 'id',
-							fieldLabel : 'Driver',
-							anchor : '100%'
+							fieldLabel : 'Driver'
 						}, {
 							xtype : 'textfield',
 							name : 'lattitude',
-							fieldLabel : 'Lattitude',
-							anchor : '100%'
+							fieldLabel : 'Lattitude'
 						}, {
 							xtype : 'textfield',
 							name : 'longitude',
-							fieldLabel : 'Longitude',
-							anchor : '100%'
+							fieldLabel : 'Longitude'
 						}, {
 							xtype : 'textfield',
 							name : 'impulse',
-							fieldLabel : 'Impulse',
-							anchor : '100%'
+							fieldLabel : 'Impulse'
 						}, {
 							xtype : 'filefield',
 							name : 'videoFile',
 							fieldLabel : 'Video Upload',
 							msgTarget : 'side',
 							allowBlank : true,
-							anchor : '100%',
 							buttonText : 'file...'
 						}, {
 							xtype : 'datefield',
 							name : 'updatedAt',
 							disabled : true,
 							fieldLabel : 'Updated At',
-							format : 'd-m-Y H:i:s',
-							anchor : '100%'
+							format : 'd-m-Y H:i:s'
 						}, {
 							xtype : 'datefield',
 							name : 'createdAt',
 							disabled : true,
 							fieldLabel : 'Created At',
-							format : 'd-m-Y H:i:s',
-							anchor : '100%'
+							format : 'd-m-Y H:i:s'
+						}, {
+							xtype : 'displayfield',
+							name : 'videoClip',
+							hidden : true,
+							listeners : {
+								change : function(field, value) {
+									var video = main.form.nextSibling('container').getComponent('video');
+									video.update({
+										value : value
+									});
+								}
+							}
 						} ]
 					},
 					{
@@ -247,18 +250,6 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 									tpl : [ '<video width="300" height="200" controls="controls">',
 											'<source src="download?blob-key={value}" type="video/mp4" />',
 											'Your browser does not support the video tag.', '</video>' ]
-								}, {
-									xtype : 'displayfield',
-									name : 'videoClip',
-									hidden : true,
-									listeners : {
-										change : function(field, value) {
-											var video = field.previousSibling('box');
-											video.update({
-												value : value
-											});
-										}
-									}
 								}, {
 									xtype : 'button',
 									text : 'FullScreen(WebKit Only)',
@@ -282,7 +273,7 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
-						var form = this.up('form').getForm();
+						var form = main.form.getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -300,7 +291,7 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 					xtype : 'button',
 					text : 'Delete',
 					handler : function() {
-						var form = this.up('form').getForm();
+						var form = main.form.getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -319,7 +310,7 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 					xtype : 'button',
 					text : 'Reset',
 					handler : function() {
-						this.up('form').getForm().reset();
+						main.form.getForm().reset();
 					}
 				} ]
 			} ]

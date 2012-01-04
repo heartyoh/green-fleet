@@ -259,11 +259,11 @@ public class TrackService {
 
 		String strFilter = "company == companyParam";
 		String strParameter = Company.class.getName() + " companyParam";
-		if(vehicle != null) {
+		if(vehicle != null && vehicle.length() > 0) {
 			strFilter += " && vehicle == vehicleParam";
 			strParameter += ", String vehicleParam";
 		}
-		if(driver != null) {
+		if(driver != null && driver.length() > 0) {
 			strFilter += " && driver == driverParam";
 			strParameter += ", String driverParam";
 		}
@@ -276,11 +276,11 @@ public class TrackService {
 		// query.setOrdering();
 		// query.declareParameters();
 
-		if(vehicle != null && driver != null)
+		if((vehicle != null && vehicle.length() > 0) && (driver != null && driver.length() > 0))
 			return (List<Track>)query.execute(company, vehicle, driver);
-		if(vehicle != null)
+		if((vehicle != null && vehicle.length() > 0))
 			return (List<Track>)query.execute(company, vehicle);
-		if(driver != null)
+		if((driver != null && driver.length() > 0))
 			return (List<Track>)query.execute(company, driver);
 		else
 			return (List<Track>) query.execute(company);

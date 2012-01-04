@@ -158,7 +158,7 @@ Ext.define('GreenFleet.view.vehicle.ControlData', {
 					grid.onSearch(grid);
 				}
 			}, {
-				text : 'reset',
+				text : 'Reset',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);

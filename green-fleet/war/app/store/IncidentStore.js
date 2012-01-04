@@ -8,7 +8,8 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'string'
 	}, {
 		name : 'incidentTime',
-		type : 'date'
+		type : 'date',
+		dateFormat:'time'
 	}, {
 		name : 'driver',
 		type : 'string'

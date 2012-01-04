@@ -207,7 +207,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 					xtype : 'button',
 					text : 'Import',
 					handler : function() {
-						var form = this.up('form').getForm();
+						var form = main.form.getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -389,7 +389,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 					hidden : true,
 					listeners : {
 						change : function(field, value) {
-							var img = field.up('form').nextSibling('container').down('image');
+							var img = main.form.nextSibling('container').down('image');
 							if(value != null && value.length > 0)
 								img.setSrc('download?blob-key=' + value);
 							else
@@ -421,7 +421,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
-						var form = this.up('form').getForm();
+						var form = main.form.getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -439,7 +439,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 					xtype : 'button',
 					text : 'Delete',
 					handler : function() {
-						var form = this.up('form').getForm();
+						var form = main.form.getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -458,7 +458,7 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 					xtype : 'button',
 					text : 'New',
 					handler : function() {
-						this.up('form').getForm().reset();
+						main.form.getForm().reset();
 					}
 				} ]
 			} ]
