@@ -244,7 +244,7 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 								{
 									xtype : 'box',
 									itemId : 'video',
-									tpl : [ '<video controls="controls">',
+									tpl : [ '<video width="300" height="200" controls="controls">',
 											'<source src="download?blob-key={value}" type="video/mp4" />',
 											'Your browser does not support the video tag.', '</video>' ]
 								}, {
@@ -258,6 +258,15 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 												value : value
 											});
 										}
+									}
+								}, {
+									xtype : 'button',
+									text : 'FullScreen(WebKit Only)',
+									handler : function(button) {
+										if(!Ext.isWebKit)
+											return;
+										var video = button.up('container').getComponent('video');
+										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 									}
 								} ]
 					} ],

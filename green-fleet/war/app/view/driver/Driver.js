@@ -251,7 +251,7 @@ Ext.define('GreenFleet.view.driver.Driver', {
 							if(value != null && value.length > 0)
 								img.setSrc('download?blob-key=' + value);
 							else
-								img.setSrc('');
+								img.setSrc('resources/image/bgDriver.png');
 						}
 					}
 				} ]

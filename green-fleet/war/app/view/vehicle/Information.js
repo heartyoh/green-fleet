@@ -16,7 +16,7 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 			if(driverImageClip) {
 				driverImage.setSrc('download?blob-key=' + driverImageClip);
 			} else {
-				driverImage.setSrc('');
+				driverImage.setSrc('resources/image/bgDriver.png');
 			}
 
 			var location = record.get('location');
