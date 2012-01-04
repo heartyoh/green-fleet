@@ -72,7 +72,10 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 		layout : {
 			type : 'hbox'
 		},
-		items : [ {
+		items : [  {
+			xtype : 'image',
+			cls : 'imgVehicle'
+		}, {
 			xtype : 'image',
 			cls : 'imgDriver'
 		}, {

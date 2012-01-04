@@ -81,6 +81,7 @@
 .x-panel-header-default{box-shadow:none}
 .x-panel-header-text-default,.x-tab-active button{color:#4b638f}
 .imgDriver{background:url('../image/bgDriver.png') 4px 4px no-repeat;width:120px;height:125px;background-color:#fff;border:1px solid #c0c0c0;margin-right:20px}
+.imgVehicle{background:url('../image/bgVehicle.png') 4px 4px no-repeat;width:120px;height:125px;background-color:#fff;border:1px solid #c0c0c0;margin-right:20px}
 .paddingPanel{padding:3px 13px}
 #content-body .x-tab-bar{background:url('../image/bgTab.gif') repeat-x;}
 #content-body .x-tab-default-top{background:url('../image/bgTabItem.gif') repeat-x;box-shadow:none;border-bottom:0}
