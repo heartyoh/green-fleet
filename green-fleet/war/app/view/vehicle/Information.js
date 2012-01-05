@@ -144,7 +144,7 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 				title : 'Incidents',
 				layout : 'fit',
 				cls : 'paddingPanel',
-				height : 100,
+				height : 115,
 				items : [ {
 					xtype : 'container',
 					layout : {
@@ -153,24 +153,20 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 					},
 					items : [ {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA001</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					}, {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA002</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00002</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					}, {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA003</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00003</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					}, {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA004</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00004</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					} ]
 				} ]
 			} ]

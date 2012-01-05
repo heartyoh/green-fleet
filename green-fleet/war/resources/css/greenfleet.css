@@ -97,3 +97,9 @@ span.mapTipID{
 	background:url('../image/bgMapTip.gif') repeat-x;
 	-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
 }
+.incidentThumb{background:url('../image/bgIncident.png') 60% 50% no-repeat;width:150px}
+.incidentThumb div{padding:3px 0 2px 22px;margin-right:10px;color:#585858}
+.incidentThumb .vehicle{background:url('../image/icon15Vehicle.gif') 2px 50% no-repeat;padding-left:22px;font-weight:bold;color:#333}
+.incidentThumb .driver{background:url('../image/icon15Driver.gif') 2px 50% no-repeat;padding-left:22px}
+.incidentThumb .date{background:url('../image/icon15Date.gif') 2px 50% no-repeat;padding-left:22px}
+.incidentThumb .latitude{background:url('../image/icon15Point.gif') 2px 50% no-repeat;padding-left:22px}
