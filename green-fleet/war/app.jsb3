@@ -62,6 +62,18 @@
                     "name": "ControlData.js"
                 },
                 {
+                    "path": "app/view/vehicle/",
+                    "name": "ControlByVehicle.js"
+                },
+                {
+                    "path": "app/view/vehicle/",
+                    "name": "InfoByVehicle.js"
+                },
+                {
+                    "path": "app/view/vehicle/",
+                    "name": "Information.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -98,6 +110,10 @@
                     "name": "West.js"
                 },
                 {
+                    "path": "app/view/viewport/",
+                    "name": "East.js"
+                },
+                {
                     "path": "app/view/",
                     "name": "Brand.js"
                 },
@@ -107,7 +123,7 @@
                 },
                 {
                     "path": "app/view/",
-                    "name": "SystemMenu.js"
+                    "name": "SideMenu.js"
                 },
                 {
                     "path": "app/view/vehicle/",
