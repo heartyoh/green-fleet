@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.vehicle.ControlByVehicle', {			
+Ext.define('GreenFleet.view.monitor.ControlByVehicle', {			
 	extend : 'Ext.grid.Panel',
 
-	alias : 'widget.control_by_vehicle',
+	alias : 'widget.monitor_control_by_vehicle',
 	
 	title : 'Control By Vehicle',
 	

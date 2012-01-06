@@ -1,9 +1,9 @@
-Ext.define('GreenFleet.view.vehicle.Reservation', {
+Ext.define('GreenFleet.view.management.Company', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.reservation',
+	alias : 'widget.management_company',
 
-	title : 'Reservation',
+	title : 'Company',
 
 	layout : {
 		align : 'stretch',
@@ -11,55 +11,29 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 	},
 
 	initComponent : function() {
-		this.callParent(arguments);
+		Ext.applyIf(this, {
+			items : [ this.buildList(this), this.buildForm(this) ],
+		});
 
-		this.add(this.buildList(this));
-		this.add(this.buildForm(this));
+		this.callParent(arguments);
 	},
 
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Reservation List',
-			store : 'ReservationStore',
-			autoScroll : true,
-			flex : 1,
+			title : 'Company List',
+			store : 'CompanyStore',
+			flex : 3,
 			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
 				dataIndex : 'id',
-				text : 'ID',
-				type : 'string'
+				text : 'ID'
 			}, {
-				dataIndex : 'reservedDate',
-				text : 'Reserved Date',
-				type : 'string'
-			}, {
-				dataIndex : 'driver',
-				text : 'Driver',
-				type : 'string'
-			}, {
-				dataIndex : 'vehicle',
-				text : 'Vehicle',
-				type : 'string'
-			}, {
-				dataIndex : 'vehicleType',
-				text : 'Vehicle Type',
-				type : 'string'
-			}, {
-				dataIndex : 'deliveryPlace',
-				text : 'Delivery Place',
-				type : 'string'
-			}, {
-				dataIndex : 'destination',
-				text : 'Destination',
-				type : 'string'
-			}, {
-				dataIndex : 'purpose',
-				text : 'Purpose',
-				type : 'string'
-			}, {
-				dataIndex : 'status',
-				text : 'Status',
-				type : 'string'
+				dataIndex : 'name',
+				text : 'Name'
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
@@ -75,29 +49,32 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 
 			},
 			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
 				itemclick : function(grid, record) {
 					var form = main.down('form');
 					form.loadRecord(record);
 				}
 			},
 			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=idFilter]');
-				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'id',
-						value : idfilter.getValue()
-					}, {
-						property : 'vehicle',
-						value : vehicleFilter.getValue()
-					} ]
-				});
+				var idFilter = grid.down('textfield[name=idFilter]');
+				var nameFilter = grid.down('textfield[name=nameFilter]');
+				grid.store.clearFilter();
+
+				grid.store.filter([ {
+					property : 'id',
+					value : idFilter.getValue()
+				}, {
+					property : 'name',
+					value : nameFilter.getValue()
+				} ]);
 			},
 			onReset : function(grid) {
 				grid.down('textfield[name=idFilter]').setValue('');
-				grid.down('textfield[name=vehicleFilter]').setValue('');
+				grid.down('textfield[name=nameFilter]').setValue('');
 			},
-			tbar : [ 'Reservation ID', {
+			tbar : [ 'ID', {
 				xtype : 'textfield',
 				name : 'idFilter',
 				hideLabel : true,
@@ -110,9 +87,9 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 						}
 					}
 				}
-			}, 'Vehicle', {
+			}, 'NAME', {
 				xtype : 'textfield',
-				name : 'vehicleFilter',
+				name : 'nameFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -126,7 +103,7 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 			}, {
 				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Reservation',
+				tooltip : 'Find Company',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onSearch(grid);
@@ -145,62 +122,23 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
-			title : 'Reservation Details',
-			autoScroll : true,
-			flex : 1,
+			title : 'Company Details',
+			flex : 2,
 			items : [ {
 				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
 				name : 'id',
-				fieldLabel : 'Reservation ID',
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'reservedDate',
-				disabled : true,
-				fieldLabel : 'Reserved Date',
+				fieldLabel : 'ID',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
-				name : 'vehicleType',
-				fieldLabel : 'Vehicle Type',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'vehicle',
-				queryMode: 'local',
-				store : 'VehicleStore',
-				displayField: 'id',
-			    valueField: 'key',
-				fieldLabel : 'Vehicle',
-				anchor : '100%'
-			}, {
-				xtype : 'combo',
-				name : 'driver',
-				queryMode: 'local',
-				store : 'DriverStore',
-				displayField: 'name',
-			    valueField: 'key',
-				fieldLabel : 'Driver',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'status',
-				fieldLabel : 'Status',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'deliveryPlace',
-				fieldLabel : 'Delivery Place',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'destination',
-				fieldLabel : 'Destination',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'purpose',
-				fieldLabel : 'Purpose',
+				name : 'name',
+				fieldLabel : 'Name',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
@@ -232,7 +170,7 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : 'reservation/save',
+								url : 'company/save',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 								},
@@ -250,7 +188,7 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : 'reservation/delete',
+								url : 'company/delete',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 									form.reset();

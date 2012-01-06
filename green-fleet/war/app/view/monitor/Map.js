@@ -49,10 +49,10 @@ Label.prototype.draw = function() {
 	this.span_.innerHTML = this.get('text').toString();
 };
 
-Ext.define('GreenFleet.view.map.Map', {
+Ext.define('GreenFleet.view.monitor.Map', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.map',
+	alias : 'widget.monitor_map',
 
 	title : 'Maps',
 

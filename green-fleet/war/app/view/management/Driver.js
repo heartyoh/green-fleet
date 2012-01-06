@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.driver.Driver', {
+Ext.define('GreenFleet.view.management.Driver', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.driver',
+	alias : 'widget.management_driver',
 
 	title : 'Driver',
 

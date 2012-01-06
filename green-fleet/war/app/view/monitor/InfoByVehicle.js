@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.vehicle.InfoByVehicle', {
+Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	extend : 'Ext.grid.Panel',
 	
-	alias : 'widget.info_by_vehicle',
+	alias : 'widget.monitor_info_by_vehicle',
 	
 	title : 'Information By Vehicle',
 
@@ -111,7 +111,7 @@ Ext.define('GreenFleet.view.vehicle.InfoByVehicle', {
 			grid.store.load();
 		},
 		itemclick : function(grid, record) {
-			var form = grid.up('information').down('form');
+			var form = grid.up('monitor_information').down('form');
 			form.loadRecord(record);
 		}
 	},

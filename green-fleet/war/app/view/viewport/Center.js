@@ -39,43 +39,47 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 	items : [ {
 		title : 'Dashboard',
-		xtype : 'map',
+		xtype : 'monitor_map',
 		itemId : 'map'
 	}, {
 		title : 'Info',
-		xtype : 'information',
+		xtype : 'monitor_information',
 		itemId : 'information'
+	}, {
+		title : 'Incident',
+		xtype : 'monitor_incident',
+		itemId : 'monitor_incident'
+	}, {
+		title : 'Company',
+		xtype : 'management_company',
+		itemId : 'company'
+	}, {
+		title : 'Vehicle',
+		xtype : 'management_vehicle',
+		itemId : 'vehicle'
+	}, {
+		title : 'Driver',
+		xtype : 'management_driver',
+		itemId : 'driver'
+	}, {
+		title : 'Reservation',
+		xtype : 'management_reservation',
+		itemId : 'reservation'
+	}, {
+		title : 'Incident',
+		xtype : 'management_incident',
+		itemId : 'incident'
+	}, {
+		title : 'Track',
+		xtype : 'management_track',
+		itemId : 'track'
+	}, {
+		title : 'ControlData',
+		xtype : 'management_control_data',
+		itemId : 'control_data'
 	}, {
 		title : 'File',
 		xtype : 'filemanager',
 		itemId : 'filemanager'
-	}, {
-		title : 'Company',
-		xtype : 'company',
-		itemId : 'company'
-	}, {
-		title : 'Vehicle',
-		xtype : 'vehicle',
-		itemId : 'vehicle'
-	}, {
-		title : 'Driver',
-		xtype : 'driver',
-		itemId : 'driver'
-	}, {
-		title : 'Reservation',
-		xtype : 'reservation',
-		itemId : 'reservation'
-	}, {
-		title : 'Incident',
-		xtype : 'incident',
-		itemId : 'incident'
-	}, {
-		title : 'Track',
-		xtype : 'track',
-		itemId : 'track'
-	}, {
-		title : 'ControlData',
-		xtype : 'control_data',
-		itemId : 'control_data'
 	} ]
 });

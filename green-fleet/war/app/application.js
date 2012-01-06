@@ -29,8 +29,7 @@ Ext.onReady(function() {
 		name : 'GreenFleet',
 		autoCreateViewport : false,
 
-		controllers : [ 'GreenFleet.controller.ApplicationController', 'GreenFleet.controller.FrameController',
-				'GreenFleet.controller.VehicleController', 'GreenFleet.controller.FileController' ],
+		controllers : [ 'GreenFleet.controller.ApplicationController', 'GreenFleet.controller.FileController' ],
 
 		launch : function() {
 			Ext.create('GreenFleet.view.Viewport').show();

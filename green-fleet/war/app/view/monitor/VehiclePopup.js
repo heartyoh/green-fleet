@@ -1,6 +1,7 @@
-Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
+Ext.define('GreenFleet.view.monitor.VehiclePopup', {
 	extend : 'Ext.window.Window',
-	alias : 'widget.vehiclepopup',
+	
+	alias : 'widget.monitor_vehiclepopup',
 	
 	title : 'Control Information',
 	

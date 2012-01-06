@@ -25,9 +25,17 @@
 
 	<context:component-scan base-package="com.heartyoh" />
 
+<!-- 	
+	<beans:bean id="multipartResolver" class="org.gmr.web.multipart.GMultipartResolver">
+	    <beans:property name="maxUploadSize" value="20000000" />
+	</beans:bean>
+ -->
+
 	<beans:bean id="multipartResolver"
-		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		class="com.heartyoh.util.fileupload.CommonsStreamMultipartResolver">
+<!-- 		
 		<beans:property name="maxUploadSize" value="20000000" />
 		<beans:property name="maxInMemorySize" value="20000000" />
-	</beans:bean>
-</beans:beans>
+ -->	
+ 	</beans:bean>
+ </beans:beans>

@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.vehicle.Vehicle', {
+Ext.define('GreenFleet.view.management.Vehicle', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.vehicle',
+	alias : 'widget.management_vehicle',
 
 	title : 'Vehicle',
 

@@ -15,9 +15,9 @@
 <!-- App Engine에 디플로이할 때는 아래 라인 -->
 <!-- 
     <intercept-url pattern="/" access="permitAll" />
- -->
         <intercept-url pattern="/_ah/login" access="permitAll" />
         <intercept-url pattern="/_ah/logout" access="permitAll" />
+-->
 <!-- 여기까지 코멘트 처리해야 함. -->        
         <intercept-url pattern="/logout" access="permitAll" />
         <intercept-url pattern="/register" access="hasRole('NEW_USER')" />

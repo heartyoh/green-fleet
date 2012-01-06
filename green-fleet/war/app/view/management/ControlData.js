@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.vehicle.ControlData', {
+Ext.define('GreenFleet.view.management.ControlData', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.control_data',
+	alias : 'widget.management_control_data',
 
 	title : 'ControlData',
 

@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.vehicle.Track', {
+Ext.define('GreenFleet.view.management.Track', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.track',
+	alias : 'widget.management_track',
 
 	title : 'Track',
 

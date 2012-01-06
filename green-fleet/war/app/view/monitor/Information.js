@@ -1,6 +1,6 @@
-Ext.define('GreenFleet.view.vehicle.Information', {
+Ext.define('GreenFleet.view.monitor.Information', {
 	extend : 'Ext.Container',
-	alias : 'widget.information',
+	alias : 'widget.monitor_information',
 
 	initComponent : function() {
 		this.callParent();
@@ -185,15 +185,15 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [ {
-			xtype : 'info_by_vehicle',
+			xtype : 'monitor_info_by_vehicle',
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'monitor_control_by_vehicle',
 			title : 'Control By Vehicle'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'monitor_control_by_vehicle',
 			title : 'Control By Driver'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'monitor_control_by_vehicle',
 			title : 'Maintenance'
 		} ]
 	} ]

@@ -1,21 +1,28 @@
-Ext.define('GreenFleet.view.vehicle.Incident', {
+Ext.define('GreenFleet.view.monitor.IncidentView', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.incident',
+	alias : 'widget.monitor_incident',
 
-	title : 'Incident',
+	title : 'Incident View',
 
 	layout : {
-		align : 'stretch',
-		type : 'vbox'
+		type : 'vbox',
+		align : 'stretch'
 	},
 
 	initComponent : function() {
 		this.callParent(arguments);
+		
+		this.add({
+			xtype : 'panel',
+			cls : 'pageTitle',
+			html : '<h1>Incident : Vehicle ID or Driver ID</h1>',
+			height : 35
+		});
 
-		this.list = this.add(this.buildList(this));
 		var detail = this.add(this.buildForm(this));
 		this.form = detail.down('form');
+		this.list = this.add(this.buildList(this));
 	},
 
 	buildList : function(main) {
@@ -142,15 +149,14 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
+			} ]
 		}
 	},
 
 	buildForm : function(main) {
 		return {
-			xtype : 'panel',
+			xtype : 'container',
 			bodyPadding : 10,
-			title : 'Incident Details',
 			autoScroll : true,
 			layout : {
 				type : 'hbox',
@@ -159,85 +165,8 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 			flex : 1,
 			items : [
 					{
-						xtype : 'form',
-						flex : 1,
-						autoScroll : true,
-						defaults : {
-							anchor : '100%'
-						},
-						items : [ {
-							xtype : 'textfield',
-							name : 'key',
-							fieldLabel : 'Key',
-							hidden : true
-						}, {
-							xtype : 'datefield',
-							name : 'incidentTime',
-							fieldLabel : 'Incident Time',
-							submitFormat : 'U'
-						}, {
-							xtype : 'combo',
-							name : 'vehicle',
-							queryMode : 'local',
-							store : 'VehicleStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : 'Vehicle'
-						}, {
-							xtype : 'combo',
-							name : 'driver',
-							queryMode : 'local',
-							store : 'DriverStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : 'Driver'
-						}, {
-							xtype : 'textfield',
-							name : 'lattitude',
-							fieldLabel : 'Lattitude'
-						}, {
-							xtype : 'textfield',
-							name : 'longitude',
-							fieldLabel : 'Longitude'
-						}, {
-							xtype : 'textfield',
-							name : 'impulse',
-							fieldLabel : 'Impulse'
-						}, {
-							xtype : 'filefield',
-							name : 'videoFile',
-							fieldLabel : 'Video Upload',
-							msgTarget : 'side',
-							allowBlank : true,
-							buttonText : 'file...'
-						}, {
-							xtype : 'datefield',
-							name : 'updatedAt',
-							disabled : true,
-							fieldLabel : 'Updated At',
-							format : 'd-m-Y H:i:s'
-						}, {
-							xtype : 'datefield',
-							name : 'createdAt',
-							disabled : true,
-							fieldLabel : 'Created At',
-							format : 'd-m-Y H:i:s'
-						}, {
-							xtype : 'displayfield',
-							name : 'videoClip',
-							hidden : true,
-							listeners : {
-								change : function(field, value) {
-									var video = main.form.nextSibling('container').getComponent('video');
-									video.update({
-										value : value
-									});
-								}
-							}
-						} ]
-					},
-					{
-						xtype : 'container',
+						xtype : 'panel',
+						title : 'Incident Details',
 						flex : 1,
 						layout : {
 							type : 'vbox',
@@ -254,66 +183,74 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 									xtype : 'button',
 									text : 'FullScreen(WebKit Only)',
 									handler : function(button) {
-										if(!Ext.isWebKit)
+										if (!Ext.isWebKit)
 											return;
 										var video = button.up('container').getComponent('video');
 										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 									}
 								} ]
-					} ],
-
-			dockedItems : [ {
-				xtype : 'toolbar',
-				dock : 'bottom',
-				layout : {
-					align : 'middle',
-					type : 'hbox'
-				},
-				items : [ {
-					xtype : 'button',
-					text : 'Save',
-					handler : function() {
-						var form = main.form.getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'incident/save',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
+					}, {
+						xtype : 'form',
+						flex : 1,
+						title : 'Information.',
+						autoScroll : true,
+						defaults : {
+							anchor : '100%'
+						},
+						items : [ {
+							xtype : 'displayfield',
+							name : 'key',
+							fieldLabel : 'Key',
+							hidden : true
+						}, {
+							xtype : 'displayfield',
+							name : 'incidentTime',
+							fieldLabel : 'Incident Time'
+						}, {
+							xtype : 'displayfield',
+							name : 'vehicle',
+							fieldLabel : 'Vehicle'
+						}, {
+							xtype : 'displayfield',
+							name : 'driver',
+							fieldLabel : 'Driver'
+						}, {
+							xtype : 'displayfield',
+							name : 'lattitude',
+							fieldLabel : 'Lattitude'
+						}, {
+							xtype : 'displayfield',
+							name : 'longitude',
+							fieldLabel : 'Longitude'
+						}, {
+							xtype : 'displayfield',
+							name : 'impulse',
+							fieldLabel : 'Impulse'
+						}, {
+							xtype : 'displayfield',
+							name : 'videoClip',
+							hidden : true,
+							listeners : {
+								change : function(field, value) {
+									var video = main.form.previousSibling('container').getComponent('video');
+									video.update({
+										value : value
+									});
 								}
-							});
+							}
+						} ]
+					}, {
+						xtype : 'panel',
+						title : 'Position of Incident',
+						flex : 1,
+						html : '<div class="map" style="height:100%"></div>',
+						listeners : {
+							afterrender : function() {
+								// parent.displayMap(this, 37.56, 126.97);
+							}
 						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Delete',
-					handler : function() {
-						var form = main.form.getForm();
+					} ]
 
-						if (form.isValid()) {
-							form.submit({
-								url : 'incident/delete',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-									form.reset();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Reset',
-					handler : function() {
-						main.form.getForm().reset();
-					}
-				} ]
-			} ]
 		}
 	}
 });
