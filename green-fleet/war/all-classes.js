@@ -167,10 +167,315 @@ Ext.define('GreenFleet.view.Viewport', {
 	} ]
 });
 
-Ext.define('GreenFleet.view.company.Company', {
+Ext.define('GreenFleet.view.viewport.Center', {
+
+	extend : 'Ext.panel.Panel',
+
+	id : 'content',
+
+	alias : 'widget.viewport.center',
+
+	layout : 'card',
+
+	listeners : {
+		add : function(panel, item) {
+			var menutab = Ext.getCmp('menutab');
+			menutab.add({
+				text : item.title,
+				itemId : item.itemId,
+				handler : function(tab) {
+					var content = Ext.getCmp('content');
+					var comp = content.getComponent(tab.itemId);
+					content.getLayout().setActiveItem(comp);
+				},
+				closable : false
+			}).setCard(item);
+		}
+	},
+
+	defaults : {
+		listeners : {
+			activate : function(item) {
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				/*
+				 * TODO 동작하게 해보라
+				 */
+				menutab.setActiveTab(tab);
+			}
+		}
+	},
+
+	items : [ {
+		title : 'Dashboard',
+		xtype : 'monitor_map',
+		itemId : 'map'
+	}, {
+		title : 'Info',
+		xtype : 'monitor_information',
+		itemId : 'information'
+	}, {
+		title : 'Incident',
+		xtype : 'monitor_incident',
+		itemId : 'monitor_incident'
+	}, {
+		title : 'Company',
+		xtype : 'management_company',
+		itemId : 'company'
+	}, {
+		title : 'Vehicle',
+		xtype : 'management_vehicle',
+		itemId : 'vehicle'
+	}, {
+		title : 'Driver',
+		xtype : 'management_driver',
+		itemId : 'driver'
+	}, {
+		title : 'Reservation',
+		xtype : 'management_reservation',
+		itemId : 'reservation'
+	}, {
+		title : 'Incident',
+		xtype : 'management_incident',
+		itemId : 'incident'
+	}, {
+		title : 'Track',
+		xtype : 'management_track',
+		itemId : 'track'
+	}, {
+		title : 'ControlData',
+		xtype : 'management_control_data',
+		itemId : 'control_data'
+	}, {
+		title : 'File',
+		xtype : 'filemanager',
+		itemId : 'filemanager'
+	} ]
+});
+Ext.define('GreenFleet.view.viewport.North', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.viewport.north',
+	
+	layout : {
+		type : 'hbox',
+		align : 'stretch'
+	},
+
+	items : [ {
+		xtype : 'brand',
+		width : 135
+	}, {
+		xtype : 'container',
+		flex : 1,
+		layout : {
+			type : 'vbox',
+			align : 'stretch'
+		},
+		items : [ {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ {
+				xtype : 'main_menu',
+				flex : 1
+			}, {
+				xtype : 'side_menu',
+				width : 180
+			} ]
+		}, {
+			xtype : 'tabbar',
+			id : 'menutab',
+			height: 23
+		} ]
+	} ]
+});
+
+Ext.define('GreenFleet.view.viewport.West', {
+	extend : 'Ext.panel.Panel',
+
+	alias : 'widget.viewport.west',
+	cls : 'tool',
+	
+	layout : {
+		type : 'vbox'
+	},
+	items : [ {
+		xtype : 'button',
+		cls : 'btnAdd',
+		html : 'add'
+	}, {
+		xtype : 'button',
+		cls : 'btnRemove',
+		html : 'remove'
+	}, {
+		xtype : 'button',
+		cls : 'btnRefresh',
+		html : 'refresh'
+	}, {
+		xtype : 'button',
+		cls : 'btnEvent',
+		html : 'event'
+	}, {
+		xtype : 'button',
+		cls : 'btnSave',
+		html : 'save'
+	}, {
+		xtype : 'button',
+		cls : 'btnExport',
+		html : 'export'
+	} ]
+});
+Ext.define('GreenFleet.view.viewport.East', {
+	extend : 'Ext.panel.Panel',
+
+	alias : 'widget.viewport.east',
+	
+	cls : 'summaryBoard',
+	
+	width : 200,
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	items : [ {
+		xtype : 'combo',
+		cls : 'searchField',
+		fieldLabel : 'Search',
+		labelWidth : 50,
+		labelSeparator : '',
+		itemId : 'search'
+	}, {
+		xtype : 'component',
+		cls : 'time',
+		itemId : 'time',
+		html : Ext.Date.format(new Date(), 'D Y-m-d H:i:s')
+	}, {
+		xtype : 'component',
+		cls : 'count',
+		itemId : 'vehicle_count',
+		html : 'Total Running Vehicles : 6'
+	}, {
+		xtype : 'panel',
+		title : '상황별 운행 현황',
+		cls : 'statusPanel',
+		items : [ {
+			xtype : 'button',
+			flex : 1,
+			cls : 'btnDriving',
+			html : 'Driving</br><span>4</span>'
+		}, {
+			xtype : 'button',
+			flex : 1,
+			cls : 'btnStop',
+			html : 'Stop</br><span>2</span>'
+		}, {
+			xtype : 'button',
+			flex : 1,
+			cls : 'btnIncident',
+			html : 'Incident</br><span>1</span>'
+		} ]
+	}, {
+		xtype : 'panel',
+		title : 'Group',
+		cls :'groupPanel',
+		items : [{
+			html : '<a href="#">강남 ~ 분당노선 1 <span>(14)</span></a><a href="#">강남 ~ 분당노선 1 <span>(14)</span></a>'
+		}]
+	}, {
+		xtype : 'panel',
+		title : 'Incidents Alarm',
+		cls : 'incidentPanel',
+		items : [{
+			html : '<a href="#">id_KS937362, 김형용<span>2011.12.30 16:25:41</span></a><a href="#">id_KS937362, 변사또<span>2011.12.30 16:25:41</span></a>'
+		}]
+	} ]
+});
+Ext.define('GreenFleet.view.Brand', {
+	extend : 'Ext.panel.Panel',
+	
+	alias : 'widget.brand',
+	
+	html : '<a></a>'
+});
+Ext.define('GreenFleet.view.MainMenu', {
+	extend : 'Ext.toolbar.Toolbar',
+	cls : 'appMenu',
+	alias : 'widget.main_menu',
+	
+	items : [{
+		text : 'Vehicle'
+	}, {
+		text : 'Employees'
+	}, {
+		text : 'Allocation'
+	}, {
+		text : 'Incidents'
+	}, {
+		text : 'Maintenance'
+	}, {
+		text : 'Risk Assessment'
+	}, {
+		text : 'Purchase Order'
+	}]
+});
+Ext.define('GreenFleet.view.SideMenu', {
+	extend : 'Ext.toolbar.Toolbar',
+
+	alias : 'widget.side_menu',
+	cls : 'sideMenu',
+
+	items : [ {
+		type : 'help',
+		text : login.username,
+		handler : function() {
+		}
+	}, {
+		itemId : 'home',
+		type : 'home',
+		cls : 'btnHome',
+		handler : function() {
+		}
+	}, {
+		itemId : 'report',
+		type : 'report',
+		cls : 'btnReport',
+		handler : function() {
+		}
+	}, {
+		itemId : 'setting',
+		type : 'setting',
+		cls : 'btnSetting',
+		handler : function() {
+		}
+	}, {
+		itemId : 'logout',
+		type : 'logout',
+		cls : 'btnLogout',
+		handler : function() {
+			Ext.MessageBox.confirm('Confirm', 'Are you sure you want to do that?', function(confirm) {
+				if (confirm === 'yes') {
+					document.location.href = '/logout.htm';
+				}
+
+			});
+		}
+	}/*, {
+		type : 'search',
+		text : 'search',
+		handler : function(event, target, owner, tool) {
+		}
+	}*/ ]
+});
+Ext.define('GreenFleet.view.management.Company', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.company',
+	alias : 'widget.management_company',
 
 	title : 'Company',
 
@@ -379,10 +684,10 @@ Ext.define('GreenFleet.view.company.Company', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.vehicle.Vehicle', {
+Ext.define('GreenFleet.view.management.Vehicle', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.vehicle',
+	alias : 'widget.management_vehicle',
 
 	title : 'Vehicle',
 
@@ -846,10 +1151,10 @@ Ext.define('GreenFleet.view.vehicle.Vehicle', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.vehicle.Reservation', {
+Ext.define('GreenFleet.view.management.Reservation', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.reservation',
+	alias : 'widget.management_reservation',
 
 	title : 'Reservation',
 
@@ -1120,10 +1425,10 @@ Ext.define('GreenFleet.view.vehicle.Reservation', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.vehicle.Incident', {
+Ext.define('GreenFleet.view.management.Incident', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.incident',
+	alias : 'widget.management_incident',
 
 	title : 'Incident',
 
@@ -1439,10 +1744,10 @@ Ext.define('GreenFleet.view.vehicle.Incident', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.driver.Driver', {
+Ext.define('GreenFleet.view.management.Driver', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.driver',
+	alias : 'widget.management_driver',
 
 	title : 'Driver',
 
@@ -1750,199 +2055,10 @@ Ext.define('GreenFleet.view.driver.Driver', {
 		}
 	}
 });
-function Label(opt_options) {
-	// Initialization
-	this.setValues(opt_options);
-
-	// Label specific
-	var span = this.span_ = document.createElement('span');
-	this.span_.setAttribute('class', 'mapTipID');
-
-	var div = this.div_ = document.createElement('div');
-	div.appendChild(span);
-	div.style.cssText = 'position: absolute; display: none';
-};
-Label.prototype = new google.maps.OverlayView;
-
-// Implement onAdd
-Label.prototype.onAdd = function() {
-	var pane = this.getPanes().overlayLayer;
-	pane.appendChild(this.div_);
-
-	// Ensures the label is redrawn if the text or position is changed.
-	var me = this;
-	this.listeners_ = [ google.maps.event.addListener(this, 'position_changed', function() {
-		me.draw();
-	}), google.maps.event.addListener(this, 'text_changed', function() {
-		me.draw();
-	}) ];
-};
-
-// Implement onRemove
-Label.prototype.onRemove = function() {
-	this.div_.parentNode.removeChild(this.div_);
-
-	// Label is removed from the map, stop updating its position/text.
-	for ( var i = 0, I = this.listeners_.length; i < I; ++i) {
-		google.maps.event.removeListener(this.listeners_[i]);
-	}
-};
-
-// Implement draw
-Label.prototype.draw = function() {
-	var projection = this.getProjection();
-	var position = projection.fromLatLngToDivPixel(this.get('position'));
-
-	var div = this.div_;
-	div.style.left = position.x + 'px';
-	div.style.top = position.y + 'px';
-	div.style.display = 'block';
-
-	this.span_.innerHTML = this.get('text').toString();
-};
-
-Ext.define('GreenFleet.view.map.Map', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.map',
-
-	title : 'Maps',
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	initComponent : function() {
-		this.callParent();
-		
-		var title = this.add({
-			xtype : 'panel',
-			cls :'pageTitle',
-			html : '<h1>Information</h1>',
-			height: 35,
-			rbar : [{
-				xtype : 'checkbox',
-				fieldLabel : 'Markers',
-				checked : true,
-				boxLabelAlign : 'before',
-				labelWidth : 45,
-				labelSeparator : '',
-				itemId : 'markers',
-				scope : this,
-				handler : function(field, newValue) {
-					for ( var vehicle in this.markers) {
-						this.markers[vehicle].setVisible(newValue);
-					}
-				}
-			}]
-		});
-		this.mapbox = this.add(this.buildMap(this));
-	},
-
-	displayMap : function(mapbox, lat, lng) {
-		/*
-		 * Setting map options
-		 */
-		var options = {
-			zoom : 10,
-			center : new google.maps.LatLng(lat, lng),
-			mapTypeId : google.maps.MapTypeId.ROADMAP
-		};
-
-		/*
-		 * Draw map
-		 */
-		mapbox.map = new google.maps.Map(mapbox.getEl().down('.map').dom, options);
-
-		/*
-		 * Set map event listeners
-		 */
-		google.maps.event.addListener(mapbox.map, 'zoom_changed', function() {
-			// setTimeout(function() {
-			// mapbox.map.setCenter(options.center);
-			// }, 3000);
-		});
-
-		/*
-		 * Set map markers
-		 */
-		this.buildMarkers(mapbox);
-	},
-
-	/*
-	 * refreshMarkers : scope
-	 */
-	refreshMarkers : function(store) {
-		for ( var vehicle in this.markers) {
-			this.markers[vehicle].setMap(null);
-		}
-		this.markers = {};
-		
-		var images = {
-			'Running' : 'resources/image/statusDriving.png',
-			'Idle' : 'resources/image/statusStop.png',
-			'Incident' : 'resources/image/statusIncident.png'
-		};
-
-		store.each(function(record) {
-			var vehicle = record.get('id');
-			var driver = record.get('driver');
-			
-			var marker = new google.maps.Marker({
-				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
-				map : this.mapbox.map,
-				icon : images[record.get('status')],
-				title : vehicle,
-				tooltip : vehicle + "(" + driver + ")"
-			});
-
-			var label = new Label({
-				map : this.mapbox.map
-			});
-			label.bindTo('position', marker, 'position');
-			label.bindTo('text', marker, 'tooltip');
-
-			this.markers[vehicle] = marker;
-
-			var mapbox = this.mapbox;
-			google.maps.event.addListener(marker, 'click', function() {
-				GreenFleet.getMenu('information').vehicle = record;
-				GreenFleet.doMenu('information');
-//				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
-//					vehicle : record,
-//				}).show();
-			});
-		}, this);
-	},
-
-	buildMarkers : function() {
-		this.markers = {};
-
-		var vehicleStore = Ext.getStore('VehicleStore');
-		vehicleStore.on('datachanged', this.refreshMarkers, this);
-
-		this.refreshMarkers(vehicleStore);
-	},
-
-	buildMap : function(parent) {
-		return {
-			xtype : 'panel',
-			flex : 1,
-			html : '<div class="map" style="height:100%"></div>',
-			listeners : {
-				afterrender : function() {
-					parent.displayMap(this, 37.56, 126.97);
-				}
-			}
-		};
-	}
-});
-
-Ext.define('GreenFleet.view.vehicle.Track', {
+Ext.define('GreenFleet.view.management.Track', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.track',
+	alias : 'widget.management_track',
 
 	title : 'Track',
 
@@ -2206,10 +2322,10 @@ Ext.define('GreenFleet.view.vehicle.Track', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.vehicle.ControlData', {
+Ext.define('GreenFleet.view.management.ControlData', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.control_data',
+	alias : 'widget.management_control_data',
 
 	title : 'ControlData',
 
@@ -2533,10 +2649,199 @@ Ext.define('GreenFleet.view.vehicle.ControlData', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.vehicle.ControlByVehicle', {			
+function Label(opt_options) {
+	// Initialization
+	this.setValues(opt_options);
+
+	// Label specific
+	var span = this.span_ = document.createElement('span');
+	this.span_.setAttribute('class', 'mapTipID');
+
+	var div = this.div_ = document.createElement('div');
+	div.appendChild(span);
+	div.style.cssText = 'position: absolute; display: none';
+};
+Label.prototype = new google.maps.OverlayView;
+
+// Implement onAdd
+Label.prototype.onAdd = function() {
+	var pane = this.getPanes().overlayLayer;
+	pane.appendChild(this.div_);
+
+	// Ensures the label is redrawn if the text or position is changed.
+	var me = this;
+	this.listeners_ = [ google.maps.event.addListener(this, 'position_changed', function() {
+		me.draw();
+	}), google.maps.event.addListener(this, 'text_changed', function() {
+		me.draw();
+	}) ];
+};
+
+// Implement onRemove
+Label.prototype.onRemove = function() {
+	this.div_.parentNode.removeChild(this.div_);
+
+	// Label is removed from the map, stop updating its position/text.
+	for ( var i = 0, I = this.listeners_.length; i < I; ++i) {
+		google.maps.event.removeListener(this.listeners_[i]);
+	}
+};
+
+// Implement draw
+Label.prototype.draw = function() {
+	var projection = this.getProjection();
+	var position = projection.fromLatLngToDivPixel(this.get('position'));
+
+	var div = this.div_;
+	div.style.left = position.x + 'px';
+	div.style.top = position.y + 'px';
+	div.style.display = 'block';
+
+	this.span_.innerHTML = this.get('text').toString();
+};
+
+Ext.define('GreenFleet.view.monitor.Map', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.monitor_map',
+
+	title : 'Maps',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	initComponent : function() {
+		this.callParent();
+		
+		var title = this.add({
+			xtype : 'panel',
+			cls :'pageTitle',
+			html : '<h1>Information</h1>',
+			height: 35,
+			rbar : [{
+				xtype : 'checkbox',
+				fieldLabel : 'Markers',
+				checked : true,
+				boxLabelAlign : 'before',
+				labelWidth : 45,
+				labelSeparator : '',
+				itemId : 'markers',
+				scope : this,
+				handler : function(field, newValue) {
+					for ( var vehicle in this.markers) {
+						this.markers[vehicle].setVisible(newValue);
+					}
+				}
+			}]
+		});
+		this.mapbox = this.add(this.buildMap(this));
+	},
+
+	displayMap : function(mapbox, lat, lng) {
+		/*
+		 * Setting map options
+		 */
+		var options = {
+			zoom : 10,
+			center : new google.maps.LatLng(lat, lng),
+			mapTypeId : google.maps.MapTypeId.ROADMAP
+		};
+
+		/*
+		 * Draw map
+		 */
+		mapbox.map = new google.maps.Map(mapbox.getEl().down('.map').dom, options);
+
+		/*
+		 * Set map event listeners
+		 */
+		google.maps.event.addListener(mapbox.map, 'zoom_changed', function() {
+			// setTimeout(function() {
+			// mapbox.map.setCenter(options.center);
+			// }, 3000);
+		});
+
+		/*
+		 * Set map markers
+		 */
+		this.buildMarkers(mapbox);
+	},
+
+	/*
+	 * refreshMarkers : scope
+	 */
+	refreshMarkers : function(store) {
+		for ( var vehicle in this.markers) {
+			this.markers[vehicle].setMap(null);
+		}
+		this.markers = {};
+		
+		var images = {
+			'Running' : 'resources/image/statusDriving.png',
+			'Idle' : 'resources/image/statusStop.png',
+			'Incident' : 'resources/image/statusIncident.png'
+		};
+
+		store.each(function(record) {
+			var vehicle = record.get('id');
+			var driver = record.get('driver');
+			
+			var marker = new google.maps.Marker({
+				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
+				map : this.mapbox.map,
+				icon : images[record.get('status')],
+				title : vehicle,
+				tooltip : vehicle + "(" + driver + ")"
+			});
+
+			var label = new Label({
+				map : this.mapbox.map
+			});
+			label.bindTo('position', marker, 'position');
+			label.bindTo('text', marker, 'tooltip');
+
+			this.markers[vehicle] = marker;
+
+			var mapbox = this.mapbox;
+			google.maps.event.addListener(marker, 'click', function() {
+				GreenFleet.getMenu('information').vehicle = record;
+				GreenFleet.doMenu('information');
+//				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
+//					vehicle : record,
+//				}).show();
+			});
+		}, this);
+	},
+
+	buildMarkers : function() {
+		this.markers = {};
+
+		var vehicleStore = Ext.getStore('VehicleStore');
+		vehicleStore.on('datachanged', this.refreshMarkers, this);
+
+		this.refreshMarkers(vehicleStore);
+	},
+
+	buildMap : function(parent) {
+		return {
+			xtype : 'panel',
+			flex : 1,
+			html : '<div class="map" style="height:100%"></div>',
+			listeners : {
+				afterrender : function() {
+					parent.displayMap(this, 37.56, 126.97);
+				}
+			}
+		};
+	}
+});
+
+Ext.define('GreenFleet.view.monitor.ControlByVehicle', {			
 	extend : 'Ext.grid.Panel',
 
-	alias : 'widget.control_by_vehicle',
+	alias : 'widget.monitor_control_by_vehicle',
 	
 	title : 'Control By Vehicle',
 	
@@ -2682,10 +2987,10 @@ Ext.define('GreenFleet.view.vehicle.ControlByVehicle', {
 
 });
 
-Ext.define('GreenFleet.view.vehicle.InfoByVehicle', {
+Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	extend : 'Ext.grid.Panel',
 	
-	alias : 'widget.info_by_vehicle',
+	alias : 'widget.monitor_info_by_vehicle',
 	
 	title : 'Information By Vehicle',
 
@@ -2795,7 +3100,7 @@ Ext.define('GreenFleet.view.vehicle.InfoByVehicle', {
 			grid.store.load();
 		},
 		itemclick : function(grid, record) {
-			var form = grid.up('information').down('form');
+			var form = grid.up('monitor_information').down('form');
 			form.loadRecord(record);
 		}
 	},
@@ -2859,9 +3164,9 @@ Ext.define('GreenFleet.view.vehicle.InfoByVehicle', {
 	} ]
 
 });
-Ext.define('GreenFleet.view.vehicle.Information', {
+Ext.define('GreenFleet.view.monitor.Information', {
 	extend : 'Ext.Container',
-	alias : 'widget.information',
+	alias : 'widget.monitor_information',
 
 	initComponent : function() {
 		this.callParent();
@@ -3005,7 +3310,7 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 				title : 'Incidents',
 				layout : 'fit',
 				cls : 'paddingPanel',
-				height : 100,
+				height : 115,
 				items : [ {
 					xtype : 'container',
 					layout : {
@@ -3014,24 +3319,20 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 					},
 					items : [ {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA001</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					}, {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA002</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00002</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					}, {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA003</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00003</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					}, {
 						xtype : 'box',
-						height : 100,
-						width : 100,
-						html : '<div>HAHAHA004</div>'
+						cls : 'incidentThumb',
+						html : '<div class="vehicle">V00004</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
 					} ]
 				} ]
 			} ]
@@ -3050,20 +3351,283 @@ Ext.define('GreenFleet.view.vehicle.Information', {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [ {
-			xtype : 'info_by_vehicle',
+			xtype : 'monitor_info_by_vehicle',
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'monitor_control_by_vehicle',
 			title : 'Control By Vehicle'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'monitor_control_by_vehicle',
 			title : 'Control By Driver'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'monitor_control_by_vehicle',
 			title : 'Maintenance'
 		} ]
 	} ]
 });
 
+Ext.define('GreenFleet.view.monitor.IncidentView', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.monitor_incident',
+
+	title : 'Incident View',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	initComponent : function() {
+		this.callParent(arguments);
+
+		/*
+		 * Title
+		 */
+		this.add({
+			xtype : 'panel',
+			cls : 'pageTitle',
+			html : '<h1>Incident : Vehicle ID or Driver ID</h1>',
+			height : 35
+		});
+
+		/*
+		 * Content
+		 */
+		var incident = this.add({
+			xtype : 'container',
+			autoScroll : true,
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			},
+			flex : 1
+		});
+
+		incident.add(this.buildInfo(this));
+		incident.add(this.buildVideoAndMap(this));
+
+		this.add(this.buildList(this));
+	},
+
+	buildInfo : function(main) {
+		return {
+			xtype : 'form',
+			title : 'Incident Information.',
+			height : 40,
+			autoScroll : true,
+			defaults : {
+				anchor : '100%'
+			},
+			items : [ {
+				xtype : 'displayfield',
+				name : 'incidentTime',
+				fieldLabel : 'Incident Time'
+			}, {
+				xtype : 'displayfield',
+				name : 'vehicle',
+				fieldLabel : 'Vehicle'
+			}, {
+				xtype : 'displayfield',
+				name : 'driver',
+				fieldLabel : 'Driver'
+			}, {
+				xtype : 'displayfield',
+				name : 'impulse',
+				fieldLabel : 'Impulse'
+			}, {
+				xtype : 'displayfield',
+				name : 'videoClip',
+				hidden : true,
+				listeners : {
+					change : function(field, value) {
+						var video = main.down('[itemId=video]');
+						video.update({
+							value : value
+						});
+					}
+				}
+			} ]
+		};
+	},
+
+	buildVideoAndMap : function(main) {
+		return {
+			xtype : 'container',
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			flex : 1,
+			items : [
+					{
+						xtype : 'panel',
+						bodyPadding : 10,
+						title : 'Incident Details',
+						flex : 1,
+						layout : {
+							type : 'vbox',
+							align : 'stretch'
+						},
+						items : [
+								{
+									xtype : 'box',
+									itemId : 'video',
+									tpl : [ '<video width="300" height="200" controls="controls">',
+											'<source src="download?blob-key={value}" type="video/mp4" />',
+											'Your browser does not support the video tag.', '</video>' ]
+								}, {
+									xtype : 'button',
+									text : 'FullScreen(WebKit Only)',
+									handler : function(button) {
+										if (!Ext.isWebKit)
+											return;
+										var video = button.previousSibling('box');
+										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+									}
+								} ]
+					}, {
+						xtype : 'panel',
+						title : 'Position of Incident',
+						flex : 1,
+						html : '<div class="map" style="height:100%"></div>',
+						listeners : {
+							afterrender : function() {
+								// parent.displayMap(this, 37.56, 126.97);
+							}
+						}
+					} ]
+		};
+	},
+
+	buildList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			title : 'Incident List',
+			store : 'IncidentStore',
+			autoScroll : true,
+			flex : 1,
+			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
+				dataIndex : 'incidentTime',
+				text : 'Incident Time',
+				xtype : 'datecolumn',
+				format : 'd-m-Y H:i:s'
+			}, {
+				dataIndex : 'driver',
+				text : 'Driver',
+				type : 'string'
+			}, {
+				dataIndex : 'vehicle',
+				text : 'Vehicle',
+				type : 'string'
+			}, {
+				dataIndex : 'lattitude',
+				text : 'Lattitude',
+				type : 'number'
+			}, {
+				dataIndex : 'longitude',
+				text : 'Longitude',
+				type : 'number'
+			}, {
+				dataIndex : 'impulse',
+				text : 'Impulse',
+				type : 'number'
+			}, {
+				dataIndex : 'createdAt',
+				text : 'Created At',
+				xtype : 'datecolumn',
+				format : 'd-m-Y H:i:s'
+			}, {
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype : 'datecolumn',
+				format : 'd-m-Y H:i:s'
+			} ],
+			viewConfig : {
+
+			},
+			listeners : {
+				itemclick : function(grid, record) {
+					var form = main.down('form');
+					form.loadRecord(record);
+				}
+			},
+			onSearch : function(grid) {
+				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
+				var driverFilter = grid.down('textfield[name=driverFilter]');
+				grid.store.load({
+					filters : [ {
+						property : 'vehicle',
+						value : vehicleFilter.getValue()
+					}, {
+						property : 'driver',
+						value : driverFilter.getValue()
+					} ]
+				});
+			},
+			onReset : function(grid) {
+				grid.down('textfield[name=vehicleFilter]').setValue('');
+				grid.down('textfield[name=driverFilter]').setValue('');
+			},
+			tbar : [ {
+				xtype : 'combo',
+				name : 'vehicle',
+				queryMode : 'local',
+				store : 'VehicleStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : 'Vehicle',
+				name : 'vehicleFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'combo',
+				name : 'driver',
+				queryMode : 'local',
+				store : 'DriverStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : 'Driver',
+				name : 'driverFilter',
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'button',
+				text : 'Search',
+				tooltip : 'Find Incident',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onSearch(grid);
+				}
+			}, {
+				text : 'Reset',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onReset(grid);
+				}
+			} ]
+		}
+	}
+
+});
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -3361,449 +3925,6 @@ Ext.define('GreenFleet.store.TrackStore', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.viewport.Center', {
-
-	extend : 'Ext.panel.Panel',
-
-	id : 'content',
-
-	alias : 'widget.viewport.center',
-
-	layout : 'card',
-
-	listeners : {
-		add : function(panel, item) {
-			var menutab = Ext.getCmp('menutab');
-			menutab.add({
-				text : item.title,
-				itemId : item.itemId,
-				handler : function(tab) {
-					var content = Ext.getCmp('content');
-					var comp = content.getComponent(tab.itemId);
-					content.getLayout().setActiveItem(comp);
-				},
-				closable : false
-			}).setCard(item);
-		}
-	},
-
-	defaults : {
-		listeners : {
-			activate : function(item) {
-				var menutab = Ext.getCmp('menutab');
-				var tab = menutab.getComponent(item.itemId);
-				/*
-				 * TODO 동작하게 해보라
-				 */
-				menutab.setActiveTab(tab);
-			}
-		}
-	},
-
-	items : [ {
-		title : 'Dashboard',
-		xtype : 'map',
-		itemId : 'map'
-	}, {
-		title : 'Info',
-		xtype : 'information',
-		itemId : 'information'
-	}, {
-		title : 'File',
-		xtype : 'filemanager',
-		itemId : 'filemanager'
-	}, {
-		title : 'Company',
-		xtype : 'company',
-		itemId : 'company'
-	}, {
-		title : 'Vehicle',
-		xtype : 'vehicle',
-		itemId : 'vehicle'
-	}, {
-		title : 'Driver',
-		xtype : 'driver',
-		itemId : 'driver'
-	}, {
-		title : 'Reservation',
-		xtype : 'reservation',
-		itemId : 'reservation'
-	}, {
-		title : 'Incident',
-		xtype : 'incident',
-		itemId : 'incident'
-	}, {
-		title : 'Track',
-		xtype : 'track',
-		itemId : 'track'
-	}, {
-		title : 'ControlData',
-		xtype : 'control_data',
-		itemId : 'control_data'
-	} ]
-});
-Ext.define('GreenFleet.view.viewport.North', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.viewport.north',
-	
-	layout : {
-		type : 'hbox',
-		align : 'stretch'
-	},
-
-	items : [ {
-		xtype : 'brand',
-		width : 135
-	}, {
-		xtype : 'container',
-		flex : 1,
-		layout : {
-			type : 'vbox',
-			align : 'stretch'
-		},
-		items : [ {
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [ {
-				xtype : 'main_menu',
-				flex : 1
-			}, {
-				xtype : 'side_menu',
-				width : 180
-			} ]
-		}, {
-			xtype : 'tabbar',
-			id : 'menutab',
-			height: 23
-		} ]
-	} ]
-});
-
-Ext.define('GreenFleet.view.viewport.West', {
-	extend : 'Ext.panel.Panel',
-
-	alias : 'widget.viewport.west',
-	cls : 'tool',
-	
-	layout : {
-		type : 'vbox'
-	},
-	items : [ {
-		xtype : 'button',
-		cls : 'btnAdd',
-		html : 'add'
-	}, {
-		xtype : 'button',
-		cls : 'btnRemove',
-		html : 'remove'
-	}, {
-		xtype : 'button',
-		cls : 'btnRefresh',
-		html : 'refresh'
-	}, {
-		xtype : 'button',
-		cls : 'btnEvent',
-		html : 'event'
-	}, {
-		xtype : 'button',
-		cls : 'btnSave',
-		html : 'save'
-	}, {
-		xtype : 'button',
-		cls : 'btnExport',
-		html : 'export'
-	} ]
-});
-Ext.define('GreenFleet.view.viewport.East', {
-	extend : 'Ext.panel.Panel',
-
-	alias : 'widget.viewport.east',
-	
-	cls : 'summaryBoard',
-	
-	width : 200,
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	items : [ {
-		xtype : 'combo',
-		cls : 'searchField',
-		fieldLabel : 'Search',
-		labelWidth : 50,
-		labelSeparator : '',
-		itemId : 'search'
-	}, {
-		xtype : 'component',
-		cls : 'time',
-		itemId : 'time',
-		html : Ext.Date.format(new Date(), 'D Y-m-d H:i:s')
-	}, {
-		xtype : 'component',
-		cls : 'count',
-		itemId : 'vehicle_count',
-		html : 'Total Running Vehicles : 6'
-	}, {
-		xtype : 'panel',
-		title : '상황별 운행 현황',
-		cls : 'statusPanel',
-		items : [ {
-			xtype : 'button',
-			flex : 1,
-			cls : 'btnDriving',
-			html : 'Driving</br><span>4</span>'
-		}, {
-			xtype : 'button',
-			flex : 1,
-			cls : 'btnStop',
-			html : 'Stop</br><span>2</span>'
-		}, {
-			xtype : 'button',
-			flex : 1,
-			cls : 'btnIncident',
-			html : 'Incident</br><span>1</span>'
-		} ]
-	}, {
-		xtype : 'panel',
-		title : 'Group',
-		cls :'groupPanel',
-		items : [{
-			html : '<a href="#">강남 ~ 분당노선 1 <span>(14)</span></a><a href="#">강남 ~ 분당노선 1 <span>(14)</span></a>'
-		}]
-	}, {
-		xtype : 'panel',
-		title : 'Incidents Alarm',
-		cls : 'incidentPanel',
-		items : [{
-			html : '<a href="#">id_KS937362, 김형용<span>2011.12.30 16:25:41</span></a><a href="#">id_KS937362, 변사또<span>2011.12.30 16:25:41</span></a>'
-		}]
-	} ]
-});
-Ext.define('GreenFleet.view.Brand', {
-	extend : 'Ext.panel.Panel',
-	
-	alias : 'widget.brand',
-	
-	html : '<a></a>'
-});
-Ext.create('Ext.data.Store', {
-    id:'menustore',
-
-    fields : [{
-    	name : 'text'
-    }],
-
-	data : [ {
-		text : 'Vehicle'
-	}, {
-		text : 'Employees'
-	}, {
-		text : 'Allocation'
-	}, {
-		text : 'Incidents'
-	}, {
-		text : 'Maintenance'
-	}, {
-		text : 'Risk Assessment'
-	}, {
-		text : 'Purchase Order'
-	} ],
-
-});
-
-//Ext.define('GreenFleet.view.MainMenu', {
-//	extend : 'Ext.view.View',
-//
-//	alias : 'widget.main_menu',
-//	
-//	store : Ext.data.StoreManager.lookup('menustore'),
-//
-//	itemSelector : 'div.mainmenu',
-//	
-//	tpl : '<tpl for="."><div class="mainmenu"><span>{text}</span></div></tpl>'
-//
-//});
-
-Ext.define('GreenFleet.view.MainMenu', {
-	extend : 'Ext.toolbar.Toolbar',
-	cls : 'appMenu',
-	alias : 'widget.main_menu',
-	
-	items : [{
-		text : 'Vehicle'
-	}, {
-		text : 'Employees'
-	}, {
-		text : 'Allocation'
-	}, {
-		text : 'Incidents'
-	}, {
-		text : 'Maintenance'
-	}, {
-		text : 'Risk Assessment'
-	}, {
-		text : 'Purchase Order'
-	}]
-});
-Ext.define('GreenFleet.view.SideMenu', {
-	extend : 'Ext.toolbar.Toolbar',
-
-	alias : 'widget.side_menu',
-	cls : 'sideMenu',
-
-	items : [ {
-		type : 'help',
-		text : login.username,
-		handler : function() {
-		}
-	}, {
-		itemId : 'home',
-		type : 'home',
-		cls : 'btnHome',
-		handler : function() {
-		}
-	}, {
-		itemId : 'report',
-		type : 'report',
-		cls : 'btnReport',
-		handler : function() {
-		}
-	}, {
-		itemId : 'setting',
-		type : 'setting',
-		cls : 'btnSetting',
-		handler : function() {
-		}
-	}, {
-		itemId : 'logout',
-		type : 'logout',
-		cls : 'btnLogout',
-		handler : function() {
-			Ext.MessageBox.confirm('Confirm', 'Are you sure you want to do that?', function(confirm) {
-				if (confirm === 'yes') {
-					document.location.href = '/logout.htm';
-				}
-
-			});
-		}
-	}/*, {
-		type : 'search',
-		text : 'search',
-		handler : function(event, target, owner, tool) {
-		}
-	}*/ ]
-});
-Ext.define('GreenFleet.view.vehicle.VehiclePopup', {
-	extend : 'Ext.window.Window',
-	alias : 'widget.vehiclepopup',
-	
-	title : 'Control Information',
-	
-	closable : true,
-	
-	modal : true,
-	
-	width : 800,
-	height : 600,
-	
-	listeners : {
-		afterrender : function(popup) {
-			var form = popup.down('form');
-			form.loadRecord(popup.vehicle);
-		}
-	},
-	
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-	
-	items : [{
-		xtype : 'container',
-		height : 200,
-		layout : {
-			type : 'vbox',
-			align : 'stretch'
-		},
-		items : [{
-			xtype : 'form',
-			height : 140,
-			items : [{
-				xtype : 'textfield',
-				name : 'id',
-				fieldLabel : 'Vehicle'
-			}, {
-				xtype : 'textfield',
-				name : 'driver',
-				fieldLabel : 'Driver'
-			}, {
-				xtype : 'textfield',
-				name : 'location',
-				fieldLabel : 'Current Position'
-			}, {
-				xtype : 'textfield',
-				name : 'distance',
-				fieldLabel : 'Running Distance'
-			}, {
-				xtype : 'textfield',
-				name : 'runningTime',
-				fieldLabel : 'Running Time'
-			}]
-		}, {
-			xtype : 'panel',
-			flex : 1, 
-			title : 'Incidents', 
-			layout : 'fit',
-			items : [{
-				xtype : 'container',
-				layout : {
-					type : 'hbox',
-					align : 'left'
-				},
-				items : [{
-					xtype : 'box',
-					height : 100,
-					width : 100,
-					html : '<div>HAHAHA001</div>'
-				},{
-					xtype : 'box',
-					height : 100,
-					width : 100,
-					html : '<div>HAHAHA002</div>'
-				},{
-					xtype : 'box',
-					height : 100,
-					width : 100,
-					html : '<div>HAHAHA003</div>'
-				},{
-					xtype : 'box',
-					height : 100,
-					width : 100,
-					html : '<div>HAHAHA004</div>'
-				}]
-			}]
-		}]
-	}, {
-		xtype : 'tabpanel',
-		flex : 1,
-		items : [{
-			xtype : 'info_by_vehicle',
-		}, {
-			xtype : 'control_by_vehicle',
-		}, {
-			xtype : 'control_by_vehicle',
-		}, {
-			xtype : 'control_by_vehicle',
-		}]
-	}]
-});
 Ext.define('GreenFleet.store.ManufacturerStore', {
 	extend : 'Ext.data.Store',
 
@@ -4013,10 +4134,13 @@ Ext.define('GreenFleet.store.FileStore', {
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'TrackStore' ],
+	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'TrackStore',
+			'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore' ],
 	models : [],
-	views : [ 'company.Company', 'vehicle.Vehicle', 'vehicle.Reservation', 'vehicle.Incident', 'driver.Driver',
-			'map.Map', 'vehicle.Track', 'vehicle.ControlData', 'vehicle.ControlByVehicle', 'vehicle.InfoByVehicle', 'vehicle.Information' ],
+	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
+			'management.Company', 'management.Vehicle', 'management.Reservation', 'management.Incident',
+			'management.Driver', 'management.Track', 'management.ControlData', 'monitor.Map',
+			'monitor.ControlByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView' ],
 
 	init : function() {
 		this.control({
@@ -4028,48 +4152,6 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 
 	onViewportRendered : function() {
 	}
-});
-Ext.define('GreenFleet.controller.FrameController', {
-	extend : 'Ext.app.Controller',
-
-	stores : [],
-	models : [],
-	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu' ],
-
-	init : function() {
-		this.control({
-			'viewport' : {
-				afterrender : this.onViewportRendered
-			}
-		});
-
-		// GreenFleet.mixin('GreenFleet.mixin.Selector');
-	},
-
-	onViewportRendered : function() {
-	}
-
-});
-Ext.define('GreenFleet.controller.VehicleController', {
-	extend : 'Ext.app.Controller',
-
-	stores : [ 'ManufacturerStore', 'VehicleTypeStore' , 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore'],
-	models : [],
-	views : [ 'vehicle.VehiclePopup' ],
-
-	init : function() {
-		this.control({
-			'viewport' : {
-				afterrender : this.onViewportRendered
-			}
-		});
-
-		// GreenFleet.mixin('GreenFleet.mixin.Selector');
-	},
-
-	onViewportRendered : function() {
-	}
-
 });
 Ext.define('GreenFleet.controller.FileController', {
 	extend : 'Ext.app.Controller',

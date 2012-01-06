@@ -30,74 +30,6 @@
                     "name": "Viewport.js"
                 },
                 {
-                    "path": "app/view/company/",
-                    "name": "Company.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "Vehicle.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "Reservation.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "Incident.js"
-                },
-                {
-                    "path": "app/view/driver/",
-                    "name": "Driver.js"
-                },
-                {
-                    "path": "app/view/map/",
-                    "name": "Map.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "Track.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "ControlData.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "ControlByVehicle.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "InfoByVehicle.js"
-                },
-                {
-                    "path": "app/view/vehicle/",
-                    "name": "Information.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "CompanyStore.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "VehicleStore.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "DriverStore.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "ReservationStore.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "IncidentStore.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "TrackStore.js"
-                },
-                {
                     "path": "app/view/viewport/",
                     "name": "Center.js"
                 },
@@ -126,8 +58,76 @@
                     "name": "SideMenu.js"
                 },
                 {
-                    "path": "app/view/vehicle/",
-                    "name": "VehiclePopup.js"
+                    "path": "app/view/management/",
+                    "name": "Company.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Vehicle.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Reservation.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Incident.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Driver.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Track.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "ControlData.js"
+                },
+                {
+                    "path": "app/view/monitor/",
+                    "name": "Map.js"
+                },
+                {
+                    "path": "app/view/monitor/",
+                    "name": "ControlByVehicle.js"
+                },
+                {
+                    "path": "app/view/monitor/",
+                    "name": "InfoByVehicle.js"
+                },
+                {
+                    "path": "app/view/monitor/",
+                    "name": "Information.js"
+                },
+                {
+                    "path": "app/view/monitor/",
+                    "name": "IncidentView.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "CompanyStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "VehicleStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ReservationStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "IncidentStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "TrackStore.js"
                 },
                 {
                     "path": "app/store/",
@@ -164,14 +164,6 @@
                 {
                     "path": "app/controller/",
                     "name": "ApplicationController.js"
-                },
-                {
-                    "path": "app/controller/",
-                    "name": "FrameController.js"
-                },
-                {
-                    "path": "app/controller/",
-                    "name": "VehicleController.js"
                 },
                 {
                     "path": "app/controller/",
