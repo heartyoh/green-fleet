@@ -14,16 +14,6 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.callParent(arguments);
 
 		/*
-		 * Title
-		 */
-		this.add({
-			xtype : 'panel',
-			cls : 'pageTitle',
-			html : '<h1>Incident : Vehicle ID or Driver ID</h1>',
-			height : 35
-		});
-
-		/*
 		 * Content
 		 */
 		var incident = this.add({

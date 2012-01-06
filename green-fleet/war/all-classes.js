@@ -892,8 +892,8 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				}, {
 					xtype : 'button',
 					text : 'Import',
-					handler : function() {
-						var form = main.form.getForm();
+					handler : function(button) {
+						form = button.up('form').getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -1890,8 +1890,8 @@ Ext.define('GreenFleet.view.management.Driver', {
 				},{
 					xtype : 'button',
 					text : 'Import',
-					handler : function() {
-						var form = main.form.getForm();
+					handler : function(button) {
+						var form = button.up('form').getForm();
 
 						if (form.isValid()) {
 							form.submit({
@@ -3379,16 +3379,6 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 	initComponent : function() {
 		this.callParent(arguments);
-
-		/*
-		 * Title
-		 */
-		this.add({
-			xtype : 'panel',
-			cls : 'pageTitle',
-			html : '<h1>Incident : Vehicle ID or Driver ID</h1>',
-			height : 35
-		});
 
 		/*
 		 * Content

@@ -206,8 +206,8 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				}, {
 					xtype : 'button',
 					text : 'Import',
-					handler : function() {
-						var form = main.form.getForm();
+					handler : function(button) {
+						form = button.up('form').getForm();
 
 						if (form.isValid()) {
 							form.submit({
