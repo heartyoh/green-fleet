@@ -12,17 +12,114 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 	initComponent : function() {
 		this.callParent(arguments);
-		
-		this.add({
-			xtype : 'panel',
-			cls : 'pageTitle',
-			html : '<h1>Incident : Vehicle ID or Driver ID</h1>',
-			height : 35
+
+		/*
+		 * Content
+		 */
+		var incident = this.add({
+			xtype : 'container',
+			autoScroll : true,
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			},
+			flex : 1
 		});
 
-		var detail = this.add(this.buildForm(this));
-		this.form = detail.down('form');
-		this.list = this.add(this.buildList(this));
+		incident.add(this.buildInfo(this));
+		incident.add(this.buildVideoAndMap(this));
+
+		this.add(this.buildList(this));
+	},
+
+	buildInfo : function(main) {
+		return {
+			xtype : 'form',
+			title : 'Incident Information.',
+			height : 40,
+			autoScroll : true,
+			defaults : {
+				anchor : '100%'
+			},
+			items : [ {
+				xtype : 'displayfield',
+				name : 'incidentTime',
+				fieldLabel : 'Incident Time'
+			}, {
+				xtype : 'displayfield',
+				name : 'vehicle',
+				fieldLabel : 'Vehicle'
+			}, {
+				xtype : 'displayfield',
+				name : 'driver',
+				fieldLabel : 'Driver'
+			}, {
+				xtype : 'displayfield',
+				name : 'impulse',
+				fieldLabel : 'Impulse'
+			}, {
+				xtype : 'displayfield',
+				name : 'videoClip',
+				hidden : true,
+				listeners : {
+					change : function(field, value) {
+						var video = main.down('[itemId=video]');
+						video.update({
+							value : value
+						});
+					}
+				}
+			} ]
+		};
+	},
+
+	buildVideoAndMap : function(main) {
+		return {
+			xtype : 'container',
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			flex : 1,
+			items : [
+					{
+						xtype : 'panel',
+						bodyPadding : 10,
+						title : 'Incident Details',
+						flex : 1,
+						layout : {
+							type : 'vbox',
+							align : 'stretch'
+						},
+						items : [
+								{
+									xtype : 'box',
+									itemId : 'video',
+									tpl : [ '<video width="300" height="200" controls="controls">',
+											'<source src="download?blob-key={value}" type="video/mp4" />',
+											'Your browser does not support the video tag.', '</video>' ]
+								}, {
+									xtype : 'button',
+									text : 'FullScreen(WebKit Only)',
+									handler : function(button) {
+										if (!Ext.isWebKit)
+											return;
+										var video = button.previousSibling('box');
+										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+									}
+								} ]
+					}, {
+						xtype : 'panel',
+						title : 'Position of Incident',
+						flex : 1,
+						html : '<div class="map" style="height:100%"></div>',
+						listeners : {
+							afterrender : function() {
+								// parent.displayMap(this, 37.56, 126.97);
+							}
+						}
+					} ]
+		};
 	},
 
 	buildList : function(main) {
@@ -151,106 +248,6 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				}
 			} ]
 		}
-	},
-
-	buildForm : function(main) {
-		return {
-			xtype : 'container',
-			bodyPadding : 10,
-			autoScroll : true,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			flex : 1,
-			items : [
-					{
-						xtype : 'panel',
-						title : 'Incident Details',
-						flex : 1,
-						layout : {
-							type : 'vbox',
-							align : 'stretch'
-						},
-						items : [
-								{
-									xtype : 'box',
-									itemId : 'video',
-									tpl : [ '<video width="300" height="200" controls="controls">',
-											'<source src="download?blob-key={value}" type="video/mp4" />',
-											'Your browser does not support the video tag.', '</video>' ]
-								}, {
-									xtype : 'button',
-									text : 'FullScreen(WebKit Only)',
-									handler : function(button) {
-										if (!Ext.isWebKit)
-											return;
-										var video = button.up('container').getComponent('video');
-										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
-									}
-								} ]
-					}, {
-						xtype : 'form',
-						flex : 1,
-						title : 'Information.',
-						autoScroll : true,
-						defaults : {
-							anchor : '100%'
-						},
-						items : [ {
-							xtype : 'displayfield',
-							name : 'key',
-							fieldLabel : 'Key',
-							hidden : true
-						}, {
-							xtype : 'displayfield',
-							name : 'incidentTime',
-							fieldLabel : 'Incident Time'
-						}, {
-							xtype : 'displayfield',
-							name : 'vehicle',
-							fieldLabel : 'Vehicle'
-						}, {
-							xtype : 'displayfield',
-							name : 'driver',
-							fieldLabel : 'Driver'
-						}, {
-							xtype : 'displayfield',
-							name : 'lattitude',
-							fieldLabel : 'Lattitude'
-						}, {
-							xtype : 'displayfield',
-							name : 'longitude',
-							fieldLabel : 'Longitude'
-						}, {
-							xtype : 'displayfield',
-							name : 'impulse',
-							fieldLabel : 'Impulse'
-						}, {
-							xtype : 'displayfield',
-							name : 'videoClip',
-							hidden : true,
-							listeners : {
-								change : function(field, value) {
-									var video = main.form.previousSibling('container').getComponent('video');
-									video.update({
-										value : value
-									});
-								}
-							}
-						} ]
-					}, {
-						xtype : 'panel',
-						title : 'Position of Incident',
-						flex : 1,
-						html : '<div class="map" style="height:100%"></div>',
-						listeners : {
-							afterrender : function() {
-								// parent.displayMap(this, 37.56, 126.97);
-							}
-						}
-					} ]
-
-		}
 	}
+
 });
