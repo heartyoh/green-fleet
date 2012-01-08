@@ -129,7 +129,7 @@ public class VehicleService {
 
 			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
 			String filename = new String(imageFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
-			AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType(), filename);
+			AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());//, filename);
 
 			boolean lock = true;
 			FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);

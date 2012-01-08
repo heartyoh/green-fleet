@@ -30,6 +30,17 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		incident.add(this.buildVideoAndMap(this));
 
 		this.add(this.buildList(this));
+		
+		var map = this.down('[itemId=map]');
+		map.on('afterrender', function() {
+			var options = {
+				zoom : 10,
+				center : new google.maps.LatLng(37.56, 126.97),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+
+			map = new google.maps.Map(map.getEl().down('.map').dom, options);
+		});
 	},
 
 	buildInfo : function(main) {
@@ -112,12 +123,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 						xtype : 'panel',
 						title : 'Position of Incident',
 						flex : 1,
-						html : '<div class="map" style="height:100%"></div>',
-						listeners : {
-							afterrender : function() {
-								// parent.displayMap(this, 37.56, 126.97);
-							}
-						}
+						itemId : 'map',
+						html : '<div class="map" style="height:100%"></div>'
 					} ]
 		};
 	},
@@ -249,5 +256,4 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			} ]
 		}
 	}
-
 });
