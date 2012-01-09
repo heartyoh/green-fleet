@@ -2,7 +2,8 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
 	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'TrackStore',
-			'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore' ],
+			'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore',
+			'TrackByVehicleStore' ],
 	models : [],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
 			'management.Company', 'management.Vehicle', 'management.Reservation', 'management.Incident',
