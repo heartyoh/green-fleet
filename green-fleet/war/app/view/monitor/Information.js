@@ -5,10 +5,16 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	initComponent : function() {
 		this.callParent();
 
+		var main = this;
+		
 		var form = this.down('form');
-		var driverImage = form.up().getComponent('driverImage');
-		var vehicleImage = form.up().getComponent('vehicleImage');
-				
+		var driverImage = this.down('[itemId=driverImage]');
+		var vehicleImage = this.down('[itemId=vehicleImage]');
+		var map = this.down('[itemId=map]');
+		map.on('afterrender', function() {
+			main.displayMap(map, 37.56, 126.97);
+		});
+
 		form.getComponent('id').on('change', function(field, vehicle) {
 			var record = form.getRecord();
 			
@@ -173,13 +179,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		}, {
 			xtype : 'panel',
 			title : 'Tracking Recent Driving',
+			itemId : 'map',
 			flex : 1,
-			html : '<div class="map" style="height:100%"></div>',
-			listeners : {
-				afterrender : function() {
-//					parent.displayMap(this, 37.56, 126.97);
-				}
-			}
+			html : '<div class="map" style="height:100%"></div>'
 		} ]
 	}, {
 		xtype : 'tabpanel',
@@ -196,5 +198,28 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			xtype : 'monitor_control_by_vehicle',
 			title : 'Maintenance'
 		} ]
-	} ]
+	} ],
+	
+	displayMap : function(map, lat, lng) {
+		/*
+		 * Setting map options
+		 */
+		var options = {
+			zoom : 10,
+			center : new google.maps.LatLng(lat, lng),
+			mapTypeId : google.maps.MapTypeId.ROADMAP
+		};
+
+		/*
+		 * Draw map
+		 */
+		map = new google.maps.Map(map.getEl().down('.map').dom, options);
+
+		/*
+		 * Set map event listeners
+		 */
+//		google.maps.event.addListener(map, 'zoom_changed', function() {
+//		});
+	}
+
 });

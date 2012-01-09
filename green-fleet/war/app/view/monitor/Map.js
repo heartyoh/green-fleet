@@ -16,6 +16,8 @@ Label.prototype = new google.maps.OverlayView;
 Label.prototype.onAdd = function() {
 	var pane = this.getPanes().overlayLayer;
 	pane.appendChild(this.div_);
+	
+	this.show = true;
 
 	// Ensures the label is redrawn if the text or position is changed.
 	var me = this;
@@ -24,6 +26,11 @@ Label.prototype.onAdd = function() {
 	}), google.maps.event.addListener(this, 'text_changed', function() {
 		me.draw();
 	}) ];
+};
+
+Label.prototype.setVisible= function(showOrNot) {
+	this.show = showOrNot;
+	this.draw();
 };
 
 // Implement onRemove
@@ -44,7 +51,7 @@ Label.prototype.draw = function() {
 	var div = this.div_;
 	div.style.left = position.x + 'px';
 	div.style.top = position.y + 'px';
-	div.style.display = 'block';
+	div.style.display = this.show ? 'block' : 'none';
 
 	this.span_.innerHTML = this.get('text').toString();
 };
@@ -81,6 +88,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				handler : function(field, newValue) {
 					for ( var vehicle in this.markers) {
 						this.markers[vehicle].setVisible(newValue);
+						this.labels[vehicle].setVisible(newValue);
 					}
 				}
 			}]
@@ -124,8 +132,10 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	refreshMarkers : function(store) {
 		for ( var vehicle in this.markers) {
 			this.markers[vehicle].setMap(null);
+			this.labels[vehicle].setMap(null);
 		}
 		this.markers = {};
+		this.labels = {};
 		
 		var images = {
 			'Running' : 'resources/image/statusDriving.png',
@@ -152,6 +162,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			label.bindTo('text', marker, 'tooltip');
 
 			this.markers[vehicle] = marker;
+			this.labels[vehicle] = label;
 
 			var mapbox = this.mapbox;
 			google.maps.event.addListener(marker, 'click', function() {
