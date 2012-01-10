@@ -203,9 +203,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		});
 	},
 	
-	setVehicle : function(vehicle) {
+	setVehicle : function(vehicleRecord) {
 		var form = this.down('form');
-		form.loadRecord(vehicle);
+		form.loadRecord(vehicleRecord);
 	},
 	
 	listeners : {
