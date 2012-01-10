@@ -27,8 +27,11 @@
 			company : '<sec:authentication property="principal.company"/>'
 		};
 		
-		var uploadUrl = '<%= blobstoreService.createUploadUrl("/upload") %>';
-		var driverUploadUrl = '<%= blobstoreService.createUploadUrl("/driver/save") %>';
+		var System = System || {};
+		System.props = {
+			lattitude : 37.55,
+			longitude : 126.97
+		};
 		</script>
 		
 		<script src="ext-all-dev.js"></script>

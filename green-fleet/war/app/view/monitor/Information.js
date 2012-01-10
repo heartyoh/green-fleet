@@ -1,6 +1,8 @@
 Ext.define('GreenFleet.view.monitor.Information', {
 	extend : 'Ext.Container',
 	alias : 'widget.monitor_information',
+	
+	id : 'monitor_information',
 
 	initComponent : function() {
 		this.items = [this.ztitle, {
@@ -12,7 +14,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			},
 			items : [ {
 				xtype : 'container',
-				flex : 2,
+				width : 620,
 				layout : {
 					type : 'vbox',
 					align : 'stretch'
@@ -28,27 +30,37 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		var form = this.down('form');
 		var driverImage = this.down('[itemId=driverImage]');
 		var vehicleImage = this.down('[itemId=vehicleImage]');
+		var title = this.down('[itemId=title]');
 		var mapbox = this.down('[itemId=map]');
 		var map;
 		mapbox.on('afterrender', function() {
 			var options = {
 				zoom : 10,
-				center : new google.maps.LatLng(37.56, 126.97),
+				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
 			map = new google.maps.Map(mapbox.getEl().down('.map').dom, options);
 		});
+		this.on('activate', function() {
+			google.maps.event.trigger(map, 'resize');
+		});
 		
 		var trackLine;
+		var marker;
 		function drawTrack(vehicle, driver) {
 			if(trackLine) {
 				trackLine.setMap(null);
 				trackLine = null;
 			}
+			if(marker) {
+				marker.setMap(null);
+				marker = null;
+			}
 			
 			var trackStore = Ext.getStore('TrackByVehicleStore');
 			// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
+			trackStore.filters.clear();
 			trackStore.filter('vehicle', vehicle); 
 			trackStore.load(function(records, op, success) {
 				if(!success)
@@ -57,17 +69,42 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				trackLine = new google.maps.Polyline({
 					map : map,
 				    strokeColor: '#000000',
-				    strokeOpacity: 0.5,
-				    strokeWeight: 3
+				    strokeOpacity: 0.3,
+				    strokeWeight: 4
 				});
-				console.log(records);
+				
+				var bounds;
+				
 				var path = trackLine.getPath();
 				for(var i=0;i < records.length;i++) {
 					var record = records[i];
-					path.push(new google.maps.LatLng(record.get('lattitude'), record.get('longitude')));
+					var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+					path.push(latlng);
+					if(!bounds)
+						bounds = new google.maps.LatLngBounds(latlng, latlng);
+					else
+						bounds.extend(latlng);
 				}
 				
-				map.setCenter(new google.maps.LatLng(record.get('lattitude'), record.get('longitude')));
+				if(!bounds) {
+					var latlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+					bounds = new google.maps.LatLngBounds(latlng, latlng);
+				}
+				
+				if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+					map.setCenter(bounds.getNorthEast());
+				} else {
+					map.fitBounds(bounds);
+				}
+
+				if(records.length > 0) {
+					var last = records[records.length - 1];
+					
+					marker = new google.maps.Marker({
+					    position: new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
+					    map: map
+					});
+				}
 				
 				/*
 				 * For Test Only.
@@ -113,19 +150,22 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			} else {
 				vehicleImage.setSrc('resources/image/bgVehicle.png');
 			}
-
+			
+			title.vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
 			var driverStore = Ext.getStore('DriverStore');
 			var driverRecord = driverStore.findRecord('id', record.get('driver'));
-			var driver = record.get('id');
+			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('imageClip');
 			if (driverImageClip) {
 				driverImage.setSrc('download?blob-key=' + driverImageClip);
 			} else {
 				driverImage.setSrc('resources/image/bgDriver.png');
 			}
+
+			title.driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
 
 			/*
 			 * Get Address of the location by ReverseGeoCode.
@@ -163,6 +203,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		});
 	},
 	
+	setVehicle : function(vehicle) {
+		var form = this.down('form');
+		form.loadRecord(vehicle);
+	},
+	
 	listeners : {
 		activate : function(panel) {
 			var form = panel.down('form');
@@ -177,9 +222,14 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	},
 
 	ztitle : {
-		xtype : 'panel',
+		xtype : 'box',
 		cls : 'pageTitle',
-		html : '<h1>Information : Vehicle ID, Driver ID</h1>',
+		itemId : 'title',
+		renderSelectors : {
+			vehicle : 'span.vehicle',
+			driver : 'span.driver'
+		},
+		renderTpl : '<h1>Vehicle : <span class="vehicle">Vehicle</span>, Driver : <span class="driver">Driver</span></h1>',
 		height : 35
 	},
 	
