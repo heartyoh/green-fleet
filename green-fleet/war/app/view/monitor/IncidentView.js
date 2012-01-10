@@ -35,11 +35,15 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		map.on('afterrender', function() {
 			var options = {
 				zoom : 10,
-				center : new google.maps.LatLng(37.56, 126.97),
+				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
 			map = new google.maps.Map(map.getEl().down('.map').dom, options);
+		});
+		
+		this.on('activate', function(comp) {
+			google.maps.event.trigger(map, 'resize');
 		});
 	},
 

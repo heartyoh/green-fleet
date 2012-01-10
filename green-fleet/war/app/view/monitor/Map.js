@@ -94,6 +94,10 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			}]
 		});
 		this.mapbox = this.add(this.buildMap(this));
+		
+		this.on('activate', function(comp) {
+			google.maps.event.trigger(comp.mapbox.map, 'resize');
+		});
 	},
 
 	displayMap : function(mapbox, lat, lng) {
@@ -131,6 +135,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	 */
 	refreshMarkers : function(store) {
 		for ( var vehicle in this.markers) {
+			google.maps.event.clearListeners(this.markers[vehicle]);
 			this.markers[vehicle].setMap(null);
 			this.labels[vehicle].setMap(null);
 		}
@@ -146,13 +151,14 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver');
+			var driverRecord = Ext.getStore('DriverStore').findRecord('id', driver);
 			
 			var marker = new google.maps.Marker({
 				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
 				map : this.mapbox.map,
 				icon : images[record.get('status')],
-				title : vehicle,
-				tooltip : vehicle + "(" + driver + ")"
+				title : driverRecord ? driverRecord.get('name') : driver,
+				tooltip : record.get('registrationNumber') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
 			});
 
 			var label = new Label({
@@ -166,11 +172,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 
 			var mapbox = this.mapbox;
 			google.maps.event.addListener(marker, 'click', function() {
-				GreenFleet.getMenu('information').vehicle = record;
 				GreenFleet.doMenu('information');
-//				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
-//					vehicle : record,
-//				}).show();
+				GreenFleet.getMenu('information').setVehicle(record);
 			});
 		}, this);
 	},
@@ -191,7 +194,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			html : '<div class="map" style="height:100%"></div>',
 			listeners : {
 				afterrender : function() {
-					parent.displayMap(this, 37.56, 126.97);
+					parent.displayMap(this, System.props.lattitude, System.props.longitude);
 				}
 			}
 		};
