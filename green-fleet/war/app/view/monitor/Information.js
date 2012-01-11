@@ -317,19 +317,19 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			items : [ {
 				xtype : 'box',
 				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
+				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
 			}, {
 				xtype : 'box',
 				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00002</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
+				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
 			}, {
 				xtype : 'box',
 				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00003</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
+				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
 			}, {
 				xtype : 'box',
 				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00004</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
+				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
 			} ]
 		} ]
 	},
@@ -337,8 +337,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	zmap : {
 		xtype : 'panel',
 		title : 'Tracking Recent Driving',
+		cls : 'paddingPanel',
 		itemId : 'map',
 		flex : 1,
-		html : '<div class="map" style="width:100%;height:100%"></div>'
+		html : '<div class="map" style="width:100%;height:90%;border:1px solid #999;border-width:1px 2px 2px 1px"></div>'
 	}
 });
