@@ -20,6 +20,7 @@
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>
 		<script src="lib/uploader/fileuploader.js"></script>
+		<script src="lib/label/label.js"></script>
 		
 		<script>
 		var login = {
