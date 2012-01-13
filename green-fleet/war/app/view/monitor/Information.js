@@ -4,6 +4,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	
 	id : 'monitor_information',
 
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
 	initComponent : function() {
 		this.items = [this.ztitle, {
 			xtype : 'container',
@@ -25,119 +30,53 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		
 		this.callParent();
 
-		var main = this;
+		var self = this;
 		
-		var form = this.down('form');
-		var driverImage = this.down('[itemId=driverImage]');
-		var vehicleImage = this.down('[itemId=vehicleImage]');
-		var title = this.down('[itemId=title]');
-		var mapbox = this.down('[itemId=map]');
-		var map;
-		mapbox.on('afterrender', function() {
+		this.getMapBox().on('afterrender', function(mapbox) {
 			var options = {
 				zoom : 10,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
-			map = new google.maps.Map(mapbox.getEl().down('.map').dom, options);
-		});
-		this.on('activate', function() {
-			google.maps.event.trigger(map, 'resize');
-		});
-		
-		var trackLine;
-		var marker;
-		function drawTrack(vehicle, driver) {
-			if(trackLine) {
-				trackLine.setMap(null);
-				trackLine = null;
-			}
-			if(marker) {
-				marker.setMap(null);
-				marker = null;
-			}
-			
-			var trackStore = Ext.getStore('TrackByVehicleStore');
-			// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
-			trackStore.filters.clear();
-			trackStore.filter('vehicle', vehicle); 
-			trackStore.load(function(records, op, success) {
-				if(!success)
-					return;
+			self.setMap(new google.maps.Map(mapbox.getEl().down('.map').dom, options));
 
-				trackLine = new google.maps.Polyline({
-					map : map,
-				    strokeColor: '#000000',
-				    strokeOpacity: 0.3,
-				    strokeWeight: 4
+			/*
+			 * For test only.
+			 */
+			google.maps.event.addListener(self.getMap(), 'click', function(e) {
+				Ext.Ajax.request({
+					url : 'track/save',
+					method : 'POST',
+					params : {
+						vehicle : self.getVehicle(),
+						driver : self.getDriver(),
+						lattitude : e.latLng.lat(),
+						longitude : e.latLng.lng()
+					},
+					success : function(resp, opts) {
+						var path = self.getTrackLine().getPath();
+						path.insertAt(0, e.latLng);
+						Ext.getStore('VehicleStore').load();
+					},
+					failure : function(resp, opts) {
+						console.log('Failed');
+						console.log(resp);
+					}
 				});
-				
-				var bounds;
-				
-				var path = trackLine.getPath();
-				for(var i=0;i < records.length;i++) {
-					var record = records[i];
-					var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
-					path.push(latlng);
-					if(!bounds)
-						bounds = new google.maps.LatLngBounds(latlng, latlng);
-					else
-						bounds.extend(latlng);
-				}
-				
-				if(!bounds) {
-					var latlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
-					bounds = new google.maps.LatLngBounds(latlng, latlng);
-				}
-				
-				if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
-					map.setCenter(bounds.getNorthEast());
-				} else {
-					map.fitBounds(bounds);
-				}
-
-				if(records.length > 0) {
-					var last = records[records.length - 1];
-					
-					marker = new google.maps.Marker({
-					    position: new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
-					    map: map
-					});
-				}
-				
-				/*
-				 * For Test Only.
-				 */
-				function addLatLng(event) {
-					Ext.Ajax.request({
-						url : 'track/save',
-						method : 'POST',
-						params : {
-							vehicle : vehicle,
-							driver : driver,
-							lattitude : event.latLng.lat(),
-							longitude : event.latLng.lng()
-						},
-						success : function(resp, opts) {
-							var path = trackLine.getPath();
-							path.push(event.latLng);
-						},
-						failure : function(resp, opts) {
-							console.log('Failed');
-							console.log(resp);
-						}
-					});
-				}
-				
-				google.maps.event.addListener(map, 'click', addLatLng);
 			});
-		}
+		});
 		
-		var incidents = this.down('[itemId=incidents]');
-
-		form.getComponent('id').on('change', function(field, vehicle) {
-			var record = form.getRecord();
+		this.on('activate', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+		
+		this.getTrackStore().on('load', function() {
+			self.refreshTrack();
+		});
+		
+		this.getVehicleField().on('change', function(field, vehicle) {
+			var record = self.getForm().getRecord();
 			
 			/*
 			 * Get Vehicle Information (Image, Registration #, ..) from VehicleStore
@@ -146,12 +85,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('imageClip');
 			if (vehicleImageClip) {
-				vehicleImage.setSrc('download?blob-key=' + vehicleImageClip);
+				self.getVehicleImage().setSrc('download?blob-key=' + vehicleImageClip);
 			} else {
-				vehicleImage.setSrc('resources/image/bgVehicle.png');
+				self.getVehicleImage().setSrc('resources/image/bgVehicle.png');
 			}
 			
-			title.vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
+			self.getTitleBox().vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
@@ -160,12 +99,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('imageClip');
 			if (driverImageClip) {
-				driverImage.setSrc('download?blob-key=' + driverImageClip);
+				self.getDriverImage().setSrc('download?blob-key=' + driverImageClip);
 			} else {
-				driverImage.setSrc('resources/image/bgDriver.png');
+				self.getDriverImage().setSrc('resources/image/bgDriver.png');
 			}
 
-			title.driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
+			self.getTitleBox().driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
 
 			/*
 			 * Get Address of the location by ReverseGeoCode.
@@ -188,37 +127,164 @@ Ext.define('GreenFleet.view.monitor.Information', {
 						if (results[0]) {
 							var address = results[0].formatted_address
 							record.set('location', address);
-							form.getComponent('location').setValue(address);
+							self.getLocationField().setValue(address);
 						}
 					} else {
 						console.log("Geocoder failed due to: " + status);
 					}
 				});
 			}
-			
+
 			/*
-			 * Draw Track on Map.
+			 * TrackStore를 다시 로드함.
 			 */
-			drawTrack(vehicle, driver);
+			// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
+			self.getTrackStore().clearFilter(true);
+			self.getTrackStore().filter('vehicle', vehicle); 
+			self.getTrackStore().load();
 		});
 	},
 	
 	setVehicle : function(vehicleRecord) {
-		var form = this.down('form');
-		form.loadRecord(vehicleRecord);
+		this.getForm().loadRecord(vehicleRecord);
 	},
 	
-	listeners : {
-		activate : function(panel) {
-			var form = panel.down('form');
-			if (panel.vehicle)
-				form.loadRecord(panel.vehicle);
-		}
+	getForm : function() {
+		if(!this.form)
+			this.form = this.down('form');
+		return this.form;
+	},
+	
+	getVehicleField : function() {
+		if(!this.vehicleField)
+			this.vehicleField = this.down('form > [itemId=id]');
+		return this.vehicleField;
+	}, 
+	
+	getDriverField : function() {
+		if(!this.driverField)
+			this.driverField = this.down('form > [itemId=driver]');
+		return this.driverField;
+	},
+	
+	getLocationField : function() {
+		if(!this.locationField)
+			this.locationField = this.down('form > [itemId=location]');
+		return this.locationField;
+	},
+	
+	getDriverImage : function() {
+		if(!this.driverImage)
+			this.driverImage = this.down('[itemId=driverImage]');
+		return this.driverImage;
+	},
+	
+	getVehicleImage : function() {
+		if(!this.vehicleImage)
+			this.vehicleImage = this.down('[itemId=vehicleImage]');
+		return this.vehicleImage;
 	},
 
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
+	getTitleBox : function() {
+		if(!this.titleBox)
+			this.titleBox = this.down('[itemId=title]');
+		return this.titleBox;
+	},
+	
+	getMapBox : function() {
+		if(!this.mapbox)
+			this.mapbox = this.down('[itemId=map]');
+		return this.mapbox;
+	},
+	
+	getMap : function() {
+		return this.map;
+	},
+	
+	setMap : function(map) {
+		this.map = map;
+	},
+	
+	getTrackLine : function() {
+		return this.trackline;
+	},
+	
+	setTrackLine : function(trackline) {
+		if(this.trackline)
+			this.trackline.setMap(null);
+		this.trackline = trackline;
+	},
+	
+	getMarker : function() {
+		return this.marker;
+	},
+	
+	setMarker : function(marker) {
+		if(this.marker)
+			this.marker.setMap(null);
+		this.marker = marker;
+	},
+	
+	resetMarkers : function() {
+		if(this.markers)
+			this.markers.setMap(null);
+		this.markers = null;
+	},
+	
+	getTrackStore : function() {
+		if(!this.trackStore)
+			this.trackStore = Ext.getStore('TrackByVehicleStore');
+		return this.trackStore;
+	},
+	
+	getVehicle : function() {
+		return this.getVehicleField().getValue();
+	},
+	
+	getDriver : function() {
+		return this.getDriverField().getValue();
+	},
+	
+	refreshTrack : function() {
+		this.setTrackLine(new google.maps.Polyline({
+			map : this.getMap(),
+		    strokeColor: '#000000',
+		    strokeOpacity: 0.3,
+		    strokeWeight: 4
+		}));
+		this.setMarker(null);
+
+		var path = this.getTrackLine().getPath();
+		var bounds;
+		var latlng;
+
+		this.getTrackStore().each(function(record) {
+			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			path.push(latlng);
+			if(!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+		});
+		
+		if(!bounds) {
+			var defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
+		}
+		
+		if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else {
+			this.getMap().fitBounds(bounds);
+		}
+
+		var first = this.getTrackStore().first(); 
+		if(first) {
+			this.setMarker(new google.maps.Marker({
+			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
+			    map: this.getMap()
+			}));
+		}
 	},
 
 	ztitle : {

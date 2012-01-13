@@ -2,7 +2,11 @@ Ext.define('GreenFleet.store.TrackStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
-
+	
+	remoteFilter : true,
+	
+	remoteSort : true,
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'

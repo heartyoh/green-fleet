@@ -19,9 +19,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		this.on('afterrender', function() {
 			var vehicleStore = Ext.getStore('VehicleStore');
-			vehicleStore.on('datachanged', self.refreshMap, self);
-
-			self.refreshMap(vehicleStore);
+			vehicleStore.on('load', self.refreshMap, self);
+			vehicleStore.load();
 		});
 		
 		this.on('activate', function() {
