@@ -75,6 +75,10 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			self.refreshTrack();
 		});
 		
+		this.getIncidentStore().on('load', function() {
+			self.refreshIncidents();
+		});
+		
 		this.getVehicleField().on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
 			
@@ -142,6 +146,13 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			self.getTrackStore().clearFilter(true);
 			self.getTrackStore().filter('vehicle', vehicle); 
 			self.getTrackStore().load();
+			
+			/*
+			 * IncidentStore를 다시 로드함.
+			 */
+			self.getIncidentStore().clearFilter(true);
+			self.getIncidentStore().filter('vehicle', vehicle);
+			self.getIncidentStore().load();
 		});
 	},
 	
@@ -236,6 +247,18 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			this.trackStore = Ext.getStore('TrackByVehicleStore');
 		return this.trackStore;
 	},
+
+	getIncidentStore : function() {
+		if(!this.incidentStore)
+			this.incidentStore = Ext.getStore('IncidentStore');
+		return this.incidentStore;
+	},
+	
+	getIncidents : function() {
+		if(!this.incidents)
+			this.incidents = this.down('[itemId=incidents]');
+		return this.incidents;
+	},
 	
 	getVehicle : function() {
 		return this.getVehicleField().getValue();
@@ -284,6 +307,36 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
 			    map: this.getMap()
 			}));
+		}
+	},
+	
+	incidentHandler : function(e, el, incident) {
+		GreenFleet.doMenu('monitor_incident');
+		GreenFleet.getMenu('monitor_incident').setIncident(incident);
+	},
+	
+	refreshIncidents : function() {
+		this.getIncidents().removeAll();
+		var max = this.getIncidentStore().count() > 4 ? 4 : this.getIncidentStore().count();
+		for(var i = 0;i < max;i++) {
+			var incident = this.getIncidentStore().getAt(i);
+			var self = this;
+			this.getIncidents().add({
+				xtype : 'box',
+				cls : 'incidentThumb',
+				listeners : {
+					'render' : function() {
+						this.getEl().on('click', self.incidentHandler, this, incident);
+					}
+				},
+				html : '<div class="vehicle">' + 
+					incident.get('vehicle') + 
+					'</div><div class="driver">' + 
+					incident.get('driver') + 
+					'</div><div class="date">' + 
+					Ext.Date.format(incident.get('incidentTime'), 'Y-m-d H:i:s') +
+					'</div>'
+			})
 		}
 	},
 
@@ -379,24 +432,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			layout : {
 				type : 'hbox',
 				align : 'left'
-			},
-			items : [ {
-				xtype : 'box',
-				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
-			}, {
-				xtype : 'box',
-				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
-			}, {
-				xtype : 'box',
-				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
-			}, {
-				xtype : 'box',
-				cls : 'incidentThumb',
-				html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25</div>'
-			} ]
+			}
 		} ]
 	},
 	

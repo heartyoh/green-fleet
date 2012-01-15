@@ -31,25 +31,47 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 		this.add(this.buildList(this));
 		
-		var map = this.down('[itemId=map]');
-		map.on('afterrender', function() {
+		var self = this;
+		
+		this.getMapBox().on('afterrender', function() {
 			var options = {
 				zoom : 10,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
-			map = new google.maps.Map(map.getEl().down('.map').dom, options);
+			self.map = new google.maps.Map(self.getMapBox().getEl().down('.map').dom, options);
 		});
 		
 		this.on('activate', function(comp) {
-			google.maps.event.trigger(map, 'resize');
+			google.maps.event.trigger(self.getMap(), 'resize');
 		});
 	},
 
+	setIncident : function(incident) {
+		this.getForm().loadRecord(incident);
+	},
+	
+	getForm : function() {
+		if(!this.incident_form)
+			this.incident_form = this.down('[itemId=incident_form]');
+		return this.incident_form;
+	},
+	
+	getMapBox : function() {
+		if(!this.mapbox)
+			this.mapbox = this.down('[itemId=map]');
+		return this.mapbox;
+	},
+	
+	getMap : function() {
+		return this.map;
+	},
+	
 	buildInfo : function(main) {
 		return {
 			xtype : 'form',
+			itemId : 'incident_form',
 			title : 'Incident Information.',
 			height : 40,
 			autoScroll : true,
@@ -82,6 +104,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 						video.update({
 							value : value
 						});
+						
+						
 					}
 				}
 			} ]
