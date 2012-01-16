@@ -1,21 +1,4 @@
 Ext.define('GreenFleet.mixin.UI', {
-	addDockingNav : function(view, config) {
-		var defaults = {
-			tabConfig : {
-				width : 29,
-				height : 22,
-				padding : '0 0 0 2px'
-			}
-		};
-
-		try {
-			Ext.getCmp('docked_nav').add(Ext.create(view, Ext.merge(defaults, config)));
-		} catch (e) {
-			console.log(e);
-			console.trace();
-		}
-	},
-
 	addSystemMenu : function(view, config) {
 		try {
 			var system_menu = Ext.getCmp('system_menu');
@@ -50,18 +33,6 @@ Ext.define('GreenFleet.mixin.UI', {
 		Ext.getCmp('content').add(comp).show();
 		
 		this.clearStatus();
-	},
-
-	setStatus : function(state) {
-		Ext.getCmp('statusbar').setStatus(state);
-	},
-
-	showBusy : function(o) {
-		Ext.getCmp('statusbar').showBusy(o);
-	},
-
-	clearStatus : function() {
-		Ext.getCmp('statusbar').clearStatus();
 	},
 
 	getMenu : function(menu) {

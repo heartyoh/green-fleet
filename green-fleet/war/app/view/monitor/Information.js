@@ -76,7 +76,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		});
 		
 		this.getIncidentStore().on('load', function() {
-			self.refreshIncidents();
+			if(self.isVisible(true))
+				self.refreshIncidents();
 		});
 		
 		this.getVehicleField().on('change', function(field, vehicle) {
@@ -326,7 +327,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				cls : 'incidentThumb',
 				listeners : {
 					'render' : function() {
-						this.getEl().on('click', self.incidentHandler, this, incident);
+						this.getEl().on('click', self.incidentHandler, self, incident);
 					}
 				},
 				html : '<div class="vehicle">' + 

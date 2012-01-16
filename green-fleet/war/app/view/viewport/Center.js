@@ -10,10 +10,14 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 	listeners : {
 		add : function(panel, item) {
+			if(panel !== this)
+				return;
+			
 			var menutab = Ext.getCmp('menutab');
 			menutab.add({
 				text : item.title,
 				itemId : item.itemId,
+				tooltip : item.title,
 				handler : function(tab) {
 					var content = Ext.getCmp('content');
 					var comp = content.getComponent(tab.itemId);
