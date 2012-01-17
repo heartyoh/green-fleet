@@ -35,14 +35,71 @@ Ext.define('GreenFleet.view.viewport.East', {
 			self.getTimeField().update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
 		}, 1000);
 		
-		self.refreshVehicleCounts();
+		this.on('afterrender', function() {
+			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
+			Ext.getStore('RecentIncidentStore').load();
+		});
 	},
 	
 	refreshVehicleCounts : function() {
-		this.getStateRunning().update('Driving</br><span>1</span>');
-		this.getStateIdle().update('Idle</br><span>2</span>');
-		this.getStateIncident().update('Incident</br><span>3</span>');
-		this.getVehicleCount().update('Total Running Vehicles : 6');
+		var store = Ext.getStore('VehicleStore');
+		
+		var total = store.count();
+		
+		var running = 0;
+		var idle = 0;
+		var incident = 0;
+
+		store.each(function(record) {
+			switch(record.get('status')) {
+			case 'Running' :
+				running++;
+				break;
+			case 'Idle' :
+				idle++;
+				break;
+			case 'Incident' :
+				incident++;
+				break;
+			}
+		});
+		
+		this.getStateRunning().update('Driving</br><span>' + running + '</span>');
+		this.getStateIdle().update('Idle</br><span>' + idle + '</span>');
+		this.getStateIncident().update('Incident</br><span>' + incident + '</span>');
+		this.getVehicleCount().update('Total Running Vehicles : ' + total);
+	},
+	
+	refreshIncidents : function(store) {
+		if(!store)
+			store = Ext.getStore('RecentIncidentsStore');
+		
+		this.getIncidents().removeAll();
+		
+		var count = store.count() > 5 ? 5 : store.count();
+		
+		for(var i = 0;i < count;i++) {
+			var incident = store.getAt(i);
+			
+			this.getIncidents().add({
+				xtype : 'button',
+				listeners : {
+					click : function(button) {
+						GreenFleet.doMenu('monitor_incident');
+						GreenFleet.getMenu('monitor_incident').setIncident(button.incident, true);
+					}
+				},
+				incident : incident,
+				html : '<a href="#">' + incident.get('vehicle') + ', ' + incident.get('driver') + '<span>' + 
+					Ext.Date.format(incident.get('incidentTime'), 'D Y-m-d H:i:s') + '</span></a>'
+			});
+		}
+	},
+	
+	getIncidents : function() {
+		if(!this.incidents)
+			this.incidents = this.down('[itemId=incidents]');
+		return this.incidents;
 	},
 	
 	getVehicleCount : function() {
@@ -122,9 +179,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	}, {
 		xtype : 'panel',
 		title : 'Incidents Alarm',
-		cls : 'incidentPanel',
-		items : [{
-			html : '<a href="#">id_KS937362, 김형용<span>2011.12.30 16:25:41</span></a><a href="#">id_KS937362, 변사또<span>2011.12.30 16:25:41</span></a>'
-		}]
+		itemId : 'incidents',
+		cls : 'incidentPanel'
 	} ]
 });
