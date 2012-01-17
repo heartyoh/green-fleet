@@ -74,9 +74,6 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'fuelEfficiency',
 				text : 'Fuel Efficiency',
 			}, {
-				dataIndex : 'longitude',
-				text : 'Longitude',
-			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -203,18 +200,21 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				name : 'date',
 				fieldLabel : 'Date',
 				format: 'd-m-Y',
+				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'startTime',
 				fieldLabel : 'Start Time',
 				format: 'd-m-Y H:i:s',
+				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'endTime',
 				fieldLabel : 'End Time',
 				format: 'd-m-Y H:i:s',
+				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				name : 'distance',

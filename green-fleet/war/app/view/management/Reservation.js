@@ -237,6 +237,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 									main.down('gridpanel').store.load();
 								},
 								failure : function(form, action) {
+									console.log(action);
 									GreenFleet.msg('Failed', action.result.msg);
 								}
 							});

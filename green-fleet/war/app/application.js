@@ -11,7 +11,8 @@ Ext.define('GreenFleet', {
 		msg : 'GreenFleet.mixin.Msg',
 		user : 'GreenFleet.mixin.User',
 		mixin : 'GreenFleet.mixin.Mixin',
-		ui : 'GreenFleet.mixin.UI'
+		ui : 'GreenFleet.mixin.UI',
+		state : 'GreenFleet.mixin.State'
 	}
 });
 

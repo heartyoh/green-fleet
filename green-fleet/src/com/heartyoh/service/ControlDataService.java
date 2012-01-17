@@ -94,7 +94,7 @@ public class ControlDataService {
 
 			if(date != null) {
 				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(Long.parseLong(date));
+				cal.setTimeInMillis(Long.parseLong(date) * 1000);
 				obj.setDate(cal.getTime());
 			}
 			if(driver != null) {
@@ -105,12 +105,12 @@ public class ControlDataService {
 			}
 			if(startTime != null) {
 				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(Long.parseLong(date));
+				cal.setTimeInMillis(Long.parseLong(date) * 1000);
 				obj.setStartTime(cal.getTime());
 			}
 			if(endTime != null) {
 				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(Long.parseLong(date));
+				cal.setTimeInMillis(Long.parseLong(date) * 1000);
 				obj.setEndTime(cal.getTime());
 			}
 			if(distance != null) {

@@ -39,7 +39,7 @@ Ext.define('GreenFleet.store.ControlDataStore', {
 	}, {
 		name : 'date',
 		type : 'date',
-		dateFormat:'timestamp'
+		dateFormat:'time'
 	}, {
 		name : 'startTime',
 		type : 'date',

@@ -20,7 +20,7 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		name : 'vehicleType',
 		type : 'string'
 	}, {
-		name : 'deliveryType',
+		name : 'deliveryPlace',
 		type : 'string'
 	}, {
 		name : 'destination',

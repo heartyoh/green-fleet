@@ -29,11 +29,16 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				self.refreshMap(Ext.getStore('VehicleStore'));
 		});
 		
-		this.getMarkerCheck().on('change', function(check, newValue) {
-			for ( var vehicle in self.getMarkers()) {
-				self.getMarkers()[vehicle].setVisible(newValue);
-				self.getLabels()[vehicle].setVisible(newValue);
-			}
+		Ext.getCmp('east').getStateRunning().on('click', function() {
+			self.refreshMarkers();
+		});
+		
+		Ext.getCmp('east').getStateIdle().on('click', function() {
+			self.refreshMarkers();
+		});
+		
+		Ext.getCmp('east').getStateIncident().on('click', function() {
+			self.refreshMarkers();
 		});
 
 		this.getAutofitCheck().on('change', function(check, newValue) {
@@ -42,18 +47,37 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		});
 	},
 	
+	refreshMarkers : function() {
+		var markers = this.getMarkers();
+		var labels = this.getLabels();
+		
+		for (var vehicle in markers) {
+			var marker = markers[vehicle];
+			var label = labels[vehicle]; 
+
+			switch(marker.status) {
+			case 'Running' :
+				marker.setVisible(GreenFleet.show_running_vehicle);
+				label.setVisible(GreenFleet.show_running_vehicle);
+				break;
+			case 'Idle' :
+				marker.setVisible(GreenFleet.show_idle_vehicle);
+				label.setVisible(GreenFleet.show_idle_vehicle);
+				break;
+			case 'Incident' :
+				marker.setVisible(GreenFleet.show_incident_vehicle);
+				label.setVisible(GreenFleet.show_incident_vehicle);
+				break;
+			}
+		}
+	},
+	
 	getAutofitCheck : function() {
 		if(!this.autofitCheck)
 			this.autofitCheck = this.down('[itemId=autofit]');
 		return this.autofitCheck;
 	},
 	
-	getMarkerCheck : function() {
-		if(!this.markerCheck)
-			this.markerCheck = this.down('[itemId=marker]');
-		return this.markerCheck;
-	},
-
 	getMapBox : function() {
 		if(!this.mapbox)
 			this.mapbox = this.down('[itemId=mapbox]');
@@ -84,8 +108,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	},
 	
 	resetLabels : function() {
-		for ( var vehicle in this.getLabels()) {
-			this.getLabels()[vehicle].setMap(null);
+		for ( var vehicle in this.labels) {
+			this.labels[vehicle].setMap(null);
 		}
 		this.labels = {};
 	},
@@ -123,6 +147,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var marker = new google.maps.Marker({
 				position : latlng,
 				map : this.getMap(),
+				status : record.get('status'),
 				icon : images[record.get('status')],
 				title : driverRecord ? driverRecord.get('name') : driver,
 				tooltip : record.get('registrationNumber') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
@@ -147,12 +172,14 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				GreenFleet.getMenu('information').setVehicle(record);
 			});
 		}, this);
-
+		
 		if(!bounds || bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
 			this.getMap().setCenter(new google.maps.LatLng(System.props.lattitude, System.props.longitude));
 		} else {
 			this.getMap().fitBounds(bounds);
 		}
+
+		this.refreshMarkers();
 	},
 	
 	ztitle : {
@@ -168,7 +195,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			html : '<h1>Information</h1>'
 		}, {
 			xtype : 'checkboxgroup',
-			width : 160,
+			width : 80,
 			defaults : {
 				boxLabelAlign : 'before',
 				width : 80,
@@ -177,12 +204,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				labelSeparator : ''
 			},
 			items : [{
-				fieldLabel : 'Markers',
-				itemId : 'marker'
-			}, {
 				fieldLabel : 'Autofit',
 				itemId : 'autofit'
-				
 			}]
 		}]
 	},

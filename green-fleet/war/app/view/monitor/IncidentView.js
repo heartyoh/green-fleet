@@ -71,7 +71,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		});
 
 		this.getIncidentList().on('itemclick', function(grid, record) {
-			self.getForm().loadRecord(record);
+			self.setIncident(record, false);
 		});
 		
 		this.down('[itemId=fullscreen]').on('click', function() {
@@ -81,12 +81,20 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		});
 	},
 	
-	setIncident : function(incident) {
-		this.getVehicleFilter().setValue(incident.get('vehicle'));
-		this.getDriverFilter().reset();
-		this.refreshIncidentList();
+	setIncident : function(incident, refresh) {
+		this.incident = incident;
+		if(refresh) {
+			this.getVehicleFilter().setValue(incident.get('vehicle'));
+			this.getDriverFilter().reset();
+			this.refreshIncidentList();
+		}
 		
 		this.getForm().loadRecord(incident);
+		this.refreshMap();
+	},
+	
+	getIncident : function() {
+		return this.incident;
 	},
 	
 	refreshIncidentList : function() {
@@ -106,6 +114,36 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.getDriverFilter().reset();
 		
 		this.refreshIncidentList();
+	},
+	
+	getMarker : function() {
+		return this.marker;
+	},
+	
+	setMarker : function(marker) {
+		if(this.marker)
+			this.marker.setMap(null);
+		this.marker = marker;
+	},
+	
+	refreshMap : function() {
+		this.setMarker(null);
+		
+		var incident = this.getIncident();
+		var location = null;
+		if(!incident)
+			location = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+		else
+			location = new google.maps.LatLng(incident.get('lattitude'), incident.get('longitude'));
+		
+		this.getMap().setCenter(location);
+
+		if(incident) {
+			this.setMarker(new google.maps.Marker({
+			    position: location,
+			    map: this.getMap()
+			}));
+		}
 	},
 	
 	getIncidentList : function() {

@@ -313,7 +313,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	
 	incidentHandler : function(e, el, incident) {
 		GreenFleet.doMenu('monitor_incident');
-		GreenFleet.getMenu('monitor_incident').setIncident(incident);
+		GreenFleet.getMenu('monitor_incident').setIncident(incident, true);
 	},
 	
 	refreshIncidents : function() {

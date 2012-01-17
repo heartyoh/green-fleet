@@ -3,6 +3,10 @@ Ext.define('GreenFleet.store.IncidentStore', {
 
 	autoLoad : false,
 
+	remoteFilter : true,
+	
+	remoteSort : true,
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'
