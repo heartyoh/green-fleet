@@ -141,15 +141,15 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			}
 
 			/*
-			 * TrackStore를 다시 로드함.
+			 * TrackStore瑜��ㅼ� 濡����
 			 */
-			// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
+			// TODO ��� ��낫 ���媛����(�뱀� 二쇳�遺�� 蹂댁�湲���� �쇱� ��낫瑜��ㅼ����濡���� �대��쇱�留����留��.)
 			self.getTrackStore().clearFilter(true);
 			self.getTrackStore().filter('vehicle', vehicle); 
 			self.getTrackStore().load();
 			
 			/*
-			 * IncidentStore를 다시 로드함.
+			 * IncidentStore瑜��ㅼ� 濡����
 			 */
 			self.getIncidentStore().clearFilter(true);
 			self.getIncidentStore().filter('vehicle', vehicle);
@@ -392,9 +392,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	zmap : {
 		xtype : 'panel',
 		title : 'Tracking Recent Driving',
-		cls : 'paddingPanel',
+		cls : 'paddingPanel backgroundGray borderLeftGray',
 		itemId : 'map',
 		flex : 1,
-		html : '<div class="map" style="width:100%;height:90%;border:1px solid #999;border-width:1px 2px 2px 1px"></div>'
+		html : '<div class="map"></div>'
 	}
 });
