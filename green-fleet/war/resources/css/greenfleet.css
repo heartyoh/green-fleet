@@ -78,11 +78,13 @@
 /*common style*/
 .pageTitle{background:url('../image/bgH1.gif') repeat-x;border-bottom:1px solid #aeaeae;padding:5px 5px 0 10px}
 .pageTitle h1{background:url('../image/iconH1.png') no-repeat;padding:1px 0 0 30px;height:26px;color:#333;font-size:19px;font-weight:normal}
-.x-panel-header-default{box-shadow:none}
+.x-panel-header-default{box-shadow:none;background-color:transparent}
 .x-panel-header-text-default,.x-tab-active button{color:#4b638f}
 .imgDriver{background:url('../image/bgDriver.png') 4px 4px no-repeat;width:120px;height:125px;background-color:#fff;border:1px solid #c0c0c0;margin-right:20px}
 .imgVehicle{background:url('../image/bgVehicle.png') 4px 4px no-repeat;width:120px;height:125px;background-color:#fff;border:1px solid #c0c0c0;margin-right:20px}
 .paddingPanel{padding:3px 13px}
+.backgroundGray{background-color:#dfdfdf}
+.borderLeftGray{border-left:1px solid #ccc}
 #content-body .x-tab-bar{background:url('../image/bgTab.gif') repeat-x;}
 #content-body .x-tab-default-top{background:url('../image/bgTabItem.gif') repeat-x;box-shadow:none;border-bottom:0}
 #content-body .x-tab-default-top.x-tab button{color:#51698b;font-weight:normal}
@@ -102,3 +104,12 @@ span.mapTipID{
 .incidentThumb .vehicle{background:url('../image/icon15Vehicle.gif') 2px 50% no-repeat;padding-left:22px;font-weight:bold;color:#333}
 .incidentThumb .driver{background:url('../image/icon15Driver.gif') 2px 50% no-repeat;padding-left:22px}
 .incidentThumb .date{background:url('../image/icon15Date.gif') 2px 50% no-repeat;padding-left:22px}
+
+/*incident style*/
+.incidentSummary{background:url('../image/bgH1.gif') 0 100% repeat-x;background-color:#fdfdfd;padding:5px 0 0 5px}
+.imgDriverSmall{background:url('../image/bgPhotoSmall.gif') no-repeat;border:1px solid #9da8b2;width:35px;height:37px;margin:0 10px 5px 0}
+.backgroundGray .map{width:100%;height:95%;border:5px solid #fff}
+.summaryCell{display:inline-block;margin-right:25px}
+.summaryCell label{white-space:nowrap;font-size:11px;color:#797979}
+.summaryCell .x-form-item-body{background-color:#50545f;border:1px solid #efefef;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;}
+.summaryCell .x-form-item-body .x-form-display-field{color:#fff}

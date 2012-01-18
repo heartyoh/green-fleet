@@ -195,30 +195,48 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	zInfo : {
 		xtype : 'form',
 		itemId : 'incident_form',
-		title : 'Incident Information.',
-		height : 40,
+		cls : 'incidentSummary',
+		height: 50,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
 		autoScroll : true,
 		defaults : {
 			anchor : '100%'
 		},
 		items : [ {
+			xtype : 'image',
+			cls : 'imgDriverSmall',
+			height: 37
+		},{
 			xtype : 'displayfield',
+			labelAlign : 'top',
+			cls : 'summaryCell',
 			name : 'incidentTime',
 			fieldLabel : 'Incident Time'
 		}, {
 			xtype : 'displayfield',
+			labelAlign : 'top',
+			cls : 'summaryCell',
 			name : 'vehicle',
 			fieldLabel : 'Vehicle'
 		}, {
 			xtype : 'displayfield',
+			labelAlign : 'top',
+			cls : 'summaryCell',
 			name : 'driver',
 			fieldLabel : 'Driver'
 		}, {
 			xtype : 'displayfield',
+			labelAlign : 'top',
+			cls : 'summaryCell',
 			name : 'impulse',
 			fieldLabel : 'Impulse'
 		}, {
 			xtype : 'displayfield',
+			labelAlign : 'top',
+			cls : 'summaryCell',
 			name : 'videoClip',
 			hidden : true
 		} ]
@@ -256,10 +274,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				}, {
 					xtype : 'panel',
 					title : 'Position of Incident',
-					cls : 'paddingPanel',
+					cls : 'paddingPanel backgroundGray borderLeftGray',
 					flex : 1,
 					itemId : 'map',
-					html : '<div class="map" style="width:100%;height:100%;border:1px solid #999;border-width:1px 2px 2px 1px"></div>'
+					html : '<div class="map"></div>'
 				} ]
 	},
 
