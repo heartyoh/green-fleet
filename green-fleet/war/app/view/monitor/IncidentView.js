@@ -30,14 +30,14 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 		var self = this;
 		
-		this.getMapBox().on('afterrender', function() {
+		this.sub('map').on('afterrender', function() {
 			var options = {
 				zoom : 10,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
-			self.map = new google.maps.Map(self.getMapBox().getEl().down('.map').dom, options);
+			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
 		});
 		
 		this.on('activate', function(comp) {
@@ -53,43 +53,62 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		});
 		
 		this.down('displayfield[name=videoClip]').on('change', function(field, value) {
-			self.getVideo().update({
+			self.sub('video').update({
 				value : value
 			});
 		});
+		
+		this.down('datefield[name=incidentTime]').on('change', function(field, value) {
+			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
+		});
+		
+		this.down('displayfield[name=driver]').on('change', function(field, value) {
+			/*
+			 * Get Driver Information (Image, Name, ..) from DriverStore
+			 */
+			var driverStore = Ext.getStore('DriverStore');
+			var driverRecord = driverStore.findRecord('id', value);
+			var driver = driverRecord.get('id');
+			var driverImageClip = driverRecord.get('imageClip');
+			if (driverImageClip) {
+				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+			} else {
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+			}
+		});
 
-		this.getDriverFilter().on('specialkey', function(fleld, e) {
+		this.sub('driverFilter').on('specialkey', function(fleld, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
 			};
 		});
 		
-		this.getVehicleFilter().on('specialkey', function(field, e) {
+		this.sub('vehicleFilter').on('specialkey', function(field, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
 			};
 		});
 
-		this.getIncidentList().on('itemclick', function(grid, record) {
+		this.sub('grid').on('itemclick', function(grid, record) {
 			self.setIncident(record, false);
 		});
 		
 		this.down('[itemId=fullscreen]').on('click', function() {
 			if (!Ext.isWebKit)
 				return;
-			self.getVideo().getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+			self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 		});
 	},
 	
 	setIncident : function(incident, refresh) {
 		this.incident = incident;
 		if(refresh) {
-			this.getVehicleFilter().setValue(incident.get('vehicle'));
-			this.getDriverFilter().reset();
+			this.sub('vehicleFilter').setValue(incident.get('vehicle'));
+			this.sub('driverFilter').reset();
 			this.refreshIncidentList();
 		}
 		
-		this.getForm().loadRecord(incident);
+		this.sub('incident_form').loadRecord(incident);
 		this.refreshMap();
 	},
 	
@@ -98,20 +117,20 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	},
 	
 	refreshIncidentList : function() {
-		this.getGrid().store.load({
+		this.sub('grid').store.load({
 			filters : [ {
 				property : 'vehicle',
-				value : this.getVehicleFilter().getValue()
+				value : this.sub('vehicleFilter').getValue()
 			}, {
 				property : 'driver',
-				value : this.getDriverFilter().getValue()
+				value : this.sub('driverFilter').getValue()
 			} ]
 		});
 	},
 	
 	resetIncidentList : function() {
-		this.getVehicleFilter().reset();
-		this.getDriverFilter().reset();
+		this.sub('vehicleFilter').reset();
+		this.sub('driverFilter').reset();
 		
 		this.refreshIncidentList();
 	},
@@ -146,50 +165,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}
 	},
 	
-	getIncidentList : function() {
-		if(!this.incidents)
-			this.incidents = this.down('[itemId=grid]');
-		return this.incidents;
-	},
-	
-	getVideo : function() {
-		if(!this.video)
-			this.video = this.down('[itemId=video]');
-		return this.video;
-	},
-	
-	getVehicleFilter : function() {
-		if(!this.vehicle_filter)
-			this.vehicle_filter = this.getGrid().down('textfield[name=vehicleFilter]');
-		return this.vehicle_filter;
-	},
-	
-	getDriverFilter : function() {
-		if(!this.driver_filter)
-			this.driver_filter = this.getGrid().down('textfield[name=driverFilter]');
-		return this.driver_filter;
-	},
-
-	getForm : function() {
-		if(!this.incident_form)
-			this.incident_form = this.down('[itemId=incident_form]');
-		return this.incident_form;
-	},
-	
-	getMapBox : function() {
-		if(!this.mapbox)
-			this.mapbox = this.down('[itemId=map]');
-		return this.mapbox;
-	},
-	
 	getMap : function() {
 		return this.map;
-	},
-	
-	getGrid : function() {
-		if(!this.grid)
-			this.grid = this.down('[itemId=grid]');
-		return this.grid;
 	},
 	
 	zInfo : {
@@ -203,44 +180,42 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		},
 		autoScroll : true,
 		defaults : {
-			anchor : '100%'
+			anchor : '100%',
+			labelAlign : 'top',
+			cls : 'summaryCell'
 		},
 		items : [ {
 			xtype : 'image',
+			itemId : 'driverImage',
 			cls : 'imgDriverSmall',
 			height: 37
 		},{
-			xtype : 'displayfield',
-			labelAlign : 'top',
-			cls : 'summaryCell',
+			xtype : 'datefield',
 			name : 'incidentTime',
-			width : 200,
+			hidden : true,
+			fieldLabel : 'Incident Time'
+		},{
+			xtype : 'displayfield',
+			itemId : 'incident_time',
+			width : 160,
 			fieldLabel : 'Incident Time'
 		}, {
 			xtype : 'displayfield',
-			labelAlign : 'top',
-			cls : 'summaryCell',
 			name : 'vehicle',
 			width : 100,
 			fieldLabel : 'Vehicle'
 		}, {
 			xtype : 'displayfield',
-			labelAlign : 'top',
-			cls : 'summaryCell',
 			name : 'driver',
 			width : 100,
 			fieldLabel : 'Driver'
 		}, {
 			xtype : 'displayfield',
-			labelAlign : 'top',
-			cls : 'summaryCell',
 			name : 'impulse',
 			width : 100,
 			fieldLabel : 'Impulse'
 		}, {
 			xtype : 'displayfield',
-			labelAlign : 'top',
-			cls : 'summaryCell',
 			name : 'videoClip',
 			hidden : true
 		} ]
@@ -342,7 +317,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Vehicle',
-			name : 'vehicleFilter',
+			itemId : 'vehicleFilter',
 			width : 200
 		}, {
 			xtype : 'combo',
@@ -351,7 +326,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Driver',
-			name : 'driverFilter',
+			itemId : 'driverFilter',
 			width : 200
 		}, {
 			xtype : 'button',
