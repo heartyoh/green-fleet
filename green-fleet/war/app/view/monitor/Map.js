@@ -26,23 +26,23 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
-			if(self.getAutofitCheck().getValue())
+			if(self.sub('autofit').getValue())
 				self.refreshMap(Ext.getStore('VehicleStore'));
 		});
 		
-		Ext.getCmp('east').getStateRunning().on('click', function() {
+		Ext.getCmp('east').sub('state_running').on('click', function() {
 			self.refreshMarkers();
 		});
 		
-		Ext.getCmp('east').getStateIdle().on('click', function() {
+		Ext.getCmp('east').sub('state_idle').on('click', function() {
 			self.refreshMarkers();
 		});
 		
-		Ext.getCmp('east').getStateIncident().on('click', function() {
+		Ext.getCmp('east').sub('state_incident').on('click', function() {
 			self.refreshMarkers();
 		});
 
-		this.getAutofitCheck().on('change', function(check, newValue) {
+		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
 				self.refreshMap(Ext.getStore('VehicleStore'));
 		});
@@ -73,21 +73,9 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		}
 	},
 	
-	getAutofitCheck : function() {
-		if(!this.autofitCheck)
-			this.autofitCheck = this.down('[itemId=autofit]');
-		return this.autofitCheck;
-	},
-	
-	getMapBox : function() {
-		if(!this.mapbox)
-			this.mapbox = this.down('[itemId=mapbox]');
-		return this.mapbox;
-	},
-	
 	getMap : function() {
 		if(!this.map) {
-			this.map = new google.maps.Map(this.getMapBox().getEl().down('.map').dom, {
+			this.map = new google.maps.Map(this.sub('mapbox').getEl().down('.map').dom, {
 				zoom : 10,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP

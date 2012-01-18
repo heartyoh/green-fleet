@@ -12,7 +12,8 @@ Ext.define('GreenFleet', {
 		user : 'GreenFleet.mixin.User',
 		mixin : 'GreenFleet.mixin.Mixin',
 		ui : 'GreenFleet.mixin.UI',
-		state : 'GreenFleet.mixin.State'
+		state : 'GreenFleet.mixin.State',
+		subitem : 'GreenFleet.mixin.SubItem'
 	}
 });
 

@@ -19,20 +19,20 @@ Ext.define('GreenFleet.view.viewport.East', {
 		
 		var self = this;
 		
-		this.getStateRunning().on('click', function() {
+		this.sub('state_running').on('click', function() {
 			GreenFleet.show_running_vehicle = !GreenFleet.show_running_vehicle;
 		});
 		
-		this.getStateIdle().on('click', function() {
+		this.sub('state_idle').on('click', function() {
 			GreenFleet.show_idle_vehicle = !GreenFleet.show_idle_vehicle;
 		});
 		
-		this.getStateIncident().on('click', function() {
+		this.sub('state_incident').on('click', function() {
 			GreenFleet.show_incident_vehicle = !GreenFleet.show_incident_vehicle;
 		});
 		
 		setInterval(function() {
-			self.getTimeField().update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
+			self.sub('time').update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
 		}, 1000);
 		
 		this.on('afterrender', function() {
@@ -64,24 +64,24 @@ Ext.define('GreenFleet.view.viewport.East', {
 			}
 		});
 		
-		this.getStateRunning().update('Driving</br><span>' + running + '</span>');
-		this.getStateIdle().update('Idle</br><span>' + idle + '</span>');
-		this.getStateIncident().update('Incident</br><span>' + incident + '</span>');
-		this.getVehicleCount().update('Total Running Vehicles : ' + total);
+		this.sub('state_running').update('Driving</br><span>' + running + '</span>');
+		this.sub('state_idle').update('Idle</br><span>' + idle + '</span>');
+		this.sub('state_incident').update('Incident</br><span>' + incident + '</span>');
+		this.sub('vehicle_count').update('Total Running Vehicles : ' + total);
 	},
 	
 	refreshIncidents : function(store) {
 		if(!store)
 			store = Ext.getStore('RecentIncidentsStore');
 		
-		this.getIncidents().removeAll();
+		this.sub('incidents').removeAll();
 		
 		var count = store.count() > 5 ? 5 : store.count();
 		
 		for(var i = 0;i < count;i++) {
 			var incident = store.getAt(i);
 			
-			this.getIncidents().add({
+			this.sub('incidents').add({
 				xtype : 'button',
 				listeners : {
 					click : function(button) {
@@ -94,42 +94,6 @@ Ext.define('GreenFleet.view.viewport.East', {
 					Ext.Date.format(incident.get('incidentTime'), 'D Y-m-d H:i:s') + '</span></a>'
 			});
 		}
-	},
-	
-	getIncidents : function() {
-		if(!this.incidents)
-			this.incidents = this.down('[itemId=incidents]');
-		return this.incidents;
-	},
-	
-	getVehicleCount : function() {
-		if(!this.vehicleCount)
-			this.vehicleCount = this.down('[itemId=vehicle_count]');
-		return this.vehicleCount;
-	},
-	
-	getTimeField : function() {
-		if(!this.timefield)
-			this.timefield = this.down('[itemId=time]');
-		return this.timefield;
-	},
-	
-	getStateRunning : function() {
-		if(!this.state_running)
-			this.state_running = this.down('[itemId=state_running]');
-		return this.state_running;
-	},
-	
-	getStateIdle : function() {
-		if(!this.state_idle)
-			this.state_idle = this.down('[itemId=state_idle]');
-		return this.state_idle;
-	},
-	
-	getStateIncident : function() {
-		if(!this.state_incident)
-			this.state_incident = this.down('[itemId=state_incident]');
-		return this.state_incident;
 	},
 	
 	items : [ {

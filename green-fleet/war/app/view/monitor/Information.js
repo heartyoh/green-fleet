@@ -32,7 +32,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		var self = this;
 		
-		this.getMapBox().on('afterrender', function(mapbox) {
+		this.sub('map').on('afterrender', function(mapbox) {
 			var options = {
 				zoom : 10,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
@@ -80,7 +80,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				self.refreshIncidents();
 		});
 		
-		this.getVehicleField().on('change', function(field, vehicle) {
+		this.sub('id').on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
 			
 			/*
@@ -90,12 +90,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('imageClip');
 			if (vehicleImageClip) {
-				self.getVehicleImage().setSrc('download?blob-key=' + vehicleImageClip);
+				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
 			} else {
-				self.getVehicleImage().setSrc('resources/image/bgVehicle.png');
+				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
 			}
 			
-			self.getTitleBox().vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
+			self.sub('title').vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
@@ -104,12 +104,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('imageClip');
 			if (driverImageClip) {
-				self.getDriverImage().setSrc('download?blob-key=' + driverImageClip);
+				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
 			} else {
-				self.getDriverImage().setSrc('resources/image/bgDriver.png');
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 			}
 
-			self.getTitleBox().driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
+			self.sub('title').driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
 
 			/*
 			 * Get Address of the location by ReverseGeoCode.
@@ -132,7 +132,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 						if (results[0]) {
 							var address = results[0].formatted_address
 							record.set('location', address);
-							self.getLocationField().setValue(address);
+							self.sub('location').setValue(address);
 						}
 					} else {
 						console.log("Geocoder failed due to: " + status);
@@ -165,48 +165,6 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		if(!this.form)
 			this.form = this.down('form');
 		return this.form;
-	},
-	
-	getVehicleField : function() {
-		if(!this.vehicleField)
-			this.vehicleField = this.down('form > [itemId=id]');
-		return this.vehicleField;
-	}, 
-	
-	getDriverField : function() {
-		if(!this.driverField)
-			this.driverField = this.down('form > [itemId=driver]');
-		return this.driverField;
-	},
-	
-	getLocationField : function() {
-		if(!this.locationField)
-			this.locationField = this.down('form > [itemId=location]');
-		return this.locationField;
-	},
-	
-	getDriverImage : function() {
-		if(!this.driverImage)
-			this.driverImage = this.down('[itemId=driverImage]');
-		return this.driverImage;
-	},
-	
-	getVehicleImage : function() {
-		if(!this.vehicleImage)
-			this.vehicleImage = this.down('[itemId=vehicleImage]');
-		return this.vehicleImage;
-	},
-
-	getTitleBox : function() {
-		if(!this.titleBox)
-			this.titleBox = this.down('[itemId=title]');
-		return this.titleBox;
-	},
-	
-	getMapBox : function() {
-		if(!this.mapbox)
-			this.mapbox = this.down('[itemId=map]');
-		return this.mapbox;
 	},
 	
 	getMap : function() {
@@ -255,18 +213,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		return this.incidentStore;
 	},
 	
-	getIncidents : function() {
-		if(!this.incidents)
-			this.incidents = this.down('[itemId=incidents]');
-		return this.incidents;
-	},
-	
 	getVehicle : function() {
-		return this.getVehicleField().getValue();
+		return this.sub('id').getValue();
 	},
 	
 	getDriver : function() {
-		return this.getDriverField().getValue();
+		return this.sub('driver').getValue();
 	},
 	
 	refreshTrack : function() {
@@ -317,12 +269,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	},
 	
 	refreshIncidents : function() {
-		this.getIncidents().removeAll();
+		this.sub('incidents').removeAll();
 		var max = this.getIncidentStore().count() > 4 ? 4 : this.getIncidentStore().count();
 		for(var i = 0;i < max;i++) {
 			var incident = this.getIncidentStore().getAt(i);
 			var self = this;
-			this.getIncidents().add({
+			this.sub('incidents').add({
 				xtype : 'box',
 				cls : 'incidentThumb',
 				listeners : {
