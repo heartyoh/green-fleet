@@ -214,24 +214,28 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			labelAlign : 'top',
 			cls : 'summaryCell',
 			name : 'incidentTime',
+			width : 200,
 			fieldLabel : 'Incident Time'
 		}, {
 			xtype : 'displayfield',
 			labelAlign : 'top',
 			cls : 'summaryCell',
 			name : 'vehicle',
+			width : 100,
 			fieldLabel : 'Vehicle'
 		}, {
 			xtype : 'displayfield',
 			labelAlign : 'top',
 			cls : 'summaryCell',
 			name : 'driver',
+			width : 100,
 			fieldLabel : 'Driver'
 		}, {
 			xtype : 'displayfield',
 			labelAlign : 'top',
 			cls : 'summaryCell',
 			name : 'impulse',
+			width : 100,
 			fieldLabel : 'Impulse'
 		}, {
 			xtype : 'displayfield',

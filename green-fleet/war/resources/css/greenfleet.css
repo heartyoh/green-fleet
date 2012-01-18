@@ -112,4 +112,4 @@ span.mapTipID{
 .summaryCell{display:inline-block;margin-right:25px}
 .summaryCell label{white-space:nowrap;font-size:11px;color:#797979}
 .summaryCell .x-form-item-body{background-color:#50545f;border:1px solid #efefef;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;}
-.summaryCell .x-form-item-body .x-form-display-field{color:#fff}
+.summaryCell .x-form-item-body .x-form-display-field{color:#fff;white-space:nowrap;padding:0 5px}
