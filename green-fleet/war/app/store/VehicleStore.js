@@ -20,7 +20,7 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'string'
 	}, {
 		name : 'birthYear',
-		type : 'string'
+		type : 'int'
 	}, {
 		name : 'ownershipType',
 		type : 'string'
@@ -32,13 +32,13 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'string'
 	}, {
 		name : 'totalDistance',
-		type : 'string'
+		type : 'float'
 	}, {
 		name : 'remainingFuel',
-		type : 'string'
+		type : 'float'
 	}, {
 		name : 'distanceSinceNewOil',
-		type : 'string'
+		type : 'float'
 	}, {
 		name : 'engineOilStatus',
 		type : 'string'

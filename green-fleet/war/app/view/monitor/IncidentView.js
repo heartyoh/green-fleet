@@ -276,36 +276,44 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			dataIndex : 'incidentTime',
 			text : 'Incident Time',
 			xtype : 'datecolumn',
+			width : 120,
 			format : 'd-m-Y H:i:s'
 		}, {
 			dataIndex : 'driver',
 			text : 'Driver',
-			type : 'string'
+			type : 'string',
+			width : 80
 		}, {
 			dataIndex : 'vehicle',
 			text : 'Vehicle',
-			type : 'string'
+			type : 'string',
+			width : 80
 		}, {
 			dataIndex : 'lattitude',
 			text : 'Lattitude',
-			type : 'number'
+			type : 'number',
+			width : 80
 		}, {
 			dataIndex : 'longitude',
 			text : 'Longitude',
-			type : 'number'
+			type : 'number',
+			width : 80
 		}, {
 			dataIndex : 'impulse',
 			text : 'Impulse',
-			type : 'number'
+			type : 'number',
+			width : 80
 		}, {
 			dataIndex : 'createdAt',
 			text : 'Created At',
 			xtype : 'datecolumn',
+			width : 120,
 			format : 'd-m-Y H:i:s'
 		}, {
 			dataIndex : 'updatedAt',
 			text : 'Updated At',
 			xtype : 'datecolumn',
+			width : 120,
 			format : 'd-m-Y H:i:s'
 		} ],
 		viewConfig : {

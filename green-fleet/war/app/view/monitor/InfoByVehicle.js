@@ -12,95 +12,112 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	columns : [ {
 		dataIndex : 'key',
 		text : 'Key',
-		type : 'string',
 		hidden : true
 	}, {
 		dataIndex : 'id',
-		text : 'Vehicle Id',
-		type : 'string'
+		text : 'Vehicle Id'
 	}, {
 		dataIndex : 'registrationNumber',
-		text : 'RegistrationNumber',
-		type : 'string'
+		text : 'RegistrationNumber'
 	}, {
 		dataIndex : 'manufacturer',
-		text : 'Manufacturer',
-		type : 'string'
+		text : 'Manufacturer'
 	}, {
 		dataIndex : 'vehicleType',
 		text : 'VehicleType',
-		type : 'string'
+		width : 80
 	}, {
 		dataIndex : 'birthYear',
 		text : 'BirthYear',
-		type : 'string'
+		width : 40,
+		align : 'right'
 	}, {
 		dataIndex : 'ownershipType',
 		text : 'OwnershipType',
-		type : 'string'
+		width : 40,
+		align : 'center'
 	}, {
 		dataIndex : 'status',
 		text : 'Status',
-		type : 'string'
+		type : 'string',
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'imageClip',
 		text : 'ImageClip',
-		type : 'string'
+		type : 'string',
+		hidden : true
 	}, {
 		dataIndex : 'totalDistance',
 		text : 'TotalDistance',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'remainingFuel',
 		text : 'RemainingFuel',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'distanceSinceNewOil',
 		text : 'DistanceSinceNewOil',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'engineOilStatus',
 		text : 'EngineOilStatus',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'fuelFilterStatus',
 		text : 'FuelFilterStatus',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'brakeOilStatus',
 		text : 'BrakeOilStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'brakePedalStatus',
 		text : 'BrakePedalStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'coolingWaterStatus',
 		text : 'CoolingWaterStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'timingBeltStatus',
 		text : 'TimingBeltStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'sparkPlugStatus',
 		text : 'SparkPlugStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'lattitude',
-		text : 'Lattitude'
+		text : 'Lattitude',
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'longitude',
-		text : 'Longitude'
+		text : 'Longitude',
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'createdAt',
 		text : 'Created At',
 		xtype:'datecolumn',
+		width : 150,
 		format:'d/m/Y'
 	}, {
 		dataIndex : 'updatedAt',
 		text : 'Updated At',
 		xtype:'datecolumn',
+		width : 150,
 		format:'d/m/Y'
 	} ],
 	viewConfig : {
