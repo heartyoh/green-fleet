@@ -74,6 +74,9 @@
 .groupPanel a span,.groupPanel a:hover{color:#fff}
 .incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;color:#fff;padding:1px 0 4px 20px;text-decoration:none;display:block}
 .incidentPanel a span{display:block;font-size:11px;color:#a5a5a5;}
+.incidentPanel .x-btn-default-small-over a{color:#fff799}
+.incidentPanel .x-btn-default-small-over a span{color:#fff}
+.summaryBoard .x-btn-default-small{background-image:none;background-color:transparent;border:none}
 
 /*common style*/
 .pageTitle{background:url('../image/bgH1.gif') repeat-x;border-bottom:1px solid #aeaeae;padding:5px 5px 0 10px}
@@ -85,7 +88,9 @@
 .paddingPanel{padding:3px 13px}
 .backgroundGray{background-color:#dfdfdf}
 .borderLeftGray{border-left:1px solid #ccc}
-#content-body .x-tab-bar{background:url('../image/bgTab.gif') repeat-x;}
+#content-body .x-tab-bar,#content-body .hIndexbar{background:url('../image/bgTab.gif') repeat-x;}
+#content-body .hIndexbar{background-position:0 -4px}
+.hIndexbar .x-panel-header-text-default{padding:2px 0 0 3px;color:#fff}
 #content-body .x-tab-default-top{background:url('../image/bgTabItem.gif') repeat-x;box-shadow:none;border-bottom:0}
 #content-body .x-tab-default-top.x-tab button{color:#51698b;font-weight:normal}
 #content-body .x-tab-default-top-active{background:url('../image/bgTabItemActive.gif') repeat-x;}
@@ -112,4 +117,7 @@ span.mapTipID{
 .summaryCell{display:inline-block;margin-right:25px}
 .summaryCell label{white-space:nowrap;font-size:11px;color:#797979}
 .summaryCell .x-form-item-body{background-color:#50545f;border:1px solid #efefef;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;}
-.summaryCell .x-form-item-body .x-form-display-field{color:#fff;white-space:nowrap;padding:0 5px}
+.summaryCell .x-form-item-body .x-form-display-field{color:#fff;white-space:nowrap;padding:4px 5px 0 5px;}
+.incidentDetail{background-color:#50545F;}
+.btnFullscreen{background:url('../image/btnFullscreenOff.png') no-repeat;border:none;position:absolute;display:block;z-index:100;width:26px;height:21px;right:0;cursor:pointer}
+.btnFullscreen:hover{background:url('../image/btnFullscreenOn.png') no-repeat;	}

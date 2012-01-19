@@ -256,8 +256,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		items : [
 				{
 					xtype : 'panel',
-					bodyPadding : 10,
 					title : 'Incident Details',
+					cls : 'paddingPanel',
 					flex : 1,
 					layout : {
 						type : 'vbox',
@@ -266,14 +266,15 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 					items : [
 							{
 								xtype : 'box',
+								itemId : 'fullscreen',
+								html : '<div class="btnFullscreen"></div>'
+							}, {
+								xtype : 'box',
+								cls : ' incidentDetail',
 								itemId : 'video',
-								tpl : [ '<video width="300" height="200" controls="controls">',
+								tpl : [ '<video width="100%" height="95%" controls="controls">',
 										'<source src="download?blob-key={value}" type="video/mp4" />',
 										'Your browser does not support the video tag.', '</video>' ]
-							}, {
-								xtype : 'button',
-								itemId : 'fullscreen',
-								text : 'FullScreen(WebKit Only)'
 							} ]
 				}, {
 					xtype : 'panel',
@@ -288,6 +289,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	zList : {
 		xtype : 'gridpanel',
 		itemId : 'grid',
+		cls : 'hIndexbar',
 		title : 'Incident List',
 		store : 'IncidentStore',
 		autoScroll : true,
