@@ -93,10 +93,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			self.setIncident(record, false);
 		});
 		
-		this.down('[itemId=fullscreen]').on('click', function() {
-			if (!Ext.isWebKit)
-				return;
-			self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+		this.sub('fullscreen').on('afterrender', function(comp) {
+			comp.getEl().on('click', function() {
+				if (!Ext.isWebKit)
+					return;
+				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+			});
 		});
 	},
 	
