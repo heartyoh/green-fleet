@@ -234,7 +234,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				{
 					xtype : 'panel',
 					title : 'Incident Details',
-					cls : 'paddingPanel',
+					cls : 'paddingPanel incidentVOD',
 					flex : 1,
 					layout : {
 						type : 'vbox',
