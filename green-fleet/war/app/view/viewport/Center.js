@@ -10,9 +10,9 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 	listeners : {
 		add : function(panel, item) {
-			if(panel !== this)
+			if (panel !== this)
 				return;
-			
+
 			var menutab = Ext.getCmp('menutab');
 			menutab.add({
 				text : item.title,
@@ -25,6 +25,13 @@ Ext.define('GreenFleet.view.viewport.Center', {
 				},
 				closable : false
 			}).setCard(item);
+		},
+		remove : function(panel, item) {
+			if (panel !== this)
+				return;
+
+			var menutab = Ext.getCmp('menutab');
+			menutab.remove(item.itemId);
 		}
 	},
 
@@ -33,9 +40,6 @@ Ext.define('GreenFleet.view.viewport.Center', {
 			activate : function(item) {
 				var menutab = Ext.getCmp('menutab');
 				var tab = menutab.getComponent(item.itemId);
-				/*
-				 * TODO 동작하게 해보라
-				 */
 				menutab.setActiveTab(tab);
 			}
 		}
@@ -53,37 +57,5 @@ Ext.define('GreenFleet.view.viewport.Center', {
 		title : 'Incident',
 		xtype : 'monitor_incident',
 		itemId : 'monitor_incident'
-	}, {
-		title : 'Company',
-		xtype : 'management_company',
-		itemId : 'company'
-	}, {
-		title : 'Vehicle',
-		xtype : 'management_vehicle',
-		itemId : 'vehicle'
-	}, {
-		title : 'Driver',
-		xtype : 'management_driver',
-		itemId : 'driver'
-	}, {
-		title : 'Reservation',
-		xtype : 'management_reservation',
-		itemId : 'reservation'
-	}, {
-		title : 'Incident',
-		xtype : 'management_incident',
-		itemId : 'incident'
-	}, {
-		title : 'Track',
-		xtype : 'management_track',
-		itemId : 'track'
-	}, {
-		title : 'ControlData',
-		xtype : 'management_control_data',
-		itemId : 'control_data'
-	}, {
-		title : 'File',
-		xtype : 'filemanager',
-		itemId : 'filemanager'
 	} ]
 });

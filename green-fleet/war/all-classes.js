@@ -508,19 +508,17 @@ Ext.define('GreenFleet.view.MainMenu', {
 	alias : 'widget.main_menu',
 	
 	items : [{
+		text : 'Dashboard'
+	}, {
+		text : 'Company'
+	}, {
 		text : 'Vehicle'
 	}, {
-		text : 'Employees'
+		text : 'Employee'
 	}, {
-		text : 'Allocation'
-	}, {
-		text : 'Incidents'
+		text : 'Reservation'
 	}, {
 		text : 'Maintenance'
-	}, {
-		text : 'Risk Assessment'
-	}, {
-		text : 'Purchase Order'
 	}]
 });
 Ext.define('GreenFleet.view.SideMenu', {

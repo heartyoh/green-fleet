@@ -39,10 +39,5 @@ Ext.define('GreenFleet.view.SideMenu', {
 
 			});
 		}
-	}/*, {
-		type : 'search',
-		text : 'search',
-		handler : function(event, target, owner, tool) {
-		}
-	}*/ ]
+	} ]
 });

@@ -2,7 +2,7 @@ Ext.define('GreenFleet.view.viewport.North', {
 	extend : 'Ext.Container',
 
 	alias : 'widget.viewport.north',
-	
+
 	layout : {
 		type : 'hbox',
 		align : 'stretch'
@@ -35,7 +35,7 @@ Ext.define('GreenFleet.view.viewport.North', {
 		}, {
 			xtype : 'tabbar',
 			id : 'menutab',
-			height: 23
+			height : 23
 		} ]
 	} ]
 });

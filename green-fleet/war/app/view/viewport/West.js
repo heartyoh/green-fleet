@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 
 	alias : 'widget.viewport.west',
 	cls : 'tool',
-	
+
 	layout : {
 		type : 'vbox'
 	},

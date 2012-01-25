@@ -2,20 +2,91 @@ Ext.define('GreenFleet.view.MainMenu', {
 	extend : 'Ext.toolbar.Toolbar',
 	cls : 'appMenu',
 	alias : 'widget.main_menu',
+
+	defaults : {
+		handler : function(button) {
+			var content = Ext.getCmp('content');
+			var closables = content.query('[closable=true]');
+			for ( var i = 0; i < closables.length; i++) {
+				content.remove(closables[i]);
+			}
+			
+			var first = null;
+			for(i = 0;i < button.submenus.length;i++) {
+				button.submenus[i]['listeners'] = {
+					activate : function(item) {
+						var menutab = Ext.getCmp('menutab');
+						var tab = menutab.getComponent(item.itemId);
+
+						menutab.setActiveTab(tab);
+					}
+				};
+				var item = content.add(button.submenus[i]);
+				first = first || item;
+			}
+			
+			if(first)
+				GreenFleet.doMenu(first.itemId);
+		}
+	},
 	
-	items : [{
-		text : 'Vehicle'
+	items : [ {
+		text : 'Dashboard',
+		submenus : [ {
+			title : 'File',
+			xtype : 'filemanager',
+			itemId : 'filemanager',
+			closable : true
+		} ]
 	}, {
-		text : 'Employees'
+		text : 'Company',
+		submenus : [ {
+			title : 'Company',
+			xtype : 'management_company',
+			itemId : 'company',
+			closable : true
+		} ]
 	}, {
-		text : 'Allocation'
+		text : 'Vehicle',
+		submenus : [ {
+			title : 'Vehicle',
+			xtype : 'management_vehicle',
+			itemId : 'vehicle',
+			closable : true
+		}, {
+			title : 'Incident',
+			xtype : 'management_incident',
+			itemId : 'incident',
+			closable : true
+		}, {
+			title : 'Track',
+			xtype : 'management_track',
+			itemId : 'track',
+			closable : true
+		}, {
+			title : 'ControlData',
+			xtype : 'management_control_data',
+			itemId : 'control_data',
+			closable : true
+		} ]
 	}, {
-		text : 'Incidents'
+		text : 'Employee',
+		submenus : [ {
+			title : 'Driver',
+			xtype : 'management_driver',
+			itemId : 'driver',
+			closable : true
+		} ]
 	}, {
-		text : 'Maintenance'
+		text : 'Reservation',
+		submenus : [ {
+			title : 'Reservation',
+			xtype : 'management_reservation',
+			itemId : 'reservation',
+			closable : true
+		} ]
 	}, {
-		text : 'Risk Assessment'
-	}, {
-		text : 'Purchase Order'
-	}]
+		text : 'Maintenance',
+		submenus : []
+	} ]
 });
