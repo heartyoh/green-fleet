@@ -8,6 +8,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 
 @PersistenceCapable
 public class Incident {
@@ -16,6 +18,7 @@ public class Incident {
 	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
     private String key;
 
+	@JsonIgnore
 	@Persistent
     private Company company;
 	

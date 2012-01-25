@@ -20,6 +20,7 @@ public class Vehicle {
 	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
     private String key;
 	
+	@JsonIgnore
 	@Persistent
     private Company company;
 	

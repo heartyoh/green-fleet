@@ -8,6 +8,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @PersistenceCapable
 public class ControlData {
 	 /* 운행일, 운전자, 차량 ID, 차종, 등록번호, 
@@ -24,6 +26,7 @@ public class ControlData {
 	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
     private String key;
 
+	@JsonIgnore
 	@Persistent
     private Company company;
 	
