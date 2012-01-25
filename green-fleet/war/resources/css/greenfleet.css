@@ -97,6 +97,9 @@
 #content-body .x-tab-default-top-active.x-tab button{color:#51698b;font-weight:normal}
 #content-body .x-tab-bar-body{border:0}
 .x-column-header-align-left,.x-column-header-align-center,.x-column-header-align-right{text-align:center}
+#content-body .x-btn-default-toolbar-small{background:url('../image/bgBtn.gif') repeat-x;border:1px solid #b4c5e1;color:#253857}
+#content-body .x-btn-default-toolbar-small-over{background:url('../image/bgBtnOver.gif') repeat-x;}
+.x-btn-default-toolbar-small .x-btn-inner{color:#475e82}
 
 /*map style*/
 span.mapTipID{
@@ -120,4 +123,5 @@ span.mapTipID{
 .summaryCell .x-form-item-body .x-form-display-field{color:#fff;white-space:nowrap;padding:4px 5px 0 5px;}
 .incidentDetail{background-color:#50545F;}
 .btnFullscreen{background:url('../image/btnFullscreenOff.png') no-repeat;border:none;position:absolute;display:block;z-index:100;width:26px;height:21px;right:0;cursor:pointer}
-.btnFullscreen:hover{background:url('../image/btnFullscreenOn.png') no-repeat;	}
+.btnFullscreen:hover{background:url('../image/btnFullscreenOn.png') no-repeat;}
+.incidentVOD .x-panel-body{background:url('../image/bgVOD.gif') 50% 50% no-repeat;background-color:#dfdfdf;border:1px solid #c0c0c0}
