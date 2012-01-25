@@ -60,23 +60,6 @@ Ext.define('GreenFleet.mixin.Mixin', {
 	}
 });
 Ext.define('GreenFleet.mixin.UI', {
-	addDockingNav : function(view, config) {
-		var defaults = {
-			tabConfig : {
-				width : 29,
-				height : 22,
-				padding : '0 0 0 2px'
-			}
-		};
-
-		try {
-			Ext.getCmp('docked_nav').add(Ext.create(view, Ext.merge(defaults, config)));
-		} catch (e) {
-			console.log(e);
-			console.trace();
-		}
-	},
-
 	addSystemMenu : function(view, config) {
 		try {
 			var system_menu = Ext.getCmp('system_menu');
@@ -113,18 +96,6 @@ Ext.define('GreenFleet.mixin.UI', {
 		this.clearStatus();
 	},
 
-	setStatus : function(state) {
-		Ext.getCmp('statusbar').setStatus(state);
-	},
-
-	showBusy : function(o) {
-		Ext.getCmp('statusbar').showBusy(o);
-	},
-
-	clearStatus : function() {
-		Ext.getCmp('statusbar').clearStatus();
-	},
-
 	getMenu : function(menu) {
 		return Ext.getCmp('content').getComponent(menu);
 	},
@@ -135,6 +106,27 @@ Ext.define('GreenFleet.mixin.UI', {
 	}
 });
 
+Ext.define('GreenFleet.mixin.State', function() {
+	return {
+		show_running_vehicle : true,
+		show_idle_vehicle : true,
+		show_incident_vehicle : true
+	};
+}());
+Ext.define('GreenFleet.mixin.SubItem', function() {
+	Ext.Container.implement({
+		sub : function(id) {
+			if(!this.subitems)
+				this.subitems = {};
+			if(!this.subitems[id])
+				this.subitems[id] = this.down('[itemId=' + id + ']');
+			return this.subitems[id];
+		}
+	});
+
+	return {
+	};
+}());
 Ext.define('GreenFleet.view.Viewport', {
 	extend : 'Ext.container.Viewport',
 
@@ -179,10 +171,14 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 	listeners : {
 		add : function(panel, item) {
+			if(panel !== this)
+				return;
+			
 			var menutab = Ext.getCmp('menutab');
 			menutab.add({
 				text : item.title,
 				itemId : item.itemId,
+				tooltip : item.title,
 				handler : function(tab) {
 					var content = Ext.getCmp('content');
 					var comp = content.getComponent(tab.itemId);
@@ -334,6 +330,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 
 	alias : 'widget.viewport.east',
 	
+	id : 'east',
+	
 	cls : 'summaryBoard',
 	
 	width : 200,
@@ -343,6 +341,109 @@ Ext.define('GreenFleet.view.viewport.East', {
 		align : 'stretch'
 	},
 
+	initComponent : function() {
+		this.callParent();
+		
+		var self = this;
+		
+		this.sub('state_running').on('click', function() {
+			GreenFleet.show_running_vehicle = true;
+			if(GreenFleet.show_idle_vehicle) {
+				GreenFleet.show_idle_vehicle = false;
+				GreenFleet.show_incident_vehicle = false;
+			} else {
+				GreenFleet.show_idle_vehicle = true;
+				GreenFleet.show_incident_vehicle = true;
+			}
+		});
+		
+		this.sub('state_idle').on('click', function() {
+			GreenFleet.show_idle_vehicle = true;
+			if(GreenFleet.show_incident_vehicle) {
+				GreenFleet.show_running_vehicle = false;
+				GreenFleet.show_incident_vehicle = false;
+			} else {
+				GreenFleet.show_running_vehicle = true;
+				GreenFleet.show_incident_vehicle = true;
+			}
+		});
+		
+		this.sub('state_incident').on('click', function() {
+			GreenFleet.show_incident_vehicle = true;
+			if(GreenFleet.show_running_vehicle) {
+				GreenFleet.show_running_vehicle = false;
+				GreenFleet.show_idle_vehicle = false;
+			} else {
+				GreenFleet.show_running_vehicle = true;
+				GreenFleet.show_idle_vehicle = true;
+			}
+		});
+		
+		setInterval(function() {
+			self.sub('time').update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
+		}, 1000);
+		
+		this.on('afterrender', function() {
+			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
+			Ext.getStore('RecentIncidentStore').load();
+		});
+	},
+	
+	refreshVehicleCounts : function() {
+		var store = Ext.getStore('VehicleStore');
+		
+		var total = store.count();
+		
+		var running = 0;
+		var idle = 0;
+		var incident = 0;
+
+		store.each(function(record) {
+			switch(record.get('status')) {
+			case 'Running' :
+				running++;
+				break;
+			case 'Idle' :
+				idle++;
+				break;
+			case 'Incident' :
+				incident++;
+				break;
+			}
+		});
+		
+		this.sub('state_running').update('Driving</br><span>' + running + '</span>');
+		this.sub('state_idle').update('Idle</br><span>' + idle + '</span>');
+		this.sub('state_incident').update('Incident</br><span>' + incident + '</span>');
+		this.sub('vehicle_count').update('Total Running Vehicles : ' + total);
+	},
+	
+	refreshIncidents : function(store) {
+		if(!store)
+			store = Ext.getStore('RecentIncidentsStore');
+		
+		this.sub('incidents').removeAll();
+		
+		var count = store.count() > 5 ? 5 : store.count();
+		
+		for(var i = 0;i < count;i++) {
+			var incident = store.getAt(i);
+			
+			this.sub('incidents').add({
+				xtype : 'button',
+				listeners : {
+					click : function(button) {
+						GreenFleet.doMenu('monitor_incident');
+						GreenFleet.getMenu('monitor_incident').setIncident(button.incident, true);
+					}
+				},
+				incident : incident,
+				html : '<a href="#">' + incident.get('vehicle') + ', ' + incident.get('driver') + '<span>' + 
+					Ext.Date.format(incident.get('incidentTime'), 'D Y-m-d H:i:s') + '</span></a>'
+			});
+		}
+	},
+	
 	items : [ {
 		xtype : 'combo',
 		cls : 'searchField',
@@ -356,29 +457,29 @@ Ext.define('GreenFleet.view.viewport.East', {
 		itemId : 'time',
 		html : Ext.Date.format(new Date(), 'D Y-m-d H:i:s')
 	}, {
-		xtype : 'component',
+		xtype : 'box',
 		cls : 'count',
 		itemId : 'vehicle_count',
-		html : 'Total Running Vehicles : 6'
+		html : 'Total Running Vehicles : 0'
 	}, {
 		xtype : 'panel',
 		title : '상황별 운행 현황',
 		cls : 'statusPanel',
 		items : [ {
 			xtype : 'button',
+			itemId : 'state_running',
 			flex : 1,
-			cls : 'btnDriving',
-			html : 'Driving</br><span>4</span>'
+			cls : 'btnDriving'
 		}, {
 			xtype : 'button',
+			itemId : 'state_idle',
 			flex : 1,
-			cls : 'btnStop',
-			html : 'Stop</br><span>2</span>'
+			cls : 'btnStop'
 		}, {
 			xtype : 'button',
+			itemId : 'state_incident',
 			flex : 1,
-			cls : 'btnIncident',
-			html : 'Incident</br><span>1</span>'
+			cls : 'btnIncident'
 		} ]
 	}, {
 		xtype : 'panel',
@@ -390,10 +491,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 	}, {
 		xtype : 'panel',
 		title : 'Incidents Alarm',
-		cls : 'incidentPanel',
-		items : [{
-			html : '<a href="#">id_KS937362, 김형용<span>2011.12.30 16:25:41</span></a><a href="#">id_KS937362, 변사또<span>2011.12.30 16:25:41</span></a>'
-		}]
+		itemId : 'incidents',
+		cls : 'incidentPanel'
 	} ]
 });
 Ext.define('GreenFleet.view.Brand', {
@@ -733,10 +832,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : 'VehicleType',
 				type : 'string'
 			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
-				type : 'string'
-			}, {
 				dataIndex : 'birthYear',
 				text : 'BirthYear',
 				type : 'string'
@@ -747,10 +842,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			}, {
 				dataIndex : 'status',
 				text : 'Status',
-				type : 'string'
-			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
 				type : 'string'
 			}, {
 				dataIndex : 'totalDistance',
@@ -1390,6 +1481,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 									main.down('gridpanel').store.load();
 								},
 								failure : function(form, action) {
+									console.log(action);
 									GreenFleet.msg('Failed', action.result.msg);
 								}
 							});
@@ -1793,10 +1885,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 				text : 'Title',
 				type : 'string'
 			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
-				type : 'string'
-			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -2016,6 +2104,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 						if (form.isValid()) {
 							form.submit({
 								url : 'driver/save',
+								headers: {'Content-Type':'multipart/form-data; charset=UTF-8'},
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 								},
@@ -2398,9 +2487,6 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'fuelEfficiency',
 				text : 'Fuel Efficiency',
 			}, {
-				dataIndex : 'longitude',
-				text : 'Longitude',
-			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -2527,18 +2613,21 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				name : 'date',
 				fieldLabel : 'Date',
 				format: 'd-m-Y',
+				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'startTime',
 				fieldLabel : 'Start Time',
 				format: 'd-m-Y H:i:s',
+				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'endTime',
 				fieldLabel : 'End Time',
 				format: 'd-m-Y H:i:s',
+				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				name : 'distance',
@@ -2649,57 +2738,6 @@ Ext.define('GreenFleet.view.management.ControlData', {
 		}
 	}
 });
-function Label(opt_options) {
-	// Initialization
-	this.setValues(opt_options);
-
-	// Label specific
-	var span = this.span_ = document.createElement('span');
-	this.span_.setAttribute('class', 'mapTipID');
-
-	var div = this.div_ = document.createElement('div');
-	div.appendChild(span);
-	div.style.cssText = 'position: absolute; display: none';
-};
-Label.prototype = new google.maps.OverlayView;
-
-// Implement onAdd
-Label.prototype.onAdd = function() {
-	var pane = this.getPanes().overlayLayer;
-	pane.appendChild(this.div_);
-
-	// Ensures the label is redrawn if the text or position is changed.
-	var me = this;
-	this.listeners_ = [ google.maps.event.addListener(this, 'position_changed', function() {
-		me.draw();
-	}), google.maps.event.addListener(this, 'text_changed', function() {
-		me.draw();
-	}) ];
-};
-
-// Implement onRemove
-Label.prototype.onRemove = function() {
-	this.div_.parentNode.removeChild(this.div_);
-
-	// Label is removed from the map, stop updating its position/text.
-	for ( var i = 0, I = this.listeners_.length; i < I; ++i) {
-		google.maps.event.removeListener(this.listeners_[i]);
-	}
-};
-
-// Implement draw
-Label.prototype.draw = function() {
-	var projection = this.getProjection();
-	var position = projection.fromLatLngToDivPixel(this.get('position'));
-
-	var div = this.div_;
-	div.style.left = position.x + 'px';
-	div.style.top = position.y + 'px';
-	div.style.display = 'block';
-
-	this.span_.innerHTML = this.get('text').toString();
-};
-
 Ext.define('GreenFleet.view.monitor.Map', {
 	extend : 'Ext.Container',
 
@@ -2713,70 +2751,112 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	},
 
 	initComponent : function() {
+		this.items = [ this.ztitle, this.zmap ];
+		
 		this.callParent();
 		
-		var title = this.add({
-			xtype : 'panel',
-			cls :'pageTitle',
-			html : '<h1>Information</h1>',
-			height: 35,
-			rbar : [{
-				xtype : 'checkbox',
-				fieldLabel : 'Markers',
-				checked : true,
-				boxLabelAlign : 'before',
-				labelWidth : 45,
-				labelSeparator : '',
-				itemId : 'markers',
-				scope : this,
-				handler : function(field, newValue) {
-					for ( var vehicle in this.markers) {
-						this.markers[vehicle].setVisible(newValue);
-					}
-				}
-			}]
+		var self = this;
+		
+		this.on('afterrender', function() {
+			var vehicleStore = Ext.getStore('VehicleStore');
+			vehicleStore.on('load', self.refreshMap, self);
+			vehicleStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
+			vehicleStore.load();
 		});
-		this.mapbox = this.add(this.buildMap(this));
-	},
-
-	displayMap : function(mapbox, lat, lng) {
-		/*
-		 * Setting map options
-		 */
-		var options = {
-			zoom : 10,
-			center : new google.maps.LatLng(lat, lng),
-			mapTypeId : google.maps.MapTypeId.ROADMAP
-		};
-
-		/*
-		 * Draw map
-		 */
-		mapbox.map = new google.maps.Map(mapbox.getEl().down('.map').dom, options);
-
-		/*
-		 * Set map event listeners
-		 */
-		google.maps.event.addListener(mapbox.map, 'zoom_changed', function() {
-			// setTimeout(function() {
-			// mapbox.map.setCenter(options.center);
-			// }, 3000);
+		
+		this.on('activate', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+			if(self.sub('autofit').getValue())
+				self.refreshMap(Ext.getStore('VehicleStore'));
+		});
+		
+		Ext.getCmp('east').sub('state_running').on('click', function() {
+			self.refreshMarkers();
+		});
+		
+		Ext.getCmp('east').sub('state_idle').on('click', function() {
+			self.refreshMarkers();
+		});
+		
+		Ext.getCmp('east').sub('state_incident').on('click', function() {
+			self.refreshMarkers();
 		});
 
-		/*
-		 * Set map markers
-		 */
-		this.buildMarkers(mapbox);
+		this.sub('autofit').on('change', function(check, newValue) {
+			if(newValue)
+				self.refreshMap(Ext.getStore('VehicleStore'));
+		});
 	},
+	
+	refreshMarkers : function() {
+		var markers = this.getMarkers();
+		var labels = this.getLabels();
+		
+		for (var vehicle in markers) {
+			var marker = markers[vehicle];
+			var label = labels[vehicle]; 
 
-	/*
-	 * refreshMarkers : scope
-	 */
-	refreshMarkers : function(store) {
+			switch(marker.status) {
+			case 'Running' :
+				marker.setVisible(GreenFleet.show_running_vehicle);
+				label.setVisible(GreenFleet.show_running_vehicle);
+				break;
+			case 'Idle' :
+				marker.setVisible(GreenFleet.show_idle_vehicle);
+				label.setVisible(GreenFleet.show_idle_vehicle);
+				break;
+			case 'Incident' :
+				marker.setVisible(GreenFleet.show_incident_vehicle);
+				label.setVisible(GreenFleet.show_incident_vehicle);
+				break;
+			}
+		}
+	},
+	
+	getMap : function() {
+		if(!this.map) {
+			this.map = new google.maps.Map(this.sub('mapbox').getEl().down('.map').dom, {
+				zoom : 10,
+				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			});
+		}
+		return this.map;
+	},
+	
+	getMarkers : function() {
+		if(!this.markers)
+			this.markers = {};
+		return this.markers;
+	},
+	
+	getLabels : function() {
+		if(!this.labels)
+			this.labels = {};
+		return this.labels;
+	},
+	
+	resetLabels : function() {
+		for ( var vehicle in this.labels) {
+			this.labels[vehicle].setMap(null);
+		}
+		this.labels = {};
+	},
+	
+	resetMarkers : function() {
 		for ( var vehicle in this.markers) {
+			google.maps.event.clearListeners(this.markers[vehicle]);
 			this.markers[vehicle].setMap(null);
 		}
 		this.markers = {};
+	},
+	
+	/*
+	 * refreshMap : scope
+	 */
+	refreshMap : function(store) {
+		this.resetMarkers();
+		this.resetLabels();
 		
 		var images = {
 			'Running' : 'resources/image/statusDriving.png',
@@ -2784,57 +2864,86 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			'Incident' : 'resources/image/statusIncident.png'
 		};
 
+		var bounds;
+		
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver');
+			var driverRecord = Ext.getStore('DriverStore').findRecord('id', driver);
+			
+			var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
 			
 			var marker = new google.maps.Marker({
-				position : new google.maps.LatLng(record.get('lattitude'), record.get('longitude')),
-				map : this.mapbox.map,
+				position : latlng,
+				map : this.getMap(),
+				status : record.get('status'),
 				icon : images[record.get('status')],
-				title : vehicle,
-				tooltip : vehicle + "(" + driver + ")"
+				title : driverRecord ? driverRecord.get('name') : driver,
+				tooltip : record.get('registrationNumber') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
 			});
 
+			if(!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+			
 			var label = new Label({
-				map : this.mapbox.map
+				map : this.getMap()
 			});
 			label.bindTo('position', marker, 'position');
 			label.bindTo('text', marker, 'tooltip');
 
-			this.markers[vehicle] = marker;
+			this.getMarkers()[vehicle] = marker;
+			this.getLabels()[vehicle] = label;
 
-			var mapbox = this.mapbox;
 			google.maps.event.addListener(marker, 'click', function() {
-				GreenFleet.getMenu('information').vehicle = record;
 				GreenFleet.doMenu('information');
-//				Ext.create('GreenFleet.view.vehicle.VehiclePopup', {
-//					vehicle : record,
-//				}).show();
+				GreenFleet.getMenu('information').setVehicle(record);
 			});
 		}, this);
+		
+		if(!bounds || bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(new google.maps.LatLng(System.props.lattitude, System.props.longitude));
+		} else {
+			this.getMap().fitBounds(bounds);
+		}
+
+		this.refreshMarkers();
 	},
-
-	buildMarkers : function() {
-		this.markers = {};
-
-		var vehicleStore = Ext.getStore('VehicleStore');
-		vehicleStore.on('datachanged', this.refreshMarkers, this);
-
-		this.refreshMarkers(vehicleStore);
-	},
-
-	buildMap : function(parent) {
-		return {
-			xtype : 'panel',
+	
+	ztitle : {
+		xtype : 'container',
+		cls :'pageTitle',
+		height: 35,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		items : [{
 			flex : 1,
-			html : '<div class="map" style="height:100%"></div>',
-			listeners : {
-				afterrender : function() {
-					parent.displayMap(this, 37.56, 126.97);
-				}
-			}
-		};
+			html : '<h1>Information</h1>'
+		}, {
+			xtype : 'checkboxgroup',
+			width : 80,
+			defaults : {
+				boxLabelAlign : 'before',
+				width : 80,
+				checked : true,
+				labelWidth : 50,
+				labelSeparator : ''
+			},
+			items : [{
+				fieldLabel : 'Autofit',
+				itemId : 'autofit'
+			}]
+		}]
+	},
+	
+	zmap : {
+		xtype : 'panel',
+		flex : 1,
+		itemId : 'mapbox',
+		html : '<div class="map" style="height:100%"></div>'
 	}
 });
 
@@ -3001,95 +3110,112 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	columns : [ {
 		dataIndex : 'key',
 		text : 'Key',
-		type : 'string',
 		hidden : true
 	}, {
 		dataIndex : 'id',
-		text : 'Vehicle Id',
-		type : 'string'
+		text : 'Vehicle Id'
 	}, {
 		dataIndex : 'registrationNumber',
-		text : 'RegistrationNumber',
-		type : 'string'
+		text : 'RegistrationNumber'
 	}, {
 		dataIndex : 'manufacturer',
-		text : 'Manufacturer',
-		type : 'string'
+		text : 'Manufacturer'
 	}, {
 		dataIndex : 'vehicleType',
 		text : 'VehicleType',
-		type : 'string'
+		width : 80
 	}, {
 		dataIndex : 'birthYear',
 		text : 'BirthYear',
-		type : 'string'
+		width : 40,
+		align : 'right'
 	}, {
 		dataIndex : 'ownershipType',
 		text : 'OwnershipType',
-		type : 'string'
+		width : 40,
+		align : 'center'
 	}, {
 		dataIndex : 'status',
 		text : 'Status',
-		type : 'string'
+		type : 'string',
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'imageClip',
 		text : 'ImageClip',
-		type : 'string'
+		type : 'string',
+		hidden : true
 	}, {
 		dataIndex : 'totalDistance',
 		text : 'TotalDistance',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'remainingFuel',
 		text : 'RemainingFuel',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'distanceSinceNewOil',
 		text : 'DistanceSinceNewOil',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'engineOilStatus',
 		text : 'EngineOilStatus',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'fuelFilterStatus',
 		text : 'FuelFilterStatus',
-		type : 'string'
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'brakeOilStatus',
 		text : 'BrakeOilStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'brakePedalStatus',
 		text : 'BrakePedalStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'coolingWaterStatus',
 		text : 'CoolingWaterStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'timingBeltStatus',
 		text : 'TimingBeltStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'sparkPlugStatus',
 		text : 'SparkPlugStatus',
-		type : 'string'
+		width : 60,
+		align : 'center'
 	}, {
 		dataIndex : 'lattitude',
-		text : 'Lattitude'
+		text : 'Lattitude',
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'longitude',
-		text : 'Longitude'
+		text : 'Longitude',
+		width : 60,
+		align : 'right'
 	}, {
 		dataIndex : 'createdAt',
 		text : 'Created At',
 		xtype:'datecolumn',
+		width : 150,
 		format:'d/m/Y'
 	}, {
 		dataIndex : 'updatedAt',
 		text : 'Updated At',
 		xtype:'datecolumn',
+		width : 150,
 		format:'d/m/Y'
 	} ],
 	viewConfig : {
@@ -3167,35 +3293,119 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 Ext.define('GreenFleet.view.monitor.Information', {
 	extend : 'Ext.Container',
 	alias : 'widget.monitor_information',
+	
+	id : 'monitor_information',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
 
 	initComponent : function() {
+		this.items = [this.ztitle, {
+			xtype : 'container',
+			height : 300,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ {
+				xtype : 'container',
+				width : 620,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'
+				},
+				items : [ this.zvehicleinfo, this.zincidents ]
+			}, this.zmap ]
+		}, this.ztabpanel];
+		
 		this.callParent();
 
-		var form = this.down('form');
-		var driverImage = form.up().getComponent('driverImage');
-		var vehicleImage = form.up().getComponent('vehicleImage');
-				
-		form.getComponent('id').on('change', function(field, vehicle) {
-			var record = form.getRecord();
+		var self = this;
+		
+		this.sub('map').on('afterrender', function(mapbox) {
+			var options = {
+				zoom : 10,
+				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+
+			self.setMap(new google.maps.Map(mapbox.getEl().down('.map').dom, options));
+
+			/*
+			 * For test only.
+			 */
+			google.maps.event.addListener(self.getMap(), 'click', function(e) {
+				Ext.Ajax.request({
+					url : 'track/save',
+					method : 'POST',
+					params : {
+						vehicle : self.getVehicle(),
+						driver : self.getDriver(),
+						lattitude : e.latLng.lat(),
+						longitude : e.latLng.lng()
+					},
+					success : function(resp, opts) {
+						var path = self.getTrackLine().getPath();
+						path.insertAt(0, e.latLng);
+						Ext.getStore('VehicleStore').load();
+					},
+					failure : function(resp, opts) {
+						console.log('Failed');
+						console.log(resp);
+					}
+				});
+			});
+		});
+		
+		this.on('activate', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+		
+		this.getTrackStore().on('load', function() {
+			self.refreshTrack();
+		});
+		
+		this.getIncidentStore().on('load', function() {
+			if(self.isVisible(true))
+				self.refreshIncidents();
+		});
+		
+		this.sub('id').on('change', function(field, vehicle) {
+			var record = self.getForm().getRecord();
 			
+			/*
+			 * Get Vehicle Information (Image, Registration #, ..) from VehicleStore
+			 */
 			var vehicleStore = Ext.getStore('VehicleStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('imageClip');
 			if (vehicleImageClip) {
-				vehicleImage.setSrc('download?blob-key=' + vehicleImageClip);
+				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
 			} else {
-				vehicleImage.setSrc('resources/image/bgVehicle.png');
+				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
 			}
-
+			
+			self.sub('title').vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
+			/*
+			 * Get Driver Information (Image, Name, ..) from DriverStore
+			 */
 			var driverStore = Ext.getStore('DriverStore');
 			var driverRecord = driverStore.findRecord('id', record.get('driver'));
+			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('imageClip');
 			if (driverImageClip) {
-				driverImage.setSrc('download?blob-key=' + driverImageClip);
+				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
 			} else {
-				driverImage.setSrc('resources/image/bgDriver.png');
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 			}
 
+			self.sub('title').driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
+
+			/*
+			 * Get Address of the location by ReverseGeoCode.
+			 */
 			var location = record.get('location');
 			if (location == null || location.length == 0) {
 				var lattitude = record.get('lattitude');
@@ -3214,140 +3424,180 @@ Ext.define('GreenFleet.view.monitor.Information', {
 						if (results[0]) {
 							var address = results[0].formatted_address
 							record.set('location', address);
-							form.getComponent('location').setValue(address);
+							self.sub('location').setValue(address);
 						}
 					} else {
 						console.log("Geocoder failed due to: " + status);
 					}
 				});
 			}
+
+			/*
+			 * TrackStore瑜��ㅼ� 濡����
+			 */
+			// TODO ��� ��낫 ���媛����(�뱀� 二쇳�遺�� 蹂댁�湲���� �쇱� ��낫瑜��ㅼ����濡���� �대��쇱�留����留��.)
+			self.getTrackStore().clearFilter(true);
+			self.getTrackStore().filter('vehicle', vehicle); 
+			self.getTrackStore().load();
+			
+			/*
+			 * IncidentStore瑜��ㅼ� 濡����
+			 */
+			self.getIncidentStore().clearFilter(true);
+			self.getIncidentStore().filter('vehicle', vehicle);
+			self.getIncidentStore().load();
 		});
 	},
+	
+	setVehicle : function(vehicleRecord) {
+		this.getForm().loadRecord(vehicleRecord);
+	},
+	
+	getForm : function() {
+		if(!this.form)
+			this.form = this.down('form');
+		return this.form;
+	},
+	
+	getMap : function() {
+		return this.map;
+	},
+	
+	setMap : function(map) {
+		this.map = map;
+	},
+	
+	getTrackLine : function() {
+		return this.trackline;
+	},
+	
+	setTrackLine : function(trackline) {
+		if(this.trackline)
+			this.trackline.setMap(null);
+		this.trackline = trackline;
+	},
+	
+	getMarker : function() {
+		return this.marker;
+	},
+	
+	setMarker : function(marker) {
+		if(this.marker)
+			this.marker.setMap(null);
+		this.marker = marker;
+	},
+	
+	resetMarkers : function() {
+		if(this.markers)
+			this.markers.setMap(null);
+		this.markers = null;
+	},
+	
+	getTrackStore : function() {
+		if(!this.trackStore)
+			this.trackStore = Ext.getStore('TrackByVehicleStore');
+		return this.trackStore;
+	},
 
-	listeners : {
-		activate : function(panel) {
-			var form = panel.down('form');
-			if (panel.vehicle)
-				form.loadRecord(panel.vehicle);
+	getIncidentStore : function() {
+		if(!this.incidentStore)
+			this.incidentStore = Ext.getStore('IncidentStore');
+		return this.incidentStore;
+	},
+	
+	getVehicle : function() {
+		return this.sub('id').getValue();
+	},
+	
+	getDriver : function() {
+		return this.sub('driver').getValue();
+	},
+	
+	refreshTrack : function() {
+		this.setTrackLine(new google.maps.Polyline({
+			map : this.getMap(),
+		    strokeColor: '#000000',
+		    strokeOpacity: 0.3,
+		    strokeWeight: 4
+		}));
+		this.setMarker(null);
+
+		var path = this.getTrackLine().getPath();
+		var bounds;
+		var latlng;
+
+		this.getTrackStore().each(function(record) {
+			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			path.push(latlng);
+			if(!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+		});
+		
+		if(!bounds) {
+			var defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
+		}
+		
+		if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else {
+			this.getMap().fitBounds(bounds);
+		}
+
+		var first = this.getTrackStore().first(); 
+		if(first) {
+			this.setMarker(new google.maps.Marker({
+			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
+			    map: this.getMap()
+			}));
+		}
+	},
+	
+	incidentHandler : function(e, el, incident) {
+		GreenFleet.doMenu('monitor_incident');
+		GreenFleet.getMenu('monitor_incident').setIncident(incident, true);
+	},
+	
+	refreshIncidents : function() {
+		this.sub('incidents').removeAll();
+		var max = this.getIncidentStore().count() > 4 ? 4 : this.getIncidentStore().count();
+		for(var i = 0;i < max;i++) {
+			var incident = this.getIncidentStore().getAt(i);
+			var self = this;
+			this.sub('incidents').add({
+				xtype : 'box',
+				cls : 'incidentThumb',
+				listeners : {
+					'render' : function() {
+						this.getEl().on('click', self.incidentHandler, self, incident);
+					}
+				},
+				html : '<div class="vehicle">' + 
+					incident.get('vehicle') + 
+					'</div><div class="driver">' + 
+					incident.get('driver') + 
+					'</div><div class="date">' + 
+					Ext.Date.format(incident.get('incidentTime'), 'Y-m-d H:i:s') +
+					'</div>'
+			})
 		}
 	},
 
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	items : [ {
-		xtype : 'panel',
+	ztitle : {
+		xtype : 'box',
 		cls : 'pageTitle',
-		html : '<h1>Information : Vehicle ID, Driver ID</h1>',
-		height : 35
-	}, {
-		xtype : 'container',
-		height : 300,
-		layout : {
-			type : 'hbox',
-			align : 'stretch'
+		itemId : 'title',
+		renderSelectors : {
+			vehicle : 'span.vehicle',
+			driver : 'span.driver'
 		},
-		items : [ {
-			xtype : 'container',
-			flex : 2,
-			layout : {
-				type : 'vbox',
-				align : 'stretch'
-			},
-			items : [ {
-				xtype : 'panel',
-				title : 'Vehicle Information',
-				cls : 'paddingPanel',
-				layout : {
-					type : 'hbox'
-				},
-				items : [ {
-					xtype : 'image',
-					itemId : 'vehicleImage',
-					cls : 'imgVehicle'
-				}, {
-					xtype : 'image',
-					itemId : 'driverImage',
-					cls : 'imgDriver'
-				}, {
-					xtype : 'form',
-					height : 140,
-					flex : 1,
-					defaults : {
-						labelWidth : 60,
-						labelSeparator : '',
-						anchor : '100%'
-					},
-					items : [ {
-						xtype : 'displayfield',
-						name : 'id',
-						fieldLabel : 'Vehicle',
-						itemId : 'id'
-					}, {
-						xtype : 'displayfield',
-						name : 'driver',
-						fieldLabel : 'Driver',
-						itemId : 'driver'
-					}, {
-						xtype : 'displayfield',
-						name : 'location',
-						fieldLabel : 'Location',
-						itemId : 'location'
-					}, {
-						xtype : 'displayfield',
-						name : 'distance',
-						fieldLabel : 'Run. Dist.'
-					}, {
-						xtype : 'displayfield',
-						name : 'runningTime',
-						fieldLabel : 'Run. Time'
-					} ]
-				} ]
-			}, {
-				xtype : 'panel',
-				title : 'Incidents',
-				layout : 'fit',
-				cls : 'paddingPanel',
-				height : 115,
-				items : [ {
-					xtype : 'container',
-					layout : {
-						type : 'hbox',
-						align : 'left'
-					},
-					items : [ {
-						xtype : 'box',
-						cls : 'incidentThumb',
-						html : '<div class="vehicle">V00001</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
-					}, {
-						xtype : 'box',
-						cls : 'incidentThumb',
-						html : '<div class="vehicle">V00002</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
-					}, {
-						xtype : 'box',
-						cls : 'incidentThumb',
-						html : '<div class="vehicle">V00003</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
-					}, {
-						xtype : 'box',
-						cls : 'incidentThumb',
-						html : '<div class="vehicle">V00004</div><div class="driver">HAHAHA001</div><div class="date">2012.01.25 23:11:15</div><div class="latitude">37.66</div>'
-					} ]
-				} ]
-			} ]
-		}, {
-			xtype : 'panel',
-			title : 'Tracking Recent Driving',
-			flex : 1,
-			html : '<div class="map" style="height:100%"></div>',
-			listeners : {
-				afterrender : function() {
-//					parent.displayMap(this, 37.56, 126.97);
-				}
-			}
-		} ]
-	}, {
+		renderTpl : '<h1>Vehicle : <span class="vehicle">Vehicle</span>, Driver : <span class="driver">Driver</span></h1>',
+		height : 35
+	},
+	
+	ztabpanel : {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [ {
@@ -3362,7 +3612,83 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			xtype : 'monitor_control_by_vehicle',
 			title : 'Maintenance'
 		} ]
-	} ]
+	},
+	
+	zvehicleinfo : {
+		xtype : 'panel',
+		title : 'Vehicle Information',
+		cls : 'paddingPanel',
+		layout : {
+			type : 'hbox'
+		},
+		items : [ {
+			xtype : 'image',
+			itemId : 'vehicleImage',
+			cls : 'imgVehicle'
+		}, {
+			xtype : 'image',
+			itemId : 'driverImage',
+			cls : 'imgDriver'
+		}, {
+			xtype : 'form',
+			height : 140,
+			flex : 1,
+			defaults : {
+				labelWidth : 60,
+				labelSeparator : '',
+				anchor : '100%'
+			},
+			items : [ {
+				xtype : 'displayfield',
+				name : 'id',
+				fieldLabel : 'Vehicle',
+				itemId : 'id'
+			}, {
+				xtype : 'displayfield',
+				name : 'driver',
+				fieldLabel : 'Driver',
+				itemId : 'driver'
+			}, {
+				xtype : 'displayfield',
+				name : 'location',
+				fieldLabel : 'Location',
+				itemId : 'location'
+			}, {
+				xtype : 'displayfield',
+				name : 'distance',
+				fieldLabel : 'Run. Dist.'
+			}, {
+				xtype : 'displayfield',
+				name : 'runningTime',
+				fieldLabel : 'Run. Time'
+			} ]
+		} ]
+	},
+	
+	zincidents : {
+		xtype : 'panel',
+		title : 'Incidents',
+		layout : 'fit',
+		cls : 'paddingPanel',
+		height : 115,
+		items : [ {
+			xtype : 'container',
+			itemId : 'incidents',
+			layout : {
+				type : 'hbox',
+				align : 'left'
+			}
+		} ]
+	},
+	
+	zmap : {
+		xtype : 'panel',
+		title : 'Tracking Recent Driving',
+		cls : 'paddingPanel backgroundGray borderLeftGray',
+		itemId : 'map',
+		flex : 1,
+		html : '<div class="map"></div>'
+	}
 });
 
 Ext.define('GreenFleet.view.monitor.IncidentView', {
@@ -3378,246 +3704,348 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	},
 
 	initComponent : function() {
-		this.callParent(arguments);
-
-		/*
-		 * Content
-		 */
-		var incident = this.add({
+		this.items = [{
 			xtype : 'container',
 			autoScroll : true,
 			layout : {
 				type : 'vbox',
 				align : 'stretch'
 			},
-			flex : 1
+			flex : 1,
+			items : [this.zInfo, this.zVideoAndMap]
+		}, this.zList];
+		
+		this.callParent(arguments);
+
+		/*
+		 * Content
+		 */
+
+		var self = this;
+		
+		this.sub('map').on('afterrender', function() {
+			var options = {
+				zoom : 10,
+				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+
+			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
+		});
+		
+		this.on('activate', function(comp) {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+		
+		this.down('button[itemId=search]').on('click', function() {
+			self.refreshIncidentList();
+		});
+		
+		this.down('button[itemId=reset]').on('click', function() {
+			self.resetIncidentList();
+		});
+		
+		this.down('displayfield[name=videoClip]').on('change', function(field, value) {
+			self.sub('video').update({
+				value : value
+			});
+		});
+		
+		this.down('datefield[name=incidentTime]').on('change', function(field, value) {
+			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
+		});
+		
+		this.down('displayfield[name=driver]').on('change', function(field, value) {
+			/*
+			 * Get Driver Information (Image, Name, ..) from DriverStore
+			 */
+			var driverStore = Ext.getStore('DriverStore');
+			var driverRecord = driverStore.findRecord('id', value);
+			var driver = driverRecord.get('id');
+			var driverImageClip = driverRecord.get('imageClip');
+			if (driverImageClip) {
+				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+			} else {
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+			}
 		});
 
-		incident.add(this.buildInfo(this));
-		incident.add(this.buildVideoAndMap(this));
+		this.sub('driverFilter').on('specialkey', function(fleld, e) {
+			if (e.getKey() == e.ENTER) {
+				self.refreshIncidentList();
+			};
+		});
+		
+		this.sub('vehicleFilter').on('specialkey', function(field, e) {
+			if (e.getKey() == e.ENTER) {
+				self.refreshIncidentList();
+			};
+		});
 
-		this.add(this.buildList(this));
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.setIncident(record, false);
+		});
+		
+		this.sub('fullscreen').on('afterrender', function(comp) {
+			comp.getEl().on('click', function() {
+				if (!Ext.isWebKit)
+					return;
+				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+			});
+		});
 	},
-
-	buildInfo : function(main) {
-		return {
-			xtype : 'form',
-			title : 'Incident Information.',
-			height : 40,
-			autoScroll : true,
-			defaults : {
-				anchor : '100%'
-			},
-			items : [ {
-				xtype : 'displayfield',
-				name : 'incidentTime',
-				fieldLabel : 'Incident Time'
-			}, {
-				xtype : 'displayfield',
-				name : 'vehicle',
-				fieldLabel : 'Vehicle'
-			}, {
-				xtype : 'displayfield',
-				name : 'driver',
-				fieldLabel : 'Driver'
-			}, {
-				xtype : 'displayfield',
-				name : 'impulse',
-				fieldLabel : 'Impulse'
-			}, {
-				xtype : 'displayfield',
-				name : 'videoClip',
-				hidden : true,
-				listeners : {
-					change : function(field, value) {
-						var video = main.down('[itemId=video]');
-						video.update({
-							value : value
-						});
-					}
-				}
-			} ]
-		};
-	},
-
-	buildVideoAndMap : function(main) {
-		return {
-			xtype : 'container',
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			flex : 1,
-			items : [
-					{
-						xtype : 'panel',
-						bodyPadding : 10,
-						title : 'Incident Details',
-						flex : 1,
-						layout : {
-							type : 'vbox',
-							align : 'stretch'
-						},
-						items : [
-								{
-									xtype : 'box',
-									itemId : 'video',
-									tpl : [ '<video width="300" height="200" controls="controls">',
-											'<source src="download?blob-key={value}" type="video/mp4" />',
-											'Your browser does not support the video tag.', '</video>' ]
-								}, {
-									xtype : 'button',
-									text : 'FullScreen(WebKit Only)',
-									handler : function(button) {
-										if (!Ext.isWebKit)
-											return;
-										var video = button.previousSibling('box');
-										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
-									}
-								} ]
-					}, {
-						xtype : 'panel',
-						title : 'Position of Incident',
-						flex : 1,
-						html : '<div class="map" style="height:100%"></div>',
-						listeners : {
-							afterrender : function() {
-								// parent.displayMap(this, 37.56, 126.97);
-							}
-						}
-					} ]
-		};
-	},
-
-	buildList : function(main) {
-		return {
-			xtype : 'gridpanel',
-			title : 'Incident List',
-			store : 'IncidentStore',
-			autoScroll : true,
-			flex : 1,
-			columns : [ {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'incidentTime',
-				text : 'Incident Time',
-				xtype : 'datecolumn',
-				format : 'd-m-Y H:i:s'
-			}, {
-				dataIndex : 'driver',
-				text : 'Driver',
-				type : 'string'
-			}, {
-				dataIndex : 'vehicle',
-				text : 'Vehicle',
-				type : 'string'
-			}, {
-				dataIndex : 'lattitude',
-				text : 'Lattitude',
-				type : 'number'
-			}, {
-				dataIndex : 'longitude',
-				text : 'Longitude',
-				type : 'number'
-			}, {
-				dataIndex : 'impulse',
-				text : 'Impulse',
-				type : 'number'
-			}, {
-				dataIndex : 'createdAt',
-				text : 'Created At',
-				xtype : 'datecolumn',
-				format : 'd-m-Y H:i:s'
-			}, {
-				dataIndex : 'updatedAt',
-				text : 'Updated At',
-				xtype : 'datecolumn',
-				format : 'd-m-Y H:i:s'
-			} ],
-			viewConfig : {
-
-			},
-			listeners : {
-				itemclick : function(grid, record) {
-					var form = main.down('form');
-					form.loadRecord(record);
-				}
-			},
-			onSearch : function(grid) {
-				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
-				var driverFilter = grid.down('textfield[name=driverFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'vehicle',
-						value : vehicleFilter.getValue()
-					}, {
-						property : 'driver',
-						value : driverFilter.getValue()
-					} ]
-				});
-			},
-			onReset : function(grid) {
-				grid.down('textfield[name=vehicleFilter]').setValue('');
-				grid.down('textfield[name=driverFilter]').setValue('');
-			},
-			tbar : [ {
-				xtype : 'combo',
-				name : 'vehicle',
-				queryMode : 'local',
-				store : 'VehicleStore',
-				displayField : 'id',
-				valueField : 'id',
-				fieldLabel : 'Vehicle',
-				name : 'vehicleFilter',
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
-			}, {
-				xtype : 'combo',
-				name : 'driver',
-				queryMode : 'local',
-				store : 'DriverStore',
-				displayField : 'id',
-				valueField : 'id',
-				fieldLabel : 'Driver',
-				name : 'driverFilter',
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
-			}, {
-				xtype : 'button',
-				text : 'Search',
-				tooltip : 'Find Incident',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
-			}, {
-				text : 'Reset',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onReset(grid);
-				}
-			} ]
+	
+	setIncident : function(incident, refresh) {
+		this.incident = incident;
+		if(refresh) {
+			this.sub('vehicleFilter').setValue(incident.get('vehicle'));
+			this.sub('driverFilter').reset();
+			this.refreshIncidentList();
 		}
-	}
+		
+		this.sub('incident_form').loadRecord(incident);
+		this.refreshMap();
+	},
+	
+	getIncident : function() {
+		return this.incident;
+	},
+	
+	refreshIncidentList : function() {
+		this.sub('grid').store.load({
+			filters : [ {
+				property : 'vehicle',
+				value : this.sub('vehicleFilter').getValue()
+			}, {
+				property : 'driver',
+				value : this.sub('driverFilter').getValue()
+			} ]
+		});
+	},
+	
+	resetIncidentList : function() {
+		this.sub('vehicleFilter').reset();
+		this.sub('driverFilter').reset();
+		
+		this.refreshIncidentList();
+	},
+	
+	getMarker : function() {
+		return this.marker;
+	},
+	
+	setMarker : function(marker) {
+		if(this.marker)
+			this.marker.setMap(null);
+		this.marker = marker;
+	},
+	
+	refreshMap : function() {
+		this.setMarker(null);
+		
+		var incident = this.getIncident();
+		var location = null;
+		if(!incident)
+			location = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+		else
+			location = new google.maps.LatLng(incident.get('lattitude'), incident.get('longitude'));
+		
+		this.getMap().setCenter(location);
 
+		if(incident) {
+			this.setMarker(new google.maps.Marker({
+			    position: location,
+			    map: this.getMap()
+			}));
+		}
+	},
+	
+	getMap : function() {
+		return this.map;
+	},
+	
+	zInfo : {
+		xtype : 'form',
+		itemId : 'incident_form',
+		cls : 'incidentSummary',
+		height: 50,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		autoScroll : true,
+		defaults : {
+			anchor : '100%',
+			labelAlign : 'top',
+			cls : 'summaryCell'
+		},
+		items : [ {
+			xtype : 'image',
+			itemId : 'driverImage',
+			cls : 'imgDriverSmall',
+			height: 37
+		},{
+			xtype : 'datefield',
+			name : 'incidentTime',
+			hidden : true,
+			fieldLabel : 'Incident Time'
+		},{
+			xtype : 'displayfield',
+			itemId : 'incident_time',
+			width : 160,
+			fieldLabel : 'Incident Time'
+		}, {
+			xtype : 'displayfield',
+			name : 'vehicle',
+			width : 100,
+			fieldLabel : 'Vehicle'
+		}, {
+			xtype : 'displayfield',
+			name : 'driver',
+			width : 100,
+			fieldLabel : 'Driver'
+		}, {
+			xtype : 'displayfield',
+			name : 'impulse',
+			width : 100,
+			fieldLabel : 'Impulse'
+		}, {
+			xtype : 'displayfield',
+			name : 'videoClip',
+			hidden : true
+		} ]
+	},
+
+	zVideoAndMap : {
+		xtype : 'container',
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		flex : 1,
+		items : [
+				{
+					xtype : 'panel',
+					title : 'Incident Details',
+					cls : 'paddingPanel',
+					flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'
+					},
+					items : [
+							{
+								xtype : 'box',
+								itemId : 'fullscreen',
+								html : '<div class="btnFullscreen"></div>'
+							}, {
+								xtype : 'box',
+								cls : ' incidentDetail',
+								itemId : 'video',
+								tpl : [ '<video width="100%" height="95%" controls="controls">',
+										'<source src="download?blob-key={value}" type="video/mp4" />',
+										'Your browser does not support the video tag.', '</video>' ]
+							} ]
+				}, {
+					xtype : 'panel',
+					title : 'Position of Incident',
+					cls : 'paddingPanel backgroundGray borderLeftGray',
+					flex : 1,
+					itemId : 'map',
+					html : '<div class="map"></div>'
+				} ]
+	},
+
+	zList : {
+		xtype : 'gridpanel',
+		itemId : 'grid',
+		cls : 'hIndexbar',
+		title : 'Incident List',
+		store : 'IncidentStore',
+		autoScroll : true,
+		flex : 1,
+		columns : [ {
+			dataIndex : 'key',
+			text : 'Key',
+			type : 'string',
+			hidden : true
+		}, {
+			dataIndex : 'incidentTime',
+			text : 'Incident Time',
+			xtype : 'datecolumn',
+			width : 120,
+			format : 'd-m-Y H:i:s'
+		}, {
+			dataIndex : 'driver',
+			text : 'Driver',
+			type : 'string',
+			width : 80
+		}, {
+			dataIndex : 'vehicle',
+			text : 'Vehicle',
+			type : 'string',
+			width : 80
+		}, {
+			dataIndex : 'lattitude',
+			text : 'Lattitude',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'longitude',
+			text : 'Longitude',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse',
+			text : 'Impulse',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'createdAt',
+			text : 'Created At',
+			xtype : 'datecolumn',
+			width : 120,
+			format : 'd-m-Y H:i:s'
+		}, {
+			dataIndex : 'updatedAt',
+			text : 'Updated At',
+			xtype : 'datecolumn',
+			width : 120,
+			format : 'd-m-Y H:i:s'
+		} ],
+		viewConfig : {
+		},
+		tbar : [ {
+			xtype : 'combo',
+			queryMode : 'local',
+			store : 'VehicleStore',
+			displayField : 'id',
+			valueField : 'id',
+			fieldLabel : 'Vehicle',
+			itemId : 'vehicleFilter',
+			width : 200
+		}, {
+			xtype : 'combo',
+			queryMode : 'local',
+			store : 'DriverStore',
+			displayField : 'id',
+			valueField : 'id',
+			fieldLabel : 'Driver',
+			itemId : 'driverFilter',
+			width : 200
+		}, {
+			xtype : 'button',
+			itemId : 'search',
+			text : 'Search',
+			tooltip : 'Find Incident'
+		}, {
+			xtype : 'button',
+			itemId : 'reset',
+			text : 'Reset'
+		} ]
+	}
 });
+
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -3652,7 +4080,7 @@ Ext.define('GreenFleet.store.CompanyStore', {
 Ext.define('GreenFleet.store.VehicleStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 	
 	fields : [ {
 		name : 'key',
@@ -3671,7 +4099,7 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'string'
 	}, {
 		name : 'birthYear',
-		type : 'string'
+		type : 'int'
 	}, {
 		name : 'ownershipType',
 		type : 'string'
@@ -3683,13 +4111,13 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'string'
 	}, {
 		name : 'totalDistance',
-		type : 'string'
+		type : 'float'
 	}, {
 		name : 'remainingFuel',
-		type : 'string'
+		type : 'float'
 	}, {
 		name : 'distanceSinceNewOil',
-		type : 'string'
+		type : 'float'
 	}, {
 		name : 'engineOilStatus',
 		type : 'string'
@@ -3804,7 +4232,7 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		name : 'vehicleType',
 		type : 'string'
 	}, {
-		name : 'deliveryType',
+		name : 'deliveryPlace',
 		type : 'string'
 	}, {
 		name : 'destination',
@@ -3838,6 +4266,10 @@ Ext.define('GreenFleet.store.IncidentStore', {
 
 	autoLoad : false,
 
+	remoteFilter : true,
+	
+	remoteSort : true,
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'
@@ -3885,7 +4317,11 @@ Ext.define('GreenFleet.store.TrackStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
-
+	
+	remoteFilter : true,
+	
+	remoteSort : true,
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'
@@ -4038,7 +4474,7 @@ Ext.define('GreenFleet.store.ControlDataStore', {
 	}, {
 		name : 'date',
 		type : 'date',
-		dateFormat:'timestamp'
+		dateFormat:'time'
 	}, {
 		name : 'startTime',
 		type : 'date',
@@ -4060,6 +4496,97 @@ Ext.define('GreenFleet.store.ControlDataStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'control_data',
+		reader : {
+			type : 'json'
+		}
+	}
+});
+Ext.define('GreenFleet.store.TrackByVehicleStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'vehicle',
+		type : 'string'
+	}, {
+		name : 'driver',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'number'
+	}, {
+		name : 'longitude',
+		type : 'number'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat : 'time'
+	} ],
+
+	sorters : [ {
+		property : 'createdAt',
+		direction : 'DESC'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'track',
+		reader : {
+			type : 'json'
+		}
+	}
+});
+Ext.define('GreenFleet.store.RecentIncidentStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	remoteFilter : true,
+	
+	remoteSort : true,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'incidentTime',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'driver',
+		type : 'string'
+	}, {
+		name : 'vehicle',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'float'
+	}, {
+		name : 'longitude',
+		type : 'float'
+	}, {
+		name : 'impulse',
+		type : 'float'
+	}, {
+		name : 'videoClip',
+		type : 'string'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'incident',
 		reader : {
 			type : 'json'
 		}
@@ -4125,7 +4652,8 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
 	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'TrackStore',
-			'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore' ],
+			'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore',
+			'TrackByVehicleStore', 'RecentIncidentStore' ],
 	models : [],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
 			'management.Company', 'management.Vehicle', 'management.Reservation', 'management.Incident',

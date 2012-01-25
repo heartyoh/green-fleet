@@ -51,29 +51,30 @@ public class IncidentService {
 			// process the uploaded file
 			MultipartFile videoFile = ((MultipartHttpServletRequest) request).getFile("videoFile");
 
-			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-			String filename = new String(videoFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
-			AppEngineFile file = fileService.createNewBlobFile(videoFile.getContentType(), filename);
+			if(videoFile.getSize() > 0) {
+				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+				AppEngineFile file = fileService.createNewBlobFile(videoFile.getContentType()); //, videoFile.getOriginalFilename());
 
-			boolean lock = true;
-			FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+				boolean lock = true;
+				FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
 
-			writeChannel.write(ByteBuffer.wrap(videoFile.getBytes()));
+				writeChannel.write(ByteBuffer.wrap(videoFile.getBytes()));
 
-			writeChannel.closeFinally();
+				writeChannel.closeFinally();
 
-			videoClip = fileService.getBlobKey(file).getKeyString();
+				videoClip = fileService.getBlobKey(file).getKeyString();
+			}
 		}
 
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String vehicle = new String(request.getParameter("vehicle").getBytes(response.getCharacterEncoding()));
-		String driver = new String(request.getParameter("driver").getBytes(response.getCharacterEncoding()));
-		String incidentTime = new String(request.getParameter("incidentTime").getBytes(response.getCharacterEncoding()));
-		String lattitude = new String(request.getParameter("lattitude").getBytes(response.getCharacterEncoding()));
-		String longitude = new String(request.getParameter("longitude").getBytes(response.getCharacterEncoding()));
-		String impulse = new String(request.getParameter("impulse").getBytes(response.getCharacterEncoding()));
+		String vehicle = request.getParameter("vehicle");
+		String driver = request.getParameter("driver");
+		String incidentTime = request.getParameter("incidentTime");
+		String lattitude = request.getParameter("lattitude");
+		String longitude = request.getParameter("longitude");
+		String impulse = request.getParameter("impulse");
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 

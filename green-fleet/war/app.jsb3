@@ -26,6 +26,14 @@
                     "name": "UI.js"
                 },
                 {
+                    "path": "app/mixin/",
+                    "name": "State.js"
+                },
+                {
+                    "path": "app/mixin/",
+                    "name": "SubItem.js"
+                },
+                {
                     "path": "app/view/",
                     "name": "Viewport.js"
                 },
@@ -148,6 +156,14 @@
                 {
                     "path": "app/store/",
                     "name": "ControlDataStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "TrackByVehicleStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "RecentIncidentStore.js"
                 },
                 {
                     "path": "app/model/",

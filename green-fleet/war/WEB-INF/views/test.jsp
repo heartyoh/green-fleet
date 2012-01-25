@@ -7,11 +7,9 @@
 <%@ page import="com.google.appengine.api.blobstore.BlobstoreService" %>
 <%@ page import="com.google.appengine.api.blobstore.BlobstoreServiceFactory" %>
 
-<% BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService(); %>
-
-<html lang='en'>
+<html>
 	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8"> 
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<title>Green Fleet</title>
 

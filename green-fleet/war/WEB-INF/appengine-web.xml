@@ -23,6 +23,7 @@
 	<async-session-persistence enabled="true" />
 
 	<static-files>
+		<include path="/favicon.ico" />
 		<include path="/*.js" />
 		<include path="/*.html" />
 		<include path="/app/**.*" />

@@ -47,7 +47,7 @@ public class VehicleService {
 
 		MultipartFile file = request.getFile("file");
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
 
 		String line = br.readLine();
 		/*
@@ -127,40 +127,41 @@ public class VehicleService {
 			// process the uploaded file
 			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageFile");
 
-			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-			String filename = new String(imageFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
-			AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());//, filename);
+			if(imageFile.getSize() > 0) {
+				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+				AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());//, imageFile.getOriginalFilename());
 
-			boolean lock = true;
-			FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+				boolean lock = true;
+				FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
 
-			writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
+				writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
 
-			writeChannel.closeFinally();
+				writeChannel.closeFinally();
 
-			imageClip = fileService.getBlobKey(file).getKeyString();
+				imageClip = fileService.getBlobKey(file).getKeyString();
+			}
 		}
 
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String id = new String(request.getParameter("id").getBytes(response.getCharacterEncoding()));;
-		String registrationNumber = new String(request.getParameter("registrationNumber").getBytes(response.getCharacterEncoding()));;
-		String manufacturer = new String(request.getParameter("manufacturer").getBytes(response.getCharacterEncoding()));;
-		String vehicleType = new String(request.getParameter("vehicleType").getBytes(response.getCharacterEncoding()));;
-		String birthYear = new String(request.getParameter("birthYear").getBytes(response.getCharacterEncoding()));;
-		String ownershipType = new String(request.getParameter("ownershipType").getBytes(response.getCharacterEncoding()));;
-		String status = new String(request.getParameter("status").getBytes(response.getCharacterEncoding()));;
-		String totalDistance = new String(request.getParameter("totalDistance").getBytes(response.getCharacterEncoding()));;
-		String remainingFuel = new String(request.getParameter("remainingFuel").getBytes(response.getCharacterEncoding()));;
-		String distanceSinceNewOil = new String(request.getParameter("distanceSinceNewOil").getBytes(response.getCharacterEncoding()));;
-		String engineOilStatus = new String(request.getParameter("engineOilStatus").getBytes(response.getCharacterEncoding()));;
-		String fuelFilterStatus = new String(request.getParameter("fuelFilterStatus").getBytes(response.getCharacterEncoding()));;
-		String brakeOilStatus = new String(request.getParameter("brakeOilStatus").getBytes(response.getCharacterEncoding()));;
-		String brakePedalStatus = new String(request.getParameter("brakePedalStatus").getBytes(response.getCharacterEncoding()));;
-		String coolingWaterStatus = new String(request.getParameter("coolingWaterStatus").getBytes(response.getCharacterEncoding()));;
-		String timingBeltStatus = new String(request.getParameter("timingBeltStatus").getBytes(response.getCharacterEncoding()));;
-		String sparkPlugStatus = new String(request.getParameter("sparkPlugStatus").getBytes(response.getCharacterEncoding()));;
+		String id = request.getParameter("id");
+		String registrationNumber = request.getParameter("registrationNumber");
+		String manufacturer = request.getParameter("manufacturer");
+		String vehicleType = request.getParameter("vehicleType");
+		String birthYear = request.getParameter("birthYear");
+		String ownershipType = request.getParameter("ownershipType");
+		String status = request.getParameter("status");
+		String totalDistance = request.getParameter("totalDistance");
+		String remainingFuel = request.getParameter("remainingFuel");
+		String distanceSinceNewOil = request.getParameter("distanceSinceNewOil");
+		String engineOilStatus = request.getParameter("engineOilStatus");
+		String fuelFilterStatus = request.getParameter("fuelFilterStatus");
+		String brakeOilStatus = request.getParameter("brakeOilStatus");
+		String brakePedalStatus = request.getParameter("brakePedalStatus");
+		String coolingWaterStatus = request.getParameter("coolingWaterStatus");
+		String timingBeltStatus = request.getParameter("timingBeltStatus");
+		String sparkPlugStatus = request.getParameter("sparkPlugStatus");
 
 		Key objKey = null;
 		boolean creating = false;

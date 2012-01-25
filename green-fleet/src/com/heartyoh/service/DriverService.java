@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.files.AppEngineFile;
@@ -47,7 +49,7 @@ public class DriverService {
 
 		MultipartFile file = request.getFile("file");
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
 
 		String line = br.readLine();
 		/*
@@ -110,29 +112,29 @@ public class DriverService {
 		if (request instanceof MultipartHttpServletRequest) {
 			// process the uploaded file
 			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageFile");
+			
+			if(imageFile.getSize() > 0) {
+				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+				AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());//, imageFile.getOriginalFilename());
 
-			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-			String filename = new String(imageFile.getOriginalFilename().getBytes(response.getCharacterEncoding()));
-			AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());//, filename);
+				boolean lock = true;
+				FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
 
-			boolean lock = true;
-			FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+				writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
 
-			writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
+				writeChannel.closeFinally();
 
-			writeChannel.closeFinally();
-
-			imageClip = fileService.getBlobKey(file).getKeyString();
+				imageClip = fileService.getBlobKey(file).getKeyString();
+			}
 		}
 
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String id = new String(request.getParameter("id").getBytes(response.getCharacterEncoding()));
-		String name = new String(request.getParameter("name").getBytes(response.getCharacterEncoding()));
-
-		String division = new String(request.getParameter("division").getBytes(response.getCharacterEncoding()));
-		String title = new String(request.getParameter("title").getBytes(response.getCharacterEncoding()));
+		String id = request.getParameter("id");
+		String name = request.getParameter("name");
+		String division = request.getParameter("division");
+		String title = request.getParameter("title");
 
 		Key objKey = null;
 		boolean creating = false;

@@ -40,10 +40,11 @@ public class CommonsStreamMultipartResolver implements MultipartResolver {
     @Override
     public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) throws MultipartException {
         ServletFileUpload upload = new ServletFileUpload();
+        upload.setHeaderEncoding("UTF-8");
         MultipartParameters multipartParameters;
         try {
             FileItemIterator iterator = upload.getItemIterator(request);
-            multipartParameters = parseFileItems(iterator);
+            multipartParameters = parseFileItems(iterator, request);
         } catch (FileUploadException e) {
             throw new MultipartException("Could not parse multipart servlet request", e);
         } catch (IOException e) {
@@ -64,7 +65,7 @@ public class CommonsStreamMultipartResolver implements MultipartResolver {
      * @throws IOException when something else goes wrong related to input streams.
      * @return parameters and files
      */
-    private MultipartParameters parseFileItems(FileItemIterator iterator) throws FileUploadException, IOException {
+    private MultipartParameters parseFileItems(FileItemIterator iterator, HttpServletRequest request) throws FileUploadException, IOException {
         MultipartParameters multipartParameters = new MultipartParameters();
         while (iterator.hasNext()) {
             FileItemStream fileItemStream = iterator.next();
@@ -73,7 +74,8 @@ public class CommonsStreamMultipartResolver implements MultipartResolver {
             multipartParameters.addContentType(fieldName, contentType);
             if (contentType == null) {
                 // The FileItemStream represents a simple String parameter when there is no content type
-                String fieldValue = FileCopyUtils.copyToString(new InputStreamReader(fileItemStream.openStream()));
+            	String charset = request.getCharacterEncoding() != null ? request.getCharacterEncoding() : "UTF-8";
+                String fieldValue = FileCopyUtils.copyToString(new InputStreamReader(fileItemStream.openStream(), charset));
                 multipartParameters.addStringParameter(fieldName, fieldValue);
             } else {
                 // The FileItemStream represents an actual file

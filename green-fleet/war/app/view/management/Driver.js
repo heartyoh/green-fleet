@@ -47,10 +47,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 				text : 'Title',
 				type : 'string'
 			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
-				type : 'string'
-			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -270,6 +266,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 						if (form.isValid()) {
 							form.submit({
 								url : 'driver/save',
+								headers: {'Content-Type':'multipart/form-data; charset=UTF-8'},
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 								},

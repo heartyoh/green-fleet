@@ -47,10 +47,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : 'VehicleType',
 				type : 'string'
 			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
-				type : 'string'
-			}, {
 				dataIndex : 'birthYear',
 				text : 'BirthYear',
 				type : 'string'
@@ -61,10 +57,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			}, {
 				dataIndex : 'status',
 				text : 'Status',
-				type : 'string'
-			}, {
-				dataIndex : 'imageClip',
-				text : 'ImageClip',
 				type : 'string'
 			}, {
 				dataIndex : 'totalDistance',

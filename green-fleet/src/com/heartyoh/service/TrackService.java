@@ -48,7 +48,7 @@ public class TrackService {
 
 		MultipartFile file = request.getFile("file");
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
 
 		String line = br.readLine();
 		/*
