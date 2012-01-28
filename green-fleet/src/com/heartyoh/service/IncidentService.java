@@ -2,7 +2,6 @@ package com.heartyoh.service;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -103,11 +102,8 @@ public class IncidentService {
 				obj.setDriver(driver);
 			if (driver != null)
 				obj.setDriver(driver);
-			if (incidentTime != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(Long.parseLong(incidentTime) * 1000);
-				obj.setIncidentTime(cal.getTime());
-			}
+			if (incidentTime != null)
+				obj.setIncidentTime(SessionUtils.timestampToDate(incidentTime));
 			if (lattitude != null)
 				obj.setLattitude(Double.parseDouble(lattitude));
 			if (longitude != null)

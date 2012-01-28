@@ -108,12 +108,12 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype : 'datecolumn',
-				format : 'd/m/Y'
+				format : F('datetime')
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype : 'datecolumn',
-				format : 'd/m/Y'
+				format : F('datetime')
 			} ],
 			viewConfig : {
 
@@ -366,14 +366,14 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					name : 'updatedAt',
 					disabled : true,
 					fieldLabel : 'Updated At',
-					format : 'd/m/Y',
+					format : F('datetime'),
 					anchor : '100%'
 				}, {
 					xtype : 'datefield',
 					name : 'createdAt',
 					disabled : true,
 					fieldLabel : 'Created At',
-					format : 'd/m/Y',
+					format : F('datetime'),
 					anchor : '100%'
 				}, {
 					xtype : 'displayfield',
@@ -419,7 +419,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							form.submit({
 								url : 'vehicle/save',
 								success : function(form, action) {
-									main.down('gridpanel').store.load();
+									var store = main.down('gridpanel').store;
+									store.load(function() {
+										form.loadRecord(store.findRecord('key', action.result.key));
+									});
 								},
 								failure : function(form, action) {
 									GreenFleet.msg('Failed', action.result);

@@ -41,7 +41,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 	}, {
 		text : 'Company',
 		submenus : [ {
-			title : title('company'),
+			title : T('company'),
 			xtype : 'management_company',
 			itemId : 'company',
 			closable : true
@@ -49,17 +49,17 @@ Ext.define('GreenFleet.view.MainMenu', {
 	}, {
 		text : 'Vehicle',
 		submenus : [ {
-			title : title('vehicle'),
+			title : T('vehicle'),
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',
 			closable : true
 		}, {
-			title : title('incident'),
+			title : T('incident'),
 			xtype : 'management_incident',
 			itemId : 'incident',
 			closable : true
 		}, {
-			title : title('track'),
+			title : T('track'),
 			xtype : 'management_track',
 			itemId : 'track',
 			closable : true
@@ -70,11 +70,19 @@ Ext.define('GreenFleet.view.MainMenu', {
 			closable : true
 		} ]
 	}, {
-		text : title('employee'),
+		text : T('employee'),
 		submenus : [ {
 			title : 'Driver',
 			xtype : 'management_driver',
 			itemId : 'driver',
+			closable : true
+		} ]
+	}, {
+		text : T('terminal'),
+		submenus : [ {
+			title : 'Terminal',
+			xtype : 'management_terminal',
+			itemId : 'terminal',
 			closable : true
 		} ]
 	}, {

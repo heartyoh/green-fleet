@@ -1,5 +1,8 @@
 package com.heartyoh.util;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,5 +18,13 @@ public class SessionUtils {
 	        return (CustomUser)(principal instanceof CustomUser ? principal : null);
 	    }
 	    return null;
+	}
+	
+	public static Date timestampToDate(String timestamp) {
+		if(timestamp == null || timestamp.length() == 0)
+			return null;
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(Long.parseLong(timestamp) * 1000);
+		return cal.getTime();
 	}
 }

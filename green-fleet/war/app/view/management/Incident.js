@@ -34,7 +34,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				dataIndex : 'incidentTime',
 				text : 'Incident Time',
 				xtype : 'datecolumn',
-				format : 'd-m-Y H:i:s'
+				format : F('datetime')
 			}, {
 				dataIndex : 'driver',
 				text : 'Driver',
@@ -59,12 +59,12 @@ Ext.define('GreenFleet.view.management.Incident', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype : 'datecolumn',
-				format : 'd-m-Y H:i:s'
+				format : F('datetime')
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype : 'datecolumn',
-				format : 'd-m-Y H:i:s'
+				format : F('datetime')
 			} ],
 			viewConfig : {
 
@@ -279,7 +279,10 @@ Ext.define('GreenFleet.view.management.Incident', {
 							form.submit({
 								url : 'incident/save',
 								success : function(form, action) {
-									main.down('gridpanel').store.load();
+									var store = main.down('gridpanel').store;
+									store.load(function() {
+										form.loadRecord(store.findRecord('key', action.result.key));
+									});
 								},
 								failure : function(form, action) {
 									GreenFleet.msg('Failed', action.result.msg);

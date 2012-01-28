@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,18 +24,21 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Reservation;
+import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.PMF;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class ReservationService {
 	private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
+	private static final Class<Reservation> clazz = Reservation.class;
 
 	@RequestMapping(value = "/reservation/save", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> save(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 
+		String key = request.getParameter("key");
 		String id = request.getParameter("id");
 //		Date reservedDate = new Date(request.getParameter("reservedDate"));
 		String driver = request.getParameter("driver");
@@ -45,53 +49,64 @@ public class ReservationService {
 		String purpose = request.getParameter("purpose");
 		String status = request.getParameter("status");
 
-		Date now = new Date();
-
-		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
-		Key key = KeyFactory.createKey(Reservation.class.getSimpleName(), id);
-
-		boolean created = false;
-		Reservation reservation = null;
+		Key objKey = null;
+		boolean creating = false;
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+		Company company = pm.getObjectById(Company.class, companyKey);
+		Reservation obj = null;
 
-		try {
-			Company company = pm.getObjectById(Company.class, companyKey);
-
+		if (key != null && key.trim().length() > 0) {
+			objKey = KeyFactory.stringToKey(key);
+		} else {
+			objKey = KeyFactory.createKey(companyKey, clazz.getSimpleName(), id);
 			try {
-				reservation = pm.getObjectById(Reservation.class, key);
+				obj = pm.getObjectById(clazz, objKey);
 			} catch (JDOObjectNotFoundException e) {
-				reservation = new Reservation();
-				reservation.setCompany(company);
-				reservation.setKey(key);
-				reservation.setId(id);
-				reservation.setReservedDate(now);
-				reservation.setCreatedAt(now);
+				// It's OK.
+				creating = true;
 
-				created = true;
+			}
+			// It's Not OK. You try to add duplicated identifier.
+			if (obj != null)
+				throw new EntityExistsException(clazz.getSimpleName() + " with id(" + id + ") already Exist.");
+		}
+
+		Date now = new Date();
+		
+		try {
+			if (creating) {
+				obj = new Reservation();
+				obj.setKey(KeyFactory.keyToString(objKey));
+				obj.setCompany(company);
+				obj.setId(id);
+				obj.setReservedDate(now);
+				obj.setCreatedAt(now);
+			} else {
+				obj = pm.getObjectById(clazz, objKey);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-			reservation.setDriver(driver);
-			reservation.setVehicle(vehicle);
-			reservation.setVehicleType(vehicleType);
-			reservation.setDeliveryPlace(deliveryPlace);
-			reservation.setDestination(destination);
-			reservation.setPurpose(purpose);
-			reservation.setStatus(status);
-			reservation.setUpdatedAt(now);
+			obj.setDriver(driver);
+			obj.setVehicle(vehicle);
+			obj.setVehicleType(vehicleType);
+			obj.setDeliveryPlace(deliveryPlace);
+			obj.setDestination(destination);
+			obj.setPurpose(purpose);
+			obj.setStatus(status);
+			obj.setUpdatedAt(now);
 
-			reservation = pm.makePersistent(reservation);
+			obj = pm.makePersistent(obj);
 		} finally {
 			pm.close();
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", true);
-		result.put("msg", created ? "Reservation created." : "Reservation updated");
-		result.put("key", KeyFactory.keyToString(reservation.getKey()));
+		result.put("key", obj.getKey());
 
 		return result;
 	}

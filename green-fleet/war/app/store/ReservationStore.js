@@ -4,6 +4,9 @@ Ext.define('GreenFleet.store.ReservationStore', {
 	autoLoad : false,
 
 	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
 		name : 'id',
 		type : 'string'
 	}, {

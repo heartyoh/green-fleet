@@ -2,14 +2,13 @@ package com.heartyoh.model;
 
 import java.util.Date;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-
-import com.google.appengine.api.datastore.Key;
 
 //* [차량 예약 정보]
 //* 운행 예약일,
@@ -22,8 +21,9 @@ import com.google.appengine.api.datastore.Key;
 @PersistenceCapable
 public class Reservation {
 	@PrimaryKey
-	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	private Key key;
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+    private String key;
 
 	@JsonIgnore
 	@Persistent
@@ -52,11 +52,11 @@ public class Reservation {
 	@Persistent
 	private Date updatedAt;
 
-	public Key getKey() {
+	public String getKey() {
 		return key;
 	}
 
-	public void setKey(Key key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 

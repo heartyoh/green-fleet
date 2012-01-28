@@ -20,7 +20,8 @@ Text.title = {
 	vehicle : 'Vehicle',
 	incident : 'Incident',
 	track : 'Track',
-	employee : 'Employee'
+	employee : 'Employee',
+	terminal : 'Terminal'
 }
 
 Text.format = {

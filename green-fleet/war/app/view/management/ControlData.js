@@ -38,17 +38,17 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'date',
 				text : 'Date',
 				xtype:'datecolumn',
-				format:'d-m-Y'
+				format:F('date')
 			}, {
 				dataIndex : 'startTime',
 				text : 'Start Time',
 				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				format:F('datetime')
 			}, {
 				dataIndex : 'endTime',
 				text : 'End Time',
 				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				format:F('datetime')
 			}, {
 				dataIndex : 'distance',
 				text : 'Distance',
@@ -77,12 +77,12 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				format:F('datetime')
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:'d-m-Y H:i:s'
+				format:F('datetime')
 			} ],
 			viewConfig : {
 
@@ -199,21 +199,21 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				xtype : 'datefield',
 				name : 'date',
 				fieldLabel : 'Date',
-				format: 'd-m-Y',
+				format: F('date'),
 				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'startTime',
 				fieldLabel : 'Start Time',
-				format: 'd-m-Y H:i:s',
+				format: F('datetime'),
 				submitFormat : 'U',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'endTime',
 				fieldLabel : 'End Time',
-				format: 'd-m-Y H:i:s',
+				format: F('datetime'),
 				submitFormat : 'U',
 				anchor : '100%'
 			}, {
@@ -260,14 +260,14 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format: 'd-m-Y H:i:s',
+				format: F('datetime'),
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format: 'd-m-Y H:i:s',
+				format: F('datetime'),
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -287,7 +287,10 @@ Ext.define('GreenFleet.view.management.ControlData', {
 							form.submit({
 								url : 'control_data/save',
 								success : function(form, action) {
-									main.down('gridpanel').store.load();
+									var store = main.down('gridpanel').store;
+									store.load(function() {
+										form.loadRecord(store.findRecord('key', action.result.key));
+									});
 								},
 								failure : function(form, action) {
 									GreenFleet.msg('Failed', action.result.msg);

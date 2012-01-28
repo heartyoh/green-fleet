@@ -1,9 +1,9 @@
-Ext.define('GreenFleet.view.management.Driver', {
+Ext.define('GreenFleet.view.management.Terminal', {
 	extend : 'Ext.container.Container',
 
-	alias : 'widget.management_driver',
+	alias : 'widget.management_terminal',
 
-	title : 'Driver',
+	title : 'Terminal',
 
 	layout : {
 		align : 'stretch',
@@ -21,8 +21,8 @@ Ext.define('GreenFleet.view.management.Driver', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Driver List',
-			store : 'DriverStore',
+			title : 'Terminal List',
+			store : 'TerminalStore',
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
@@ -31,20 +31,21 @@ Ext.define('GreenFleet.view.management.Driver', {
 				type : 'string',
 				hidden : true
 			}, {
-				dataIndex : 'name',
-				text : 'Name',
-				type : 'string'
-			}, {
 				dataIndex : 'id',
 				text : 'Employee Id',
 				type : 'string'
 			}, {
-				dataIndex : 'division',
-				text : 'Division',
+				dataIndex : 'serialNo',
+				text : 'Serial No.',
 				type : 'string'
 			}, {
-				dataIndex : 'title',
-				text : 'Title',
+				dataIndex : 'buyingDate',
+				text : 'Buying Date',
+				xtype : 'datecolumn',
+				format : F('date')
+			}, {
+				dataIndex : 'comment',
+				text : 'Comment',
 				type : 'string'
 			}, {
 				dataIndex : 'createdAt',
@@ -71,20 +72,20 @@ Ext.define('GreenFleet.view.management.Driver', {
 			},
 			onSearch : function(grid) {
 				var idFilter = grid.down('textfield[name=idFilter]');
-				var namefilter = grid.down('textfield[name=nameFilter]');
+				var serialNoFilter = grid.down('textfield[name=serialNoFilter]');
 				grid.store.clearFilter();
 				
 				grid.store.filter([ {
 					property : 'id',
 					value : idFilter.getValue()
 				}, {
-					property : 'name',
-					value : namefilter.getValue()
+					property : 'serialNo',
+					value : serialNoFilter.getValue()
 				} ]);
 			},
 			onReset : function(grid) {
 				grid.down('textfield[name=idFilter]').setValue('');
-				grid.down('textfield[name=nameFilter]').setValue('');
+				grid.down('textfield[name=serialNoFilter]').setValue('');
 			},
 			tbar : [ 'ID', {
 				xtype : 'textfield',
@@ -101,7 +102,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 				}
 			}, 'Name', {
 				xtype : 'textfield',
-				name : 'nameFilter',
+				name : 'serialNoFilter',
 				hideLabel : true,
 				width : 200,
 				listeners : {
@@ -115,7 +116,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			}, {
 				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Driver',
+				tooltip : 'Find Terminal',
 				handler : function() {
 					var grid = this.up('gridpanel');
 					grid.onSearch(grid);
@@ -145,7 +146,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : 'driver/import',
+								url : 'terminal/import',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
 								},
@@ -165,7 +166,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			xtype : 'panel',
 			itemId : 'details',
 			bodyPadding : 10,
-			title : 'Driver Details',
+			title : 'Terminal Details',
 			autoScroll : true,
 			layout : {
 				type : 'hbox',
@@ -183,23 +184,25 @@ Ext.define('GreenFleet.view.management.Driver', {
 					hidden : true
 				}, {
 					xtype : 'textfield',
-					name : 'name',
-					fieldLabel : 'Name',
-					anchor : '100%'
-				}, {
-					xtype : 'textfield',
 					name : 'id',
-					fieldLabel : 'Employee Id',
+					fieldLabel : 'Terminal Id',
 					anchor : '100%'
 				}, {
 					xtype : 'textfield',
-					name : 'division',
-					fieldLabel : 'Division',
+					name : 'serialNo',
+					fieldLabel : 'Serial No.',
 					anchor : '100%'
 				}, {
-					xtype : 'textfield',
-					name : 'title',
-					fieldLabel : 'Title',
+					xtype : 'datefield',
+					name : 'buyingDate',
+					fieldLabel : 'Buying Date',
+					anchor : '100%',
+					format : F('date'),
+					submitFormat : 'U'
+				}, {
+					xtype : 'textarea',
+					name : 'comment',
+					fieldLabel : 'Comment',
 					anchor : '100%'
 				}, {
 					xtype : 'filefield',
@@ -233,7 +236,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 							if(value != null && value.length > 0)
 								img.setSrc('download?blob-key=' + value);
 							else
-								img.setSrc('resources/image/bgDriver.png');
+								img.setSrc('resources/image/bgTerminal.png');
 						}
 					}
 				} ]
@@ -265,7 +268,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : 'driver/save',
+								url : 'terminal/save',
 								headers: {'Content-Type':'multipart/form-data; charset=UTF-8'},
 								success : function(form, action) {
 									var store = main.down('gridpanel').store;
@@ -287,10 +290,9 @@ Ext.define('GreenFleet.view.management.Driver', {
 
 						if (form.isValid()) {
 							form.submit({
-								url : 'driver/delete',
+								url : 'terminal/delete',
 								success : function(form, action) {
 									main.down('gridpanel').store.load();
-									
 									form.reset();
 								},
 								failure : function(form, action) {

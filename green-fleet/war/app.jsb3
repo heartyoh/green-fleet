@@ -75,6 +75,10 @@
                 },
                 {
                     "path": "app/view/management/",
+                    "name": "Terminal.js"
+                },
+                {
+                    "path": "app/view/management/",
                     "name": "Reservation.js"
                 },
                 {
@@ -164,6 +168,10 @@
                 {
                     "path": "app/store/",
                     "name": "RecentIncidentStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "TerminalStore.js"
                 },
                 {
                     "path": "app/model/",

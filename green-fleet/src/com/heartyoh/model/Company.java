@@ -12,42 +12,51 @@ import javax.jdo.annotations.PrimaryKey;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-
 @PersistenceCapable
 public class Company {
 	@PrimaryKey
-    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
-    private String key;
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
+	private String key;
 
 	@Persistent
 	private String id;
 
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
-    private List<Driver> drivers;
-	
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "id asc"))
+	private List<Driver> drivers;
+
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="id asc"))
-    private List<Vehicle> vehicles;
-	
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "id asc"))
+	private List<Vehicle> vehicles;
+
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="vehicle asc, incidentTime desc"))
-    private List<Incident> incidents;
-	
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "id asc"))
+	private List<Terminal> terminals;
+
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="vehicle asc, createdAt desc"))
-    private List<Track> tracks;
-	
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "vehicle asc, incidentTime desc"))
+	private List<Incident> incidents;
+
 	@JsonIgnore
 	@Persistent(mappedBy = "company")
-	@Order(extensions = @Extension(vendorName="datanucleus", key="list-ordering", value="vehicle asc, startTime desc"))
-    private List<ControlData> controlDatas;
-	
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "vehicle asc, createdAt desc"))
+	private List<Track> tracks;
+
+	@JsonIgnore
+	@Persistent(mappedBy = "company")
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "vehicle asc, startTime desc"))
+	private List<ControlData> controlDatas;
+
+	@JsonIgnore
+	@Persistent(mappedBy = "company")
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "id asc"))
+	private List<Reservation> reservations;
+
 	@Persistent
 	private String name;
 
@@ -113,9 +122,18 @@ public class Company {
 		this.vehicles = vehicles;
 	}
 
+	public List<Terminal> getTerminals() {
+		return terminals;
+	}
+
+	public void setTerminals(List<Terminal> terminals) {
+		this.terminals = terminals;
+	}
+
 	public List<Incident> getIncidents() {
 		return incidents;
 	}
+
 	public void setIncidents(List<Incident> incidents) {
 		this.incidents = incidents;
 	}
@@ -123,6 +141,7 @@ public class Company {
 	public List<Track> getTracks() {
 		return tracks;
 	}
+
 	public void setTracks(List<Track> tracks) {
 		this.tracks = tracks;
 	}
@@ -133,6 +152,14 @@ public class Company {
 
 	public void setControlDatas(List<ControlData> controlDatas) {
 		this.controlDatas = controlDatas;
+	}
+
+	public List<Reservation> getReservations() {
+		return reservations;
+	}
+
+	public void setReservations(List<Reservation> reservations) {
+		this.reservations = reservations;
 	}
 
 }
