@@ -171,9 +171,9 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 	listeners : {
 		add : function(panel, item) {
-			if(panel !== this)
+			if (panel !== this)
 				return;
-			
+
 			var menutab = Ext.getCmp('menutab');
 			menutab.add({
 				text : item.title,
@@ -186,6 +186,13 @@ Ext.define('GreenFleet.view.viewport.Center', {
 				},
 				closable : false
 			}).setCard(item);
+		},
+		remove : function(panel, item) {
+			if (panel !== this)
+				return;
+
+			var menutab = Ext.getCmp('menutab');
+			menutab.remove(item.itemId);
 		}
 	},
 
@@ -194,9 +201,6 @@ Ext.define('GreenFleet.view.viewport.Center', {
 			activate : function(item) {
 				var menutab = Ext.getCmp('menutab');
 				var tab = menutab.getComponent(item.itemId);
-				/*
-				 * TODO 동작하게 해보라
-				 */
 				menutab.setActiveTab(tab);
 			}
 		}
@@ -214,45 +218,13 @@ Ext.define('GreenFleet.view.viewport.Center', {
 		title : 'Incident',
 		xtype : 'monitor_incident',
 		itemId : 'monitor_incident'
-	}, {
-		title : 'Company',
-		xtype : 'management_company',
-		itemId : 'company'
-	}, {
-		title : 'Vehicle',
-		xtype : 'management_vehicle',
-		itemId : 'vehicle'
-	}, {
-		title : 'Driver',
-		xtype : 'management_driver',
-		itemId : 'driver'
-	}, {
-		title : 'Reservation',
-		xtype : 'management_reservation',
-		itemId : 'reservation'
-	}, {
-		title : 'Incident',
-		xtype : 'management_incident',
-		itemId : 'incident'
-	}, {
-		title : 'Track',
-		xtype : 'management_track',
-		itemId : 'track'
-	}, {
-		title : 'ControlData',
-		xtype : 'management_control_data',
-		itemId : 'control_data'
-	}, {
-		title : 'File',
-		xtype : 'filemanager',
-		itemId : 'filemanager'
 	} ]
 });
 Ext.define('GreenFleet.view.viewport.North', {
 	extend : 'Ext.Container',
 
 	alias : 'widget.viewport.north',
-	
+
 	layout : {
 		type : 'hbox',
 		align : 'stretch'
@@ -285,7 +257,7 @@ Ext.define('GreenFleet.view.viewport.North', {
 		}, {
 			xtype : 'tabbar',
 			id : 'menutab',
-			height: 23
+			height : 23
 		} ]
 	} ]
 });
@@ -295,7 +267,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 
 	alias : 'widget.viewport.west',
 	cls : 'tool',
-	
+
 	layout : {
 		type : 'vbox'
 	},
@@ -506,20 +478,93 @@ Ext.define('GreenFleet.view.MainMenu', {
 	extend : 'Ext.toolbar.Toolbar',
 	cls : 'appMenu',
 	alias : 'widget.main_menu',
+
+	defaults : {
+		handler : function(button) {
+			var content = Ext.getCmp('content');
+			var closables = content.query('[closable=true]');
+			for ( var i = 0; i < closables.length; i++) {
+				content.remove(closables[i]);
+			}
+			
+			var first = null;
+			for(i = 0;i < button.submenus.length;i++) {
+				button.submenus[i]['listeners'] = {
+					activate : function(item) {
+						var menutab = Ext.getCmp('menutab');
+						var tab = menutab.getComponent(item.itemId);
+
+						menutab.setActiveTab(tab);
+					}
+				};
+				var item = content.add(button.submenus[i]);
+				first = first || item;
+			}
+			
+			if(first)
+				GreenFleet.doMenu(first.itemId);
+		}
+	},
 	
-	items : [{
-		text : 'Dashboard'
+	items : [ {
+		text : 'Dashboard',
+		submenus : [ {
+			title : 'File',
+			xtype : 'filemanager',
+			itemId : 'filemanager',
+			closable : true
+		} ]
 	}, {
-		text : 'Company'
+		text : 'Company',
+		submenus : [ {
+			title : title('company'),
+			xtype : 'management_company',
+			itemId : 'company',
+			closable : true
+		} ]
 	}, {
-		text : 'Vehicle'
+		text : 'Vehicle',
+		submenus : [ {
+			title : title('vehicle'),
+			xtype : 'management_vehicle',
+			itemId : 'vehicle',
+			closable : true
+		}, {
+			title : title('incident'),
+			xtype : 'management_incident',
+			itemId : 'incident',
+			closable : true
+		}, {
+			title : title('track'),
+			xtype : 'management_track',
+			itemId : 'track',
+			closable : true
+		}, {
+			title : 'ControlData',
+			xtype : 'management_control_data',
+			itemId : 'control_data',
+			closable : true
+		} ]
 	}, {
-		text : 'Employee'
+		text : title('employee'),
+		submenus : [ {
+			title : 'Driver',
+			xtype : 'management_driver',
+			itemId : 'driver',
+			closable : true
+		} ]
 	}, {
-		text : 'Reservation'
+		text : 'Reservation',
+		submenus : [ {
+			title : 'Reservation',
+			xtype : 'management_reservation',
+			itemId : 'reservation',
+			closable : true
+		} ]
 	}, {
-		text : 'Maintenance'
-	}]
+		text : 'Maintenance',
+		submenus : []
+	} ]
 });
 Ext.define('GreenFleet.view.SideMenu', {
 	extend : 'Ext.toolbar.Toolbar',
@@ -562,12 +607,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 
 			});
 		}
-	}/*, {
-		type : 'search',
-		text : 'search',
-		handler : function(event, target, owner, tool) {
-		}
-	}*/ ]
+	} ]
 });
 Ext.define('GreenFleet.view.management.Company', {
 	extend : 'Ext.container.Container',

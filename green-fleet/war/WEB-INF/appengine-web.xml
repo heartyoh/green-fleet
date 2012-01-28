@@ -29,6 +29,7 @@
 		<include path="/app/**.*" />
 		<include path="/data/**.*" />
 		<include path="/lib/**.*" />
+		<include path="/resources/text/*.js" />
 		<include path="/resources/css/*.css" />
 		<include path="/resources/image/**.*" />
 		<include path="/resources/themes/images/greenfleet/**.*" />

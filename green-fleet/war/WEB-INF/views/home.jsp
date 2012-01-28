@@ -21,11 +21,13 @@
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>
 		<script src="lib/uploader/fileuploader.js"></script>
 		<script src="lib/label/label.js"></script>
+		<script src="lib/locale/locale.js"></script>
 		
 		<script>
 		var login = {
 			username : '<sec:authentication property="principal.nickname"/>',
-			company : '<sec:authentication property="principal.company"/>'
+			company : '<sec:authentication property="principal.company"/>',
+			locale : 'ko'
 		};
 		
 		var System = System || {};
@@ -33,6 +35,8 @@
 			lattitude : 37.55,
 			longitude : 126.97
 		};
+
+		InitLocale(this, login.locale);
 		</script>
 		
 		<script src="ext-all.js"></script>
