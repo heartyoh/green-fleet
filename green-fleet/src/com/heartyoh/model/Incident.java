@@ -29,6 +29,9 @@ public class Incident {
 	private String driver;
 
 	@Persistent
+	private String terminal;
+
+	@Persistent
 	private Date incidentTime;
 	@Persistent
 	private double lattitude;
@@ -38,6 +41,18 @@ public class Incident {
 	private double impulse;
 	@Persistent
 	private String videoClip;
+	@Persistent
+	private double impulseThreshold;
+	@Persistent
+	private boolean obdConnected;
+	@Persistent
+	private double engineTemp;
+	@Persistent
+	private double engineTempThreshold;
+	@Persistent
+	private double remainingFuel;
+	@Persistent
+	private double fuelThreshold;
 
 	@Persistent
 	private Date createdAt;
@@ -67,6 +82,12 @@ public class Incident {
 	}
 	public void setDriver(String driver) {
 		this.driver = driver;
+	}
+	public String getTerminal() {
+		return terminal;
+	}
+	public void setTerminal(String terminal) {
+		this.terminal = terminal;
 	}
 	public Date getIncidentTime() {
 		return incidentTime;
@@ -109,6 +130,42 @@ public class Incident {
 	}
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+	public double getImpulseThreshold() {
+		return impulseThreshold;
+	}
+	public void setImpulseThreshold(double impulseThreshold) {
+		this.impulseThreshold = impulseThreshold;
+	}
+	public boolean isObdConnected() {
+		return obdConnected;
+	}
+	public void setObdConnected(boolean obdConnected) {
+		this.obdConnected = obdConnected;
+	}
+	public double getEngineTemp() {
+		return engineTemp;
+	}
+	public void setEngineTemp(double engineTemp) {
+		this.engineTemp = engineTemp;
+	}
+	public double getEngineTempThreshold() {
+		return engineTempThreshold;
+	}
+	public void setEngineTempThreshold(double engineTempThreshold) {
+		this.engineTempThreshold = engineTempThreshold;
+	}
+	public double getRemainingFuel() {
+		return remainingFuel;
+	}
+	public void setRemainingFuel(double remainingFuel) {
+		this.remainingFuel = remainingFuel;
+	}
+	public double getFuelThreshold() {
+		return fuelThreshold;
+	}
+	public void setFuelThreshold(double fuelThreshold) {
+		this.fuelThreshold = fuelThreshold;
 	}
 
 }

@@ -27,4 +27,12 @@ public class SessionUtils {
 		cal.setTimeInMillis(Long.parseLong(timestamp) * 1000);
 		return cal.getTime();
 	}
+	
+	public static boolean parseBoolean(String value) {
+		if(value == null || value.length() == 0)
+			return false;
+		if(value.equals("on") || value.equals("true") || value.equals("1"))
+			return true;
+		return false;
+	}
 }

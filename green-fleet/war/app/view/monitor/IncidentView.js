@@ -218,6 +218,16 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			fieldLabel : 'Impulse'
 		}, {
 			xtype : 'displayfield',
+			name : 'engineTemp',
+			width : 100,
+			fieldLabel : 'Engine Temp.'
+		}, {
+			xtype : 'displayfield',
+			name : 'remainingFuel',
+			width : 100,
+			fieldLabel : 'Remaining Fuel'
+		}, {
+			xtype : 'displayfield',
 			name : 'videoClip',
 			hidden : true
 		} ]
@@ -305,6 +315,36 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			dataIndex : 'impulse',
 			text : 'Impulse',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulseThreshold',
+			text : 'Impulse Threshold',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'obdConnected',
+			text : 'OBD Connected',
+			type : 'boolean',
+			width : 80
+		}, {
+			dataIndex : 'engineTemp',
+			text : 'Engine Temp.',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'engineTempThreshold',
+			text : 'Engine Temp. Threshold',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'remainingFuel',
+			text : 'Remaining Fuel',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'fuelThreshold',
+			text : 'Fuel Threshold',
 			type : 'number',
 			width : 80
 		}, {

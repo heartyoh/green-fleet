@@ -21,6 +21,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		name : 'vehicle',
 		type : 'string'
 	}, {
+		name : 'terminal',
+		type : 'string'
+	}, {
 		name : 'lattitude',
 		type : 'float'
 	}, {
@@ -28,6 +31,24 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'float'
 	}, {
 		name : 'impulse',
+		type : 'float'
+	}, {
+		name : 'impulseThreshold',
+		type : 'float'
+	}, {
+		name : 'obdConnected',
+		type : 'boolean'
+	}, {
+		name : 'engineTemp',
+		type : 'float'
+	}, {
+		name : 'engineTempThreshold',
+		type : 'float'
+	}, {
+		name : 'remainingFuel',
+		type : 'float'
+	}, {
+		name : 'fuelThreshold',
 		type : 'float'
 	}, {
 		name : 'videoClip',

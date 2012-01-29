@@ -44,6 +44,10 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : 'Vehicle',
 				type : 'string'
 			}, {
+				dataIndex : 'terminal',
+				text : 'Terminal',
+				type : 'string'
+			}, {
 				dataIndex : 'lattitude',
 				text : 'Lattitude',
 				type : 'number'
@@ -54,6 +58,30 @@ Ext.define('GreenFleet.view.management.Incident', {
 			}, {
 				dataIndex : 'impulse',
 				text : 'Impulse',
+				type : 'number'
+			}, {
+				dataIndex : 'impulseThreshold',
+				text : 'Impulse Threshold',
+				type : 'number'
+			}, {
+				dataIndex : 'obdConnected',
+				text : 'OBD Connected',
+				type : 'boolean'
+			}, {
+				dataIndex : 'engineTemp',
+				text : 'Engine Temp.',
+				type : 'number'
+			}, {
+				dataIndex : 'engineTempThreshold',
+				text : 'Engine Temp. Threshold',
+				type : 'number'
+			}, {
+				dataIndex : 'remainingFuel',
+				text : 'Remaining Fuel',
+				type : 'number'
+			}, {
+				dataIndex : 'fuelThreshold',
+				text : 'Fuel Threshold',
 				type : 'number'
 			}, {
 				dataIndex : 'createdAt',
@@ -192,6 +220,14 @@ Ext.define('GreenFleet.view.management.Incident', {
 							valueField : 'id',
 							fieldLabel : 'Driver'
 						}, {
+							xtype : 'combo',
+							name : 'terminal',
+							queryMode : 'local',
+							store : 'TerminalStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Terminal'
+						}, {
 							xtype : 'textfield',
 							name : 'lattitude',
 							fieldLabel : 'Lattitude'
@@ -203,6 +239,30 @@ Ext.define('GreenFleet.view.management.Incident', {
 							xtype : 'textfield',
 							name : 'impulse',
 							fieldLabel : 'Impulse'
+						}, {
+							xtype : 'textfield',
+							name : 'impulseThreshold',
+							fieldLabel : 'Impulse Threshold'
+						}, {
+							xtype : 'checkbox',
+							name : 'obdConnected',
+							fieldLabel : 'OBD Connected'
+						}, {
+							xtype : 'textfield',
+							name : 'engineTemp',
+							fieldLabel : 'Engine Temp.'
+						}, {
+							xtype : 'textfield',
+							name : 'engineTempThreshold',
+							fieldLabel : 'Engine Temp. Threshold'
+						}, {
+							xtype : 'textfield',
+							name : 'remainingFuel',
+							fieldLabel : 'Remaining Fuel'
+						}, {
+							xtype : 'textfield',
+							name : 'fuelThreshold',
+							fieldLabel : 'Fuel Threshhold'
 						}, {
 							xtype : 'filefield',
 							name : 'videoFile',
