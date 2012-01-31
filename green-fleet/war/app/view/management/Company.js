@@ -38,12 +38,14 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 

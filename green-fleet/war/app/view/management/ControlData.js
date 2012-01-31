@@ -43,12 +43,14 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'startTime',
 				text : 'Start Time',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'endTime',
 				text : 'End Time',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'distance',
 				text : 'Distance',
@@ -77,12 +79,14 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 

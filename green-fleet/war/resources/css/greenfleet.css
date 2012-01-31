@@ -1,6 +1,21 @@
 .wrap{background:url('../image/bgHeader.gif') repeat-x}
 #content-body{background-color:#efefef}
 
+/* msg */
+.msg .x-box-mc {font-size:14px;}
+#msg-div {position:absolute;right:2%;bottom:30px;width:300px;z-index:20000;}
+#msg-div .msg {
+    border-radius:5px;
+    -moz-border-radius:5px;
+    background: #ffffff;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 10px 15px;
+    color: #555;
+}
+#msg-div .msg h3 {margin: 0 0 8px;font-weight: bold;font-size: 15px;}
+#msg-div .msg p {margin: 0;}
+
 /*header style*/
 .header{background:url('../image/bgLogo.gif') no-repeat}
 .header .x-panel-body-default,.x-toolbar-default{background-color:transparent}

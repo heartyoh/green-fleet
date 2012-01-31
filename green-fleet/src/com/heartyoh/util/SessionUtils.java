@@ -2,11 +2,15 @@ package com.heartyoh.util;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.CustomUser;
 
 public class SessionUtils {
@@ -34,5 +38,12 @@ public class SessionUtils {
 		if(value.equals("on") || value.equals("true") || value.equals("1"))
 			return true;
 		return false;
+	}
+	
+	public static Map<String, Object> cvtEntityToMap(Entity entity) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(entity.getProperties());
+		map.put("key", KeyFactory.keyToString(entity.getKey()));
+		return map;
 	}
 }

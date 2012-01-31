@@ -4,7 +4,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 	alias : 'widget.management_driver',
 
 	title : 'Driver',
-
+	
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
@@ -16,6 +16,16 @@ Ext.define('GreenFleet.view.management.Driver', {
 		this.list = this.add(this.buildList(this));
 		var detail = this.add(this.buildForm(this));
 		this.form = detail.down('form');
+	},
+
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'driver/import',
+	
+	afterImport : function() {
+		this.down('gridpanel').store.load();
+		this.form.getForm().reset();
 	},
 
 	buildList : function(main) {
@@ -50,12 +60,14 @@ Ext.define('GreenFleet.view.management.Driver', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -126,36 +138,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
-			rbar : [{
-				xtype : 'form',
-				items : [{
-					xtype : 'filefield',
-					name : 'file',
-					fieldLabel : 'Import(CSV)',
-					msgTarget : 'side',
-					labelAlign : 'top',
-					allowBlank : true,
-					buttonText : 'file...' 
-				},{
-					xtype : 'button',
-					text : 'Import',
-					handler : function(button) {
-						var form = button.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'driver/import',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}]
 			} ]
 		}
 	},
