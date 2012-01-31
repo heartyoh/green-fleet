@@ -3929,8 +3929,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#000000',
-		    strokeOpacity: 0.3,
+		    strokeColor: '#770000',
+		    strokeOpacity: 0.7,
 		    strokeWeight: 4
 		}));
 		this.setMarker(null);
