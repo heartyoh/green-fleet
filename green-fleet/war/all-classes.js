@@ -231,7 +231,7 @@ Ext.define('GreenFleet.view.viewport.Center', {
 		xtype : 'monitor_information',
 		itemId : 'information'
 	}, {
-		title : 'Incident',
+		title : 'Incident Info',
 		xtype : 'monitor_incident',
 		itemId : 'monitor_incident'
 	} ]
@@ -648,6 +648,9 @@ Ext.define('GreenFleet.view.management.Company', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+//	items: {
+//		html : '<div class="listTitle">Company List</div>'
+//	},
 
 	initComponent : function() {
 		Ext.applyIf(this, {
@@ -660,7 +663,6 @@ Ext.define('GreenFleet.view.management.Company', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Company List',
 			store : 'CompanyStore',
 			flex : 3,
 			columns : [ {
@@ -763,6 +765,7 @@ Ext.define('GreenFleet.view.management.Company', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Company Details',
 			flex : 2,
 			items : [ {
@@ -804,6 +807,8 @@ Ext.define('GreenFleet.view.management.Company', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -865,6 +870,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	items: {
+		html : '<div class="listTitle">Vehicle List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -887,7 +895,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Vehicle List',
 			store : 'VehicleStore',
 			autoScroll : true,
 			flex : 1,
@@ -1060,6 +1067,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		return {
 			xtype : 'panel',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Vehicle Details',
 			layout : {
 				type : 'hbox',
@@ -1234,9 +1242,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					type : 'vbox',
 					align : 'stretch'	
 				},
+				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : 200,
+					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],
@@ -1248,6 +1257,8 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -1298,6 +1309,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		}
 	}
 });
+
 Ext.define('GreenFleet.view.management.Terminal', {
 	extend : 'Ext.container.Container',
 
@@ -1309,7 +1321,11 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
+	
+	items: {
+		html : '<div class="listTitle">Terminal List</div>'
+	},
+	
 	initComponent : function() {
 		this.callParent(arguments);
 
@@ -1331,7 +1347,6 @@ Ext.define('GreenFleet.view.management.Terminal', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Terminal List',
 			store : 'TerminalStore',
 			autoScroll : true,
 			flex : 1,
@@ -1449,6 +1464,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			xtype : 'panel',
 			itemId : 'details',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Terminal Details',
 			autoScroll : true,
 			layout : {
@@ -1530,9 +1546,10 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					type : 'vbox',
 					align : 'stretch'	
 				},
+				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : 200,
+					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],
@@ -1544,6 +1561,8 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -1606,6 +1625,10 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	
+	items: {
+		html : '<div class="listTitle">Reservation List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -1617,7 +1640,6 @@ Ext.define('GreenFleet.view.management.Reservation', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Reservation List',
 			store : 'ReservationStore',
 			autoScroll : true,
 			flex : 1,
@@ -1750,6 +1772,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Reservation Details',
 			autoScroll : true,
 			flex : 1,
@@ -1837,6 +1860,8 @@ Ext.define('GreenFleet.view.management.Reservation', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -1899,6 +1924,9 @@ Ext.define('GreenFleet.view.management.Incident', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	items: {
+		html : '<div class="listTitle">Incident List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -1911,7 +1939,6 @@ Ext.define('GreenFleet.view.management.Incident', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Incident List',
 			store : 'IncidentStore',
 			autoScroll : true,
 			flex : 1,
@@ -1924,7 +1951,8 @@ Ext.define('GreenFleet.view.management.Incident', {
 				dataIndex : 'incidentTime',
 				text : 'Incident Time',
 				xtype : 'datecolumn',
-				format : F('datetime')
+				format : F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'driver',
 				text : 'Driver',
@@ -2068,6 +2096,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 		return {
 			xtype : 'panel',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Incident Details',
 			autoScroll : true,
 			layout : {
@@ -2187,22 +2216,25 @@ Ext.define('GreenFleet.view.management.Incident', {
 						} ]
 					},
 					{
-						xtype : 'container',
+						xtype : 'panel',
+						cls : 'incidentVOD paddingLeft10',
 						flex : 1,
 						layout : {
 							type : 'vbox',
-							align : 'stretch'
+							align : 'stretch',
+							itemCls : 'test'
 						},
 						items : [
 								{
 									xtype : 'box',
 									itemId : 'video',
-									tpl : [ '<video width="300" height="200" controls="controls">',
+									cls : ' incidentDetail',
+									tpl : [ '<video width="100%" height="95%" controls="controls">',
 											'<source src="download?blob-key={value}" type="video/mp4" />',
 											'Your browser does not support the video tag.', '</video>' ]
 								}, {
-									xtype : 'button',
-									text : 'FullScreen(WebKit Only)',
+									xtype : 'box',
+									html : '<div class="btnFullscreen"></div>',
 									handler : function(button) {
 										if(!Ext.isWebKit)
 											return;
@@ -2220,6 +2252,8 @@ Ext.define('GreenFleet.view.management.Incident', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -2270,6 +2304,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 		}
 	}
 });
+
 Ext.define('GreenFleet.view.management.Driver', {
 	extend : 'Ext.container.Container',
 
@@ -2281,7 +2316,9 @@ Ext.define('GreenFleet.view.management.Driver', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
+	items: {
+		html : '<div class="listTitle">Driver List</div>'
+	},
 	initComponent : function() {
 		this.callParent(arguments);
 
@@ -2303,7 +2340,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Driver List',
 			store : 'DriverStore',
 			autoScroll : true,
 			flex : 1,
@@ -2419,6 +2455,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			xtype : 'panel',
 			itemId : 'details',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Driver Details',
 			autoScroll : true,
 			layout : {
@@ -2498,9 +2535,10 @@ Ext.define('GreenFleet.view.management.Driver', {
 					type : 'vbox',
 					align : 'stretch'	
 				},
+				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : 200,
+					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],
@@ -2512,6 +2550,8 @@ Ext.define('GreenFleet.view.management.Driver', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -2575,6 +2615,9 @@ Ext.define('GreenFleet.view.management.Track', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	items: {
+		html : '<div class="listTitle">Incident List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -2596,7 +2639,6 @@ Ext.define('GreenFleet.view.management.Track', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Track List',
 			store : 'TrackStore',
 			autoScroll : true,
 			flex : 1,
@@ -2712,6 +2754,7 @@ Ext.define('GreenFleet.view.management.Track', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Tracking Details',
 			autoScroll : true,
 			flex : 1,
@@ -2765,6 +2808,8 @@ Ext.define('GreenFleet.view.management.Track', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -2826,7 +2871,10 @@ Ext.define('GreenFleet.view.management.ControlData', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
+	items: {
+		html : '<div class="listTitle">ControlData List</div>'
+	},
+	
 	initComponent : function() {
 		this.callParent(arguments);
 
@@ -2837,7 +2885,6 @@ Ext.define('GreenFleet.view.management.ControlData', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'ControlData List',
 			store : 'ControlDataStore',
 			autoScroll : true,
 			flex : 1,
@@ -2989,6 +3036,7 @@ Ext.define('GreenFleet.view.management.ControlData', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'ControlData Details',
 			autoScroll : true,
 			flex : 1,
@@ -3099,6 +3147,8 @@ Ext.define('GreenFleet.view.management.ControlData', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -4055,25 +4105,30 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				xtype : 'displayfield',
 				name : 'id',
 				fieldLabel : 'Vehicle',
+				cls : 'dotUnderline',
 				itemId : 'id'
 			}, {
 				xtype : 'displayfield',
 				name : 'driver',
 				fieldLabel : 'Driver',
+				cls : 'dotUnderline',
 				itemId : 'driver'
 			}, {
 				xtype : 'displayfield',
 				name : 'location',
 				fieldLabel : 'Location',
+				cls : 'dotUnderline',
 				itemId : 'location'
 			}, {
 				xtype : 'displayfield',
 				name : 'distance',
+				cls : 'dotUnderline',
 				fieldLabel : 'Run. Dist.'
 			}, {
 				xtype : 'displayfield',
 				name : 'runningTime',
-				fieldLabel : 'Run. Time'
+				fieldLabel : 'Run. Time',
+				cls : 'dotUnderline'
 			} ]
 		} ]
 	},

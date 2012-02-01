@@ -54,7 +54,7 @@ Ext.define('GreenFleet.view.viewport.Center', {
 		xtype : 'monitor_information',
 		itemId : 'information'
 	}, {
-		title : 'Incident',
+		title : 'Incident Info',
 		xtype : 'monitor_incident',
 		itemId : 'monitor_incident'
 	} ]
