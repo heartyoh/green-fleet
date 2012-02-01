@@ -9,14 +9,14 @@ Ext.define('GreenFleet.view.management.Company', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-//	items: {
-//		html : '<div class="listTitle">Company List</div>'
-//	},
 
 	initComponent : function() {
 		Ext.applyIf(this, {
-			items : [ this.buildList(this), this.buildForm(this) ],
+			items : [],
 		});
+		this.items = [ {
+			html : '<div class="listTitle">Company List</div>'
+		}, this.buildList(this), this.buildForm(this) ],
 
 		this.callParent(arguments);
 	},
@@ -39,14 +39,14 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			} ],
 			viewConfig : {
@@ -150,14 +150,14 @@ Ext.define('GreenFleet.view.management.Company', {
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format: F('datetime'),
+				format : F('datetime'),
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format: F('datetime'),
+				format : F('datetime'),
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -169,7 +169,7 @@ Ext.define('GreenFleet.view.management.Company', {
 				},
 				items : [ {
 					xtype : 'tbfill'
-				},{
+				}, {
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {

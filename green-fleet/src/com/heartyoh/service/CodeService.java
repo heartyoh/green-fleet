@@ -82,12 +82,11 @@ public class CodeService {
 				}
 
 				try {
-					String id = map.get("id");
+					String id = map.get("group") + '@' + map.get("code");
 					Entity code = new Entity(entity_name, id, companyKey);
 
-					code.setProperty("id", id);
+					code.setProperty("group", map.get("group"));
 					code.setProperty("code", map.get("code"));
-					code.setProperty("name", map.get("name"));
 					code.setProperty("value", map.get("value"));
 					code.setProperty("updatedAt", now);
 					code.setProperty("createdAt", now);
@@ -132,10 +131,11 @@ public class CodeService {
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String id = request.getParameter("id");
+		String group = request.getParameter("group");
 		String code = request.getParameter("code");
-		String name = request.getParameter("name");
 		String value = request.getParameter("value");
+
+		String id = group + '@' + value;
 
 		Key objKey = null;
 		boolean creating = false;
@@ -174,21 +174,18 @@ public class CodeService {
 			if (creating) {
 				obj = new Entity(entity_name, id, companyKey);
 
-				obj.setProperty("id", id);
 				obj.setProperty("createdAt", now);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
+			if (group != null)
+				obj.setProperty("group", group);
 			if (code != null)
 				obj.setProperty("code", code);
-			if (name != null)
-				obj.setProperty("name", name);
 			if (value != null)
 				obj.setProperty("value", value);
-			if (name != null)
-				obj.setProperty("name", name);
 
 			obj.setProperty("updatedAt", now);
 
@@ -198,7 +195,7 @@ public class CodeService {
 
 		response.setContentType("text/html");
 
-		return "{ \"success\" : true, \"key\" : \"" + obj.getKey() + "\" }";
+		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
 	}
 
 	@RequestMapping(value = "/code/delete", method = RequestMethod.POST)
@@ -220,7 +217,6 @@ public class CodeService {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/code", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
@@ -247,10 +243,10 @@ public class CodeService {
 		}
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
 
 		// The Query interface assembles a query
-		Query q = new Query("Incident");
+		Query q = new Query(entity_name);
 		q.setAncestor(companyKey);
 
 		// PreparedQuery contains the methods for fetching query results
@@ -260,7 +256,7 @@ public class CodeService {
 		List<Map<String, Object>> list = new LinkedList<Map<String, Object>>();
 
 		for (Entity result : pq.asIterable()) {
-			SessionUtils.cvtEntityToMap(result);
+			list.add(SessionUtils.cvtEntityToMap(result));
 		}
 
 		return list;

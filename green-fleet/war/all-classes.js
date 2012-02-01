@@ -541,6 +541,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_company',
 			itemId : 'company',
 			closable : true
+		}, {
+			title : 'Code Mgmt.',
+			xtype : 'management_code',
+			itemId : 'code',
+			closable : true
 		} ]
 	}, {
 		text : 'Vehicle',
@@ -648,14 +653,14 @@ Ext.define('GreenFleet.view.management.Company', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-//	items: {
-//		html : '<div class="listTitle">Company List</div>'
-//	},
 
 	initComponent : function() {
 		Ext.applyIf(this, {
-			items : [ this.buildList(this), this.buildForm(this) ],
+			items : [],
 		});
+		this.items = [ {
+			html : '<div class="listTitle">Company List</div>'
+		}, this.buildList(this), this.buildForm(this) ],
 
 		this.callParent(arguments);
 	},
@@ -678,14 +683,14 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			} ],
 			viewConfig : {
@@ -789,14 +794,14 @@ Ext.define('GreenFleet.view.management.Company', {
 				name : 'updatedAt',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format: F('datetime'),
+				format : F('datetime'),
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'createdAt',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format: F('datetime'),
+				format : F('datetime'),
 				anchor : '100%'
 			} ],
 			dockedItems : [ {
@@ -808,7 +813,7 @@ Ext.define('GreenFleet.view.management.Company', {
 				},
 				items : [ {
 					xtype : 'tbfill'
-				},{
+				}, {
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
@@ -857,6 +862,214 @@ Ext.define('GreenFleet.view.management.Company', {
 				} ]
 			} ]
 		}
+	}
+});
+Ext.define('GreenFleet.view.management.Code', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.management_code',
+
+	title : 'Code Mgmt.',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	initComponent : function() {
+		Ext.applyIf(this, {
+			items : [],
+		});
+		this.items = [ {
+			html : '<div class="listTitle">Code List</div>'
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ this.zgrouplist, {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					align : 'stretch',
+					type : 'vbox'
+				},
+				items : [ this.zcodelist, this.zform ]
+			} ]
+		} ],
+
+		this.callParent(arguments);
+		
+		var self = this;
+		
+		this.down('[itemId=save]').on('click', function() {
+			var form = self.sub('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : 'code/save',
+					success : function(form, action) {
+						var store = self.sub('codelist').store;
+						store.load(function() {
+							form.loadRecord(store.findRecord('key', action.result.key));
+						});
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result.msg);
+					}
+				});
+			}
+		});
+		
+		this.down('[itemId=delete]').on('click', function() {
+			var form = self.sub('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : 'code/delete',
+					success : function(form, action) {
+						self.sub('codelist').store.load();
+						form.reset();
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result.msg);
+					}
+				});
+			}
+		});
+		
+		this.down('[itemId=reset]').on('click', function() {
+			self.sub('form').getForm().reset();
+		});
+		
+		this.sub('codelist').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+	},
+
+	zgrouplist : {
+		xtype : 'gridpanel',
+		store : 'CodeGroupStore',
+		itemId : 'grouplist',
+		title : 'Code Group',
+		width : 320,
+		columns : [ {
+			dataIndex : 'group',
+			text : 'Group',
+			width : 100
+		}, {
+			dataIndex : 'desc',
+			text : 'Description',
+			width : 220
+		} ]
+	},
+
+	zcodelist : {
+		xtype : 'gridpanel',
+		store : 'CodeStore',
+		itemId : 'codelist',
+		title : 'Code List',
+		flex : 1,
+		columns : [ {
+			dataIndex : 'key',
+			text : 'Key',
+			hidden : true
+		}, {
+			dataIndex : 'group',
+			text : 'Group'
+		}, {
+			dataIndex : 'code',
+			text : 'Code'
+		}, {
+			dataIndex : 'value',
+			text : 'Value'
+		}, {
+			dataIndex : 'createdAt',
+			text : 'Created At',
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		}, {
+			dataIndex : 'updatedAt',
+			text : 'Updated At',
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		} ]
+	},
+
+	zform : {
+		xtype : 'form',
+		bodyPadding : 10,
+		cls : 'hIndexbar',
+		title : 'Code Details',
+		itemId : 'form',
+		height : 200,
+		items : [ {
+			xtype : 'textfield',
+			name : 'key',
+			fieldLabel : 'Key',
+			anchor : '100%',
+			hidden : true
+		}, {
+			xtype : 'combo',
+			name : 'group',
+			fieldLabel : 'Group',
+			queryMode : 'local',
+			store : 'CodeGroupStore',
+			displayField : 'group',
+			valueField : 'group',
+			anchor : '100%'
+		}, {
+			xtype : 'textfield',
+			name : 'code',
+			fieldLabel : 'Code',
+			anchor : '100%'
+		}, {
+			xtype : 'textfield',
+			name : 'value',
+			fieldLabel : 'Value',
+			anchor : '100%'
+		}, {
+			xtype : 'datefield',
+			name : 'updatedAt',
+			disabled : true,
+			fieldLabel : 'Updated At',
+			format : F('datetime'),
+			anchor : '100%'
+		}, {
+			xtype : 'datefield',
+			name : 'createdAt',
+			disabled : true,
+			fieldLabel : 'Created At',
+			format : F('datetime'),
+			anchor : '100%'
+		} ],
+		dockedItems : [ {
+			xtype : 'toolbar',
+			dock : 'bottom',
+			layout : {
+				align : 'middle',
+				type : 'hbox'
+			},
+			items : [ {
+				xtype : 'tbfill'
+			}, {
+				xtype : 'button',
+				itemId : 'save',
+				text : 'Save'
+			}, {
+				xtype : 'button',
+				itemId : 'delete',
+				text : 'Delete'
+			}, {
+				xtype : 'button',
+				itemId : 'reset',
+				text : 'Reset'
+			} ]
+		} ]
 	}
 });
 Ext.define('GreenFleet.view.management.Vehicle', {
@@ -1357,7 +1570,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'Employee Id',
+				text : 'Terminal Id',
 				type : 'string'
 			}, {
 				dataIndex : 'serialNo',
@@ -4585,6 +4798,97 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		}
 	}
 });
+Ext.define('GreenFleet.store.CodeGroupStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+
+	fields : [ {
+		name : 'group',
+		type : 'string'
+	}, {
+		name : 'desc',
+		type : 'string'
+	} ],
+
+	data : [ {
+		group : 'V-Type1',
+		desc : 'Type 1 of Vehicles'
+	}, {
+		group : 'V-Type2',
+		desc : 'Type 2 of Vehicles'
+	}, {
+		group : 'V-Type3',
+		desc : 'Type 3 of Vehicles'
+	}, {
+		group : 'V-Size',
+		desc : 'Size of Vehicles'
+	}, {
+		group : 'V-Maker',
+		desc : 'Vehicle Makers'
+	}, {
+		group : 'V-Model',
+		desc : 'Vehicle Model'
+	}, {
+		group : 'V-BirthYear',
+		desc : 'Vehicle Birth-Years'
+	}, {
+		group : 'V-Seat',
+		desc : 'Count of Seat of Vehicle'
+	}, {
+		group : 'V-Fuel',
+		desc : 'Types of Fuel of Vehicle'
+	}, {
+		group : 'ResvPurpose',
+		desc : 'Type of Reservation Purpose'
+	}, {
+		group : 'ResvStatus',
+		desc : 'Status of Reservation'
+	}, {
+		group : 'EmployeeTitle',
+		desc : 'Titles of Employee'
+	}, {
+		group : 'Division',
+		desc : 'Devisions of Company'
+	}, {
+		group : 'Consumable',
+		desc : 'Kinds of Consumables'
+	} ]
+});
+Ext.define('GreenFleet.store.CodeStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'group',
+		type : 'string'
+	}, {
+		name : 'code',
+		type : 'string'
+	}, {
+		name : 'value',
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'code',
+		reader : {
+			type : 'json'
+		}
+	}
+});
 Ext.define('GreenFleet.store.VehicleStore', {
 	extend : 'Ext.data.Store',
 
@@ -5225,14 +5529,15 @@ Ext.define('GreenFleet.store.FileStore', {
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore', 'VehicleStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'TrackStore',
-			'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore',
-			'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore' ],
+	stores : [ 'CompanyStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'DriverStore', 'ReservationStore',
+			'IncidentStore', 'TrackStore', 'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore',
+			'VehicleStatusStore', 'ControlDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore' ],
 	models : [],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
-			'management.Company', 'management.Vehicle', 'management.Terminal', 'management.Reservation', 'management.Incident',
-			'management.Driver', 'management.Track', 'management.ControlData', 'monitor.Map',
-			'monitor.ControlByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView' ],
+			'management.Company', 'management.Code', 'management.Vehicle', 'management.Terminal',
+			'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
+			'management.ControlData', 'monitor.Map', 'monitor.ControlByVehicle', 'monitor.InfoByVehicle',
+			'monitor.Information', 'monitor.IncidentView' ],
 
 	init : function() {
 		this.control({

@@ -45,7 +45,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'Employee Id',
+				text : 'Terminal Id',
 				type : 'string'
 			}, {
 				dataIndex : 'serialNo',

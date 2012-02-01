@@ -75,6 +75,10 @@
                 },
                 {
                     "path": "app/view/management/",
+                    "name": "Code.js"
+                },
+                {
+                    "path": "app/view/management/",
                     "name": "Vehicle.js"
                 },
                 {
@@ -124,6 +128,14 @@
                 {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "CodeGroupStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "CodeStore.js"
                 },
                 {
                     "path": "app/store/",
