@@ -350,25 +350,30 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				xtype : 'displayfield',
 				name : 'id',
 				fieldLabel : 'Vehicle',
+				cls : 'dotUnderline',
 				itemId : 'id'
 			}, {
 				xtype : 'displayfield',
 				name : 'driver',
 				fieldLabel : 'Driver',
+				cls : 'dotUnderline',
 				itemId : 'driver'
 			}, {
 				xtype : 'displayfield',
 				name : 'location',
 				fieldLabel : 'Location',
+				cls : 'dotUnderline',
 				itemId : 'location'
 			}, {
 				xtype : 'displayfield',
 				name : 'distance',
+				cls : 'dotUnderline',
 				fieldLabel : 'Run. Dist.'
 			}, {
 				xtype : 'displayfield',
 				name : 'runningTime',
-				fieldLabel : 'Run. Time'
+				fieldLabel : 'Run. Time',
+				cls : 'dotUnderline'
 			} ]
 		} ]
 	},

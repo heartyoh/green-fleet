@@ -9,6 +9,9 @@ Ext.define('GreenFleet.view.management.Incident', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	items: {
+		html : '<div class="listTitle">Incident List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -21,7 +24,6 @@ Ext.define('GreenFleet.view.management.Incident', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Incident List',
 			store : 'IncidentStore',
 			autoScroll : true,
 			flex : 1,
@@ -179,6 +181,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 		return {
 			xtype : 'panel',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Incident Details',
 			autoScroll : true,
 			layout : {
@@ -298,22 +301,25 @@ Ext.define('GreenFleet.view.management.Incident', {
 						} ]
 					},
 					{
-						xtype : 'container',
+						xtype : 'panel',
+						cls : 'incidentVOD paddingLeft10',
 						flex : 1,
 						layout : {
 							type : 'vbox',
-							align : 'stretch'
+							align : 'stretch',
+							itemCls : 'test'
 						},
 						items : [
 								{
 									xtype : 'box',
 									itemId : 'video',
-									tpl : [ '<video width="300" height="200" controls="controls">',
+									cls : ' incidentDetail',
+									tpl : [ '<video width="100%" height="95%" controls="controls">',
 											'<source src="download?blob-key={value}" type="video/mp4" />',
 											'Your browser does not support the video tag.', '</video>' ]
 								}, {
-									xtype : 'button',
-									text : 'FullScreen(WebKit Only)',
+									xtype : 'box',
+									html : '<div class="btnFullscreen"></div>',
 									handler : function(button) {
 										if(!Ext.isWebKit)
 											return;
@@ -331,6 +337,8 @@ Ext.define('GreenFleet.view.management.Incident', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {

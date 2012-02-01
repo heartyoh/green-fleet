@@ -9,6 +9,10 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	
+	items: {
+		html : '<div class="listTitle">Reservation List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -20,7 +24,6 @@ Ext.define('GreenFleet.view.management.Reservation', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Reservation List',
 			store : 'ReservationStore',
 			autoScroll : true,
 			flex : 1,
@@ -153,6 +156,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Reservation Details',
 			autoScroll : true,
 			flex : 1,
@@ -240,6 +244,8 @@ Ext.define('GreenFleet.view.management.Reservation', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {

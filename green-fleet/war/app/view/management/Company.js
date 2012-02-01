@@ -9,6 +9,9 @@ Ext.define('GreenFleet.view.management.Company', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+//	items: {
+//		html : '<div class="listTitle">Company List</div>'
+//	},
 
 	initComponent : function() {
 		Ext.applyIf(this, {
@@ -21,7 +24,6 @@ Ext.define('GreenFleet.view.management.Company', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Company List',
 			store : 'CompanyStore',
 			flex : 3,
 			columns : [ {
@@ -124,6 +126,7 @@ Ext.define('GreenFleet.view.management.Company', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Company Details',
 			flex : 2,
 			items : [ {
@@ -165,6 +168,8 @@ Ext.define('GreenFleet.view.management.Company', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
