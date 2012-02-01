@@ -222,6 +222,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		return {
 			xtype : 'panel',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Vehicle Details',
 			layout : {
 				type : 'hbox',

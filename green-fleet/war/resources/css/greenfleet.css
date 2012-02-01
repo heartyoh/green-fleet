@@ -57,7 +57,7 @@
 .searchField .x-form-item-body{top:5px}
 .searchField .x-form-trigger{background:url('../image/btnSearchIcon.gif') no-repeat;border:none;margin-left:-9px;width:27px}
 .summaryBoard .x-form-item-label{padding:10px 0 0 7px;font-size:11px}
-.summaryBoard .time{background:url('../image/iconTime.gif') 6px 4px no-repeat;color:#77bdff;padding:4px 3px 2px 25px;font-size:15px}
+.summaryBoard .time{background:url('../image/iconTime.gif') 6px 4px no-repeat;color:#77bdff;padding:4px 3px 2px 25px;font-size:14px}
 .summaryBoard .count{background:url('../image/iconBus.gif') 6px 4px no-repeat;color:#fff;padding:4px 3px 2px 25px;margin-bottom:10px}
 .summaryBoard .x-panel-header-default{background:none;background-color:transparent;border:none}
 .summaryBoard .x-panel-header-text-default{color:#6493c7;font-weight:normal}
@@ -100,6 +100,7 @@
 #content-body .x-btn-default-toolbar-small{background:url('../image/bgBtn.gif') repeat-x;border:1px solid #b4c5e1;color:#253857}
 #content-body .x-btn-default-toolbar-small-over{background:url('../image/bgBtnOver.gif') repeat-x;}
 .x-btn-default-toolbar-small .x-btn-inner{color:#475e82}
+.dotUnderline{border-bottom:1px dotted #ccc;padding:0 0 1px 5px}
 
 /*map style*/
 span.mapTipID{
