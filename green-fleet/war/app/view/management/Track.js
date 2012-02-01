@@ -9,6 +9,9 @@ Ext.define('GreenFleet.view.management.Track', {
 		align : 'stretch',
 		type : 'vbox'
 	},
+	items: {
+		html : '<div class="listTitle">Incident List</div>'
+	},
 
 	initComponent : function() {
 		this.callParent(arguments);
@@ -30,7 +33,6 @@ Ext.define('GreenFleet.view.management.Track', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Track List',
 			store : 'TrackStore',
 			autoScroll : true,
 			flex : 1,
@@ -146,6 +148,7 @@ Ext.define('GreenFleet.view.management.Track', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Tracking Details',
 			autoScroll : true,
 			flex : 1,
@@ -199,6 +202,8 @@ Ext.define('GreenFleet.view.management.Track', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {

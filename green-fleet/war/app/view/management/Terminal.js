@@ -9,7 +9,11 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
+	
+	items: {
+		html : '<div class="listTitle">Terminal List</div>'
+	},
+	
 	initComponent : function() {
 		this.callParent(arguments);
 
@@ -31,7 +35,6 @@ Ext.define('GreenFleet.view.management.Terminal', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Terminal List',
 			store : 'TerminalStore',
 			autoScroll : true,
 			flex : 1,
@@ -149,6 +152,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			xtype : 'panel',
 			itemId : 'details',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Terminal Details',
 			autoScroll : true,
 			layout : {
@@ -230,9 +234,10 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					type : 'vbox',
 					align : 'stretch'	
 				},
+				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : 200,
+					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],
@@ -244,6 +249,8 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {

@@ -9,7 +9,10 @@ Ext.define('GreenFleet.view.management.ControlData', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
+	items: {
+		html : '<div class="listTitle">ControlData List</div>'
+	},
+	
 	initComponent : function() {
 		this.callParent(arguments);
 
@@ -20,7 +23,6 @@ Ext.define('GreenFleet.view.management.ControlData', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'ControlData List',
 			store : 'ControlDataStore',
 			autoScroll : true,
 			flex : 1,
@@ -172,6 +174,7 @@ Ext.define('GreenFleet.view.management.ControlData', {
 		return {
 			xtype : 'form',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'ControlData Details',
 			autoScroll : true,
 			flex : 1,
@@ -282,6 +285,8 @@ Ext.define('GreenFleet.view.management.ControlData', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {

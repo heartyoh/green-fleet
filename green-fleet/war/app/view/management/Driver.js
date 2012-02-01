@@ -9,7 +9,9 @@ Ext.define('GreenFleet.view.management.Driver', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
+	items: {
+		html : '<div class="listTitle">Driver List</div>'
+	},
 	initComponent : function() {
 		this.callParent(arguments);
 
@@ -31,7 +33,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
-			title : 'Driver List',
 			store : 'DriverStore',
 			autoScroll : true,
 			flex : 1,
@@ -147,6 +148,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			xtype : 'panel',
 			itemId : 'details',
 			bodyPadding : 10,
+			cls : 'hIndexbar',
 			title : 'Driver Details',
 			autoScroll : true,
 			layout : {
@@ -226,9 +228,10 @@ Ext.define('GreenFleet.view.management.Driver', {
 					type : 'vbox',
 					align : 'stretch'	
 				},
+				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : 200,
+					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],
@@ -240,6 +243,8 @@ Ext.define('GreenFleet.view.management.Driver', {
 					type : 'hbox'
 				},
 				items : [ {
+					xtype : 'tbfill'
+				},{
 					xtype : 'button',
 					text : 'Save',
 					handler : function() {
