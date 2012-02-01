@@ -18,6 +18,16 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		this.form = detail.down('form');
 	},
 
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'terminal/import',
+	
+	afterImport : function() {
+		this.down('gridpanel').store.load();
+		this.form.getForm().reset();
+	},
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -46,17 +56,20 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			}, {
 				dataIndex : 'comment',
 				text : 'Comment',
-				type : 'string'
+				type : 'string',
+				width : 160
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -127,36 +140,6 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
-			rbar : [{
-				xtype : 'form',
-				items : [{
-					xtype : 'filefield',
-					name : 'file',
-					fieldLabel : 'Import(CSV)',
-					msgTarget : 'side',
-					labelAlign : 'top',
-					allowBlank : true,
-					buttonText : 'file...' 
-				},{
-					xtype : 'button',
-					text : 'Import',
-					handler : function(button) {
-						var form = button.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'terminal/import',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}]
 			} ]
 		}
 	},

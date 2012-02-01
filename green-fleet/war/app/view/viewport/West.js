@@ -22,7 +22,10 @@ Ext.define('GreenFleet.view.viewport.West', {
 	}, {
 		xtype : 'button',
 		cls : 'btnEvent',
-		html : 'event'
+		html : 'import',
+		handler : function() {
+			GreenFleet.importData();
+		}
 	}, {
 		xtype : 'button',
 		cls : 'btnSave',
@@ -30,6 +33,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : 'export'
+		html : 'export',
+		
 	} ]
 });

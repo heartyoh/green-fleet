@@ -111,14 +111,14 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		dataIndex : 'createdAt',
 		text : 'Created At',
 		xtype:'datecolumn',
-		width : 150,
-		format:'d/m/Y'
+		format : F('datetime'),
+		width : 120
 	}, {
 		dataIndex : 'updatedAt',
 		text : 'Updated At',
 		xtype:'datecolumn',
-		width : 150,
-		format:'d/m/Y'
+		format : F('datetime'),
+		width : 120
 	} ],
 	viewConfig : {
 

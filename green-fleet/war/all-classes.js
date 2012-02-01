@@ -127,6 +127,22 @@ Ext.define('GreenFleet.mixin.SubItem', function() {
 	return {
 	};
 }());
+Ext.define('GreenFleet.mixin.Import', function() {
+	function importFile() {
+		var contentContainer = Ext.getCmp('content');
+		var view = contentContainer.getLayout().getActiveItem();
+		if (view.importUrl) {
+			Ext.create('GreenFleet.view.common.ImportPopup', {
+				importUrl : view.importUrl,
+				client : view
+			}).show();
+		}
+	}
+
+	return {
+		importData : importFile
+	};
+}());
 Ext.define('GreenFleet.view.Viewport', {
 	extend : 'Ext.container.Viewport',
 
@@ -286,7 +302,10 @@ Ext.define('GreenFleet.view.viewport.West', {
 	}, {
 		xtype : 'button',
 		cls : 'btnEvent',
-		html : 'event'
+		html : 'import',
+		handler : function() {
+			GreenFleet.importData();
+		}
 	}, {
 		xtype : 'button',
 		cls : 'btnSave',
@@ -294,7 +313,8 @@ Ext.define('GreenFleet.view.viewport.West', {
 	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : 'export'
+		html : 'export',
+		
 	} ]
 });
 Ext.define('GreenFleet.view.viewport.East', {
@@ -657,12 +677,14 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -852,6 +874,16 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		this.form = detail.down('form'); 
 	},
 
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'vehicle/import',
+	
+	afterImport : function() {
+		this.down('gridpanel').store.load();
+		this.form.getForm().reset();
+	},
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -942,12 +974,14 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype : 'datecolumn',
-				format : F('datetime')
+				format : F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype : 'datecolumn',
-				format : F('datetime')
+				format : F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -1018,36 +1052,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
-			rbar : [ {
-				xtype : 'form',
-				items : [ {
-					xtype : 'filefield',
-					name : 'file',
-					fieldLabel : 'Import(CSV)',
-					msgTarget : 'side',
-					labelAlign : 'top',
-					allowBlank : true,
-					buttonText : 'file...'
-				}, {
-					xtype : 'button',
-					text : 'Import',
-					handler : function(button) {
-						form = button.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'vehicle/import',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				} ]
 			} ]
 		}
 	},
@@ -1314,6 +1318,16 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		this.form = detail.down('form');
 	},
 
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'terminal/import',
+	
+	afterImport : function() {
+		this.down('gridpanel').store.load();
+		this.form.getForm().reset();
+	},
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -1342,17 +1356,20 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			}, {
 				dataIndex : 'comment',
 				text : 'Comment',
-				type : 'string'
+				type : 'string',
+				width : 160
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -1423,36 +1440,6 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
-			rbar : [{
-				xtype : 'form',
-				items : [{
-					xtype : 'filefield',
-					name : 'file',
-					fieldLabel : 'Import(CSV)',
-					msgTarget : 'side',
-					labelAlign : 'top',
-					allowBlank : true,
-					buttonText : 'file...' 
-				},{
-					xtype : 'button',
-					text : 'Import',
-					handler : function(button) {
-						var form = button.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'terminal/import',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}]
 			} ]
 		}
 	},
@@ -1680,12 +1667,14 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -2287,7 +2276,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 	alias : 'widget.management_driver',
 
 	title : 'Driver',
-
+	
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
@@ -2299,6 +2288,16 @@ Ext.define('GreenFleet.view.management.Driver', {
 		this.list = this.add(this.buildList(this));
 		var detail = this.add(this.buildForm(this));
 		this.form = detail.down('form');
+	},
+
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'driver/import',
+	
+	afterImport : function() {
+		this.down('gridpanel').store.load();
+		this.form.getForm().reset();
 	},
 
 	buildList : function(main) {
@@ -2333,12 +2332,14 @@ Ext.define('GreenFleet.view.management.Driver', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -2409,36 +2410,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
-			rbar : [{
-				xtype : 'form',
-				items : [{
-					xtype : 'filefield',
-					name : 'file',
-					fieldLabel : 'Import(CSV)',
-					msgTarget : 'side',
-					labelAlign : 'top',
-					allowBlank : true,
-					buttonText : 'file...' 
-				},{
-					xtype : 'button',
-					text : 'Import',
-					handler : function(button) {
-						var form = button.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'driver/import',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}]
 			} ]
 		}
 	},
@@ -2612,6 +2583,16 @@ Ext.define('GreenFleet.view.management.Track', {
 		this.form = this.add(this.buildForm(this));
 	},
 
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'track/import',
+	
+	afterImport : function() {
+		this.down('gridpanel').store.load();
+		this.form.getForm().reset();
+	},
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -2644,7 +2625,8 @@ Ext.define('GreenFleet.view.management.Track', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -2722,36 +2704,6 @@ Ext.define('GreenFleet.view.management.Track', {
 					var grid = this.up('gridpanel');
 					grid.onReset(grid);
 				}
-			} ],
-			rbar : [{
-				xtype : 'form',
-				items : [{
-					xtype : 'filefield',
-					name : 'file',
-					fieldLabel : 'Import(CSV)',
-					labelAlign : 'top',
-					msgTarget : 'side',
-					allowBlank : true,
-					buttonText : 'file...' 
-				},{
-					xtype : 'button',
-					text : 'Import',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'track/import',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}]
 			} ]
 		}
 	},
@@ -2908,12 +2860,14 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'startTime',
 				text : 'Start Time',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'endTime',
 				text : 'End Time',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'distance',
 				text : 'Distance',
@@ -2942,12 +2896,14 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'updatedAt',
 				text : 'Updated At',
 				xtype:'datecolumn',
-				format:F('datetime')
+				format:F('datetime'),
+				width : 120
 			} ],
 			viewConfig : {
 
@@ -3541,12 +3497,14 @@ Ext.define('GreenFleet.view.monitor.ControlByVehicle', {
 		dataIndex : 'createdAt',
 		text : 'Created At',
 		xtype:'datecolumn',
-		format:'d-m-Y H:i:s'
+		format : F('datetime'),
+		width : 120
 	}, {
 		dataIndex : 'updatedAt',
 		text : 'Updated At',
 		xtype:'datecolumn',
-		format:'d-m-Y H:i:s'
+		format : F('datetime'),
+		width : 120
 	} ]
 
 });
@@ -3664,14 +3622,14 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		dataIndex : 'createdAt',
 		text : 'Created At',
 		xtype:'datecolumn',
-		width : 150,
-		format:'d/m/Y'
+		format : F('datetime'),
+		width : 120
 	}, {
 		dataIndex : 'updatedAt',
 		text : 'Updated At',
 		xtype:'datecolumn',
-		width : 150,
-		format:'d/m/Y'
+		format : F('datetime'),
+		width : 120
 	} ],
 	viewConfig : {
 
@@ -3971,8 +3929,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#000000',
-		    strokeOpacity: 0.3,
+		    strokeColor: '#770000',
+		    strokeOpacity: 0.7,
 		    strokeWeight: 4
 		}));
 		this.setMarker(null);
@@ -4499,14 +4457,14 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			dataIndex : 'createdAt',
 			text : 'Created At',
 			xtype : 'datecolumn',
-			width : 120,
-			format : 'd-m-Y H:i:s'
+			format : F('datetime'),
+			width : 120
 		}, {
 			dataIndex : 'updatedAt',
 			text : 'Updated At',
 			xtype : 'datecolumn',
-			width : 120,
-			format : 'd-m-Y H:i:s'
+			format : F('datetime'),
+			width : 120
 		} ],
 		viewConfig : {
 		},

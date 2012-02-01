@@ -1,14 +1,16 @@
 package com.heartyoh.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,102 +43,152 @@ import com.heartyoh.model.Sorter;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
-public class IncidentService {
-	private static final Logger logger = LoggerFactory.getLogger(IncidentService.class);
-	private static final String entity_name = "Incident";
+public class CodeService {
+	private static final Logger logger = LoggerFactory.getLogger(CodeService.class);
+	private static final String entity_name = "Code";
 
-	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/code/import", method = RequestMethod.POST)
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+		CustomUser user = SessionUtils.currentUser();
+
+		MultipartFile file = request.getFile("file");
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
+
+		String line = br.readLine();
+		/*
+		 * First line for the header Information
+		 */
+		String[] keys = line.split(",");
+
+		/*
+		 * Next lines for the values
+		 */
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+		try {
+			Key companyKey = KeyFactory.createKey("Company", user.getCompany());
+
+			Date now = new Date();
+
+			while ((line = br.readLine()) != null) {
+				String[] values = line.split(",");
+
+				Map<String, String> map = new HashMap<String, String>();
+
+				for (int i = 0; i < keys.length; i++) {
+					map.put(keys[i].trim(), values[i].trim());
+				}
+
+				try {
+					String id = map.get("id");
+					Entity code = new Entity(entity_name, id, companyKey);
+
+					code.setProperty("id", id);
+					code.setProperty("code", map.get("code"));
+					code.setProperty("name", map.get("name"));
+					code.setProperty("value", map.get("value"));
+					code.setProperty("updatedAt", now);
+					code.setProperty("createdAt", now);
+
+					datastore.put(code);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} finally {
+		}
+
+		response.setContentType("text/html");
+
+		return "{ \"success\" : true }";
+	}
+
+	@RequestMapping(value = "/code/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String videoClip = null;
+		String imageClip = null;
 		if (request instanceof MultipartHttpServletRequest) {
 			// process the uploaded file
-			MultipartFile videoFile = ((MultipartHttpServletRequest) request).getFile("videoFile");
+			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageFile");
 
-			if (videoFile.getSize() > 0) {
+			if (imageFile.getSize() > 0) {
 				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-				AppEngineFile file = fileService.createNewBlobFile(videoFile.getContentType());
+				AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());
 
 				boolean lock = true;
 				FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
 
-				writeChannel.write(ByteBuffer.wrap(videoFile.getBytes()));
+				writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
 
 				writeChannel.closeFinally();
 
-				videoClip = fileService.getBlobKey(file).getKeyString();
+				imageClip = fileService.getBlobKey(file).getKeyString();
 			}
 		}
 
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
-		String vehicle = request.getParameter("vehicle");
-		String driver = request.getParameter("driver");
-		String terminal = request.getParameter("terminal");
-		String incidentTime = request.getParameter("incidentTime");
-		String lattitude = request.getParameter("lattitude");
-		String longitude = request.getParameter("longitude");
-		String impulse = request.getParameter("impulse");
-		String impulseThreshold = request.getParameter("impulseThreshold");
-		String obdConnected = request.getParameter("obdConnected");
-		String engineTemp = request.getParameter("engineTemp");
-		String engineTempThreshold = request.getParameter("engineTempThreshold");
-		String remainingFuel = request.getParameter("remainingFuel");
-		String fuelThreshold = request.getParameter("fuelThreshold");
+		String id = request.getParameter("id");
+		String code = request.getParameter("code");
+		String name = request.getParameter("name");
+		String value = request.getParameter("value");
+
+		Key objKey = null;
+		boolean creating = false;
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
+		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
+		
 		Entity obj = null;
+
+		if (key != null && key.trim().length() > 0) {
+			objKey = KeyFactory.stringToKey(key);
+			try {
+				obj = datastore.get(objKey);
+			} catch (EntityNotFoundException e) {
+				// It's OK.(but Lost Key maybe.)
+				creating = true;
+			}
+		} else {
+			objKey = KeyFactory.createKey(companyKey, entity_name, id);
+			try {
+				obj = datastore.get(objKey);
+			} catch (EntityNotFoundException e) {
+				// It's OK.
+				creating = true;
+
+			}
+			// It's Not OK. You try to add duplicated identifier.
+			if (obj != null)
+				throw new EntityExistsException(entity_name + " with id(" + id + ") already Exist.");
+		}
 
 		Date now = new Date();
 
 		try {
-			if (key != null && key.trim().length() > 0) {
-				try {
-					obj = datastore.get(KeyFactory.stringToKey(key));
-				} catch (EntityNotFoundException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			} 
-			
-			if(obj == null) {
-				Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+			if (creating) {
+				obj = new Entity(entity_name, id, companyKey);
 
-				obj = new Entity(entity_name, companyKey);
+				obj.setProperty("id", id);
 				obj.setProperty("createdAt", now);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
-			if (vehicle != null)
-				obj.setProperty("vehicle", vehicle);
-			if (driver != null)
-				obj.setProperty("driver", driver);
-			if (terminal != null)
-				obj.setProperty("terminal", terminal);
-			if (incidentTime != null)
-				obj.setProperty("incidentTime", SessionUtils.timestampToDate(incidentTime));
-			if (lattitude != null)
-				obj.setProperty("lattitude", Double.parseDouble(lattitude));
-			if (longitude != null)
-				obj.setProperty("longitude", Double.parseDouble(longitude));
-			if (impulse != null)
-				obj.setProperty("impulse", Double.parseDouble(impulse));
-			if (impulseThreshold != null)
-				obj.setProperty("impulseThreshold", Double.parseDouble(impulseThreshold));
-			obj.setProperty("obdConnected", SessionUtils.parseBoolean(obdConnected));
-			if (engineTemp != null)
-				obj.setProperty("engineTemp", Double.parseDouble(engineTemp));
-			if (engineTempThreshold != null)
-				obj.setProperty("engineTempThreshold", Double.parseDouble(engineTempThreshold));
-			if (remainingFuel != null)
-				obj.setProperty("remainingFuel", Double.parseDouble(remainingFuel));
-			if (fuelThreshold != null)
-				obj.setProperty("fuelThreshold", Double.parseDouble(fuelThreshold));
-			if (videoClip != null)
-				obj.setProperty("videoClip", videoClip);
+			if (code != null)
+				obj.setProperty("code", code);
+			if (name != null)
+				obj.setProperty("name", name);
+			if (value != null)
+				obj.setProperty("value", value);
+			if (name != null)
+				obj.setProperty("name", name);
 
 			obj.setProperty("updatedAt", now);
 
@@ -146,10 +198,10 @@ public class IncidentService {
 
 		response.setContentType("text/html");
 
-		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
+		return "{ \"success\" : true, \"key\" : \"" + obj.getKey() + "\" }";
 	}
 
-	@RequestMapping(value = "/incident/delete", method = RequestMethod.POST)
+	@RequestMapping(value = "/code/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
@@ -168,7 +220,8 @@ public class IncidentService {
 		return result;
 	}
 
-	@RequestMapping(value = "/incident", method = RequestMethod.GET)
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/code", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
@@ -196,42 +249,21 @@ public class IncidentService {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
 
-		String vehicle = null;
-		String driver = null;
-
-		if (filters != null) {
-			Iterator<Filter> it = filters.iterator();
-			while (it.hasNext()) {
-				Filter filter = it.next();
-				if (filter.getProperty().equals("vehicle"))
-					vehicle = filter.getValue();
-				else if (filter.getProperty().equals("driver"))
-					driver = filter.getValue();
-			}
-		}
-
 		// The Query interface assembles a query
 		Query q = new Query("Incident");
 		q.setAncestor(companyKey);
 
-		if(vehicle != null && vehicle.length() > 0)
-			q.addFilter("vehicle", Query.FilterOperator.EQUAL, vehicle);
-		if(driver != null && driver.length() > 0)
-			q.addFilter("driver", Query.FilterOperator.EQUAL, driver);
-
 		// PreparedQuery contains the methods for fetching query results
 		// from the datastore
 		PreparedQuery pq = datastore.prepare(q);
-		
+
 		List<Map<String, Object>> list = new LinkedList<Map<String, Object>>();
-		
+
 		for (Entity result : pq.asIterable()) {
-			Map<String, Object> prop = new HashMap<String, Object>();
-			prop.putAll(result.getProperties());
-			prop.put("key", KeyFactory.keyToString(result.getKey()));
-			list.add(prop);
+			SessionUtils.cvtEntityToMap(result);
 		}
-		
+
 		return list;
 	}
+
 }
