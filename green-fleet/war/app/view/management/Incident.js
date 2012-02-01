@@ -34,7 +34,8 @@ Ext.define('GreenFleet.view.management.Incident', {
 				dataIndex : 'incidentTime',
 				text : 'Incident Time',
 				xtype : 'datecolumn',
-				format : F('datetime')
+				format : F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'driver',
 				text : 'Driver',
