@@ -87,7 +87,7 @@ public class CodeService {
 
 					code.setProperty("group", map.get("group"));
 					code.setProperty("code", map.get("code"));
-					code.setProperty("value", map.get("value"));
+					code.setProperty("desc", map.get("desc"));
 					code.setProperty("updatedAt", now);
 					code.setProperty("createdAt", now);
 
@@ -108,34 +108,14 @@ public class CodeService {
 	@RequestMapping(value = "/code/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String imageClip = null;
-		if (request instanceof MultipartHttpServletRequest) {
-			// process the uploaded file
-			MultipartFile imageFile = ((MultipartHttpServletRequest) request).getFile("imageFile");
-
-			if (imageFile.getSize() > 0) {
-				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-				AppEngineFile file = fileService.createNewBlobFile(imageFile.getContentType());
-
-				boolean lock = true;
-				FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
-
-				writeChannel.write(ByteBuffer.wrap(imageFile.getBytes()));
-
-				writeChannel.closeFinally();
-
-				imageClip = fileService.getBlobKey(file).getKeyString();
-			}
-		}
-
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
 		String group = request.getParameter("group");
 		String code = request.getParameter("code");
-		String value = request.getParameter("value");
+		String desc = request.getParameter("desc");
 
-		String id = group + '@' + value;
+		String id = group + '@' + code;
 
 		Key objKey = null;
 		boolean creating = false;
@@ -184,8 +164,8 @@ public class CodeService {
 				obj.setProperty("group", group);
 			if (code != null)
 				obj.setProperty("code", code);
-			if (value != null)
-				obj.setProperty("value", value);
+			if (desc != null)
+				obj.setProperty("value", desc);
 
 			obj.setProperty("updatedAt", now);
 

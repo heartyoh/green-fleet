@@ -876,6 +876,16 @@ Ext.define('GreenFleet.view.management.Code', {
 		type : 'vbox'
 	},
 
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */ 
+	importUrl : 'code/import',
+	
+	afterImport : function() {
+		this.sub('codelist').store.load();
+		this.sub('form').getForm().reset();
+	},
+
 	initComponent : function() {
 		Ext.applyIf(this, {
 			items : [],
@@ -983,8 +993,8 @@ Ext.define('GreenFleet.view.management.Code', {
 			dataIndex : 'code',
 			text : 'Code'
 		}, {
-			dataIndex : 'value',
-			text : 'Value'
+			dataIndex : 'desc',
+			text : 'Description'
 		}, {
 			dataIndex : 'createdAt',
 			text : 'Created At',
@@ -1029,8 +1039,8 @@ Ext.define('GreenFleet.view.management.Code', {
 			anchor : '100%'
 		}, {
 			xtype : 'textfield',
-			name : 'value',
-			fieldLabel : 'Value',
+			name : 'desc',
+			fieldLabel : 'Description',
 			anchor : '100%'
 		}, {
 			xtype : 'datefield',
@@ -4870,7 +4880,8 @@ Ext.define('GreenFleet.store.CodeStore', {
 		name : 'code',
 		type : 'string'
 	}, {
-		name : 'value',
+		name : 'desc',
+		type : 'string'
 	}, {
 		name : 'createdAt',
 		type : 'date',

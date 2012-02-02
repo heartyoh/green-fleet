@@ -13,7 +13,8 @@ Ext.define('GreenFleet.store.CodeStore', {
 		name : 'code',
 		type : 'string'
 	}, {
-		name : 'value',
+		name : 'desc',
+		type : 'string'
 	}, {
 		name : 'createdAt',
 		type : 'date',
