@@ -49,6 +49,20 @@ public class CustomUser implements Serializable {
 		this.enabled = enabled;
 	}
 
+	/**
+	 * Post-registration constructor
+	 */
+	public CustomUser(String email, String nickname, String forename, String surname,
+			Set<AppRole> authorities, String company, boolean enabled) {
+		this.nickname = nickname;
+		this.email = email;
+		this.authorities = authorities;
+		this.forename = forename;
+		this.surname = surname;
+		this.company = company;
+		this.enabled = enabled;
+	}
+
 	public String getUserId() {
 		return userId;
 	}

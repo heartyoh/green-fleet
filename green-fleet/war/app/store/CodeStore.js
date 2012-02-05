@@ -31,5 +31,32 @@ Ext.define('GreenFleet.store.CodeStore', {
 		reader : {
 			type : 'json'
 		}
+	},
+	
+	groupField: 'group',
+    
+	groupDir  : 'DESC',
+	
+	substore : function(group) {
+		if(!this.substores)
+			return null;
+		return this.substores[group];
+	},
+	
+	listeners : {
+		load : function(store, records, success) {
+			if(!success)
+				return;
+			store.substores = {};
+			
+			groups = store.getGroups();
+			
+			Ext.each(groups, function(group) {
+				store.substores[group.name] = Ext.create('Ext.data.Store', {
+					model : 'GreenFleet.model.Code',
+					data : group.children
+				})
+			});
+		}
 	}
 });

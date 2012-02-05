@@ -1,15 +1,16 @@
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'DriverStore', 'ReservationStore',
-			'IncidentStore', 'TrackStore', 'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore',
-			'VehicleStatusStore', 'ControlDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore' ],
-	models : [],
+	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'DriverStore',
+			'ReservationStore', 'IncidentStore', 'TrackStore', 'ManufacturerStore', 'VehicleTypeStore',
+			'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore', 'TrackByVehicleStore', 'RecentIncidentStore',
+			'TerminalStore' ],
+	models : [ 'Code' ],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
-			'management.Company', 'management.Code', 'management.Vehicle', 'management.Terminal',
+			'management.Company', 'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal',
 			'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
 			'management.ControlData', 'monitor.Map', 'monitor.ControlByVehicle', 'monitor.InfoByVehicle',
-			'monitor.Information', 'monitor.IncidentView' ],
+			'monitor.Information', 'monitor.IncidentView', 'GreenFleet.view.common.CodeCombo' ],
 
 	init : function() {
 		this.control({

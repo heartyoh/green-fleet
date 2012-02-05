@@ -176,13 +176,15 @@ Ext.define('GreenFleet.view.management.Driver', {
 					fieldLabel : 'Employee Id',
 					anchor : '100%'
 				}, {
-					xtype : 'textfield',
+					xtype : 'codecombo',
 					name : 'division',
+					group : 'Division',
 					fieldLabel : 'Division',
 					anchor : '100%'
 				}, {
-					xtype : 'textfield',
+					xtype : 'codecombo',
 					name : 'title',
+					group : 'EmployeeTitle',
 					fieldLabel : 'Title',
 					anchor : '100%'
 				}, {

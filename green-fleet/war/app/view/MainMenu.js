@@ -46,6 +46,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'company',
 			closable : true
 		}, {
+			title : 'Users',
+			xtype : 'management_user',
+			itemId : 'user',
+			closable : true
+		}, {
 			title : 'Code Mgmt.',
 			xtype : 'management_code',
 			itemId : 'code',

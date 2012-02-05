@@ -236,21 +236,15 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					fieldLabel : 'Registration Number',
 					anchor : '100%'
 				}, {
-					xtype : 'combo',
+					xtype : 'codecombo',
 					name : 'manufacturer',
-					queryMode : 'local',
-					store : 'ManufacturerStore',
-					displayField : 'name',
-					valueField : 'name',
+					group : 'V-Maker',
 					fieldLabel : 'Manufacturer',
 					anchor : '100%'
 				}, {
-					xtype : 'combo',
+					xtype : 'codecombo',
 					name : 'vehicleType',
-					queryMode : 'local',
-					store : 'VehicleTypeStore',
-					displayField : 'desc',
-					valueField : 'name',
+					group : 'V-Type1',
 					fieldLabel : 'Vehicle Type',
 					anchor : '100%'
 				}, {
@@ -262,7 +256,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					anchor : '100%',
 					buttonText : 'file...'
 				}, {
-					xtype : 'textfield',
+					xtype : 'codecombo',
+					name : 'birthYear',
+					group : 'V-BirthYear',
 					name : 'birthYear',
 					fieldLabel : 'BirthYear',
 					anchor : '100%'

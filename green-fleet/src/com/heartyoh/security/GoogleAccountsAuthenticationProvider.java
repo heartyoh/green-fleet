@@ -23,7 +23,8 @@ public class GoogleAccountsAuthenticationProvider implements AuthenticationProvi
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         User googleUser = (User) authentication.getPrincipal();
 
-        CustomUser user = userRegistry.findUser(googleUser.getUserId());
+//        CustomUser user = userRegistry.findUser(googleUser.getUserId());
+        CustomUser user = userRegistry.findUser(googleUser.getEmail());
 
         if (user == null) {
             // User not in registry. Needs to register

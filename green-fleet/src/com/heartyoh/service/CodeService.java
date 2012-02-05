@@ -165,7 +165,7 @@ public class CodeService {
 			if (code != null)
 				obj.setProperty("code", code);
 			if (desc != null)
-				obj.setProperty("value", desc);
+				obj.setProperty("desc", desc);
 
 			obj.setProperty("updatedAt", now);
 

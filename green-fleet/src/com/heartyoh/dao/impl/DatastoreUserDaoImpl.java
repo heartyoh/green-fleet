@@ -2,6 +2,7 @@ package com.heartyoh.dao.impl;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -10,9 +11,10 @@ import org.slf4j.LoggerFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.heartyoh.dao.UserDao;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.security.AppRole;
@@ -29,12 +31,26 @@ public class DatastoreUserDaoImpl implements UserDao {
     private static final String USER_AUTHORITIES = "authorities";
     private static final String USER_COMPANY = "company";
 
-    public CustomUser findUser(String userId) {
-        Key key = KeyFactory.createKey(USER_TYPE, userId);
+    public List<CustomUser> listUsers(String company) {
+    	return null;
+    }
+    
+    public CustomUser findUser(String email) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
+        Query q = new Query(USER_TYPE);
+		q.addFilter("email", Query.FilterOperator.EQUAL, email);
+        
+        PreparedQuery pq = datastore.prepare(q);
+		
+//        Key key = KeyFactory.createKey(USER_TYPE, userId);
+//        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
         try {
-            Entity user = datastore.get(key);
+//            Entity user = datastore.get(key);
+    		Entity user = pq.asSingleEntity();
+    		if(user == null)
+    			return null;
 
             long binaryAuthorities = (Long)user.getProperty(USER_AUTHORITIES);
             Set<AppRole> roles = EnumSet.noneOf(AppRole.class);
@@ -57,16 +73,21 @@ public class DatastoreUserDaoImpl implements UserDao {
 
             return gaeUser;
 
-        } catch (EntityNotFoundException e) {
-            logger.debug(userId + " not found in datastore");
+//        } catch (EntityNotFoundException e) {
+//            logger.debug(userId + " not found in datastore");
+        } catch (PreparedQuery.TooManyResultsException e) {
+            logger.debug("Too many items found who email is " + email + " in the datastore");
             return null;
         }
     }
 
-    public void registerUser(CustomUser newUser) {
+    public String registerUser(CustomUser newUser) {
         logger.debug("Attempting to create new user " + newUser);
+        
+        Key companyKey = KeyFactory.createKey("Company", newUser.getCompany());
+        Key key = KeyFactory.createKey(companyKey, USER_TYPE, newUser.getEmail());
 
-        Key key = KeyFactory.createKey(USER_TYPE, newUser.getUserId());
+//        Key key = KeyFactory.createKey(USER_TYPE, newUser.getUserId());
         Entity user = new Entity(key);
         user.setProperty(USER_EMAIL, newUser.getEmail());
         user.setProperty(USER_NICKNAME, newUser.getNickname());
@@ -87,12 +108,25 @@ public class DatastoreUserDaoImpl implements UserDao {
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         datastore.put(user);
+        
+        return KeyFactory.keyToString(key);
     }
 
-    public void removeUser(String userId) {
+    public void removeUser(String key) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        Key key = KeyFactory.createKey(USER_TYPE, userId);
 
-        datastore.delete(key);
+		datastore.delete(KeyFactory.stringToKey(key));
+
+//      Key key = KeyFactory.createKey(USER_TYPE, userId);
+
+//      datastore.delete(key);
+
+//        Query q = new Query(USER_TYPE);
+//		q.addFilter("email", Query.FilterOperator.EQUAL, email);
+//        
+//        PreparedQuery pq = datastore.prepare(q);
+//		Entity user = pq.asSingleEntity();
+//
+//        datastore.delete(user.getKey());
     }
 }

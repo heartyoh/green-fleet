@@ -85,11 +85,33 @@ Ext.define('GreenFleet.view.management.Code', {
 		});
 		
 		this.down('[itemId=reset]').on('click', function() {
+			var group = self.sub('form').getForm().getValues()['group'];
 			self.sub('form').getForm().reset();
+			self.sub('form').getForm().setValues({
+				group : group
+			});
 		});
 		
 		this.sub('codelist').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
+		});
+		
+		this.sub('codelist').on('render', function(grid) {
+			grid.store.clearFilter(true);
+			var group = self.sub('grouplist').store.first().get('group');
+			grid.store.filter('group', group);
+			self.sub('form').getForm().setValues({
+				group : group
+			});
+		});
+
+		this.sub('grouplist').on('itemclick', function(grid, record) {
+			self.sub('codelist').store.clearFilter(true);
+			self.sub('codelist').store.filter('group', record.get('group'));
+			self.sub('form').getForm().reset();
+			self.sub('form').getForm().setValues({
+				group : record.get('group')
+			});
 		});
 	},
 

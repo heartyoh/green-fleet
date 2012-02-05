@@ -116,7 +116,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 						}
 					}
 				}
-			}, 'Name', {
+			}, 'Serial No.', {
 				xtype : 'textfield',
 				name : 'serialNoFilter',
 				hideLabel : true,
