@@ -6,7 +6,7 @@ public interface UserDao {
 
     CustomUser findUser(String userId);
 
-    String registerUser(CustomUser newUser);
+    void registerUser(CustomUser newUser);
 
     void removeUser(String key);
 }

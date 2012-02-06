@@ -17,7 +17,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,8 +30,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.heartyoh.dao.UserDao;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
@@ -44,9 +41,6 @@ public class UserService {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 	private static final String entity_name = "CustomUser";
 	
-	@Autowired
-    private UserDao userRegistry;
-
 	@RequestMapping(value = "/user/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -57,81 +51,88 @@ public class UserService {
 		String nickname = request.getParameter("nickname");
 		String forename = request.getParameter("forename");
 		String surname = request.getParameter("surname");
-		String company = user.getCompany();
+		String company = request.getParameter("company");
+		String admin = request.getParameter("admin");
+		String enabled = request.getParameter("enabled");
 
 		Set<AppRole> roles = EnumSet.of(AppRole.USER);
 
-		if (UserServiceFactory.getUserService().isUserAdmin()) {
+		if (admin != null && (admin.equals("true") || admin.equals("on"))) {
 			roles.add(AppRole.ADMIN);
 		}
 		
-		CustomUser cuser = new CustomUser(email, nickname, 
-				forename, surname, roles, user.getCompany(), true);
+		Key objKey = null;
+		boolean creating = false;
 
-		key = userRegistry.registerUser(cuser);
-		
-//		Key objKey = null;
-//		boolean creating = false;
-//
-//		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-//
-//		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
-//
-//		Entity obj = null;
-//
-//		/*
-//		 * TODO email 이 중복되지 않음을 검증해야 한다.
-//		 */
-//		if (key != null && key.trim().length() > 0) {
-//			objKey = KeyFactory.stringToKey(key);
-//			try {
-//				obj = datastore.get(objKey);
-//			} catch (EntityNotFoundException e) {
-//				// It's OK.(but Lost Key maybe.)
-//				creating = true;
-//			}
-//		} else {
-//			objKey = KeyFactory.createKey(companyKey, entity_name, email);
-//			try {
-//				obj = datastore.get(objKey);
-//			} catch (EntityNotFoundException e) {
-//				// It's OK.
-//				creating = true;
-//
-//			}
-//			// It's Not OK. You try to add duplicated identifier.
-//			if (obj != null)
-//				throw new EntityExistsException(entity_name + " with email(" + email + ") already Exist.");
-//		}
-//
-//		Date now = new Date();
-//
-//		try {
-//			if (creating) {
-//				obj = new Entity(entity_name, email, companyKey);
-//
-//				obj.setProperty("createdAt", now);
-//			}
-//			/*
-//			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
-//			 */
-//
-//			if (email != null)
-//				obj.setProperty("email", email);
-//			if (nickname != null)
-//				obj.setProperty("nickname", nickname);
-//			if (forename != null)
-//				obj.setProperty("forename", forename);
-//			if (surname != null)
-//				obj.setProperty("surname", surname);
-//			if (company != null)
-//				obj.setProperty("company", company);
-//
-//			obj.setProperty("updatedAt", now);
-//
-//			datastore.put(obj);
-//		} finally {
-//		}
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
+
+		Entity obj = null;
+
+		/*
+		 * TODO email 이 중복되지 않음을 검증해야 한다.
+		 */
+		if (key != null && key.trim().length() > 0) {
+			objKey = KeyFactory.stringToKey(key);
+			try {
+				obj = datastore.get(objKey);
+			} catch (EntityNotFoundException e) {
+				// It's OK.(but Lost Key maybe.)
+				creating = true;
+			}
+		} else {
+			objKey = KeyFactory.createKey(companyKey, entity_name, email);
+			try {
+				obj = datastore.get(objKey);
+			} catch (EntityNotFoundException e) {
+				// It's OK.
+				creating = true;
+
+			}
+			// It's Not OK. You try to add duplicated identifier.
+			if (obj != null)
+				throw new EntityExistsException(entity_name + " with email(" + email + ") already Exist.");
+		}
+
+		Date now = new Date();
+
+		try {
+			if (creating) {
+				obj = new Entity(entity_name, email, companyKey);
+
+				obj.setProperty("createdAt", now);
+			}
+			/*
+			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
+			 */
+
+			if (email != null)
+				obj.setProperty("email", email);
+			if (nickname != null)
+				obj.setProperty("nickname", nickname);
+			if (forename != null)
+				obj.setProperty("forename", forename);
+			if (surname != null)
+				obj.setProperty("surname", surname);
+			if (company != null)
+				obj.setProperty("company", company);
+			obj.setUnindexedProperty("enabled", enabled != null && (enabled.equals("true") || enabled.equals("on")));
+			obj.setUnindexedProperty("admin", admin != null && (admin.equals("true") || admin.equals("on")));
+
+	        long binaryAuthorities = 0;
+
+	        for (AppRole r : roles) {
+	            binaryAuthorities |= 1 << r.getBit();
+	        }
+
+	        obj.setUnindexedProperty("authorities", binaryAuthorities);
+
+			obj.setProperty("updatedAt", now);
+
+			datastore.put(obj);
+		} finally {
+		}
 
 		response.setContentType("text/html");
 

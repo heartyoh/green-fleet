@@ -43,6 +43,12 @@ Ext.define('GreenFleet.view.management.User', {
 				dataIndex : 'forename',
 				text : 'For Name'
 			}, {
+				dataIndex : 'enabled',
+				text : 'Enabled'
+			}, {
+				dataIndex : 'admin',
+				text : 'Admin'
+			}, {
 				dataIndex : 'company',
 				text : 'Company'
 			}, {
@@ -164,6 +170,16 @@ Ext.define('GreenFleet.view.management.User', {
 				xtype : 'textfield',
 				name : 'forename',
 				fieldLabel : 'Fore Name',
+				anchor : '100%'
+			}, {
+				xtype : 'checkbox',
+				name : 'enabled',
+				fieldLabel : 'Enabled',
+				anchor : '100%'
+			}, {
+				xtype : 'checkbox',
+				name : 'admin',
+				fieldLabel : 'Admin',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',

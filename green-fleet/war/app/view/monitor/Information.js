@@ -185,19 +185,27 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.trackline = trackline;
 	},
 	
-	getMarker : function() {
-		return this.marker;
+	getMarkers : function() {
+		return this.markers;
 	},
 	
-	setMarker : function(marker) {
-		if(this.marker)
-			this.marker.setMap(null);
-		this.marker = marker;
+	setMarkers : function(markers) {
+		if(this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.markers = markers;
 	},
 	
 	resetMarkers : function() {
-		if(this.markers)
-			this.markers.setMap(null);
+		if(this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
 		this.markers = null;
 	},
 	
@@ -224,11 +232,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#770000',
-		    strokeOpacity: 0.7,
+		    strokeColor: '#FF0000',
+		    strokeOpacity: 1.0,
 		    strokeWeight: 4
 		}));
-		this.setMarker(null);
+		this.setMarkers(null);
 
 		var path = this.getTrackLine().getPath();
 		var bounds;
@@ -256,10 +264,20 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		var first = this.getTrackStore().first(); 
 		if(first) {
-			this.setMarker(new google.maps.Marker({
+			var start = new google.maps.Marker({
 			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
 			    map: this.getMap()
-			}));
+			});
+			
+			var last = this.getTrackStore().last();
+			
+			var end = new google.maps.Marker({
+			    position: new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
+			    icon : 'resources/image/iconStartPoint.png',
+			    map: this.getMap()
+			});
+			
+			this.setMarkers([start, end]);
 		}
 	},
 	

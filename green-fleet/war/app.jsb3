@@ -42,6 +42,10 @@
                     "name": "Viewport.js"
                 },
                 {
+                    "path": "app/model/",
+                    "name": "Code.js"
+                },
+                {
                     "path": "app/view/viewport/",
                     "name": "Center.js"
                 },
@@ -72,6 +76,10 @@
                 {
                     "path": "app/view/management/",
                     "name": "Company.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "User.js"
                 },
                 {
                     "path": "app/view/management/",
@@ -126,8 +134,20 @@
                     "name": "IncidentView.js"
                 },
                 {
+                    "path": "app/view/common/",
+                    "name": "CodeCombo.js"
+                },
+                {
+                    "path": "app/view/form/",
+                    "name": "DateTimeField.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "UserStore.js"
                 },
                 {
                     "path": "app/store/",

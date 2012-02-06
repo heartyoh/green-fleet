@@ -175,6 +175,15 @@ Ext.define('GreenFleet.view.Viewport', {
 	} ]
 });
 
+Ext.define('GreenFleet.model.Code', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        {name: 'code', type: 'string'},
+        {name: 'desc', type: 'number'}
+    ]
+});
+
 Ext.define('GreenFleet.view.viewport.Center', {
 
 	extend : 'Ext.panel.Panel',
@@ -542,6 +551,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'company',
 			closable : true
 		}, {
+			title : 'Users',
+			xtype : 'management_user',
+			itemId : 'user',
+			closable : true
+		}, {
 			title : 'Code Mgmt.',
 			xtype : 'management_code',
 			itemId : 'code',
@@ -864,6 +878,270 @@ Ext.define('GreenFleet.view.management.Company', {
 		}
 	}
 });
+Ext.define('GreenFleet.view.management.User', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.management_user',
+
+	title : 'User',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	initComponent : function() {
+		Ext.applyIf(this, {
+			items : [],
+		});
+		this.items = [ {
+			html : '<div class="listTitle">User List</div>'
+		}, this.buildList(this), this.buildForm(this) ],
+
+		this.callParent(arguments);
+	},
+
+	buildList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			store : 'UserStore',
+			flex : 3,
+			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
+				dataIndex : 'email',
+				text : 'email'
+			}, {
+				dataIndex : 'surname',
+				text : 'Sur Name'
+			}, {
+				dataIndex : 'nickname',
+				text : 'Nick Name'
+			}, {
+				dataIndex : 'forename',
+				text : 'For Name'
+			}, {
+				dataIndex : 'enabled',
+				text : 'Enabled'
+			}, {
+				dataIndex : 'admin',
+				text : 'Admin'
+			}, {
+				dataIndex : 'company',
+				text : 'Company'
+			}, {
+				dataIndex : 'createdAt',
+				text : 'Created At',
+				xtype : 'datecolumn',
+				format : F('datetime'),
+				width : 120
+			}, {
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype : 'datecolumn',
+				format : F('datetime'),
+				width : 120
+			} ],
+			viewConfig : {
+
+			},
+			listeners : {
+				render : function(grid) {
+					grid.store.load();
+				},
+				itemclick : function(grid, record) {
+					var form = main.down('form');
+					form.loadRecord(record);
+				}
+			},
+			onSearch : function(grid) {
+				var emailFilter = grid.down('textfield[name=emailFilter]');
+				var nameFilter = grid.down('textfield[name=nameFilter]');
+				grid.store.clearFilter();
+
+				grid.store.filter([ {
+					property : 'email',
+					value : emailFilter.getValue()
+				}, {
+					property : 'name',
+					value : nameFilter.getValue()
+				} ]);
+			},
+			onReset : function(grid) {
+				grid.down('textfield[name=emailFilter]').setValue('');
+				grid.down('textfield[name=nameFilter]').setValue('');
+			},
+			tbar : [ 'e-mail', {
+				xtype : 'textfield',
+				name : 'emailFilter',
+				hideLabel : true,
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, 'NAME', {
+				xtype : 'textfield',
+				name : 'nameFilter',
+				hideLabel : true,
+				width : 200,
+				listeners : {
+					specialkey : function(field, e) {
+						if (e.getKey() == e.ENTER) {
+							var grid = this.up('gridpanel');
+							grid.onSearch(grid);
+						}
+					}
+				}
+			}, {
+				xtype : 'button',
+				text : 'Search',
+				tooltip : 'Find User',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onSearch(grid);
+				}
+			}, {
+				text : 'reset',
+				handler : function() {
+					var grid = this.up('gridpanel');
+					grid.onReset(grid);
+				}
+			} ]
+		}
+	},
+
+	buildForm : function(main) {
+		return {
+			xtype : 'form',
+			bodyPadding : 10,
+			cls : 'hIndexbar',
+			title : 'User Details',
+			flex : 2,
+			autoScroll : true,
+			items : [ {
+				xtype : 'textfield',
+				name : 'key',
+				fieldLabel : 'Key',
+				anchor : '100%',
+				hidden : true
+			}, {
+				xtype : 'textfield',
+				name : 'email',
+				fieldLabel : 'e-mail',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'surname',
+				fieldLabel : 'Sur Name',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'nickname',
+				fieldLabel : 'Nick Name',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'forename',
+				fieldLabel : 'Fore Name',
+				anchor : '100%'
+			}, {
+				xtype : 'checkbox',
+				name : 'enabled',
+				fieldLabel : 'Enabled',
+				anchor : '100%'
+			}, {
+				xtype : 'checkbox',
+				name : 'admin',
+				fieldLabel : 'Admin',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'company',
+				fieldLabel : 'Company',
+				disable : true,
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'updatedAt',
+				disabled : true,
+				fieldLabel : 'Updated At',
+				format : F('datetime'),
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'createdAt',
+				disabled : true,
+				fieldLabel : 'Created At',
+				format : F('datetime'),
+				anchor : '100%'
+			} ],
+			dockedItems : [ {
+				xtype : 'toolbar',
+				dock : 'bottom',
+				layout : {
+					align : 'middle',
+					type : 'hbox'
+				},
+				items : [ {
+					xtype : 'tbfill'
+				}, {
+					xtype : 'button',
+					text : 'Save',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'user/save',
+								success : function(form, action) {
+									var store = main.down('gridpanel').store;
+									store.load(function() {
+										form.loadRecord(store.findRecord('key', action.result.key));
+									});
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result.msg);
+								}
+							});
+						}
+					}
+				}, {
+					xtype : 'button',
+					text : 'Delete',
+					handler : function() {
+						var form = this.up('form').getForm();
+
+						if (form.isValid()) {
+							form.submit({
+								url : 'user/delete',
+								success : function(form, action) {
+									main.down('gridpanel').store.load();
+									form.reset();
+								},
+								failure : function(form, action) {
+									GreenFleet.msg('Failed', action.result.msg);
+								}
+							});
+						}
+					}
+				}, {
+					xtype : 'button',
+					text : 'Reset',
+					handler : function() {
+						this.up('form').getForm().reset();
+					}
+				} ]
+			} ]
+		}
+	}
+});
 Ext.define('GreenFleet.view.management.Code', {
 	extend : 'Ext.container.Container',
 
@@ -951,11 +1229,33 @@ Ext.define('GreenFleet.view.management.Code', {
 		});
 		
 		this.down('[itemId=reset]').on('click', function() {
+			var group = self.sub('form').getForm().getValues()['group'];
 			self.sub('form').getForm().reset();
+			self.sub('form').getForm().setValues({
+				group : group
+			});
 		});
 		
 		this.sub('codelist').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
+		});
+		
+		this.sub('codelist').on('render', function(grid) {
+			grid.store.clearFilter(true);
+			var group = self.sub('grouplist').store.first().get('group');
+			grid.store.filter('group', group);
+			self.sub('form').getForm().setValues({
+				group : group
+			});
+		});
+
+		this.sub('grouplist').on('itemclick', function(grid, record) {
+			self.sub('codelist').store.clearFilter(true);
+			self.sub('codelist').store.filter('group', record.get('group'));
+			self.sub('form').getForm().reset();
+			self.sub('form').getForm().setValues({
+				group : record.get('group')
+			});
 		});
 	},
 
@@ -1320,21 +1620,15 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					fieldLabel : 'Registration Number',
 					anchor : '100%'
 				}, {
-					xtype : 'combo',
+					xtype : 'codecombo',
 					name : 'manufacturer',
-					queryMode : 'local',
-					store : 'ManufacturerStore',
-					displayField : 'name',
-					valueField : 'name',
+					group : 'V-Maker',
 					fieldLabel : 'Manufacturer',
 					anchor : '100%'
 				}, {
-					xtype : 'combo',
+					xtype : 'codecombo',
 					name : 'vehicleType',
-					queryMode : 'local',
-					store : 'VehicleTypeStore',
-					displayField : 'desc',
-					valueField : 'name',
+					group : 'V-Type1',
 					fieldLabel : 'Vehicle Type',
 					anchor : '100%'
 				}, {
@@ -1346,7 +1640,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					anchor : '100%',
 					buttonText : 'file...'
 				}, {
-					xtype : 'textfield',
+					xtype : 'codecombo',
+					name : 'birthYear',
+					group : 'V-BirthYear',
 					name : 'birthYear',
 					fieldLabel : 'BirthYear',
 					anchor : '100%'
@@ -1651,7 +1947,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 						}
 					}
 				}
-			}, 'Name', {
+			}, 'Serial No.', {
 				xtype : 'textfield',
 				name : 'serialNoFilter',
 				hideLabel : true,
@@ -2706,13 +3002,15 @@ Ext.define('GreenFleet.view.management.Driver', {
 					fieldLabel : 'Employee Id',
 					anchor : '100%'
 				}, {
-					xtype : 'textfield',
+					xtype : 'codecombo',
 					name : 'division',
+					group : 'Division',
 					fieldLabel : 'Division',
 					anchor : '100%'
 				}, {
-					xtype : 'textfield',
+					xtype : 'codecombo',
 					name : 'title',
+					group : 'EmployeeTitle',
 					fieldLabel : 'Title',
 					anchor : '100%'
 				}, {
@@ -4163,19 +4461,27 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.trackline = trackline;
 	},
 	
-	getMarker : function() {
-		return this.marker;
+	getMarkers : function() {
+		return this.markers;
 	},
 	
-	setMarker : function(marker) {
-		if(this.marker)
-			this.marker.setMap(null);
-		this.marker = marker;
+	setMarkers : function(markers) {
+		if(this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.markers = markers;
 	},
 	
 	resetMarkers : function() {
-		if(this.markers)
-			this.markers.setMap(null);
+		if(this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
 		this.markers = null;
 	},
 	
@@ -4202,11 +4508,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#770000',
-		    strokeOpacity: 0.7,
+		    strokeColor: '#FF0000',
+		    strokeOpacity: 1.0,
 		    strokeWeight: 4
 		}));
-		this.setMarker(null);
+		this.setMarkers(null);
 
 		var path = this.getTrackLine().getPath();
 		var bounds;
@@ -4234,10 +4540,20 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		var first = this.getTrackStore().first(); 
 		if(first) {
-			this.setMarker(new google.maps.Marker({
+			var start = new google.maps.Marker({
 			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
 			    map: this.getMap()
-			}));
+			});
+			
+			var last = this.getTrackStore().last();
+			
+			var end = new google.maps.Marker({
+			    position: new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
+			    icon : 'resources/image/iconStartPoint.png',
+			    map: this.getMap()
+			});
+			
+			this.setMarkers([start, end]);
 		}
 	},
 	
@@ -4777,6 +5093,174 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	}
 });
 
+Ext.define('GreenFleet.view.common.CodeCombo', {
+	extend : 'Ext.form.field.ComboBox',
+
+	alias : 'widget.codecombo',
+	
+	queryMode : 'local',
+	
+	displayField: 'code',
+	
+	matchFieldWidth : false,
+
+    typeAhead: true,
+    
+    emptyText : 'Alt+Q',
+    
+	group : 'V-Maker',
+	
+    initComponent : function() {
+    	this.store = Ext.getStore('CodeStore').substore(this.group);
+    	this.emptyText = this.fieldLabel;
+
+    	this.callParent();
+    },
+	
+	listConfig : {
+		getInnerTpl : function() {
+			return '<div class="codelist"><span class="code">{code}</span> ({desc})</div>'; 
+		}, 
+		minWidth : 200
+	}
+});
+
+Ext.define('GreenFleet.view.form.DateTimeField', {
+	extend : 'Ext.form.FieldContainer',
+	alias: 'widget.datetimex',
+	
+	cls :'hboxLine',
+	
+	layout: {
+        type: 'hbox',
+        align:'top'
+    },
+	
+    defaults:{margins:'0 3 0 0'},
+	
+	initComponent:function() {
+		this.items = this.buildItems();
+		
+		this.callParent();
+	},
+	buildItems : function(){
+		//var type = this.type; // date,time,datetime,datetimeto,dateto,timeto,
+		var fieldId = 'valueField'; // + 1
+		var items= [this.buildValue(fieldId)];
+		if(this.type == 'date')			items.push(this.buildDate(fieldId,1));
+		else if(this.type == 'time')	items.push(this.buildTime(fieldId,1));
+		else if(this.type == 'datetime')	items.push(this.buildDate(fieldId,3),this.buildTime(fieldId,2));
+		
+		return items;
+	},
+	buildValue : function(fieldId){
+		return {
+			xtype : 'textfield',
+			hidden : true,
+			name : this.name,
+			itemId : fieldId,
+			value : this.getDefaultValue()
+		};
+	},
+	buildDate : function(fieldId,flex){
+		var valueDateFormat = this.getValueDateFormat();
+		var valueTimeFormat = this.getValueTimeFormat();
+		return {
+			listeners : {
+				change : function(field, newValue, oldValue){ 
+					var targetField = this.up('fieldcontainer').getComponent(fieldId);
+					var timeField = this.up('fieldcontainer').getComponent('time'+fieldId);
+					var timeVal = '';
+					var dateString = '';
+					
+					if(newValue)
+						dateString = Ext.Date.format(newValue,valueDateFormat);
+					
+					if(timeField){
+						timeVal = timeField.getValue();
+						if (!timeVal)	timeVal = ''; 
+						else timeVal = Ext.Date.format(timeVal,valueTimeFormat);
+						targetField.setValue(dateString+timeVal);
+					}
+					else
+						targetField.setValue(dateString);
+                }
+			},
+			xtype: 'datefield',
+			format : this.getDateFormat(), 
+			name :  this.name+'_date',
+			value : this.defaultValue,
+			itemId : 'date'+fieldId,
+			flex: flex
+		};
+	},
+	
+	buildTime : function(fieldId,flex){
+		var valueDateFormat = this.getValueDateFormat();
+		var valueTimeFormat = this.getValueTimeFormat();
+		return {
+			listeners : {
+				change : function(field, newValue, oldValue){ 
+					var targetField = this.up('fieldcontainer').getComponent(fieldId);
+					var dateField = this.up('fieldcontainer').getComponent('date'+fieldId);
+					var dateVal = '';
+					var timeString = '';
+					
+					if(newValue)
+						timeString = Ext.Date.format(newValue,valueTimeFormat);
+					
+					if(dateField){
+						dateVal = dateField.getValue();
+						if (!dateVal)	return; 
+						dateVal = Ext.Date.format(dateVal,valueDateFormat);
+						targetField.setValue(dateVal+timeString);
+					}
+					else
+						targetField.setValue(timeString);
+				}
+			},
+			xtype: 'timefield',
+			format : this.getTimeFormat(),
+			name : this.name+'_time',
+			value : this.defaultValue,
+			itemId : 'time'+fieldId,
+			flex: flex
+		};
+	},
+	getDefaultValue : function(){
+		var valueFormat = this.getDateFormat()+this.getTimeFormat();
+		if(this.defaultValue){	
+			if (this.type == 'date'){
+				valueFormatthis.getDateFormat();
+			}
+			else if (this.type == 'time'){
+				valueFormat = this.getTimeFormat();
+			}
+			return Ext.Date.format(this.defaultValue,valueFormat);
+		}
+		return '';
+	},
+	getValueDateFormat : function(){
+		if (this.valueDateFormat)
+			return this.valueDateFormat;
+		return 'Ymd'; //99991231
+	},
+	getValueTimeFormat : function(){
+		if (this.valueTimeFormat)
+			return this.valueTimeFormat;
+		return 'Hi'; //2301
+	},
+	getDateFormat : function(){
+		if (this.dateFormat)
+			return this.dateFormat;
+		return 'Y-m-d';// 9999-12-31
+	},
+	getTimeFormat : function(){
+		if (this.timeFormat)
+			return this.timeFormat;
+		return 'H:i'; //23:01
+	}
+});
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -4803,6 +5287,52 @@ Ext.define('GreenFleet.store.CompanyStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'company',
+		reader : {
+			type : 'json'
+		}
+	}
+});
+Ext.define('GreenFleet.store.UserStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'email',
+		type : 'string'
+	}, {
+		name : 'company',
+		type : 'string'
+	}, {
+		name : 'forename',
+		type : 'string'
+	}, {
+		name : 'nickname',
+		type : 'string'
+	}, {
+		name : 'surname',
+		type : 'string'
+	}, {
+		name : 'admin',
+		type : 'boolean'
+	}, {
+		name : 'enabled',
+		type : 'boolean'
+	}, {
+		name : 'createdAt',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	proxy : {
+		type : 'ajax',
+		url : 'user',
 		reader : {
 			type : 'json'
 		}
@@ -4897,6 +5427,33 @@ Ext.define('GreenFleet.store.CodeStore', {
 		url : 'code',
 		reader : {
 			type : 'json'
+		}
+	},
+	
+	groupField: 'group',
+    
+	groupDir  : 'DESC',
+	
+	substore : function(group) {
+		if(!this.substores)
+			return null;
+		return this.substores[group];
+	},
+	
+	listeners : {
+		load : function(store, records, success) {
+			if(!success)
+				return;
+			store.substores = {};
+			
+			groups = store.getGroups();
+			
+			Ext.each(groups, function(group) {
+				store.substores[group.name] = Ext.create('Ext.data.Store', {
+					model : 'GreenFleet.model.Code',
+					data : group.children
+				})
+			});
 		}
 	}
 });
@@ -5540,15 +6097,16 @@ Ext.define('GreenFleet.store.FileStore', {
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'DriverStore', 'ReservationStore',
-			'IncidentStore', 'TrackStore', 'ManufacturerStore', 'VehicleTypeStore', 'OwnershipStore',
-			'VehicleStatusStore', 'ControlDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore' ],
-	models : [],
+	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'DriverStore',
+			'ReservationStore', 'IncidentStore', 'TrackStore', 'ManufacturerStore', 'VehicleTypeStore',
+			'OwnershipStore', 'VehicleStatusStore', 'ControlDataStore', 'TrackByVehicleStore', 'RecentIncidentStore',
+			'TerminalStore' ],
+	models : [ 'Code' ],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
-			'management.Company', 'management.Code', 'management.Vehicle', 'management.Terminal',
+			'management.Company', 'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal',
 			'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
 			'management.ControlData', 'monitor.Map', 'monitor.ControlByVehicle', 'monitor.InfoByVehicle',
-			'monitor.Information', 'monitor.IncidentView' ],
+			'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo', 'form.DateTimeField' ],
 
 	init : function() {
 		this.control({

@@ -25,6 +25,9 @@ Ext.define('GreenFleet.store.UserStore', {
 		name : 'admin',
 		type : 'boolean'
 	}, {
+		name : 'enabled',
+		type : 'boolean'
+	}, {
 		name : 'createdAt',
 		type : 'date',
 		dateFormat:'time'
