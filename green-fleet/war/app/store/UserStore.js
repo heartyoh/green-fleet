@@ -1,8 +1,6 @@
 Ext.define('GreenFleet.store.UserStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
-
 	fields : [ {
 		name : 'key',
 		type : 'string'
@@ -36,6 +34,7 @@ Ext.define('GreenFleet.store.UserStore', {
 		type : 'date',
 		dateFormat:'time'
 	} ],
+	
 	proxy : {
 		type : 'ajax',
 		url : 'user',

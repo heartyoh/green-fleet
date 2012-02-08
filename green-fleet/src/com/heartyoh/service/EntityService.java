@@ -1,6 +1,8 @@
 package com.heartyoh.service;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,55 +11,106 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.heartyoh.dao.EntityDao;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
+import com.heartyoh.util.SessionUtils;
 
-@Controller
-public class EntityService {
-	private static final Logger logger = LoggerFactory.getLogger(EntityService.class);
+public abstract class EntityService {
+	abstract protected String getEntityName();
 
-	@Autowired
-	private EntityDao entityDao;
+	public Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
+		String key = request.getParameter("key");
 
-	@RequestMapping(value = "module/CMN/data/select.json", method = RequestMethod.GET)
-	public @ResponseBody
-	Map<String, Object> select(HttpServletRequest request, HttpServletResponse response) {
-		String table = (String) request.getParameter("table");
-		String[] selects = (String[]) request.getParameterValues("selects");
-		String start = request.getParameter("start");
-		String limit = request.getParameter("limit");
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+		try {
+			datastore.delete(KeyFactory.stringToKey(key));
+		} finally {
+		}
+
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("success", true);
+		result.put("msg", getEntityName() + " destroyed.");
+
+		return result;
+	}
+
+	protected void buildQuery(Query q, List<Filter> filters, List<Sorter> sorters) {
+//		if(filters != null) {
+//			Iterator<Filter> it = filters.iterator();
+//			
+//			while(it.hasNext()) {
+//				Filter filter = it.next();
+//				String value = filter.getValue();
+//				if(value != null && value.length() > 1)
+//					q.addFilter(filter.getProperty(), FilterOperator.EQUAL, filter.getValue());
+//			}
+//		}
+//		
+//		if(sorters != null) {
+//			Iterator<Sorter> it = sorters.iterator();
+//			while(it.hasNext()) {
+//				Sorter sorter = it.next();
+//				SortDirection dir = SortDirection.ASCENDING;
+//				if(sorter.getDirection() != null && (!sorter.getDirection().startsWith("ASC"))) {
+//					dir = SortDirection.DESCENDING;
+//				}
+//				q.addSort(sorter.getProperty(), dir);
+//			}
+//		}
+	}
+	
+	public List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+		CustomUser user = SessionUtils.currentUser();
 
 		String jsonFilter = request.getParameter("filter");
 		String jsonSorter = request.getParameter("sort");
-		
-		System.out.println(jsonFilter);
-		
+
 		List<Filter> filters = null;
 		List<Sorter> sorters = null;
+
 		try {
-			if(jsonFilter != null) {
-				filters = new ObjectMapper().readValue(request.getParameter("filter"), new TypeReference<List<Filter>>(){ });
+			if (jsonFilter != null) {
+				filters = new ObjectMapper().readValue(request.getParameter("filter"),
+						new TypeReference<List<Filter>>() {
+						});
 			}
-			if(jsonSorter != null) {
-				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>(){ });
+			if (jsonSorter != null) {
+				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>() {
+				});
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		resultMap.put("total", entityDao.selectCount(table, filters));
-		resultMap.put("result", entityDao.select(table, selects, filters, sorters, Integer.parseInt(start), Integer.parseInt(limit)));
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
 
-		return resultMap;
+		Query q = new Query(getEntityName());
+		q.setAncestor(companyKey);
+		
+		buildQuery(q, filters, sorters);
+
+		PreparedQuery pq = datastore.prepare(q);
+
+		List<Map<String, Object>> list = new LinkedList<Map<String, Object>>();
+
+		for (Entity result : pq.asIterable()) {
+			list.add(SessionUtils.cvtEntityToMap(result));
+		}
+
+		return list;
 	}
+
 }

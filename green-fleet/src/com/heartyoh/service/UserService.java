@@ -3,8 +3,6 @@ package com.heartyoh.service;
 import java.io.IOException;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +11,6 @@ import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -28,18 +24,17 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
 import com.heartyoh.model.CustomUser;
-import com.heartyoh.model.Filter;
-import com.heartyoh.model.Sorter;
 import com.heartyoh.security.AppRole;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
-public class UserService {
+public class UserService extends EntityService {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-	private static final String entity_name = "CustomUser";
+	
+	protected String getEntityName() {
+		return "CustomUser";
+	}
 	
 	@RequestMapping(value = "/user/save", method = RequestMethod.POST)
 	public @ResponseBody
@@ -82,7 +77,7 @@ public class UserService {
 				creating = true;
 			}
 		} else {
-			objKey = KeyFactory.createKey(companyKey, entity_name, email);
+			objKey = KeyFactory.createKey(companyKey, getEntityName(), email);
 			try {
 				obj = datastore.get(objKey);
 			} catch (EntityNotFoundException e) {
@@ -92,14 +87,14 @@ public class UserService {
 			}
 			// It's Not OK. You try to add duplicated identifier.
 			if (obj != null)
-				throw new EntityExistsException(entity_name + " with email(" + email + ") already Exist.");
+				throw new EntityExistsException(getEntityName() + " with email(" + email + ") already Exist.");
 		}
 
 		Date now = new Date();
 
 		try {
 			if (creating) {
-				obj = new Entity(entity_name, email, companyKey);
+				obj = new Entity(getEntityName(), email, companyKey);
 
 				obj.setProperty("createdAt", now);
 			}
@@ -136,71 +131,19 @@ public class UserService {
 
 		response.setContentType("text/html");
 
-		return "{ \"success\" : true, \"key\" : \"" + key + "\" }";
+		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
 	}
 
 	@RequestMapping(value = "/user/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
-		String key = request.getParameter("key");
-
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
-		try {
-			datastore.delete(KeyFactory.stringToKey(key));
-		} finally {
-		}
-
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("success", true);
-		result.put("msg", entity_name + " destroyed.");
-
-		return result;
+		return super.delete(request, response);
 	}
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
-		CustomUser user = SessionUtils.currentUser();
-
-		String jsonFilter = request.getParameter("filter");
-		String jsonSorter = request.getParameter("sort");
-
-		List<Filter> filters = null;
-		List<Sorter> sorters = null;
-
-		try {
-			if (jsonFilter != null) {
-				filters = new ObjectMapper().readValue(request.getParameter("filter"),
-						new TypeReference<List<Filter>>() {
-						});
-			}
-			if (jsonSorter != null) {
-				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>() {
-				});
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
-
-		// The Query interface assembles a query
-		Query q = new Query(entity_name);
-		q.setAncestor(companyKey);
-
-		// PreparedQuery contains the methods for fetching query results
-		// from the datastore
-		PreparedQuery pq = datastore.prepare(q);
-
-		List<Map<String, Object>> list = new LinkedList<Map<String, Object>>();
-
-		for (Entity result : pq.asIterable()) {
-			list.add(SessionUtils.cvtEntityToMap(result));
-		}
-
-		return list;
+		return super.retrieve(request, response);
 	}
 
 }

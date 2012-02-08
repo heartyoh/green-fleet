@@ -11,19 +11,101 @@ Ext.define('GreenFleet.view.management.User', {
 	},
 
 	initComponent : function() {
-		Ext.applyIf(this, {
-			items : [],
-		});
+		var self = this;
+		
+//		Ext.applyIf(this, {
+//			items : [],
+//		});
+		
 		this.items = [ {
 			html : '<div class="listTitle">User List</div>'
 		}, this.buildList(this), this.buildForm(this) ],
 
 		this.callParent(arguments);
+		
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+		
+		this.sub('grid').on('render', function(grid) {
+			grid.store.load();
+		});
+		
+		this.sub('emailFilter').on('change', function(field, value) {
+			self.search(self);
+		});
+		
+		this.sub('nameFilter').on('change', function(field, value) {
+			self.search(self);
+		});
+		
+		this.down('#search_reset').on('click', function() {
+			self.sub('emailFilter').setValue('');
+			self.sub('nameFilter').setValue('');
+		});
+		
+		this.down('#search').on('click', function() {
+			self.sub('grid').store.load();
+		});
+		
+		this.down('#save').on('click', function() {
+			var form = self.sub('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : 'user/save',
+					success : function(form, action) {
+						var store = self.sub('grid').store;
+						store.load(function() {
+							form.loadRecord(store.findRecord('key', action.result.key));
+						});
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result.msg);
+					}
+				});
+			}
+		});
+		
+		this.down('#delete').on('click', function() {
+			var form = self.sub('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : 'user/delete',
+					success : function(form, action) {
+						self.sub('grid').store.load();
+						form.reset();
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result.msg);
+					}
+				});
+			}
+		});
+		
+		this.down('#form_reset').on('click', function() {
+			self.sub('form').getForm().reset();
+		});
+		
 	},
 
+	search : function(self) {
+		self.sub('grid').store.clearFilter();
+
+		self.sub('grid').store.filter([ {
+			property : 'email',
+			value : self.sub('emailFilter').getValue()
+		}, {
+			property : 'surname',
+			value : self.sub('nameFilter').getValue()
+		} ]);
+	},
+	
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
+			itemId : 'grid',
 			store : 'UserStore',
 			flex : 3,
 			columns : [ {
@@ -67,72 +149,26 @@ Ext.define('GreenFleet.view.management.User', {
 			viewConfig : {
 
 			},
-			listeners : {
-				render : function(grid) {
-					grid.store.load();
-				},
-				itemclick : function(grid, record) {
-					var form = main.down('form');
-					form.loadRecord(record);
-				}
-			},
-			onSearch : function(grid) {
-				var emailFilter = grid.down('textfield[name=emailFilter]');
-				var nameFilter = grid.down('textfield[name=nameFilter]');
-				grid.store.clearFilter();
-
-				grid.store.filter([ {
-					property : 'email',
-					value : emailFilter.getValue()
-				}, {
-					property : 'name',
-					value : nameFilter.getValue()
-				} ]);
-			},
-			onReset : function(grid) {
-				grid.down('textfield[name=emailFilter]').setValue('');
-				grid.down('textfield[name=nameFilter]').setValue('');
-			},
 			tbar : [ 'e-mail', {
 				xtype : 'textfield',
+				itemId : 'emailFilter',
 				name : 'emailFilter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, 'NAME', {
 				xtype : 'textfield',
+				itemId : 'nameFilter',
 				name : 'nameFilter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, {
 				xtype : 'button',
+				itemId : 'search',
 				text : 'Search',
-				tooltip : 'Find User',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
+				tooltip : 'Find User'
 			}, {
 				text : 'reset',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onReset(grid);
-				}
+				itemId : 'search_reset'
 			} ]
 		}
 	},
@@ -140,6 +176,7 @@ Ext.define('GreenFleet.view.management.User', {
 	buildForm : function(main) {
 		return {
 			xtype : 'form',
+			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'User Details',
@@ -213,50 +250,16 @@ Ext.define('GreenFleet.view.management.User', {
 					xtype : 'tbfill'
 				}, {
 					xtype : 'button',
-					text : 'Save',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'user/save',
-								success : function(form, action) {
-									var store = main.down('gridpanel').store;
-									store.load(function() {
-										form.loadRecord(store.findRecord('key', action.result.key));
-									});
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
+					itemId : 'save',
+					text : 'Save'
 				}, {
 					xtype : 'button',
-					text : 'Delete',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'user/delete',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-									form.reset();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
+					itemId : 'delete',
+					text : 'Delete'
 				}, {
 					xtype : 'button',
-					text : 'Reset',
-					handler : function() {
-						this.up('form').getForm().reset();
-					}
+					itemId : 'form_reset',
+					text : 'Reset'
 				} ]
 			} ]
 		}
