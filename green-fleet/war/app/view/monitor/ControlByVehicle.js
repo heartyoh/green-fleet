@@ -95,17 +95,19 @@ Ext.define('GreenFleet.view.monitor.ControlByVehicle', {
 		dataIndex : 'date',
 		text : 'Date',
 		xtype:'datecolumn',
-		format:'d-m-Y'
+		format:F('date')
 	}, {
 		dataIndex : 'startTime',
 		text : 'Start Time',
 		xtype:'datecolumn',
-		format:'d-m-Y H:i:s'
+		format:F('datetime'),
+		width : 120
 	}, {
 		dataIndex : 'endTime',
 		text : 'End Time',
 		xtype:'datecolumn',
-		format:'d-m-Y H:i:s'
+		format:F('datetime'),
+		width : 120
 	}, {
 		dataIndex : 'distance',
 		text : 'Distance',
@@ -131,19 +133,34 @@ Ext.define('GreenFleet.view.monitor.ControlByVehicle', {
 		dataIndex : 'fuelEfficiency',
 		text : 'Fuel Efficiency',
 	}, {
-		dataIndex : 'longitude',
-		text : 'Longitude',
+		dataIndex : 'idlingTime',
+		text : 'Idling Time'
+	}, {
+		dataIndex : 'ecoDrivingTime',
+		text : 'Eco Driving Time'
+	}, {
+		dataIndex : 'overSpeedingTime',
+		text : 'Over Speeding Time'
+	}, {
+		dataIndex : 'co2Emissions',
+		text : 'CO2 Emissions'
+	}, {
+		dataIndex : 'maxCoolingWaterTemp',
+		text : 'Max Cooling Water Temp'
+	}, {
+		dataIndex : 'avgBatteryVolt',
+		text : 'Average Battery Voltage'
 	}, {
 		dataIndex : 'createdAt',
 		text : 'Created At',
 		xtype:'datecolumn',
-		format : F('datetime'),
+		format:F('datetime'),
 		width : 120
 	}, {
 		dataIndex : 'updatedAt',
 		text : 'Updated At',
 		xtype:'datecolumn',
-		format : F('datetime'),
+		format:F('datetime'),
 		width : 120
 	} ]
 

@@ -37,6 +37,24 @@ Ext.define('GreenFleet.store.ControlDataStore', {
 		name : 'fuelEfficiency',
 		type : 'float'
 	}, {
+		name : 'idlingTime',
+		type : 'float'
+	}, {
+		name : 'ecoDrivingTime',
+		type : 'float'
+	}, {
+		name : 'overSpeedingTime',
+		type : 'float'
+	}, {
+		name : 'co2Emissions',
+		type : 'float'
+	}, {
+		name : 'maxCoolingWaterTemp',
+		type : 'float'
+	}, {
+		name : 'avgBatteryVolt',
+		type : 'float'
+	}, {
 		name : 'date',
 		type : 'date',
 		dateFormat:'time'

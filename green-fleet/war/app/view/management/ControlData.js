@@ -78,6 +78,24 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				dataIndex : 'fuelEfficiency',
 				text : 'Fuel Efficiency',
 			}, {
+				dataIndex : 'idlingTime',
+				text : 'Idling Time'
+			}, {
+				dataIndex : 'ecoDrivingTime',
+				text : 'Eco Driving Time'
+			}, {
+				dataIndex : 'overSpeedingTime',
+				text : 'Over Speeding Time'
+			}, {
+				dataIndex : 'co2Emissions',
+				text : 'CO2 Emissions'
+			}, {
+				dataIndex : 'maxCoolingWaterTemp',
+				text : 'Max Cooling Water Temp'
+			}, {
+				dataIndex : 'avgBatteryVolt',
+				text : 'Average Battery Voltage'
+			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -261,6 +279,36 @@ Ext.define('GreenFleet.view.management.ControlData', {
 				xtype : 'textfield',
 				name : 'fuelEfficiency',
 				fieldLabel : 'Fuel Efficiency',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'idlingTime',
+				fieldLabel : 'Idling Time',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'ecoDrivingTime',
+				fieldLabel : 'Eco-Driving Time',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'overSpeedingTime',
+				fieldLabel : 'Over Speeding Time',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'co2Emissions',
+				fieldLabel : 'CO2 Emissions',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'maxCoolingWaterTemp',
+				fieldLabel : 'Max Cooling Water Temp.',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'avgBatteryVolt',
+				fieldLabel : 'Average Bettery Voltage',
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
