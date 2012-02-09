@@ -42,6 +42,10 @@ Ext.define('GreenFleet.view.management.Track', {
 				type : 'string',
 				hidden : true
 			}, {
+				dataIndex : 'terminal',
+				text : 'Terminal',
+				type : 'string'
+			}, {
 				dataIndex : 'vehicle',
 				text : 'Vehicle',
 				type : 'string'
@@ -50,6 +54,10 @@ Ext.define('GreenFleet.view.management.Track', {
 				text : 'Driver',
 				type : 'string'
 			}, {
+				dataIndex : 'datetime',
+				text : 'DateTime',
+				type : 'number'
+			}, {
 				dataIndex : 'lattitude',
 				text : 'Lattitude',
 				type : 'number'
@@ -57,6 +65,16 @@ Ext.define('GreenFleet.view.management.Track', {
 				dataIndex : 'longitude',
 				text : 'Longitude',
 				type : 'number'
+			}, {
+				dataIndex : 'velocity',
+				text : 'Velocity',
+				type : 'number'
+			}, {
+				dataIndex : 'updatedAt',
+				text : 'Updated At',
+				xtype:'datecolumn',
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
@@ -160,6 +178,15 @@ Ext.define('GreenFleet.view.management.Track', {
 				hidden : true
 			}, {
 				xtype : 'combo',
+				name : 'terminal',
+				queryMode: 'local',
+				store : 'TerminalStore',
+				displayField: 'id',
+			    valueField: 'id',
+				fieldLabel : 'Terminal',
+				anchor : '100%'
+			}, {
+				xtype : 'combo',
 				name : 'vehicle',
 				queryMode: 'local',
 				store : 'VehicleStore',
@@ -178,6 +205,11 @@ Ext.define('GreenFleet.view.management.Track', {
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
+				name : 'datetime',
+				fieldLabel : 'DateTime',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
 				name : 'lattitude',
 				fieldLabel : 'Lattitude',
 				anchor : '100%'
@@ -185,6 +217,18 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'textfield',
 				name : 'longitude',
 				fieldLabel : 'Longitude',
+				anchor : '100%'
+			}, {
+				xtype : 'textfield',
+				name : 'velocity',
+				fieldLabel : 'Velocity',
+				anchor : '100%'
+			}, {
+				xtype : 'datefield',
+				name : 'updatedAt',
+				disabled : true,
+				fieldLabel : 'Updated At',
+				format: F('datetime'),
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',

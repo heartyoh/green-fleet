@@ -11,10 +11,16 @@ Ext.define('GreenFleet.store.TrackStore', {
 		name : 'key',
 		type : 'string'
 	}, {
+		name : 'terminal',
+		type : 'string'
+	}, {
 		name : 'vehicle',
 		type : 'string'
 	}, {
 		name : 'driver',
+		type : 'string'
+	}, {
+		name : 'datetime',
 		type : 'string'
 	}, {
 		name : 'lattitude',
@@ -22,6 +28,13 @@ Ext.define('GreenFleet.store.TrackStore', {
 	}, {
 		name : 'longitude',
 		type : 'number'
+	}, {
+		name : 'velocity',
+		type : 'number'
+	}, {
+		name : 'updatedAt',
+		type : 'date',
+		dateFormat:'time'
 	}, {
 		name : 'createdAt',
 		type : 'date',
