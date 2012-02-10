@@ -10,7 +10,8 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'management.Company', 'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal',
 			'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
 			'management.ControlData', 'monitor.Map', 'monitor.ControlByVehicle', 'monitor.InfoByVehicle',
-			'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo', 'form.DateTimeField' ],
+			'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo', 'form.DateTimeField',
+			'common.EntityFormButtons' ],
 
 	init : function() {
 		this.control({

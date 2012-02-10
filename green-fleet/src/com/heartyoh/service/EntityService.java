@@ -3,6 +3,7 @@ package com.heartyoh.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,9 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.files.AppEngineFile;
+import com.google.appengine.api.files.FileServiceFactory;
+import com.google.appengine.api.files.FileWriteChannel;
 import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
@@ -76,6 +81,33 @@ public abstract class EntityService {
 
 	protected void onSave(Entity entity, Map<String, String> map, Date now) {
 		entity.setProperty("updatedAt", now);
+	}
+	
+	protected void onMultipart(Entity entity, Map<String, String> map, MultipartHttpServletRequest request) throws IOException {
+		Map<String, MultipartFile> filemap = request.getFileMap();
+		
+		Set<String> keys = filemap.keySet();
+		
+		Iterator<String> it = keys.iterator();
+		
+		while(it.hasNext()) {
+			String key = it.next();
+			MultipartFile file = filemap.get(key);
+			
+			if(file.getSize() > 0) {
+				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+				AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType());//, imageFile.getOriginalFilename());
+
+				boolean lock = true;
+				FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, lock);
+
+				writeChannel.write(ByteBuffer.wrap(file.getBytes()));
+
+				writeChannel.closeFinally();
+
+				map.put(key, fileService.getBlobKey(appfile).getKeyString());
+			}
+		}
 	}
 
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -181,6 +213,10 @@ public abstract class EntityService {
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
 			 */
 
+			if (request instanceof MultipartHttpServletRequest) {
+				onMultipart(obj, map, (MultipartHttpServletRequest)request);
+			}
+				
 			onSave(obj, map, now);
 
 			datastore.put(obj);
@@ -192,7 +228,7 @@ public abstract class EntityService {
 		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
 	}
 
-	public Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
+	public String delete(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -202,11 +238,14 @@ public abstract class EntityService {
 		} finally {
 		}
 
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("success", true);
-		result.put("msg", getEntityName() + " destroyed.");
+//		Map<String, Object> result = new HashMap<String, Object>();
+//		result.put("success", true);
+//		result.put("msg", getEntityName() + " destroyed.");
+//
+//		return result;
+		response.setContentType("text/html");
 
-		return result;
+		return "{ \"success\" : true, \"msg\" : \"" + getEntityName() + " destroyed\" }";
 	}
 
 	protected void buildQuery(Query q, List<Filter> filters, List<Sorter> sorters) {

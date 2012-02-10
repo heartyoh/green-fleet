@@ -89,7 +89,7 @@ public class UserService extends EntityService {
 
 	@RequestMapping(value = "/user/delete", method = RequestMethod.POST)
 	public @ResponseBody
-	Map<String, Object> delete(HttpServletRequest request, HttpServletResponse response) {
+	String delete(HttpServletRequest request, HttpServletResponse response) {
 		return super.delete(request, response);
 	}
 

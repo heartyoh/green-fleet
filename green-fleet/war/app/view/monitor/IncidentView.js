@@ -52,17 +52,17 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			self.resetIncidentList();
 		});
 		
-		this.down('displayfield[name=videoClip]').on('change', function(field, value) {
+		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
 			self.sub('video').update({
 				value : value
 			});
 		});
 		
-		this.down('datefield[name=incidentTime]').on('change', function(field, value) {
+		this.down('datefield[name=datetime]').on('change', function(field, value) {
 			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
 		});
 		
-		this.down('displayfield[name=driver]').on('change', function(field, value) {
+		this.down('displayfield[name=driver_id]').on('change', function(field, value) {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
@@ -193,7 +193,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			height: 37
 		},{
 			xtype : 'datefield',
-			name : 'incidentTime',
+			name : 'datetime',
 			hidden : true,
 			fieldLabel : 'Incident Time'
 		},{
@@ -203,32 +203,27 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			fieldLabel : 'Incident Time'
 		}, {
 			xtype : 'displayfield',
-			name : 'vehicle',
+			name : 'vehicle_id',
 			width : 100,
 			fieldLabel : 'Vehicle'
 		}, {
 			xtype : 'displayfield',
-			name : 'driver',
+			name : 'driver_id',
 			width : 100,
 			fieldLabel : 'Driver'
 		}, {
 			xtype : 'displayfield',
-			name : 'impulse',
+			name : 'impulse_abs',
 			width : 100,
 			fieldLabel : 'Impulse'
 		}, {
 			xtype : 'displayfield',
-			name : 'engineTemp',
+			name : 'engine_temp',
 			width : 100,
 			fieldLabel : 'Engine Temp.'
 		}, {
 			xtype : 'displayfield',
-			name : 'remainingFuel',
-			width : 100,
-			fieldLabel : 'Remaining Fuel'
-		}, {
-			xtype : 'displayfield',
-			name : 'videoClip',
+			name : 'video_clip',
 			hidden : true
 		} ]
 	},
@@ -257,7 +252,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 								html : '<div class="btnFullscreen"></div>'
 							}, {
 								xtype : 'box',
-								cls : ' incidentDetail',
+								cls : 'incidentDetail',
 								itemId : 'video',
 								tpl : [ '<video width="100%" height="95%" controls="controls">',
 										'<source src="download?blob-key={value}" type="video/mp4" />',
@@ -287,19 +282,24 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			type : 'string',
 			hidden : true
 		}, {
-			dataIndex : 'incidentTime',
+			dataIndex : 'datetime',
 			text : 'Incident Time',
 			xtype : 'datecolumn',
 			width : 120,
 			format : 'd-m-Y H:i:s'
 		}, {
-			dataIndex : 'driver',
+			dataIndex : 'driver_id',
 			text : 'Driver',
 			type : 'string',
 			width : 80
 		}, {
-			dataIndex : 'vehicle',
+			dataIndex : 'vehicle_id',
 			text : 'Vehicle',
+			type : 'string',
+			width : 80
+		}, {
+			dataIndex : 'terminal_id',
+			text : 'Terminal',
 			type : 'string',
 			width : 80
 		}, {
@@ -313,48 +313,58 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'impulse',
+			dataIndex : 'velocity',
+			text : 'Velocity',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_abs',
 			text : 'Impulse',
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'impulseThreshold',
+			dataIndex : 'impulse_x',
+			text : 'Impulse X',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_y',
+			text : 'Impulse Y',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_z',
+			text : 'Impulse Z',
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_threshold',
 			text : 'Impulse Threshold',
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'obdConnected',
+			dataIndex : 'obd_connected',
 			text : 'OBD Connected',
 			type : 'boolean',
 			width : 80
 		}, {
-			dataIndex : 'engineTemp',
+			dataIndex : 'engine_temp',
 			text : 'Engine Temp.',
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'engineTempThreshold',
+			dataIndex : 'engine_temp_threshold',
 			text : 'Engine Temp. Threshold',
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'remainingFuel',
-			text : 'Remaining Fuel',
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'fuelThreshold',
-			text : 'Fuel Threshold',
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'createdAt',
+			dataIndex : 'created_at',
 			text : 'Created At',
 			xtype : 'datecolumn',
 			format : F('datetime'),
 			width : 120
 		}, {
-			dataIndex : 'updatedAt',
+			dataIndex : 'updated_at',
 			text : 'Updated At',
 			xtype : 'datecolumn',
 			format : F('datetime'),
@@ -381,12 +391,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			itemId : 'driverFilter',
 			width : 200
 		}, {
-			xtype : 'button',
 			itemId : 'search',
-			text : 'Search',
-			tooltip : 'Find Incident'
+			text : 'Search'
 		}, {
-			xtype : 'button',
 			itemId : 'reset',
 			text : 'Reset'
 		} ]

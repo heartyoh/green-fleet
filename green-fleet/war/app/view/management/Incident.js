@@ -3,27 +3,65 @@ Ext.define('GreenFleet.view.management.Incident', {
 
 	alias : 'widget.management_incident',
 
+	entityUrl : 'incident',
+	
 	title : 'Incident',
 
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
-	items: {
+
+	items : {
 		html : '<div class="listTitle">Incident List</div>'
 	},
 
 	initComponent : function() {
-		this.callParent(arguments);
+		var self = this;
 
-		this.list = this.add(this.buildList(this));
-		var detail = this.add(this.buildForm(this));
-		this.form = detail.down('form');
+		this.callParent();
+
+		this.add(this.buildList(this));
+		this.add(this.buildForm(this));
+
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+
+		this.sub('grid').on('render', function(grid) {
+			grid.store.load();
+		});
+
+		this.sub('vehicleFilter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.sub('driverFilter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.down('#search_reset').on('click', function() {
+			self.sub('vehicleFilter').setValue('');
+			self.sub('driverFilter').setValue('');
+		});
+
+		this.down('#search').on('click', function() {
+			self.sub('grid').store.load();
+		});
+		
+		this.down('#video_clip').on('change', function(field, value) {
+			var video = self.sub('video');
+			video.update({
+				value : value
+			});
+		})
+
 	},
 
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
+			itemId : 'grid',
 			store : 'IncidentStore',
 			autoScroll : true,
 			flex : 1,
@@ -33,21 +71,21 @@ Ext.define('GreenFleet.view.management.Incident', {
 				type : 'string',
 				hidden : true
 			}, {
-				dataIndex : 'incidentTime',
+				dataIndex : 'datetime',
 				text : 'Incident Time',
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
-				dataIndex : 'driver',
+				dataIndex : 'driver_id',
 				text : 'Driver',
 				type : 'string'
 			}, {
-				dataIndex : 'vehicle',
+				dataIndex : 'vehicle_id',
 				text : 'Vehicle',
 				type : 'string'
 			}, {
-				dataIndex : 'terminal',
+				dataIndex : 'terminal_id',
 				text : 'Terminal',
 				type : 'string'
 			}, {
@@ -59,69 +97,54 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : 'Longitude',
 				type : 'number'
 			}, {
-				dataIndex : 'impulse',
+				dataIndex : 'velocity',
+				text : 'Velocity',
+				type : 'number'
+			}, {
+				dataIndex : 'impulse_abs',
 				text : 'Impulse',
 				type : 'number'
 			}, {
-				dataIndex : 'impulseThreshold',
+				dataIndex : 'impulse_x',
+				text : 'Impulse X',
+				type : 'number'
+			}, {
+				dataIndex : 'impulse_y',
+				text : 'Impulse Y',
+				type : 'number'
+			}, {
+				dataIndex : 'impulse_z',
+				text : 'Impulse Z',
+				type : 'number'
+			}, {
+				dataIndex : 'impulse_threshold',
 				text : 'Impulse Threshold',
 				type : 'number'
 			}, {
-				dataIndex : 'obdConnected',
+				dataIndex : 'engine_temp',
+				text : 'Engine Temp',
+				type : 'number'
+			}, {
+				dataIndex : 'engine_temp_threshold',
+				text : 'Engine Temp Threshold',
+				type : 'number'
+			}, {
+				dataIndex : 'obd_connected',
 				text : 'OBD Connected',
 				type : 'boolean'
 			}, {
-				dataIndex : 'engineTemp',
-				text : 'Engine Temp.',
-				type : 'number'
-			}, {
-				dataIndex : 'engineTempThreshold',
-				text : 'Engine Temp. Threshold',
-				type : 'number'
-			}, {
-				dataIndex : 'remainingFuel',
-				text : 'Remaining Fuel',
-				type : 'number'
-			}, {
-				dataIndex : 'fuelThreshold',
-				text : 'Fuel Threshold',
-				type : 'number'
-			}, {
-				dataIndex : 'createdAt',
+				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
 				format : F('datetime')
 			}, {
-				dataIndex : 'updatedAt',
+				dataIndex : 'updated_at',
 				text : 'Updated At',
 				xtype : 'datecolumn',
 				format : F('datetime')
 			} ],
 			viewConfig : {
 
-			},
-			listeners : {
-				itemclick : function(grid, record) {
-					var form = main.down('form');
-					form.loadRecord(record);
-				}
-			},
-			onSearch : function(grid) {
-				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
-				var driverFilter = grid.down('textfield[name=driverFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'vehicle',
-						value : vehicleFilter.getValue()
-					}, {
-						property : 'driver',
-						value : driverFilter.getValue()
-					} ]
-				});
-			},
-			onReset : function(grid) {
-				grid.down('textfield[name=vehicleFilter]').setValue('');
-				grid.down('textfield[name=driverFilter]').setValue('');
 			},
 			tbar : [ {
 				xtype : 'combo',
@@ -131,16 +154,9 @@ Ext.define('GreenFleet.view.management.Incident', {
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle',
+				itemId : 'vehicleFilter',
 				name : 'vehicleFilter',
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, {
 				xtype : 'combo',
 				name : 'driver',
@@ -149,30 +165,15 @@ Ext.define('GreenFleet.view.management.Incident', {
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Driver',
+				itemId : 'driverFilter',
 				name : 'driverFilter',
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, {
-				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Incident',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
+				itemId : 'search'
 			}, {
 				text : 'Reset',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onReset(grid);
-				}
+				itemId : 'search_reset'
 			} ],
 		}
 	},
@@ -189,202 +190,151 @@ Ext.define('GreenFleet.view.management.Incident', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [
-					{
-						xtype : 'form',
-						flex : 1,
-						autoScroll : true,
-						defaults : {
-							anchor : '100%'
-						},
-						items : [ {
-							xtype : 'textfield',
-							name : 'key',
-							fieldLabel : 'Key',
-							hidden : true
-						}, {
-							xtype : 'datefield',
-							name : 'incidentTime',
-							fieldLabel : 'Incident Time',
-							submitFormat : 'U'
-						}, {
-							xtype : 'combo',
-							name : 'vehicle',
-							queryMode : 'local',
-							store : 'VehicleStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : 'Vehicle'
-						}, {
-							xtype : 'combo',
-							name : 'driver',
-							queryMode : 'local',
-							store : 'DriverStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : 'Driver'
-						}, {
-							xtype : 'combo',
-							name : 'terminal',
-							queryMode : 'local',
-							store : 'TerminalStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : 'Terminal'
-						}, {
-							xtype : 'textfield',
-							name : 'lattitude',
-							fieldLabel : 'Lattitude'
-						}, {
-							xtype : 'textfield',
-							name : 'longitude',
-							fieldLabel : 'Longitude'
-						}, {
-							xtype : 'textfield',
-							name : 'impulse',
-							fieldLabel : 'Impulse'
-						}, {
-							xtype : 'textfield',
-							name : 'impulseThreshold',
-							fieldLabel : 'Impulse Threshold'
-						}, {
-							xtype : 'checkbox',
-							name : 'obdConnected',
-							fieldLabel : 'OBD Connected'
-						}, {
-							xtype : 'textfield',
-							name : 'engineTemp',
-							fieldLabel : 'Engine Temp.'
-						}, {
-							xtype : 'textfield',
-							name : 'engineTempThreshold',
-							fieldLabel : 'Engine Temp. Threshold'
-						}, {
-							xtype : 'textfield',
-							name : 'remainingFuel',
-							fieldLabel : 'Remaining Fuel'
-						}, {
-							xtype : 'textfield',
-							name : 'fuelThreshold',
-							fieldLabel : 'Fuel Threshhold'
-						}, {
-							xtype : 'filefield',
-							name : 'videoFile',
-							fieldLabel : 'Video Upload',
-							msgTarget : 'side',
-							allowBlank : true,
-							buttonText : 'file...'
-						}, {
-							xtype : 'datefield',
-							name : 'updatedAt',
-							disabled : true,
-							fieldLabel : 'Updated At',
-							format : 'd-m-Y H:i:s'
-						}, {
-							xtype : 'datefield',
-							name : 'createdAt',
-							disabled : true,
-							fieldLabel : 'Created At',
-							format : 'd-m-Y H:i:s'
-						}, {
-							xtype : 'displayfield',
-							name : 'videoClip',
-							hidden : true,
-							listeners : {
-								change : function(field, value) {
-									var video = main.form.nextSibling('container').getComponent('video');
-									video.update({
-										value : value
-									});
-								}
-							}
-						} ]
-					},
-					{
-						xtype : 'panel',
-						cls : 'incidentVOD paddingLeft10',
-						flex : 1,
-						layout : {
-							type : 'vbox',
-							align : 'stretch',
-							itemCls : 'test'
-						},
-						items : [
-								{
-									xtype : 'box',
-									itemId : 'video',
-									cls : ' incidentDetail',
-									tpl : [ '<video width="100%" height="95%" controls="controls">',
-											'<source src="download?blob-key={value}" type="video/mp4" />',
-											'Your browser does not support the video tag.', '</video>' ]
-								}, {
-									xtype : 'box',
-									html : '<div class="btnFullscreen"></div>',
-									handler : function(button) {
-										if(!Ext.isWebKit)
-											return;
-										var video = button.up('container').getComponent('video');
-										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
-									}
-								} ]
-					} ],
-
-			dockedItems : [ {
-				xtype : 'toolbar',
-				dock : 'bottom',
-				layout : {
-					align : 'middle',
-					type : 'hbox'
+			items : [ {
+				xtype : 'form',
+				itemId : 'form',
+				flex : 1,
+				autoScroll : true,
+				defaults : {
+					anchor : '100%'
 				},
 				items : [ {
-					xtype : 'tbfill'
-				},{
-					xtype : 'button',
-					text : 'Save',
-					handler : function() {
-						var form = main.form.getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'incident/save',
-								success : function(form, action) {
-									var store = main.down('gridpanel').store;
-									store.load(function() {
-										form.loadRecord(store.findRecord('key', action.result.key));
-									});
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
+					xtype : 'textfield',
+					name : 'key',
+					fieldLabel : 'Key',
+					hidden : true
 				}, {
-					xtype : 'button',
-					text : 'Delete',
-					handler : function() {
-						var form = main.form.getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'incident/delete',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-									form.reset();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
+					xtype : 'datefield',
+					name : 'datetime',
+					fieldLabel : 'Incident Time',
+					submitFormat : F('datetime')
 				}, {
-					xtype : 'button',
-					text : 'Reset',
-					handler : function() {
-						main.form.getForm().reset();
-					}
+					xtype : 'combo',
+					name : 'vehicle_id',
+					queryMode : 'local',
+					store : 'VehicleStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : 'Vehicle'
+				}, {
+					xtype : 'combo',
+					name : 'driver_id',
+					queryMode : 'local',
+					store : 'DriverStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : 'Driver'
+				}, {
+					xtype : 'combo',
+					name : 'terminal_id',
+					queryMode : 'local',
+					store : 'TerminalStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : 'Terminal'
+				}, {
+					xtype : 'textfield',
+					name : 'lattitude',
+					fieldLabel : 'Lattitude'
+				}, {
+					xtype : 'textfield',
+					name : 'longitude',
+					fieldLabel : 'Longitude'
+				}, {
+					xtype : 'textfield',
+					name : 'velocity',
+					fieldLabel : 'Velocity'
+				}, {
+					xtype : 'textfield',
+					name : 'impulse_abs',
+					fieldLabel : 'Impulse'
+				}, {
+					xtype : 'textfield',
+					name : 'impulse_x',
+					fieldLabel : 'Impulse X'
+				}, {
+					xtype : 'textfield',
+					name : 'impulse_y',
+					fieldLabel : 'Impulse Y'
+				}, {
+					xtype : 'textfield',
+					name : 'impulse_z',
+					fieldLabel : 'Impulse Z'
+				}, {
+					xtype : 'textfield',
+					name : 'impulse_threshold',
+					fieldLabel : 'Impulse Threshold'
+				}, {
+					xtype : 'textfield',
+					name : 'engine_temp',
+					fieldLabel : 'Engine Temp.'
+				}, {
+					xtype : 'textfield',
+					name : 'engine_temp_threshold',
+					fieldLabel : 'Engine Temp. Threshold'
+				}, {
+					xtype : 'checkbox',
+					name : 'obd_connected',
+					fieldLabel : 'OBD Connected'
+				}, {
+					xtype : 'filefield',
+					name : 'video_file',
+					fieldLabel : 'Video Upload',
+					msgTarget : 'side',
+					allowBlank : true,
+					buttonText : 'file...'
+				}, {
+					xtype : 'datefield',
+					name : 'updated_at',
+					disabled : true,
+					fieldLabel : 'Updated At',
+					format : 'd-m-Y H:i:s'
+				}, {
+					xtype : 'datefield',
+					name : 'created_at',
+					disabled : true,
+					fieldLabel : 'Created At',
+					format : 'd-m-Y H:i:s'
+				}, {
+					xtype : 'displayfield',
+					name : 'video_clip',
+					itemId : 'video_clip',
+					hidden : true
 				} ]
+			}, {
+				xtype : 'panel',
+				flex : 1,
+				
+				cls : 'incidentVOD paddingLeft10',
+
+				layout : {
+					type : 'vbox',
+					align : 'stretch',
+					itemCls : 'test'
+				},
+				
+				items : [
+						{
+							xtype : 'box',
+							itemId : 'video',
+							cls : 'incidentDetail',
+							tpl : [ '<video width="100%" height="95%" controls="controls">',
+									'<source src="download?blob-key={value}" type="video/mp4" />',
+									'Your browser does not support the video tag.', '</video>' ]
+						}, {
+							xtype : 'box',
+							html : '<div class="btnFullscreen"></div>',
+							handler : function(button) {
+								if (!Ext.isWebKit)
+									return;
+								var video = button.up('container').getComponent('video');
+								video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+							}
+						} ]
+			} ],
+
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',
 			} ]
 		}
 	}

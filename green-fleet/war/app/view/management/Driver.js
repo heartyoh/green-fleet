@@ -58,6 +58,18 @@ Ext.define('GreenFleet.view.management.Driver', {
 				text : 'Title',
 				type : 'string'
 			}, {
+				dataIndex : 'socialId',
+				text : 'Social Id.',
+				type : 'string'
+			}, {
+				dataIndex : 'phoneNo1',
+				text : 'Phone #1',
+				type : 'string'
+			}, {
+				dataIndex : 'phoneNo2',
+				text : 'Phone #2',
+				type : 'string'
+			}, {
 				dataIndex : 'createdAt',
 				text : 'Created At',
 				xtype:'datecolumn',
@@ -159,56 +171,58 @@ Ext.define('GreenFleet.view.management.Driver', {
 			items : [ {
 				xtype : 'form',
 				flex : 1,
-				items : [{
+				defaults : {
 					xtype : 'textfield',
+					anchor : '100%'
+				},
+				items : [{
 					name : 'key',
 					fieldLabel : 'Key',
-					anchor : '100%',
 					hidden : true
 				}, {
-					xtype : 'textfield',
 					name : 'name',
-					fieldLabel : 'Name',
-					anchor : '100%'
+					fieldLabel : 'Name'
 				}, {
-					xtype : 'textfield',
 					name : 'id',
-					fieldLabel : 'Employee Id',
-					anchor : '100%'
+					fieldLabel : 'Employee Id'
 				}, {
 					xtype : 'codecombo',
 					name : 'division',
 					group : 'Division',
-					fieldLabel : 'Division',
-					anchor : '100%'
+					fieldLabel : 'Division'
 				}, {
 					xtype : 'codecombo',
 					name : 'title',
 					group : 'EmployeeTitle',
-					fieldLabel : 'Title',
-					anchor : '100%'
+					fieldLabel : 'Title'
+				}, {
+					name : 'socialId',
+					fieldLabel : 'Social Id.'
+				}, {
+					name : 'phoneNo1',
+					fieldLabel : 'Phone #1'
+				}, {
+					name : 'phoneNo2',
+					fieldLabel : 'Phone #2'
 				}, {
 					xtype : 'filefield',
 					name : 'imageFile',
 					fieldLabel : 'Image Upload',
 					msgTarget : 'side',
 					allowBlank : true,
-					anchor : '100%',
 					buttonText : 'file...'
 				}, {
 					xtype : 'datefield',
 					name : 'updatedAt',
 					disabled : true,
 					fieldLabel : 'Updated At',
-					format: F('datetime'),
-					anchor : '100%'
+					format: F('datetime')
 				}, {
 					xtype : 'datefield',
 					name : 'createdAt',
 					disabled : true,
 					fieldLabel : 'Created At',
-					format: F('datetime'),
-					anchor : '100%'
+					format: F('datetime')
 				}, {
 					xtype : 'displayfield',
 					name : 'imageClip',

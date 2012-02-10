@@ -4,6 +4,8 @@ Ext.define('GreenFleet.view.management.User', {
 	alias : 'widget.management_user',
 
 	title : 'User',
+	
+	entityUrl : 'user',
 
 	layout : {
 		align : 'stretch',
@@ -12,10 +14,6 @@ Ext.define('GreenFleet.view.management.User', {
 
 	initComponent : function() {
 		var self = this;
-		
-//		Ext.applyIf(this, {
-//			items : [],
-//		});
 		
 		this.items = [ {
 			html : '<div class="listTitle">User List</div>'
@@ -46,46 +44,6 @@ Ext.define('GreenFleet.view.management.User', {
 		
 		this.down('#search').on('click', function() {
 			self.sub('grid').store.load();
-		});
-		
-		this.down('#save').on('click', function() {
-			var form = self.sub('form').getForm();
-
-			if (form.isValid()) {
-				form.submit({
-					url : 'user/save',
-					success : function(form, action) {
-						var store = self.sub('grid').store;
-						store.load(function() {
-							form.loadRecord(store.findRecord('key', action.result.key));
-						});
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result.msg);
-					}
-				});
-			}
-		});
-		
-		this.down('#delete').on('click', function() {
-			var form = self.sub('form').getForm();
-
-			if (form.isValid()) {
-				form.submit({
-					url : 'user/delete',
-					success : function(form, action) {
-						self.sub('grid').store.load();
-						form.reset();
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result.msg);
-					}
-				});
-			}
-		});
-		
-		this.down('#form_reset').on('click', function() {
-			self.sub('form').getForm().reset();
 		});
 		
 	},
@@ -239,28 +197,9 @@ Ext.define('GreenFleet.view.management.User', {
 				format : F('datetime'),
 				anchor : '100%'
 			} ],
+			
 			dockedItems : [ {
-				xtype : 'toolbar',
-				dock : 'bottom',
-				layout : {
-					align : 'middle',
-					type : 'hbox'
-				},
-				items : [ {
-					xtype : 'tbfill'
-				}, {
-					xtype : 'button',
-					itemId : 'save',
-					text : 'Save'
-				}, {
-					xtype : 'button',
-					itemId : 'delete',
-					text : 'Delete'
-				}, {
-					xtype : 'button',
-					itemId : 'form_reset',
-					text : 'Reset'
-				} ]
+				xtype : 'entity_form_buttons',
 			} ]
 		}
 	}
