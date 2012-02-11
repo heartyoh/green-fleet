@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.Entity;
@@ -33,44 +34,45 @@ public class VehicleService extends EntityService {
 	}
 
 	@Override
-	protected String getIdValue(Map<String, String> map) {
-		return map.get("id");
+	protected String getIdValue(Map<String, Object> map) {
+		return (String)map.get("id");
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, String> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
 		entity.setProperty("id", map.get("id"));
-		entity.setProperty("createdAt", now);
+		
+		entity.setProperty("created_at", now);
 	}
 
 	@Override
-	protected void onMultipart(Entity entity, Map<String, String> map, MultipartHttpServletRequest request)
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		super.onMultipart(entity, map, request);
-		if(map.containsKey("imageFile"))
-			entity.setProperty("imageClip", map.get("imageFile"));
+		entity.setProperty("image_clip", saveFile((MultipartFile) map.get("image_file")));
+
+		super.postMultipart(entity, map, request);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, String> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
 		entity.setProperty("manufacturer", map.get("manufacturer"));
-		entity.setProperty("vehicleType", map.get("vehicleType"));
-		entity.setProperty("birthYear", map.get("birthYear"));
-		entity.setProperty("ownershipType", map.get("ownershipType"));
+		entity.setProperty("vehicle_type", map.get("vehicle_type"));
+		entity.setProperty("birth_year", map.get("birth_year"));
+		entity.setProperty("ownership_type", map.get("ownership_type"));
 		entity.setProperty("status", map.get("status"));
-		entity.setProperty("totalDistance", doubleProperty(map, "totalDistance"));
-		entity.setProperty("registrationNumber", map.get("registrationNumber"));
-		entity.setProperty("remainingFuel", doubleProperty(map, "remainingFuel"));
-		entity.setProperty("distanceSinceNewOil", doubleProperty(map, "distanceSinceNewOil"));
-		entity.setProperty("engineOilStatus", map.get("engineOilStatus"));
-		entity.setProperty("fuelFilterStatus", map.get("fuelFilterStatus"));
-		entity.setProperty("brakeOilStatus", map.get("brakeOilStatus"));
-		entity.setProperty("brakePedalStatus", map.get("brakePedalStatus"));
-		entity.setProperty("coolingWaterStatus", map.get("coolingWaterStatus"));
-		entity.setProperty("timingBeltStatus", map.get("timingBeltStatus"));
-		entity.setProperty("sparkPlugStatus", map.get("sparkPlugStatus"));
+		entity.setProperty("total_distance", doubleProperty(map, "total_distance"));
+		entity.setProperty("registration_number", map.get("registration_number"));
+		entity.setProperty("remaining_fuel", doubleProperty(map, "remaining_fuel"));
+		entity.setProperty("distance_since_new_oil", doubleProperty(map, "distance_since_new_oil"));
+		entity.setProperty("engine_oil_status", map.get("engine_oil_status"));
+		entity.setProperty("fuel_filter_status", map.get("fuel_filter_status"));
+		entity.setProperty("brake_oil_status", map.get("brake_oil_status"));
+		entity.setProperty("brake_pedal_status", map.get("brake_pedal_status"));
+		entity.setProperty("cooling_water_status", map.get("cooling_water_status"));
+		entity.setProperty("timing_belt_status", map.get("timing_belt_status"));
+		entity.setProperty("spark_plug_status", map.get("spark_plug_status"));
 
-		entity.setProperty("updatedAt", now);
+		entity.setProperty("updated_at", now);
 	}
 
 	@RequestMapping(value = "/vehicle/import", method = RequestMethod.POST)

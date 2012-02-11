@@ -12,111 +12,92 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	columns : [ {
 		dataIndex : 'key',
 		text : 'Key',
+		type : 'string',
 		hidden : true
 	}, {
 		dataIndex : 'id',
-		text : 'Vehicle Id'
+		text : 'Vehicle Id',
+		type : 'string'
 	}, {
-		dataIndex : 'registrationNumber',
-		text : 'RegistrationNumber'
+		dataIndex : 'registration_number',
+		text : 'RegistrationNumber',
+		type : 'string'
 	}, {
 		dataIndex : 'manufacturer',
-		text : 'Manufacturer'
+		text : 'Manufacturer',
+		type : 'string'
 	}, {
-		dataIndex : 'vehicleType',
+		dataIndex : 'vehicle_type',
 		text : 'VehicleType',
-		width : 80
+		type : 'string'
 	}, {
-		dataIndex : 'birthYear',
+		dataIndex : 'birth_year',
 		text : 'BirthYear',
-		width : 40,
-		align : 'right'
+		type : 'string'
 	}, {
-		dataIndex : 'ownershipType',
+		dataIndex : 'ownership_type',
 		text : 'OwnershipType',
-		width : 40,
-		align : 'center'
+		type : 'string'
 	}, {
 		dataIndex : 'status',
 		text : 'Status',
-		type : 'string',
-		width : 60,
-		align : 'center'
+		type : 'string'
 	}, {
-		dataIndex : 'imageClip',
-		text : 'ImageClip',
-		type : 'string',
-		hidden : true
-	}, {
-		dataIndex : 'totalDistance',
+		dataIndex : 'total_distance',
 		text : 'TotalDistance',
-		width : 60,
-		align : 'right'
+		type : 'string'
 	}, {
-		dataIndex : 'remainingFuel',
+		dataIndex : 'remaining_fuel',
 		text : 'RemainingFuel',
-		width : 60,
-		align : 'right'
+		type : 'string'
 	}, {
-		dataIndex : 'distanceSinceNewOil',
+		dataIndex : 'distance_since_new_oil',
 		text : 'DistanceSinceNewOil',
-		width : 60,
-		align : 'right'
+		type : 'string'
 	}, {
-		dataIndex : 'engineOilStatus',
+		dataIndex : 'engine_oil_status',
 		text : 'EngineOilStatus',
-		width : 60,
-		align : 'right'
+		type : 'string'
 	}, {
-		dataIndex : 'fuelFilterStatus',
+		dataIndex : 'fuel_filter_status',
 		text : 'FuelFilterStatus',
-		width : 60,
-		align : 'right'
+		type : 'string'
 	}, {
-		dataIndex : 'brakeOilStatus',
+		dataIndex : 'brake_oil_status',
 		text : 'BrakeOilStatus',
-		width : 60,
-		align : 'center'
+		type : 'string'
 	}, {
-		dataIndex : 'brakePedalStatus',
+		dataIndex : 'brake_pedal_status',
 		text : 'BrakePedalStatus',
-		width : 60,
-		align : 'center'
+		type : 'string'
 	}, {
-		dataIndex : 'coolingWaterStatus',
+		dataIndex : 'cooling_water_status',
 		text : 'CoolingWaterStatus',
-		width : 60,
-		align : 'center'
+		type : 'string'
 	}, {
-		dataIndex : 'timingBeltStatus',
+		dataIndex : 'timing_belt_status',
 		text : 'TimingBeltStatus',
-		width : 60,
-		align : 'center'
+		type : 'string'
 	}, {
-		dataIndex : 'sparkPlugStatus',
+		dataIndex : 'spark_plug_status',
 		text : 'SparkPlugStatus',
-		width : 60,
-		align : 'center'
+		type : 'string'
 	}, {
 		dataIndex : 'lattitude',
-		text : 'Lattitude',
-		width : 60,
-		align : 'right'
+		text : 'Lattitude'
 	}, {
 		dataIndex : 'longitude',
-		text : 'Longitude',
-		width : 60,
-		align : 'right'
+		text : 'Longitude'
 	}, {
-		dataIndex : 'createdAt',
+		dataIndex : 'created_at',
 		text : 'Created At',
-		xtype:'datecolumn',
+		xtype : 'datecolumn',
 		format : F('datetime'),
 		width : 120
 	}, {
-		dataIndex : 'updatedAt',
+		dataIndex : 'updated_at',
 		text : 'Updated At',
-		xtype:'datecolumn',
+		xtype : 'datecolumn',
 		format : F('datetime'),
 		width : 120
 	} ],
@@ -133,25 +114,25 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		}
 	},
 	onSearch : function(grid) {
-		var idFilter = grid.down('textfield[name=idFilter]');
-		var namefilter = grid.down('textfield[name=nameFilter]');
+		var id_filter = grid.down('textfield[name=id_filter]');
+		var namefilter = grid.down('textfield[name=registration_number_field]');
 		grid.store.clearFilter();
 
 		grid.store.filter([ {
 			property : 'id',
-			value : idFilter.getValue()
+			value : id_filter.getValue()
 		}, {
-			property : 'registrationNumber',
+			property : 'registration_number',
 			value : namefilter.getValue()
 		} ]);
 	},
 	onReset : function(grid) {
-		grid.down('textfield[name=idFilter]').setValue('');
-		grid.down('textfield[name=nameFilter]').setValue('');
+		grid.down('textfield[name=id_filter]').setValue('');
+		grid.down('textfield[name=registration_number_field]').setValue('');
 	},
 	tbar : [ 'ID', {
 		xtype : 'textfield',
-		name : 'idFilter',
+		name : 'id_filter',
 		hideLabel : true,
 		width : 200,
 		listeners : {
@@ -164,7 +145,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		}
 	}, 'Registeration Number', {
 		xtype : 'textfield',
-		name : 'nameFilter',
+		name : 'registration_number_field',
 		hideLabel : true,
 		width : 200,
 		listeners : {

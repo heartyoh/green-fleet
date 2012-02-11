@@ -29,17 +29,17 @@ Ext.define('GreenFleet.view.management.User', {
 			grid.store.load();
 		});
 		
-		this.sub('emailFilter').on('change', function(field, value) {
+		this.sub('email_filter').on('change', function(field, value) {
 			self.search(self);
 		});
 		
-		this.sub('nameFilter').on('change', function(field, value) {
+		this.sub('name_filter').on('change', function(field, value) {
 			self.search(self);
 		});
 		
 		this.down('#search_reset').on('click', function() {
-			self.sub('emailFilter').setValue('');
-			self.sub('nameFilter').setValue('');
+			self.sub('email_filter').setValue('');
+			self.sub('name_filter').setValue('');
 		});
 		
 		this.down('#search').on('click', function() {
@@ -53,10 +53,10 @@ Ext.define('GreenFleet.view.management.User', {
 
 		self.sub('grid').store.filter([ {
 			property : 'email',
-			value : self.sub('emailFilter').getValue()
+			value : self.sub('email_filter').getValue()
 		}, {
 			property : 'surname',
-			value : self.sub('nameFilter').getValue()
+			value : self.sub('name_filter').getValue()
 		} ]);
 	},
 	
@@ -92,13 +92,13 @@ Ext.define('GreenFleet.view.management.User', {
 				dataIndex : 'company',
 				text : 'Company'
 			}, {
-				dataIndex : 'createdAt',
+				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
-				dataIndex : 'updatedAt',
+				dataIndex : 'updated_at',
 				text : 'Updated At',
 				xtype : 'datecolumn',
 				format : F('datetime'),
@@ -109,14 +109,14 @@ Ext.define('GreenFleet.view.management.User', {
 			},
 			tbar : [ 'e-mail', {
 				xtype : 'textfield',
-				itemId : 'emailFilter',
-				name : 'emailFilter',
+				itemId : 'email_filter',
+				name : 'email_filter',
 				hideLabel : true,
 				width : 200
 			}, 'NAME', {
 				xtype : 'textfield',
-				itemId : 'nameFilter',
-				name : 'nameFilter',
+				itemId : 'name_filter',
+				name : 'name_filter',
 				hideLabel : true,
 				width : 200
 			}, {
@@ -184,14 +184,14 @@ Ext.define('GreenFleet.view.management.User', {
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
-				name : 'updatedAt',
+				name : 'updated_at',
 				disabled : true,
 				fieldLabel : 'Updated At',
 				format : F('datetime'),
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
-				name : 'createdAt',
+				name : 'created_at',
 				disabled : true,
 				fieldLabel : 'Created At',
 				format : F('datetime'),

@@ -11,9 +11,9 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 		name : 'key',
 		type : 'string'
 	}, {
-		name : 'incidentTime',
+		name : 'datetime',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat:'c'
 	}, {
 		name : 'driver',
 		type : 'string'
@@ -30,14 +30,14 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 		name : 'impulse',
 		type : 'float'
 	}, {
-		name : 'videoClip',
+		name : 'video_clip',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

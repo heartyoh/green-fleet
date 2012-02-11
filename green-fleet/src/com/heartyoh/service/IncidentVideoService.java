@@ -2,10 +2,8 @@ package com.heartyoh.service;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -20,8 +18,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.Entity;
 
 @Controller
-public class IncidentService extends EntityService {
-	private static final Logger logger = LoggerFactory.getLogger(IncidentService.class);
+public class IncidentVideoService extends EntityService {
+	private static final Logger logger = LoggerFactory.getLogger(IncidentVideoService.class);
 
 	@Override
 	protected String getEntityName() {
@@ -29,13 +27,9 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected boolean useFilter() {
-		return true;
-	}
-
-	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return map.get("terminal_id") + "@" + map.get("datetime");
+		map.get("video_file");
+		return null;
 	}
 
 	@Override
@@ -50,13 +44,14 @@ public class IncidentService extends EntityService {
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
 		entity.setProperty("video_clip", saveFile((MultipartFile)map.get("video_file")));
-
+		
 		super.postMultipart(entity, map, request);
 	}
 
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
 
+		entity.setProperty("terminal_id", stringProperty(map, "terminal_id"));
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
 		entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
@@ -74,28 +69,10 @@ public class IncidentService extends EntityService {
 		entity.setProperty("updated_at", now);
 	}
 
-	@RequestMapping(value = "/incident/import", method = RequestMethod.POST)
+	@RequestMapping(value = "/incident/upload_video", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
 		return super.imports(request, response);
-	}
-
-	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
-	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		return super.save(request, response);
-	}
-
-	@RequestMapping(value = "/incident/delete", method = RequestMethod.POST)
-	public @ResponseBody
-	String delete(HttpServletRequest request, HttpServletResponse response) {
-		return super.delete(request, response);
-	}
-
-	@RequestMapping(value = "/incident", method = RequestMethod.GET)
-	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
-		return super.retrieve(request, response);
 	}
 
 }

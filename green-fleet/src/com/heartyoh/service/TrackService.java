@@ -38,28 +38,28 @@ public class TrackService extends EntityService {
 	}
 
 	@Override
-	protected String getIdValue(Map<String, String> map) {
-		return map.get("terminal") + "@" + map.get("datetime");
+	protected String getIdValue(Map<String, Object> map) {
+		return map.get("terminal_id") + "@" + map.get("datetime");
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, String> map, Date now) {
-		entity.setProperty("createdAt", now);
+	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+		entity.setProperty("created_at", now);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, String> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-		String terminal = map.get("terminal");
-		String vehicle = map.get("vehicle");
-		String driver = map.get("driver");
-		String lattitude = map.get("lattitude");
-		String longitude = map.get("longitude");
-		String datetime = map.get("datetime");
-		String velocity = map.get("velocity");
+		String terminal_id = (String) map.get("terminal_id");
+		String vehicle_id = (String) map.get("vehicle_id");
+		String driver_id = (String) map.get("driver_id");
+		String lattitude = (String) map.get("lattitude");
+		String longitude = (String) map.get("longitude");
+		String datetime = (String) map.get("datetime");
+		String velocity = (String) map.get("velocity");
 
-		Key keyVehicle = KeyFactory.createKey(entity.getParent(), "Vehicle", vehicle);
+		Key keyVehicle = KeyFactory.createKey(entity.getParent(), "Vehicle", vehicle_id);
 		Entity objVehicle = null;
 
 		try {
@@ -80,18 +80,18 @@ public class TrackService extends EntityService {
 			if (objVehicle != null)
 				objVehicle.setProperty("longitude", dblLongitude);
 		}
-		entity.setProperty("terminal", terminal);
-		entity.setProperty("vehicle", vehicle);
-		entity.setProperty("driver", driver);
+		entity.setProperty("terminal_id", terminal_id);
+		entity.setProperty("vehicle_id", vehicle_id);
+		entity.setProperty("driver_id", driver_id);
 		entity.setProperty("datetime", datetime);
 		entity.setProperty("velocity", velocity);
 
 		if (objVehicle != null) {
-			objVehicle.setProperty("driver", driver);
-			objVehicle.setProperty("terminal", terminal);
+			objVehicle.setProperty("driver_id", driver_id);
+			objVehicle.setProperty("terminal_id", terminal_id);
 		}
 
-		entity.setProperty("updatedAt", now);
+		entity.setProperty("updated_at", now);
 	}
 
 	@RequestMapping(value = "/track/import", method = RequestMethod.POST)

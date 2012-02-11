@@ -1,4 +1,4 @@
-id,serialNo,buyingDate,comment
+id,serial_no,buying_date,comment
 T001,2010-00001,1,T
 T002,2010-00002,1,T
 T003,2010-00003,1,T

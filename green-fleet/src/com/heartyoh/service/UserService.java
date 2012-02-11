@@ -30,24 +30,24 @@ public class UserService extends EntityService {
 	}
 
 	@Override
-	protected String getIdValue(Map<String, String> map) {
-		return map.get("email");
+	protected String getIdValue(Map<String, Object> map) {
+		return (String) map.get("email");
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, String> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
 		super.onCreate(entity, map, now);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, String> map, Date now) {
-		String email = map.get("email");
-		String nickname = map.get("nickname");
-		String forename = map.get("forename");
-		String surname = map.get("surname");
-		String company = map.get("company");
-		String admin = map.get("admin");
-		String enabled = map.get("enabled");
+	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+		String email = (String) map.get("email");
+		String nickname = (String) map.get("nickname");
+		String forename = (String) map.get("forename");
+		String surname = (String) map.get("surname");
+		String company = (String) map.get("company");
+		String admin = (String) map.get("admin");
+		String enabled = (String) map.get("enabled");
 
 		Set<AppRole> roles = EnumSet.of(AppRole.USER);
 
@@ -78,7 +78,7 @@ public class UserService extends EntityService {
 
 		entity.setUnindexedProperty("authorities", binaryAuthorities);
 
-		entity.setProperty("updatedAt", now);
+		entity.setProperty("updated_at", now);
 	}
 
 	@RequestMapping(value = "/user/save", method = RequestMethod.POST)

@@ -32,17 +32,17 @@ Ext.define('GreenFleet.view.management.Incident', {
 			grid.store.load();
 		});
 
-		this.sub('vehicleFilter').on('change', function(field, value) {
+		this.sub('vehicle_filter').on('change', function(field, value) {
 			self.search(self);
 		});
 
-		this.sub('driverFilter').on('change', function(field, value) {
+		this.sub('driver_filter').on('change', function(field, value) {
 			self.search(self);
 		});
 
 		this.down('#search_reset').on('click', function() {
-			self.sub('vehicleFilter').setValue('');
-			self.sub('driverFilter').setValue('');
+			self.sub('vehicle_filter').setValue('');
+			self.sub('driver_filter').setValue('');
 		});
 
 		this.down('#search').on('click', function() {
@@ -58,6 +58,18 @@ Ext.define('GreenFleet.view.management.Incident', {
 
 	},
 
+	search : function(self) {
+		self.sub('grid').store.clearFilter();
+
+		self.sub('grid').store.filter([ {
+			property : 'vehicle_id',
+			value : self.sub('vehicle_filter').getValue()
+		}, {
+			property : 'driver_id',
+			value : self.sub('driver_filter').getValue()
+		} ]);
+	},
+	
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -154,8 +166,8 @@ Ext.define('GreenFleet.view.management.Incident', {
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle',
-				itemId : 'vehicleFilter',
-				name : 'vehicleFilter',
+				itemId : 'vehicle_filter',
+				name : 'vehicle_filter',
 				width : 200
 			}, {
 				xtype : 'combo',
@@ -165,8 +177,8 @@ Ext.define('GreenFleet.view.management.Incident', {
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Driver',
-				itemId : 'driverFilter',
-				name : 'driverFilter',
+				itemId : 'driver_filter',
+				name : 'driver_filter',
 				width : 200
 			}, {
 				text : 'Search',

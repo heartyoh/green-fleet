@@ -111,7 +111,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 					}
 				},
 				incident : incident,
-				html : '<a href="#">' + incident.get('vehicle') + ', ' + incident.get('driver') + '<span>' + 
+				html : '<a href="#">' + incident.get('vehicle_id') + ', ' + incident.get('driver_id') + '<span>' + 
 					Ext.Date.format(incident.get('incidentTime'), 'D Y-m-d H:i:s') + '</span></a>'
 			});
 		}

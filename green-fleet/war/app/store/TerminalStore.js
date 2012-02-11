@@ -10,24 +10,24 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		name : 'id',
 		type : 'string'
 	}, {
-		name : 'serialNo',
+		name : 'serial_no',
 		type : 'string'
 	}, {
-		name : 'buyingDate',
+		name : 'buying_date',
 		type : 'date',
 		dateFormat:'time'
 	}, {
 		name : 'comment',
 		type : 'string'
 	}, {
-		name : 'imageClip',
+		name : 'image_clip',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

@@ -10,58 +10,58 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'id',
 		type : 'string'
 	}, {
-		name : 'registrationNumber',
+		name : 'registration_number',
 		type : 'string'
 	}, {
 		name : 'manufacturer',
 		type : 'string'
 	}, {
-		name : 'vehicleType',
+		name : 'vehicle_type',
 		type : 'string'
 	}, {
-		name : 'birthYear',
+		name : 'birth_year',
 		type : 'int'
 	}, {
-		name : 'ownershipType',
+		name : 'ownership_type',
 		type : 'string'
 	}, {
 		name : 'status',
 		type : 'string'
 	}, {
-		name : 'imageClip',
+		name : 'image_clip',
 		type : 'string'
 	}, {
-		name : 'totalDistance',
+		name : 'total_distance',
 		type : 'float'
 	}, {
-		name : 'remainingFuel',
+		name : 'remaining_fuel',
 		type : 'float'
 	}, {
-		name : 'distanceSinceNewOil',
+		name : 'distance_since_new_oil',
 		type : 'float'
 	}, {
-		name : 'engineOilStatus',
+		name : 'engine_oil_status',
 		type : 'string'
 	}, {
-		name : 'fuelFilterStatus',
+		name : 'fuel_filter_status',
 		type : 'string'
 	}, {
-		name : 'brakeOilStatus',
+		name : 'brake_oil_status',
 		type : 'string'
 	}, {
-		name : 'brakePedalStatus',
+		name : 'brake_pedal_status',
 		type : 'string'
 	}, {
-		name : 'coolingWaterStatus',
+		name : 'cooling_water_status',
 		type : 'string'
 	}, {
-		name : 'timingBeltStatus',
+		name : 'timing_belt_status',
 		type : 'string'
 	}, {
-		name : 'sparkPlugStatus',
+		name : 'spark_plug_status',
 		type : 'string'
 	}, {
-		name : 'driver',
+		name : 'driver_id',
 		type : 'string'
 	}, {
 		name : 'lattitude',
@@ -73,11 +73,11 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'location',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

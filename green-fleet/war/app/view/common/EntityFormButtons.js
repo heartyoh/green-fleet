@@ -30,7 +30,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 		
 		this.down('#save').on('click', function() {
 			var client = self.up('[entityUrl]');
-			var url = client.entity_url;
+			var url = client.entityUrl;
 				
 			var form = client.sub('form').getForm();
 

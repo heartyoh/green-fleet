@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.Entity;
@@ -33,40 +34,41 @@ public class DriverService extends EntityService {
 	}
 
 	@Override
-	protected String getIdValue(Map<String, String> map) {
-		return map.get("id");
+	protected String getIdValue(Map<String, Object> map) {
+		return (String) map.get("id");
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, String> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
 		entity.setProperty("id", map.get("id"));
-		entity.setProperty("createdAt", now);
+		entity.setProperty("created_at", now);
 	}
 
 	@Override
-	protected void onMultipart(Entity entity, Map<String, String> map, MultipartHttpServletRequest request) throws IOException {
-		super.onMultipart(entity, map, request);
-		if(map.containsKey("imageFile"))
-			entity.setProperty("imageClip", map.get("imageFile"));
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
+			throws IOException {
+		entity.setProperty("image_clip", saveFile((MultipartFile) map.get("image_file")));
+
+		super.postMultipart(entity, map, request);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, String> map, Date now) {
-		String name = map.get("name");
-		String division = map.get("division");
-		String title = map.get("title");
-		String socialId = map.get("socialId");
-		String phoneNo1 = map.get("phoneNo1");
-		String phoneNo2 = map.get("phoneNo2");
+	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+		String name = (String) map.get("name");
+		String division = (String) map.get("division");
+		String title = (String) map.get("title");
+		String social_id = (String) map.get("social_id");
+		String phone_no_1 = (String) map.get("phone_no_1");
+		String phone_no_2 = (String) map.get("phone_no_2");
 
 		entity.setProperty("name", name);
 		entity.setProperty("division", division);
 		entity.setProperty("title", title);
-		entity.setProperty("socialId", socialId);
-		entity.setProperty("phoneNo1", phoneNo1);
-		entity.setProperty("phoneNo2", phoneNo2);
+		entity.setProperty("social_id", social_id);
+		entity.setProperty("phone_no_1", phone_no_1);
+		entity.setProperty("phone_no_2", phone_no_2);
 
-		entity.setProperty("updatedAt", now);
+		entity.setProperty("updated_at", now);
 	}
 
 	@RequestMapping(value = "/driver/import", method = RequestMethod.POST)
@@ -74,7 +76,7 @@ public class DriverService extends EntityService {
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
 		return super.imports(request, response);
 	}
-	
+
 	@RequestMapping(value = "/driver/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {

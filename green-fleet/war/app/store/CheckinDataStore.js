@@ -1,4 +1,4 @@
-Ext.define('GreenFleet.store.ControlDataStore', {
+Ext.define('GreenFleet.store.CheckinDataStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
@@ -67,18 +67,18 @@ Ext.define('GreenFleet.store.ControlDataStore', {
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],
 	
 	proxy : {
 		type : 'ajax',
-		url : 'control_data',
+		url : 'checkin_data',
 		reader : {
 			type : 'json'
 		}

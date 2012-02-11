@@ -128,7 +128,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		store.each(function(record) {
 			var vehicle = record.get('id');
-			var driver = record.get('driver');
+			var driver = record.get('driver_id');
 			var driverRecord = Ext.getStore('DriverStore').findRecord('id', driver);
 			
 			var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));

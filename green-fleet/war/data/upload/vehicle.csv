@@ -1,51 +1,51 @@
-id,registrationNumber,manufacturer,vehicleType,birthYear,ownershipType,status,totalDistance,remainingFuel,distanceSinceNewOil,engineOilStatus,fuelFilterStatus,brakeOilStatus,brakePedalStatus,coolingWaterStatus,timingBeltStatus,sparkPlugStatus
-V001,가 1234,Audi,F,2011,A,Running,100,30,100,A,A,A,A,A,A,A
-V002,가 1235,Audi,F,2011,A,Running,100,40,500,A,A,A,A,A,A,A
-V003,가 1236,Audi,F,2011,A,Running,1000,50,500,A,A,A,A,A,A,A
-V004,가 1237,Audi,F,2011,A,Running,1000,10,400,A,A,A,A,A,A,A
-V005,가 1238,Audi,F,2011,A,Running,3000,20,900,A,A,A,A,A,A,A
-V006,가 1239,Audi,F,2011,A,Running,3000,30,2000,A,A,A,A,A,A,A
-V007,가 1210,Audi,F,2011,A,Running,1000,24,3000,A,A,A,A,A,A,A
-V008,가 1211,Audi,F,2011,A,Running,1000,23,2500,A,A,A,A,A,A,A
-V009,가 1212,Audi,F,2011,A,Running,1128.571,22,3500,A,A,A,A,A,A,A
-V010,가 1213,Audi,F,2011,A,Running,1257.143,21,2500,A,A,A,A,A,A,A
-V011,가 1214,Audi,F,2011,A,Running,1385.714,20,4000,A,A,A,A,A,A,A
-V012,가 1215,Audi,F,2011,A,Running,1514.286,19,1000,A,A,A,A,A,A,A
-V013,가 1216,Audi,F,2011,A,Running,1642.857,18,2500,A,A,A,A,A,A,A
-V014,가 1217,Audi,F,2011,A,Running,1771.429,17,1500,A,A,A,A,A,A,A
-V015,가 1218,Audi,F,2011,A,Running,1900,16,100,A,A,A,A,A,A,A
-V016,가 1219,Audi,F,2011,A,Running,2028.571,15,500,A,A,A,A,A,A,A
-V017,가 1220,Audi,F,2011,A,Running,2157.143,14,500,A,A,A,A,A,A,A
-V018,가 1221,Audi,F,2011,A,Running,2285.714,20,400,A,A,A,A,A,A,A
-V019,카 0987,Volkswagon,E,2011,A,Running,2414.286,39,900,A,A,A,A,A,A,A
-V020,카 0988,Volkswagon,E,2011,A,Running,2542.857,29,2000,A,A,A,A,A,A,A
-V021,카 0989,Volkswagon,E,2011,A,Running,2671.429,25,3000,A,A,A,A,A,A,A
-V022,카 0990,Volkswagon,E,2011,A,Running,2800,35,2500,A,A,A,A,A,A,A
-V023,카 0991,Volkswagon,E,2011,A,Running,2928.571,35,3500,A,A,A,A,A,A,A
-V024,카 0992,Volkswagon,E,2011,A,Running,3057.143,45,2500,A,A,A,A,A,A,A
-V025,추 3456,Mercedes-Benz,F,2011,A,Running,3185.714,33,4000,A,A,A,A,A,A,A
-V026,추 8765,Mercedes-Benz,F,2011,A,Running,3314.286,44,1000,A,A,A,A,A,A,A
-V027,추 2938,Mercedes-Benz,F,2011,A,Running,3442.857,22,2500,A,A,A,A,A,A,A
-V028,추 2939,Mercedes-Benz,F,2011,A,Running,3571.429,44,1500,A,A,A,A,A,A,A
-V029,추 2940,Mercedes-Benz,F,2011,A,Idle,3700,33,100,A,A,A,A,A,A,A
-V030,타 4367,Mercedes-Benz,F,2011,A,Idle,3828.571,33,500,A,A,A,A,A,A,A
-V031,타 4368,Mercedes-Benz,F,2011,A,Idle,3957.143,23,500,A,A,A,A,A,A,A
-V032,타 4369,Mercedes-Benz,F,2011,A,Idle,4085.714,43,400,A,A,A,A,A,A,A
-V033,타 4370,Mercedes-Benz,F,2011,A,Idle,4214.286,45,900,A,A,A,A,A,A,A
-V034,타 4371,Mercedes-Benz,F,2011,A,Idle,4342.857,42,2000,A,A,A,A,A,A,A
-V035,타 4372,Mercedes-Benz,F,2011,A,Idle,4471.429,41,3000,A,A,A,A,A,A,A
-V036,타 4373,Mercedes-Benz,F,2011,A,Idle,4600,34,2500,A,A,A,A,A,A,A
-V037,타 4374,Mercedes-Benz,F,2011,A,Idle,4728.571,35,3500,A,A,A,A,A,A,A
-V038,류 6746,Hyundai,F,2011,A,Idle,4857.143,32,2500,A,A,A,A,A,A,A
-V039,류 7896,Hyundai,F,2011,A,Idle,4985.714,35,4000,A,A,A,A,A,A,A
-V040,류 9865,Hyundai,F,2011,A,Idle,5114.286,35,1000,A,A,A,A,A,A,A
-V041,류 9080,Hyundai,F,2011,A,Idle,5242.857,35,2500,A,A,A,A,A,A,A
-V042,사 7263,Hyundai,F,2011,A,Idle,5371.429,35,1500,A,A,A,A,A,A,A
-V043,사 8976,Hyundai,F,2011,A,Idle,5500,36,100,A,A,A,A,A,A,A
-V044,사 0989,Hyundai,F,2011,A,Incident,5628.571,37,500,A,A,A,A,A,A,A
-V045,사 7865,Kia,E,2011,A,Incident,5757.143,38,500,A,A,A,A,A,A,A
-V046,나 3423,Kia,E,2011,A,Incident,5885.714,39,400,A,A,A,A,A,A,A
-V047,나 6757,Kia,E,2011,A,Incident,6014.286,50,900,A,A,A,A,A,A,A
-V048,나 8979,Kia,E,2011,A,Incident,6142.857,45,2000,A,A,A,A,A,A,A
-V049,다 8765,Kia,E,2011,A,Incident,6271.429,44,3000,A,A,A,A,A,A,A
-V050,라 0965,Kia,E,2011,A,Incident,6400,43,2500,A,A,A,A,A,A,A
+id,registration_number,manufacturer,vehicle_type,birth_year,ownership_type,status,total_distance,remaining_fuel,distance_since_new_oil,engine_oil_status,fuel_filter_status,brake_oil_status,brake_pedal_status,cooling_water_status,timing_belt_status,spark_plug_status
+V001,가 1234,Audi         ,F,2011,A,Running  ,100      ,30,100   ,A,A,A,A,A,A,A
+V002,가 1235,Audi         ,F,2011,A,Running  ,100      ,40,500   ,A,A,A,A,A,A,A
+V003,가 1236,Audi         ,F,2011,A,Running  ,1000     ,50,500   ,A,A,A,A,A,A,A
+V004,가 1237,Audi         ,F,2011,A,Running  ,1000     ,10,400   ,A,A,A,A,A,A,A
+V005,가 1238,Audi         ,F,2011,A,Running  ,3000     ,20,900   ,A,A,A,A,A,A,A
+V006,가 1239,Audi         ,F,2011,A,Running  ,3000     ,30,2000  ,A,A,A,A,A,A,A
+V007,가 1210,Audi         ,F,2011,A,Running  ,1000     ,24,3000  ,A,A,A,A,A,A,A
+V008,가 1211,Audi         ,F,2011,A,Running  ,1000     ,23,2500  ,A,A,A,A,A,A,A
+V009,가 1212,Audi         ,F,2011,A,Running  ,1128.571 ,22,3500  ,A,A,A,A,A,A,A
+V010,가 1213,Audi         ,F,2011,A,Running  ,1257.143 ,21,2500  ,A,A,A,A,A,A,A
+V011,가 1214,Audi         ,F,2011,A,Running  ,1385.714 ,20,4000  ,A,A,A,A,A,A,A
+V012,가 1215,Audi         ,F,2011,A,Running  ,1514.286 ,19,1000  ,A,A,A,A,A,A,A
+V013,가 1216,Audi         ,F,2011,A,Running  ,1642.857 ,18,2500  ,A,A,A,A,A,A,A
+V014,가 1217,Audi         ,F,2011,A,Running  ,1771.429 ,17,1500  ,A,A,A,A,A,A,A
+V015,가 1218,Audi         ,F,2011,A,Running  ,1900     ,16,100   ,A,A,A,A,A,A,A
+V016,가 1219,Audi         ,F,2011,A,Running  ,2028.571 ,15,500   ,A,A,A,A,A,A,A
+V017,가 1220,Audi         ,F,2011,A,Running  ,2157.143 ,14,500   ,A,A,A,A,A,A,A
+V018,가 1221,Audi         ,F,2011,A,Running  ,2285.714 ,20,400   ,A,A,A,A,A,A,A
+V019,카 0987,Volkswagon   ,E,2011,A,Running  ,2414.286 ,39,900   ,A,A,A,A,A,A,A
+V020,카 0988,Volkswagon   ,E,2011,A,Running  ,2542.857 ,29,2000  ,A,A,A,A,A,A,A
+V021,카 0989,Volkswagon   ,E,2011,A,Running  ,2671.429 ,25,3000  ,A,A,A,A,A,A,A
+V022,카 0990,Volkswagon   ,E,2011,A,Running  ,2800     ,35,2500  ,A,A,A,A,A,A,A
+V023,카 0991,Volkswagon   ,E,2011,A,Running  ,2928.571 ,35,3500  ,A,A,A,A,A,A,A
+V024,카 0992,Volkswagon   ,E,2011,A,Running  ,3057.143 ,45,2500  ,A,A,A,A,A,A,A
+V025,추 3456,Mercedes-Benz,F,2011,A,Running  ,3185.714 ,33,4000  ,A,A,A,A,A,A,A
+V026,추 8765,Mercedes-Benz,F,2011,A,Running  ,3314.286 ,44,1000  ,A,A,A,A,A,A,A
+V027,추 2938,Mercedes-Benz,F,2011,A,Running  ,3442.857 ,22,2500  ,A,A,A,A,A,A,A
+V028,추 2939,Mercedes-Benz,F,2011,A,Running  ,3571.429 ,44,1500  ,A,A,A,A,A,A,A
+V029,추 2940,Mercedes-Benz,F,2011,A,Idle     ,3700     ,33,100   ,A,A,A,A,A,A,A
+V030,타 4367,Mercedes-Benz,F,2011,A,Idle     ,3828.571 ,33,500   ,A,A,A,A,A,A,A
+V031,타 4368,Mercedes-Benz,F,2011,A,Idle     ,3957.143 ,23,500   ,A,A,A,A,A,A,A
+V032,타 4369,Mercedes-Benz,F,2011,A,Idle     ,4085.714 ,43,400   ,A,A,A,A,A,A,A
+V033,타 4370,Mercedes-Benz,F,2011,A,Idle     ,4214.286 ,45,900   ,A,A,A,A,A,A,A
+V034,타 4371,Mercedes-Benz,F,2011,A,Idle     ,4342.857 ,42,2000  ,A,A,A,A,A,A,A
+V035,타 4372,Mercedes-Benz,F,2011,A,Idle     ,4471.429 ,41,3000  ,A,A,A,A,A,A,A
+V036,타 4373,Mercedes-Benz,F,2011,A,Idle     ,4600     ,34,2500  ,A,A,A,A,A,A,A
+V037,타 4374,Mercedes-Benz,F,2011,A,Idle     ,4728.571 ,35,3500  ,A,A,A,A,A,A,A
+V038,류 6746,Hyundai      ,F,2011,A,Idle     ,4857.143 ,32,2500  ,A,A,A,A,A,A,A
+V039,류 7896,Hyundai      ,F,2011,A,Idle     ,4985.714 ,35,4000  ,A,A,A,A,A,A,A
+V040,류 9865,Hyundai      ,F,2011,A,Idle     ,5114.286 ,35,1000  ,A,A,A,A,A,A,A
+V041,류 9080,Hyundai      ,F,2011,A,Idle     ,5242.857 ,35,2500  ,A,A,A,A,A,A,A
+V042,사 7263,Hyundai      ,F,2011,A,Idle     ,5371.429 ,35,1500  ,A,A,A,A,A,A,A
+V043,사 8976,Hyundai      ,F,2011,A,Idle     ,5500     ,36,100   ,A,A,A,A,A,A,A
+V044,사 0989,Hyundai      ,F,2011,A,Incident ,5628.571 ,37,500   ,A,A,A,A,A,A,A
+V045,사 7865,Kia          ,E,2011,A,Incident ,5757.143 ,38,500   ,A,A,A,A,A,A,A
+V046,나 3423,Kia          ,E,2011,A,Incident ,5885.714 ,39,400   ,A,A,A,A,A,A,A
+V047,나 6757,Kia          ,E,2011,A,Incident ,6014.286 ,50,900   ,A,A,A,A,A,A,A
+V048,나 8979,Kia          ,E,2011,A,Incident ,6142.857 ,45,2000  ,A,A,A,A,A,A,A
+V049,다 8765,Kia          ,E,2011,A,Incident ,6271.429 ,44,3000  ,A,A,A,A,A,A,A
+V050,라 0965,Kia          ,E,2011,A,Incident ,6400     ,43,2500  ,A,A,A,A,A,A,A

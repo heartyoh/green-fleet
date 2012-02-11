@@ -5,25 +5,68 @@ Ext.define('GreenFleet.view.management.Company', {
 
 	title : 'Company',
 
+	entityUrl : 'company',
+	
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
 
-	initComponent : function() {
-		Ext.applyIf(this, {
-			items : [],
-		});
-		this.items = [ {
-			html : '<div class="listTitle">Company List</div>'
-		}, this.buildList(this), this.buildForm(this) ],
-
-		this.callParent(arguments);
+	items : {
+		html : '<div class="listTitle">Company List</div>'
 	},
 
+	initComponent : function() {
+		var self = this;
+
+		this.callParent(arguments);
+
+		this.add(this.buildList(this));
+		this.add(this.buildForm(this));
+
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+
+		this.sub('grid').on('render', function(grid) {
+			grid.store.load();
+		});
+
+		this.sub('id_filter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.sub('name_filter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.down('#search_reset').on('click', function() {
+			self.sub('id_filter').setValue('');
+			self.sub('name_filter').setValue('');
+		});
+
+		this.down('#search').on('click', function() {
+			self.sub('grid').store.load();
+		});
+
+	},
+
+	search : function(self) {
+		self.sub('grid').store.clearFilter();
+
+		self.sub('grid').store.filter([ {
+			property : 'id',
+			value : self.sub('id_filter').getValue()
+		}, {
+			property : 'name',
+			value : self.sub('name_filter').getValue()
+		} ]);
+	},
+	
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
+			itemId : 'grid',
 			store : 'CompanyStore',
 			flex : 3,
 			columns : [ {
@@ -37,13 +80,16 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'name',
 				text : 'Name'
 			}, {
-				dataIndex : 'createdAt',
+				dataIndex : 'desc',
+				text : 'Description'
+			}, {
+				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
-				dataIndex : 'updatedAt',
+				dataIndex : 'updated_at',
 				text : 'Updated At',
 				xtype : 'datecolumn',
 				format : F('datetime'),
@@ -52,72 +98,28 @@ Ext.define('GreenFleet.view.management.Company', {
 			viewConfig : {
 
 			},
-			listeners : {
-				render : function(grid) {
-					grid.store.load();
-				},
-				itemclick : function(grid, record) {
-					var form = main.down('form');
-					form.loadRecord(record);
-				}
-			},
-			onSearch : function(grid) {
-				var idFilter = grid.down('textfield[name=idFilter]');
-				var nameFilter = grid.down('textfield[name=nameFilter]');
-				grid.store.clearFilter();
-
-				grid.store.filter([ {
-					property : 'id',
-					value : idFilter.getValue()
-				}, {
-					property : 'name',
-					value : nameFilter.getValue()
-				} ]);
-			},
 			onReset : function(grid) {
-				grid.down('textfield[name=idFilter]').setValue('');
-				grid.down('textfield[name=nameFilter]').setValue('');
+				grid.down('textfield[name=id_filter]').setValue('');
+				grid.down('textfield[name=name_filter]').setValue('');
 			},
 			tbar : [ 'ID', {
 				xtype : 'textfield',
-				name : 'idFilter',
+				name : 'id_filter',
+				itemId : 'id_filter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, 'NAME', {
 				xtype : 'textfield',
-				name : 'nameFilter',
+				name : 'name_filter',
+				itemId : 'name_filter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, {
-				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Company',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
+				itemId : 'search'
 			}, {
 				text : 'reset',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onReset(grid);
-				}
+				itemId : 'search_reset'
 			} ]
 		}
 	},
@@ -125,97 +127,43 @@ Ext.define('GreenFleet.view.management.Company', {
 	buildForm : function(main) {
 		return {
 			xtype : 'form',
+			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Company Details',
 			flex : 2,
-			items : [ {
+			defaults : {
 				xtype : 'textfield',
+				anchor : '100%'
+			},
+			items : [ {
 				name : 'key',
 				fieldLabel : 'Key',
-				anchor : '100%',
 				hidden : true
 			}, {
-				xtype : 'textfield',
 				name : 'id',
-				fieldLabel : 'ID',
-				anchor : '100%'
+				fieldLabel : 'ID'
 			}, {
-				xtype : 'textfield',
 				name : 'name',
-				fieldLabel : 'Name',
-				anchor : '100%'
+				fieldLabel : 'Name'
+			}, {
+				name : 'desc',
+				fieldLabel : 'Description'
 			}, {
 				xtype : 'datefield',
-				name : 'updatedAt',
+				name : 'updated_at',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format : F('datetime'),
-				anchor : '100%'
+				format : F('datetime')
 			}, {
 				xtype : 'datefield',
-				name : 'createdAt',
+				name : 'created_at',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format : F('datetime'),
-				anchor : '100%'
+				format : F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'toolbar',
-				dock : 'bottom',
-				layout : {
-					align : 'middle',
-					type : 'hbox'
-				},
-				items : [ {
-					xtype : 'tbfill'
-				}, {
-					xtype : 'button',
-					text : 'Save',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'company/save',
-								success : function(form, action) {
-									var store = main.down('gridpanel').store;
-									store.load(function() {
-										form.loadRecord(store.findRecord('key', action.result.key));
-									});
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Delete',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'company/delete',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-									form.reset();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Reset',
-					handler : function() {
-						this.up('form').getForm().reset();
-					}
-				} ]
+				xtype : 'entity_form_buttons'
 			} ]
 		}
 	}

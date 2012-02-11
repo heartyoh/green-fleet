@@ -5,35 +5,86 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 
 	title : 'Vehicle',
 
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-	items: {
-		html : '<div class="listTitle">Vehicle List</div>'
-	},
-
-	initComponent : function() {
-		this.callParent(arguments);
-
-		this.list = this.add(this.buildList(this));
-		var detail = this.add(this.buildForm(this));
-		this.form = detail.down('form'); 
-	},
-
+	entityUrl : 'vehicle',
 	/*
 	 * importUrl, afterImport config properties for Import util function
 	 */ 
 	importUrl : 'vehicle/import',
 	
 	afterImport : function() {
-		this.down('gridpanel').store.load();
-		this.form.getForm().reset();
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
 	},
 
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	items: {
+		html : '<div class="listTitle">Vehicle List</div>'
+	},
+
+	initComponent : function() {
+		var self = this;
+		
+		this.callParent(arguments);
+
+		this.add(this.buildList(this));
+		this.add(this.buildForm(this));
+
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+
+		this.sub('grid').on('render', function(grid) {
+			grid.store.load();
+		});
+
+		this.sub('id_filter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.sub('registration_number_filter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.down('#search_reset').on('click', function() {
+			self.sub('id_filter').setValue('');
+			self.sub('registration_number_filter').setValue('');
+		});
+
+		this.down('#search').on('click', function() {
+			self.sub('grid').store.load();
+		});
+		
+		this.down('#image_clip').on('change', function(field, value) {
+			var image = self.sub('image');
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgVehicle.png');
+		})
+		
+	},
+
+	search : function(self) {
+		self.sub('grid').store.clearFilter();
+
+		self.sub('grid').store.filter([ {
+			property : 'id',
+			value : self.sub('id_filter').getValue()
+		}, {
+			property : 'registration_number',
+			value : self.sub('registration_number_filter').getValue()
+		} ]);
+	},
+	
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
+			itemId : 'grid',
 			store : 'VehicleStore',
 			autoScroll : true,
 			flex : 1,
@@ -47,7 +98,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : 'Vehicle Id',
 				type : 'string'
 			}, {
-				dataIndex : 'registrationNumber',
+				dataIndex : 'registration_number',
 				text : 'RegistrationNumber',
 				type : 'string'
 			}, {
@@ -55,15 +106,15 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : 'Manufacturer',
 				type : 'string'
 			}, {
-				dataIndex : 'vehicleType',
+				dataIndex : 'vehicle_type',
 				text : 'VehicleType',
 				type : 'string'
 			}, {
-				dataIndex : 'birthYear',
+				dataIndex : 'birth_year',
 				text : 'BirthYear',
 				type : 'string'
 			}, {
-				dataIndex : 'ownershipType',
+				dataIndex : 'ownership_type',
 				text : 'OwnershipType',
 				type : 'string'
 			}, {
@@ -71,43 +122,43 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : 'Status',
 				type : 'string'
 			}, {
-				dataIndex : 'totalDistance',
+				dataIndex : 'total_distance',
 				text : 'TotalDistance',
 				type : 'string'
 			}, {
-				dataIndex : 'remainingFuel',
+				dataIndex : 'remaining_fuel',
 				text : 'RemainingFuel',
 				type : 'string'
 			}, {
-				dataIndex : 'distanceSinceNewOil',
+				dataIndex : 'distance_since_new_oil',
 				text : 'DistanceSinceNewOil',
 				type : 'string'
 			}, {
-				dataIndex : 'engineOilStatus',
+				dataIndex : 'engine_oil_status',
 				text : 'EngineOilStatus',
 				type : 'string'
 			}, {
-				dataIndex : 'fuelFilterStatus',
+				dataIndex : 'fuel_filter_status',
 				text : 'FuelFilterStatus',
 				type : 'string'
 			}, {
-				dataIndex : 'brakeOilStatus',
+				dataIndex : 'brake_oil_status',
 				text : 'BrakeOilStatus',
 				type : 'string'
 			}, {
-				dataIndex : 'brakePedalStatus',
+				dataIndex : 'brake_pedal_status',
 				text : 'BrakePedalStatus',
 				type : 'string'
 			}, {
-				dataIndex : 'coolingWaterStatus',
+				dataIndex : 'cooling_water_status',
 				text : 'CoolingWaterStatus',
 				type : 'string'
 			}, {
-				dataIndex : 'timingBeltStatus',
+				dataIndex : 'timing_belt_status',
 				text : 'TimingBeltStatus',
 				type : 'string'
 			}, {
-				dataIndex : 'sparkPlugStatus',
+				dataIndex : 'spark_plug_status',
 				text : 'SparkPlugStatus',
 				type : 'string'
 			}, {
@@ -117,13 +168,13 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				dataIndex : 'longitude',
 				text : 'Longitude'
 			}, {
-				dataIndex : 'createdAt',
+				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
-				dataIndex : 'updatedAt',
+				dataIndex : 'updated_at',
 				text : 'Updated At',
 				xtype : 'datecolumn',
 				format : F('datetime'),
@@ -132,72 +183,24 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			viewConfig : {
 
 			},
-			listeners : {
-				render : function(grid) {
-					grid.store.load();
-				},
-				itemclick : function(grid, record) {
-					var form = main.form;
-					form.loadRecord(record);
-				}
-			},
-			onSearch : function(grid) {
-				var idFilter = grid.down('textfield[name=idFilter]');
-				var namefilter = grid.down('textfield[name=nameFilter]');
-				grid.store.clearFilter();
-
-				grid.store.filter([ {
-					property : 'id',
-					value : idFilter.getValue()
-				}, {
-					property : 'registrationNumber',
-					value : namefilter.getValue()
-				} ]);
-			},
-			onReset : function(grid) {
-				grid.down('textfield[name=idFilter]').setValue('');
-				grid.down('textfield[name=nameFilter]').setValue('');
-			},
 			tbar : [ 'ID', {
 				xtype : 'textfield',
-				name : 'idFilter',
+				name : 'id_filter',
+				itemId : 'id_filter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, 'Registeration Number', {
 				xtype : 'textfield',
-				name : 'nameFilter',
+				name : 'registration_number_filter',
+				itemId : 'registration_number_filter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, {
-				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Vehicle',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
+				itemId : 'search'
 			}, {
 				text : 'Reset',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onReset(grid);
-				}
+				itemId : 'search_reset'
 			} ]
 		}
 	},
@@ -215,62 +218,54 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			flex : 1,
 			items : [ {
 				xtype : 'form',
+				itemId : 'form',
 				flex : 1,
 				autoScroll : true,
 				defaults : {
-					anchor : '100%',
+					xtype : 'textfield',
+					anchor : '100%'
 				},
 				items : [ {
-					xtype : 'textfield',
 					name : 'key',
 					fieldLabel : 'Key',
 					hidden : true
 				}, {
-					xtype : 'textfield',
 					name : 'id',
-					fieldLabel : 'Vehicle Id',
-					anchor : '100%'
+					fieldLabel : 'Vehicle Id'
 				}, {
-					xtype : 'textfield',
-					name : 'registrationNumber',
-					fieldLabel : 'Registration Number',
-					anchor : '100%'
+					name : 'registration_number',
+					fieldLabel : 'Registration Number'
 				}, {
 					xtype : 'codecombo',
 					name : 'manufacturer',
 					group : 'V-Maker',
-					fieldLabel : 'Manufacturer',
-					anchor : '100%'
+					fieldLabel : 'Manufacturer'
 				}, {
 					xtype : 'codecombo',
-					name : 'vehicleType',
+					name : 'vehicle_type',
 					group : 'V-Type1',
-					fieldLabel : 'Vehicle Type',
-					anchor : '100%'
+					fieldLabel : 'Vehicle Type'
 				}, {
 					xtype : 'filefield',
-					name : 'imageFile',
+					name : 'image_file',
 					fieldLabel : 'Image Upload',
 					msgTarget : 'side',
 					allowBlank : true,
-					anchor : '100%',
 					buttonText : 'file...'
 				}, {
 					xtype : 'codecombo',
-					name : 'birthYear',
+					name : 'birth_year',
 					group : 'V-BirthYear',
-					name : 'birthYear',
-					fieldLabel : 'BirthYear',
-					anchor : '100%'
+					name : 'birth_year',
+					fieldLabel : 'BirthYear'
 				}, {
 					xtype : 'combo',
-					name : 'ownershipType',
+					name : 'ownership_type',
 					queryMode : 'local',
 					store : 'OwnershipStore',
 					displayField : 'desc',
 					valueField : 'name',
-					fieldLabel : 'Ownership Type',
-					anchor : '100%'
+					fieldLabel : 'Ownership Type'
 				}, {
 					xtype : 'combo',
 					name : 'status',
@@ -278,97 +273,71 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					store : 'VehicleStatusStore',
 					displayField : 'desc',
 					valueField : 'status',
-					fieldLabel : 'Status',
-					anchor : '100%'
+					fieldLabel : 'Status'
 				}, {
-					xtype : 'textfield',
-					name : 'totalDistance',
-					fieldLabel : 'Total Distance',
-					anchor : '100%'
+					name : 'total_distance',
+					fieldLabel : 'Total Distance'
 				}, {
-					xtype : 'textfield',
-					name : 'remainingFuel',
-					fieldLabel : 'Remaining Fuel',
-					anchor : '100%'
+					name : 'remaining_fuel',
+					fieldLabel : 'Remaining Fuel'
 				}, {
-					xtype : 'textfield',
-					name : 'distanceSinceNewOil',
-					fieldLabel : 'Distance Since NewOil',
-					anchor : '100%'
+					name : 'distance_since_new_oil',
+					fieldLabel : 'Distance Since NewOil'
 				}, {
-					xtype : 'textfield',
-					name : 'engineOilStatus',
-					fieldLabel : 'EngineOil Status',
-					anchor : '100%'
+					name : 'engine_oil_status',
+					fieldLabel : 'EngineOil Status'
 				}, {
-					xtype : 'textfield',
-					name : 'fuelFilterStatus',
-					fieldLabel : 'FuelFilter Status',
-					anchor : '100%'
+					name : 'fuel_filter_status',
+					fieldLabel : 'FuelFilter Status'
 				}, {
-					xtype : 'textfield',
-					name : 'brakeOilStatus',
-					fieldLabel : 'BrakeOil Status',
-					anchor : '100%'
+					name : 'brake_oil_status',
+					fieldLabel : 'BrakeOil Status'
 				}, {
-					xtype : 'textfield',
-					name : 'brakePedalStatus',
-					fieldLabel : 'BrakePedal Status',
-					anchor : '100%'
+					name : 'brake_pedal_status',
+					fieldLabel : 'BrakePedal Status'
 				}, {
-					xtype : 'textfield',
-					name : 'coolingWaterStatus',
-					fieldLabel : 'CoolingWater Status',
-					anchor : '100%'
+					name : 'cooling_water_status',
+					fieldLabel : 'CoolingWater Status'
 				}, {
-					xtype : 'textfield',
-					name : 'timingBeltStatus',
-					fieldLabel : 'TimingBeltStatus',
-					anchor : '100%'
+					name : 'timing_belt_status',
+					fieldLabel : 'TimingBeltStatus'
 				}, {
-					xtype : 'textfield',
-					name : 'sparkPlugStatus',
-					fieldLabel : 'SparkPlugStatus',
-					anchor : '100%'
+					name : 'spark_plug_status',
+					fieldLabel : 'SparkPlugStatus'
 				}, {
-					xtype : 'textfield',
 					name : 'lattitude',
 					fieldLabel : 'Lattitude',
-					disabled : true,
-					anchor : '100%'
+					disabled : true
 				}, {
-					xtype : 'textfield',
 					name : 'longitude',
 					fieldLabel : 'Longitude',
-					disabled : true,
-					anchor : '100%'
+					disabled : true
 				}, {
 					xtype : 'datefield',
-					name : 'updatedAt',
+					name : 'updated_at',
 					disabled : true,
 					fieldLabel : 'Updated At',
-					format : F('datetime'),
-					anchor : '100%'
+					format : F('datetime')
 				}, {
 					xtype : 'datefield',
-					name : 'createdAt',
+					name : 'created_at',
 					disabled : true,
 					fieldLabel : 'Created At',
-					format : F('datetime'),
-					anchor : '100%'
+					format : F('datetime')
 				}, {
 					xtype : 'displayfield',
-					name : 'imageClip',
+					name : 'image_clip',
+					itemId : 'image_clip',
 					hidden : true,
-					listeners : {
-						change : function(field, value) {
-							var img = main.form.nextSibling('container').down('image');
-							if(value != null && value.length > 0)
-								img.setSrc('download?blob-key=' + value);
-							else
-								img.setSrc('resources/image/bgVehicle.png');
-						}
-					}
+//					listeners : {
+//						change : function(field, value) {
+//							var img = main.form.nextSibling('container').down('image');
+//							if(value != null && value.length > 0)
+//								img.setSrc('download?blob-key=' + value);
+//							else
+//								img.setSrc('resources/image/bgVehicle.png');
+//						}
+//					}
 				} ]
 			}, {
 				xtype : 'container',
@@ -385,61 +354,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				} ]
 			} ],
 			dockedItems : [ {
-				xtype : 'toolbar',
-				dock : 'bottom',
-				layout : {
-					align : 'middle',
-					type : 'hbox'
-				},
-				items : [ {
-					xtype : 'tbfill'
-				},{
-					xtype : 'button',
-					text : 'Save',
-					handler : function() {
-						var form = main.form.getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'vehicle/save',
-								success : function(form, action) {
-									var store = main.down('gridpanel').store;
-									store.load(function() {
-										form.loadRecord(store.findRecord('key', action.result.key));
-									});
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Delete',
-					handler : function() {
-						var form = main.form.getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'vehicle/delete',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-									form.reset();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'New',
-					handler : function() {
-						main.form.getForm().reset();
-					}
-				} ]
+				xtype : 'entity_form_buttons'
 			} ]
 		}
 	}

@@ -1,4 +1,4 @@
-id,name,division,title,socialId,phoneNo1,phoneNo2
+id,name,division,title,social_id,phone_no_1,phone_no_2
 D001,오현석,Sales,이사      ,10011-0983425,010-1111-2222,010-3333-4444
 D002,김상혁,Sales,이사      ,10011-0983425,010-1111-2222,010-3333-4444
 D003,정봉주,Sales,이사      ,10011-0983425,010-1111-2222,010-3333-4444

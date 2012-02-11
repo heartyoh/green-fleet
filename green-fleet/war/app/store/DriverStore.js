@@ -19,23 +19,23 @@ Ext.define('GreenFleet.store.DriverStore', {
 		name : 'title',
 		type : 'string'
 	}, {
-		name : 'socialId',
+		name : 'social_id',
 		type : 'string'
 	}, {
-		name : 'phoneNo1',
+		name : 'phone_no_1',
 		type : 'string'
 	}, {
-		name : 'phoneNo2',
+		name : 'phone_no_2',
 		type : 'string'
 	}, {
-		name : 'imageClip',
+		name : 'image_clip',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

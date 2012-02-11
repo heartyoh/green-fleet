@@ -69,7 +69,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			var driverStore = Ext.getStore('DriverStore');
 			var driverRecord = driverStore.findRecord('id', value);
 			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('imageClip');
+			var driverImageClip = driverRecord.get('image_clip');
 			if (driverImageClip) {
 				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
 			} else {
@@ -77,13 +77,13 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			}
 		});
 
-		this.sub('driverFilter').on('specialkey', function(fleld, e) {
+		this.sub('driver_filter').on('specialkey', function(fleld, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
 			};
 		});
 		
-		this.sub('vehicleFilter').on('specialkey', function(field, e) {
+		this.sub('vehicle_filter').on('specialkey', function(field, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
 			};
@@ -105,8 +105,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	setIncident : function(incident, refresh) {
 		this.incident = incident;
 		if(refresh) {
-			this.sub('vehicleFilter').setValue(incident.get('vehicle'));
-			this.sub('driverFilter').reset();
+			this.sub('vehicle_filter').setValue(incident.get('vehicle'));
+			this.sub('driver_filter').reset();
 			this.refreshIncidentList();
 		}
 		
@@ -121,18 +121,18 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	refreshIncidentList : function() {
 		this.sub('grid').store.load({
 			filters : [ {
-				property : 'vehicle',
-				value : this.sub('vehicleFilter').getValue()
+				property : 'vehicle_id',
+				value : this.sub('vehicle_filter').getValue()
 			}, {
-				property : 'driver',
-				value : this.sub('driverFilter').getValue()
+				property : 'driver_id',
+				value : this.sub('driver_filter').getValue()
 			} ]
 		});
 	},
 	
 	resetIncidentList : function() {
-		this.sub('vehicleFilter').reset();
-		this.sub('driverFilter').reset();
+		this.sub('vehicle_filter').reset();
+		this.sub('driver_filter').reset();
 		
 		this.refreshIncidentList();
 	},
@@ -379,7 +379,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Vehicle',
-			itemId : 'vehicleFilter',
+			itemId : 'vehicle_filter',
 			width : 200
 		}, {
 			xtype : 'combo',
@@ -388,7 +388,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Driver',
-			itemId : 'driverFilter',
+			itemId : 'driver_filter',
 			width : 200
 		}, {
 			itemId : 'search',

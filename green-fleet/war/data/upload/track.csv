@@ -1,4 +1,4 @@
-terminal,vehicle,driver,lattitude,longitude,velocity,datetime
+terminal_id,vehicle_id,driver_id,lattitude,longitude,velocity,datetime
 T001,V001,D001,37.56,126.97 ,100,2010-02-10 12:00:00
 T002,V002,D002,37.55,126.97 ,100,2010-02-10 12:00:00
 T003,V003,D003,37.54,126.96 ,100,2010-02-10 12:00:00

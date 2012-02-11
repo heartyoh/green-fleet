@@ -44,10 +44,10 @@ import com.heartyoh.util.SessionUtils;
 public abstract class EntityService {
 	abstract protected String getEntityName();
 
-	abstract protected String getIdValue(Map<String, String> map);
+	abstract protected String getIdValue(Map<String, Object> map);
 
-	protected static Map<String, String> toMap(HttpServletRequest request) {
-		Map<String, String> map = new HashMap<String, String>();
+	protected static Map<String, Object> toMap(HttpServletRequest request) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		Enumeration e = request.getParameterNames();
 		while (e.hasMoreElements()) {
 			String name = (String) e.nextElement();
@@ -56,64 +56,88 @@ public abstract class EntityService {
 		return map;
 	}
 
-	protected static boolean booleanProperty(Map<String, String> map, String property) {
-		String value = map.get(property);
+	protected static boolean booleanProperty(Map<String, Object> map, String property) {
+		String value = (String)map.get(property);
 		return value.equals("true") || value.equals("on");
 	}
 
-	protected static double doubleProperty(Map<String, String> map, String property) {
-		String value = map.get(property);
+	protected static double doubleProperty(Map<String, Object> map, String property) {
+		String value = (String)map.get(property);
 		return Double.parseDouble(value);
 	}
 
-	protected static int intProperty(Map<String, String> map, String property) {
-		String value = map.get(property);
+	protected static int intProperty(Map<String, Object> map, String property) {
+		String value = (String)map.get(property);
 		return Integer.parseInt(value);
+	}
+
+	protected static String stringProperty(Map<String, Object> map, String property) {
+		return (String)map.get(property);
 	}
 
 	protected boolean useFilter() {
 		return false;
 	}
 
-	protected void onCreate(Entity entity, Map<String, String> map, Date now) {
-		entity.setProperty("createdAt", now);
+	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+		entity.setProperty("created_at", now);
 	}
 
-	protected void onSave(Entity entity, Map<String, String> map, Date now) {
-		entity.setProperty("updatedAt", now);
+	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+		entity.setProperty("updated_at", now);
+	}
+
+	protected static String saveFile(MultipartFile file) throws IOException {
+		if (file != null && file.getSize() > 0) {
+			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType());// ,
+																							// imageFile.getOriginalFilename());
+
+			boolean lock = true;
+			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, lock);
+
+			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
+
+			writeChannel.closeFinally();
+			
+			return fileService.getBlobKey(appfile).getKeyString();
+		}
+		return null;
 	}
 	
-	protected void onMultipart(Entity entity, Map<String, String> map, MultipartHttpServletRequest request) throws IOException {
+	protected void preMultipart(Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
 		Map<String, MultipartFile> filemap = request.getFileMap();
-		
+
 		Set<String> keys = filemap.keySet();
-		
+
 		Iterator<String> it = keys.iterator();
-		
-		while(it.hasNext()) {
+
+		while (it.hasNext()) {
 			String key = it.next();
 			MultipartFile file = filemap.get(key);
-			
-			if(file.getSize() > 0) {
-				com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-				AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType());//, imageFile.getOriginalFilename());
 
-				boolean lock = true;
-				FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, lock);
-
-				writeChannel.write(ByteBuffer.wrap(file.getBytes()));
-
-				writeChannel.closeFinally();
-
-				map.put(key, fileService.getBlobKey(appfile).getKeyString());
-			}
+			map.put(key, file);
 		}
 	}
 
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
+			throws IOException {
+	}
+
+	/*
+	 * 하나의 파일(키이름 : file)로 여러 레코드를 한번에 생성 또는 수정하는 경우에 사용함. (파일은 CSV형태이어야 하면, 첫번째
+	 * 레코드에는 key 이름이 나열되어야 한다.)
+	 * 
+	 * 이 경우에는 각 레코드의 키로 사용될 정보는 filename 정보와 각 레코드의 필드 정보로 만들어 낼 수 있다.
+	 * getIdValue 에 넘겨지는 파라미터(map)에는 각 레코드의 데이타 외에 _filename 키로 파일이름이 넘겨지고,
+	 * _content_type 키로 컨텐트 타입이 넘겨진다.
+	 */
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
 		CustomUser user = SessionUtils.currentUser();
 
 		MultipartFile file = request.getFile("file");
+		String filename = file.getOriginalFilename();
+		String contentType = file.getContentType();
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
 
@@ -136,11 +160,13 @@ public abstract class EntityService {
 			while ((line = br.readLine()) != null) {
 				String[] values = line.split(",");
 
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, Object> map = new HashMap<String, Object>();
 
 				for (int i = 0; i < keys.length; i++) {
 					map.put(keys[i].trim(), values[i].trim());
 				}
+				map.put("_filename", filename);
+				map.put("_content_type", contentType);
 
 				Key key = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 				Entity entity = null;
@@ -165,7 +191,10 @@ public abstract class EntityService {
 	}
 
 	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Map<String, String> map = toMap(request);
+		Map<String, Object> map = toMap(request);
+		if (request instanceof MultipartHttpServletRequest) {
+			preMultipart(map, (MultipartHttpServletRequest) request);
+		}
 
 		CustomUser user = SessionUtils.currentUser();
 
@@ -214,9 +243,9 @@ public abstract class EntityService {
 			 */
 
 			if (request instanceof MultipartHttpServletRequest) {
-				onMultipart(obj, map, (MultipartHttpServletRequest)request);
+				postMultipart(obj, map, (MultipartHttpServletRequest) request);
 			}
-				
+
 			onSave(obj, map, now);
 
 			datastore.put(obj);
@@ -238,11 +267,11 @@ public abstract class EntityService {
 		} finally {
 		}
 
-//		Map<String, Object> result = new HashMap<String, Object>();
-//		result.put("success", true);
-//		result.put("msg", getEntityName() + " destroyed.");
-//
-//		return result;
+		// Map<String, Object> result = new HashMap<String, Object>();
+		// result.put("success", true);
+		// result.put("msg", getEntityName() + " destroyed.");
+		//
+		// return result;
 		response.setContentType("text/html");
 
 		return "{ \"success\" : true, \"msg\" : \"" + getEntityName() + " destroyed\" }";
