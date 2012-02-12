@@ -5,6 +5,7 @@ Ext.define('GreenFleet.view.management.Track', {
 
 	title : 'Track',
 
+	entityUrl : 'track',
 	/*
 	 * importUrl, afterImport config properties for Import util function
 	 */ 
@@ -106,7 +107,9 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				dataIndex : 'datetime',
 				text : 'DateTime',
-				type : 'number'
+				xtype:'datecolumn',
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'lattitude',
 				text : 'Lattitude',
@@ -217,9 +220,10 @@ Ext.define('GreenFleet.view.management.Track', {
 			    valueField: 'id',
 				fieldLabel : 'Driver'
 			}, {
-				xtype : 'textfield',
+				xtype : 'datefield',
 				name : 'datetime',
-				fieldLabel : 'DateTime'
+				fieldLabel : 'DateTime',
+				format: F('datetime')
 			}, {
 				name : 'lattitude',
 				fieldLabel : 'Lattitude'

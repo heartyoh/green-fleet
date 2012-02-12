@@ -79,12 +79,12 @@ public abstract class EntityService {
 		return false;
 	}
 
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
-		entity.setProperty("created_at", now);
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+		entity.setProperty("created_at", map.get("_now"));
 	}
 
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
-		entity.setProperty("updated_at", now);
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+		entity.setProperty("updated_at", map.get("_now"));
 	}
 
 	protected static String saveFile(MultipartFile file) throws IOException {
@@ -167,6 +167,7 @@ public abstract class EntityService {
 				}
 				map.put("_filename", filename);
 				map.put("_content_type", contentType);
+				map.put("_now", now);
 
 				Key key = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 				Entity entity = null;
@@ -175,10 +176,10 @@ public abstract class EntityService {
 					entity = datastore.get(key);
 				} catch (EntityNotFoundException e) {
 					entity = new Entity(key);
-					onCreate(entity, map, now);
+					onCreate(entity, map, datastore);
 				}
 
-				onSave(entity, map, now);
+				onSave(entity, map, datastore);
 
 				datastore.put(entity);
 			}
@@ -232,11 +233,13 @@ public abstract class EntityService {
 		}
 
 		Date now = new Date();
+		
+		map.put("_now", now);
 
 		try {
 			if (creating) {
 				obj = new Entity(objKey);
-				onCreate(obj, map, now);
+				onCreate(obj, map, datastore);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
@@ -246,7 +249,7 @@ public abstract class EntityService {
 				postMultipart(obj, map, (MultipartHttpServletRequest) request);
 			}
 
-			onSave(obj, map, now);
+			onSave(obj, map, datastore);
 
 			datastore.put(obj);
 		} finally {

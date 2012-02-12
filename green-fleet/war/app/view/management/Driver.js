@@ -167,7 +167,6 @@ Ext.define('GreenFleet.view.management.Driver', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Driver Details',
-			autoScroll : true,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'	
@@ -176,6 +175,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			items : [ {
 				xtype : 'form',
 				itemId : 'form',
+				autoScroll : true,
 				flex : 1,
 				defaults : {
 					xtype : 'textfield',

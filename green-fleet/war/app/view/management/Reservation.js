@@ -4,21 +4,21 @@ Ext.define('GreenFleet.view.management.Reservation', {
 	alias : 'widget.management_reservation',
 
 	title : 'Reservation',
-	
+
 	entityUrl : 'reservation',
 
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
-	
-	items: {
+
+	items : {
 		html : '<div class="listTitle">Reservation List</div>'
 	},
 
 	initComponent : function() {
 		var self = this;
-		
+
 		this.callParent(arguments);
 
 		this.add(this.buildList(this));
@@ -48,14 +48,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		this.down('#search').on('click', function() {
 			self.sub('grid').store.load();
 		});
-		
-		this.down('#image_clip').on('change', function(field, value) {
-			var video = self.sub('image');
-			video.update({
-				value : value
-			});
-		})
-		
+
 	},
 
 	search : function(self) {
@@ -69,27 +62,24 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			value : self.sub('reserved_date_filter').getValue()
 		} ]);
 	},
-	
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
+			itemId : 'grid',
 			store : 'ReservationStore',
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
 				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'id',
 				text : 'ID',
 				type : 'string'
 			}, {
 				dataIndex : 'reserved_date',
 				text : 'Reserved Date',
-				type : 'string',
-				format : F('date')
+				xtype : 'datecolumn',
+				format : F('date'),
+				width : 120
 			}, {
 				dataIndex : 'driver_id',
 				text : 'Driver',
@@ -121,14 +111,14 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			}, {
 				dataIndex : 'created_at',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			} ],
 			viewConfig : {
@@ -159,6 +149,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 	buildForm : function(main) {
 		return {
 			xtype : 'form',
+			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Reservation Details',
@@ -168,17 +159,13 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'textfield',
 				anchor : '100%'
 			},
-			items : [{
+			items : [ {
 				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
-			}, {
-				name : 'id',
-				fieldLabel : 'Reservation ID'
+				fieldLabel : 'Reservation ID',
+				disabled : true
 			}, {
 				xtype : 'datefield',
 				name : 'reserved_date',
-				disabled : true,
 				fieldLabel : 'Reserved Date',
 				format : F('date')
 			}, {
@@ -187,18 +174,18 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			}, {
 				xtype : 'combo',
 				name : 'vehicle_id',
-				queryMode: 'local',
+				queryMode : 'local',
 				store : 'VehicleStore',
-				displayField: 'id',
-			    valueField: 'key',
+				displayField : 'id',
+				valueField : 'id',
 				fieldLabel : 'Vehicle'
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
-				queryMode: 'local',
+				queryMode : 'local',
 				store : 'DriverStore',
-				displayField: 'name',
-			    valueField: 'key',
+				displayField : 'name',
+				valueField : 'id',
 				fieldLabel : 'Driver'
 			}, {
 				name : 'status',
@@ -217,13 +204,13 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				name : 'updated_at',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format: F('datetime')
+				format : F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format: F('datetime')
+				format : F('datetime')
 			} ],
 			dockedItems : [ {
 				xtype : 'entity_form_buttons'

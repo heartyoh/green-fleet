@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 
 @Controller
@@ -38,17 +38,18 @@ public class CodeService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("group", map.get("group"));
 		entity.setProperty("code", map.get("code"));
 
-		entity.setProperty("created_at", now);
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("desc", map.get("desc"));
-		entity.setProperty("updated_at", now);
+		
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/code/import", method = RequestMethod.POST)

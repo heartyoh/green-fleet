@@ -1,6 +1,8 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +19,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class TrackService extends EntityService {
@@ -39,24 +41,35 @@ public class TrackService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return map.get("terminal_id") + "@" + map.get("datetime");
+		String datetime = (String)map.get("datetime");
+		if(datetime == null) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			datetime = df.format(new Date());
+		}
+
+		return map.get("terminal_id") + "@" + datetime;
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
-		entity.setProperty("created_at", now);
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+		String datetime = (String)map.get("datetime");
+		
+		if(datetime == null) {
+			entity.setProperty("datetime", map.get("_now"));
+		} else {
+			entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime));
+		}
+
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		String terminal_id = (String) map.get("terminal_id");
 		String vehicle_id = (String) map.get("vehicle_id");
 		String driver_id = (String) map.get("driver_id");
 		String lattitude = (String) map.get("lattitude");
 		String longitude = (String) map.get("longitude");
-		String datetime = (String) map.get("datetime");
 		String velocity = (String) map.get("velocity");
 
 		Key keyVehicle = KeyFactory.createKey(entity.getParent(), "Vehicle", vehicle_id);
@@ -83,7 +96,6 @@ public class TrackService extends EntityService {
 		entity.setProperty("terminal_id", terminal_id);
 		entity.setProperty("vehicle_id", vehicle_id);
 		entity.setProperty("driver_id", driver_id);
-		entity.setProperty("datetime", datetime);
 		entity.setProperty("velocity", velocity);
 
 		if (objVehicle != null) {
@@ -91,7 +103,9 @@ public class TrackService extends EntityService {
 			objVehicle.setProperty("terminal_id", terminal_id);
 		}
 
-		entity.setProperty("updated_at", now);
+		datastore.put(objVehicle);
+		
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/track/import", method = RequestMethod.POST)

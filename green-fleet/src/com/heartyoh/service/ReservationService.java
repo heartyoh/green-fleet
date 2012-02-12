@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class ReservationService extends EntityService {
@@ -37,15 +38,15 @@ public class ReservationService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
-		entity.setProperty("vehicle_id", map.get("id"));
-		entity.setProperty("reserved_date", map.get("reserved_date"));
-		
-		entity.setProperty("created_at", now);
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+		entity.setProperty("vehicle_id", map.get("vehicle_id"));
+		entity.setProperty("reserved_date", SessionUtils.stringToDate((String) map.get("reserved_date")));
+
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		String driver = (String) map.get("driver_id");
 		String vehicle_type = (String) map.get("vehicle_type");
 		String delivery_place = (String) map.get("delivery_place");
@@ -60,7 +61,7 @@ public class ReservationService extends EntityService {
 		entity.setProperty("purpose", purpose);
 		entity.setProperty("status", status);
 
-		entity.setProperty("updated_at", now);
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/reservation/save", method = RequestMethod.POST)

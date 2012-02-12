@@ -51,6 +51,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 					params : {
 						vehicle_id : self.getVehicle(),
 						driver_id : self.getDriver(),
+						terminal_id : self.getTerminal(),
 						lattitude : e.latLng.lat(),
 						longitude : e.latLng.lng()
 					},
@@ -229,6 +230,10 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		return this.sub('driver').getValue();
 	},
 	
+	getTerminal : function() {
+		return this.sub('terminal').getValue();
+	},
+	
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
@@ -376,6 +381,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				fieldLabel : 'Driver',
 				cls : 'dotUnderline',
 				itemId : 'driver'
+			}, {
+				xtype : 'displayfield',
+				name : 'terminal_id',
+				fieldLabel : 'Terminal',
+				cls : 'dotUnderline',
+				itemId : 'terminal'
 			}, {
 				xtype : 'displayfield',
 				name : 'location',

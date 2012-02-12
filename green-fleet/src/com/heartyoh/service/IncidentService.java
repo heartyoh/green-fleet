@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 
 @Controller
@@ -39,23 +39,23 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("terminal_id", map.get("terminal_id"));
 		entity.setProperty("datetime", map.get("datetime"));
 
-		entity.setProperty("created_at", now);
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		entity.setProperty("video_clip", saveFile((MultipartFile)map.get("video_file")));
+		entity.setProperty("video_clip", saveFile((MultipartFile) map.get("video_file")));
 
 		super.postMultipart(entity, map, request);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
@@ -71,7 +71,7 @@ public class IncidentService extends EntityService {
 		entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
 		entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
 
-		entity.setProperty("updated_at", now);
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/incident/import", method = RequestMethod.POST)

@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class CheckinDataService extends EntityService {
@@ -38,18 +39,18 @@ public class CheckinDataService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		String terminal_id = (String) map.get("terminal_id");
 		String datetime = (String) map.get("datetime");
 
 		entity.setProperty("terminal_id", terminal_id);
-		entity.setProperty("datetime", datetime);
+		entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime));
 
-		entity.setProperty("created_at", now);
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
@@ -73,8 +74,8 @@ public class CheckinDataService extends EntityService {
 		entity.setProperty("less_than_150km", intProperty(map, "less_than_150km"));
 		entity.setProperty("less_than_160km", intProperty(map, "less_than_160km"));
 
-		entity.setProperty("engine_start_time", stringProperty(map, "engine_start_time"));
-		entity.setProperty("engine_end_time", stringProperty(map, "engine_end_time"));
+		entity.setProperty("engine_start_time", SessionUtils.stringToDateTime((String)map.get("engine_start_time")));
+		entity.setProperty("engine_end_time", SessionUtils.stringToDateTime((String)map.get("engine_end_time")));
 		entity.setProperty("average_speed", doubleProperty(map, "average_speed"));
 		entity.setProperty("max_speed", intProperty(map, "max_speed"));
 		entity.setProperty("fuel_consumption", doubleProperty(map, "fuel_consumption"));
@@ -88,8 +89,7 @@ public class CheckinDataService extends EntityService {
 		entity.setProperty("max_cooling_water_temp", doubleProperty(map, "max_cooling_water_temp"));
 		entity.setProperty("avg_battery_volt", doubleProperty(map, "avg_battery_volt"));
 
-		entity.setProperty("updated_at", now);
-
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/checkin_data/import", method = RequestMethod.POST)

@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.heartyoh.util.SessionUtils;
 
@@ -40,9 +40,10 @@ public class TerminalService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("id", map.get("id"));
-		entity.setProperty("created_at", now);
+
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
@@ -54,12 +55,12 @@ public class TerminalService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("serial_no", stringProperty(map, "serial_no"));
-		entity.setProperty("buying_date", SessionUtils.timestampToDate((String) map.get("buying_date")));
+		entity.setProperty("buying_date", SessionUtils.stringToDate((String) map.get("buying_date")));
 		entity.setProperty("comment", stringProperty(map, "comment"));
 
-		entity.setProperty("updated_at", now);
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/terminal/import", method = RequestMethod.POST)

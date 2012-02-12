@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 
 @Controller
@@ -39,9 +39,10 @@ public class DriverService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("id", map.get("id"));
-		entity.setProperty("created_at", now);
+		
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class DriverService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		String name = (String) map.get("name");
 		String division = (String) map.get("division");
 		String title = (String) map.get("title");
@@ -68,7 +69,7 @@ public class DriverService extends EntityService {
 		entity.setProperty("phone_no_1", phone_no_1);
 		entity.setProperty("phone_no_2", phone_no_2);
 
-		entity.setProperty("updated_at", now);
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/driver/import", method = RequestMethod.POST)

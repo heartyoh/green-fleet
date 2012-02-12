@@ -84,9 +84,10 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				text : 'Driver',
 			}, {
 				dataIndex : 'datetime',
-				text : 'Date',
+				text : 'Date/Time',
 				xtype:'datecolumn',
-				format:F('date')
+				format:F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'distance',
 				text : 'Distance',
@@ -281,14 +282,13 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			}, {
 				xtype : 'datefield',
 				name : 'datetime',
-				fieldLabel : 'Date',
-				format: F('date'),
-				submitFormat : 'U'
+				fieldLabel : 'Date/Time',
+				format: F('datetime')
 			}, {
 				name : 'distance',
 				fieldLabel : 'Distance'
 			}, {
-				name : 'runningTime',
+				name : 'running_time',
 				fieldLabel : 'Running Time'
 			}, {
 				name : 'less_than_10km',
@@ -342,14 +342,12 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				xtype : 'datefield',
 				name : 'engine_start_time',
 				fieldLabel : 'Start Time',
-				format: F('datetime'),
-				submitFormat : 'U'
+				format: F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'engine_end_time',
 				fieldLabel : 'End Time',
-				format: F('datetime'),
-				submitFormat : 'U'
+				format: F('datetime')
 			}, {
 				name : 'average_speed',
 				fieldLabel : 'Average Speed'

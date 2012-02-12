@@ -105,7 +105,8 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				dataIndex : 'buying_date',
 				text : 'Buying Date',
 				xtype : 'datecolumn',
-				format : F('date')
+				format : F('date'),
+				width : 120
 			}, {
 				dataIndex : 'comment',
 				text : 'Comment',
@@ -156,7 +157,6 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Terminal Details',
-			autoScroll : true,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'	
@@ -165,6 +165,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			items : [ {
 				xtype : 'form',
 				itemId : 'form',
+				autoScroll : true,
 				flex : 1,
 				defaults : {
 					xtype : 'textfield',
@@ -184,8 +185,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					xtype : 'datefield',
 					name : 'buying_date',
 					fieldLabel : 'Buying Date',
-					format : F('date'),
-					submitFormat : 'c'
+					format : F('date')
 				}, {
 					xtype : 'textarea',
 					name : 'comment',

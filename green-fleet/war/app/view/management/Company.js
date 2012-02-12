@@ -128,6 +128,7 @@ Ext.define('GreenFleet.view.management.Company', {
 		return {
 			xtype : 'form',
 			itemId : 'form',
+			autoScroll : true,
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Company Details',

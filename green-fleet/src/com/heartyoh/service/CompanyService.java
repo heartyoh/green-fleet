@@ -44,18 +44,18 @@ public class CompanyService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("id", map.get("id"));
 
-		entity.setProperty("created_at", now);
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("name", map.get("name"));
 		entity.setProperty("desc", map.get("desc"));
 
-		entity.setProperty("updated_at", now);
+		super.onSave(entity, map, datastore);
 	}
 
 	// @RequestMapping(value = "/company/save", method = RequestMethod.POST)
@@ -107,11 +107,13 @@ public class CompanyService extends EntityService {
 		}
 
 		Date now = new Date();
+		
+		map.put("_now", now);
 
 		try {
 			if (creating) {
 				obj = new Entity(objKey);
-				onCreate(obj, map, now);
+				onCreate(obj, map, datastore);
 			}
 			/*
 			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
@@ -121,7 +123,7 @@ public class CompanyService extends EntityService {
 				postMultipart(obj, map, (MultipartHttpServletRequest) request);
 			}
 
-			onSave(obj, map, now);
+			onSave(obj, map, datastore);
 
 			datastore.put(obj);
 		} finally {

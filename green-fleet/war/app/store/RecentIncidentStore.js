@@ -15,10 +15,10 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 		type : 'date',
 		dateFormat:'c'
 	}, {
-		name : 'driver',
+		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'vehicle',
+		name : 'vehicle_id',
 		type : 'string'
 	}, {
 		name : 'lattitude',
@@ -27,7 +27,10 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 		name : 'longitude',
 		type : 'float'
 	}, {
-		name : 'impulse',
+		name : 'impulse_abs',
+		type : 'float'
+	}, {
+		name : 'engine_temp',
 		type : 'float'
 	}, {
 		name : 'video_clip',

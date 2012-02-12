@@ -305,6 +305,14 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					name : 'spark_plug_status',
 					fieldLabel : 'SparkPlugStatus'
 				}, {
+					name : 'driver_id',
+					fieldLabel : 'Driver',
+					disabled : true
+				}, {
+					name : 'terminal_id',
+					fieldLabel : 'Terminal',
+					disabled : true
+				}, {
 					name : 'lattitude',
 					fieldLabel : 'Lattitude',
 					disabled : true
@@ -328,16 +336,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					xtype : 'displayfield',
 					name : 'image_clip',
 					itemId : 'image_clip',
-					hidden : true,
-//					listeners : {
-//						change : function(field, value) {
-//							var img = main.form.nextSibling('container').down('image');
-//							if(value != null && value.length > 0)
-//								img.setSrc('download?blob-key=' + value);
-//							else
-//								img.setSrc('resources/image/bgVehicle.png');
-//						}
-//					}
+					hidden : true
 				} ]
 			}, {
 				xtype : 'container',

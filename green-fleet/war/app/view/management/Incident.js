@@ -51,8 +51,13 @@ Ext.define('GreenFleet.view.management.Incident', {
 		
 		this.down('#video_clip').on('change', function(field, value) {
 			var video = self.sub('video');
+			
+			var url = '';
+			if(value != null && value.length > 1)
+				url = 'src="download?blob-key=' + value + '"'
+				
 			video.update({
-				value : value
+				value : url
 			});
 		})
 
@@ -196,7 +201,6 @@ Ext.define('GreenFleet.view.management.Incident', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Incident Details',
-			autoScroll : true,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -331,7 +335,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 							itemId : 'video',
 							cls : 'incidentDetail',
 							tpl : [ '<video width="100%" height="95%" controls="controls">',
-									'<source src="download?blob-key={value}" type="video/mp4" />',
+									'<source {value} type="video/mp4" />',
 									'Your browser does not support the video tag.', '</video>' ]
 						}, {
 							xtype : 'box',

@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.heartyoh.security.AppRole;
 
@@ -35,12 +35,12 @@ public class UserService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, Date now) {
-		super.onCreate(entity, map, now);
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, Date now) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		String email = (String) map.get("email");
 		String nickname = (String) map.get("nickname");
 		String forename = (String) map.get("forename");
@@ -78,7 +78,7 @@ public class UserService extends EntityService {
 
 		entity.setUnindexedProperty("authorities", binaryAuthorities);
 
-		entity.setProperty("updated_at", now);
+		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/user/save", method = RequestMethod.POST)

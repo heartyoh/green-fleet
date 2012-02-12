@@ -67,6 +67,12 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'lattitude',
 		type : 'float'
 	}, {
+		name : 'driver_id',
+		type : 'string'
+	}, {
+		name : 'terminal_id',
+		type : 'string'
+	}, {
 		name : 'longitude',
 		type : 'float'
 	}, {

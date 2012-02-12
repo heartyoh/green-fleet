@@ -21,7 +21,8 @@ Ext.define('GreenFleet.store.TrackStore', {
 		type : 'string'
 	}, {
 		name : 'datetime',
-		type : 'string'
+		type : 'date',
+		dateFormat : 'time'
 	}, {
 		name : 'lattitude',
 		type : 'number'
