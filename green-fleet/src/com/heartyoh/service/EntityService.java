@@ -200,13 +200,18 @@ public abstract class EntityService {
 		CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
+		String company = null;
+		if(user != null)
+			company = user.getCompany();
+		else
+			company = request.getParameter("company");
 
 		Key objKey = null;
 		boolean creating = false;
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
+		Key companyKey = KeyFactory.createKey("Company", company);
 
 		Entity obj = null;
 
@@ -228,8 +233,8 @@ public abstract class EntityService {
 
 			}
 			// It's Not OK. You try to add duplicated identifier.
-			if (obj != null)
-				throw new EntityExistsException(getEntityName() + " with id (" + getIdValue(map) + ") already Exist.");
+//			if (obj != null)
+//				throw new EntityExistsException(getEntityName() + " with id (" + getIdValue(map) + ") already Exist.");
 		}
 
 		Date now = new Date();

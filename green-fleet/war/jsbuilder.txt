@@ -1,2 +1,12 @@
 $ sencha create jsb -a ./jsbuild.html -p ./app.jsb3 -v
 $ sencha build -p ./app.jsb3 -d . -v
+
+
+curl 로 멀티파트로 포스트하기
+1. Incident Video File 보내기
+curl --form company=vitizen --form video_clip=@./T001@20120213000000 http://localhost:8888/incident/upload_video
+
+2. Incident Log File 보내기
+curl --form company=vitizen --form video_clip=@./T001@20120213000000 http://localhost:8888/incident/upload_log
+
+

@@ -3,10 +3,10 @@ Ext.define('GreenFleet.view.management.Incident', {
 
 	alias : 'widget.management_incident',
 
-	entityUrl : 'incident',
-	
 	title : 'Incident',
 
+	entityUrl : 'incident',
+	
 	layout : {
 		align : 'stretch',
 		type : 'vbox'

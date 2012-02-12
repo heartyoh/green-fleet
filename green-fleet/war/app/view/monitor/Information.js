@@ -310,7 +310,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 					'</div><div class="driver">' + 
 					incident.get('driver_id') + 
 					'</div><div class="date">' + 
-					Ext.Date.format(incident.get('incidentTime'), 'Y-m-d H:i:s') +
+					Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s') +
 					'</div>'
 			})
 		}
