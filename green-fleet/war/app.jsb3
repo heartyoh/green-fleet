@@ -111,7 +111,7 @@
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "ControlData.js"
+                    "name": "CheckinData.js"
                 },
                 {
                     "path": "app/view/monitor/",
@@ -119,7 +119,7 @@
                 },
                 {
                     "path": "app/view/monitor/",
-                    "name": "ControlByVehicle.js"
+                    "name": "CheckinByVehicle.js"
                 },
                 {
                     "path": "app/view/monitor/",
@@ -140,6 +140,10 @@
                 {
                     "path": "app/view/form/",
                     "name": "DateTimeField.js"
+                },
+                {
+                    "path": "app/view/common/",
+                    "name": "EntityFormButtons.js"
                 },
                 {
                     "path": "app/store/",
@@ -179,10 +183,6 @@
                 },
                 {
                     "path": "app/store/",
-                    "name": "ManufacturerStore.js"
-                },
-                {
-                    "path": "app/store/",
                     "name": "VehicleTypeStore.js"
                 },
                 {
@@ -195,7 +195,7 @@
                 },
                 {
                     "path": "app/store/",
-                    "name": "ControlDataStore.js"
+                    "name": "CheckinDataStore.js"
                 },
                 {
                     "path": "app/store/",
