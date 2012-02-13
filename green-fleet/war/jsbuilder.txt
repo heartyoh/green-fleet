@@ -15,10 +15,10 @@ curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&dat
 curl 로 멀티파트로 포스트하기
 
 3. Incident Video File 보내기
-curl --form company=vitizen --form video_clip=@./T001@20120213111111 http://localhost:8888/incident/upload_video
-curl --form company=vitizen --form video_clip=@./T001@20120213111111 http://green-fleets.appspot.com/incident/upload_video
+curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-13 11:11:11" --form video_clip=@./Event_20120213111111 http://localhost:8888/incident/upload_video
+curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-13 11:11:11" --form video_clip=@./Event_20120213111111 http://green-fleets.appspot.com/incident/upload_video
 
 4. Incident Log File 보내기
-curl --form company=vitizen --form video_clip=@./T001@20120213111111 http://localhost:8888/incident/upload_log
-curl --form company=vitizen --form video_clip=@./T001@20120213000000 http://green-fleets.appspot.com/incident/upload_log
+curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-13 11:11:11" --form logfile=@./Event_20120213111111 http://localhost:8888/incident/upload_log
+curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-13 11:11:11" --form logfile=@./Event_20120213111111 http://green-fleets.appspot.com/incident/upload_log
 

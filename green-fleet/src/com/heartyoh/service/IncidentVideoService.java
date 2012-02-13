@@ -32,13 +32,15 @@ public class IncidentVideoService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return (String)map.get("id");
+//		return (String)map.get("id");
+		return map.get("terminal_id") + "@" + map.get("datetime");
 	}
 
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", map.get("datetime"));
+//		entity.setProperty("datetime", map.get("datetime"));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
 
 		super.onCreate(entity, map, datastore);
 	}
@@ -47,20 +49,20 @@ public class IncidentVideoService extends EntityService {
 	protected void preMultipart(Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
 		super.preMultipart(map, request);
 
-		MultipartFile video_clip = (MultipartFile)map.get("video_clip");
+//		MultipartFile video_clip = (MultipartFile)map.get("video_clip");
 		
-		String filename = video_clip.getOriginalFilename();
-		String[] params = filename.split("@");
-		if(params.length < 2)
-			throw new IOException("Invalid Filename(" + filename + ")");
-		
-		String terminal_id = params[0];
-		Date datetime = SessionUtils.stringToDateTime(params[1], "yyyyMMddHHmmss", null);
-
-		map.put("id", terminal_id + "@" + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(datetime));
-		
-		map.put("terminal_id", terminal_id);
-		map.put("datetime", datetime);
+//		String filename = video_clip.getOriginalFilename();
+//		String[] params = filename.split("@");
+//		if(params.length < 2)
+//			throw new IOException("Invalid Filename(" + filename + ")");
+//		
+//		String terminal_id = params[0];
+//		Date datetime = SessionUtils.stringToDateTime(params[1], "yyyyMMddHHmmss", null);
+//
+//		map.put("id", terminal_id + "@" + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(datetime));
+//		
+//		map.put("terminal_id", terminal_id);
+//		map.put("datetime", datetime);
 	}
 
 	@Override

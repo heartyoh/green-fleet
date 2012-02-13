@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class IncidentLogService extends EntityService {
@@ -28,13 +29,13 @@ public class IncidentLogService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return null;
+		return map.get("terminal_id") + "@" + map.get("datetime");
 	}
 
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", map.get("datetime"));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
 
 		super.onCreate(entity, map, datastore);
 	}
@@ -42,36 +43,21 @@ public class IncidentLogService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		entity.setProperty("video_clip", saveFile((MultipartFile) map.get("video_file")));
-
+		MultipartFile logfile = (MultipartFile)map.get("logfile");
+		
+		entity.setProperty("track_data", logfile.getOriginalFilename());
+		
+		/*
+		 * TODO Parsing
+		 */
+		
 		super.postMultipart(entity, map, request);
-	}
-
-	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
-
-		entity.setProperty("terminal_id", stringProperty(map, "terminal_id"));
-		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
-		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
-		entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
-		entity.setProperty("longitude", doubleProperty(map, "longitude"));
-		entity.setProperty("velocity", doubleProperty(map, "velocity"));
-		entity.setProperty("impulse_abs", doubleProperty(map, "impulse_abs"));
-		entity.setProperty("impulse_x", doubleProperty(map, "impulse_x"));
-		entity.setProperty("impulse_y", doubleProperty(map, "impulse_y"));
-		entity.setProperty("impulse_z", doubleProperty(map, "impulse_z"));
-		entity.setProperty("impulse_threshold", doubleProperty(map, "impulse_threshold"));
-		entity.setProperty("engine_temp", doubleProperty(map, "engine_temp"));
-		entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
-		entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
-
-		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/incident/upload_log", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
-		return super.imports(request, response);
+		return super.save(request, response);
 	}
 
 }
