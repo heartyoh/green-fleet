@@ -21,7 +21,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		html : 'refresh'
 	}, {
 		xtype : 'button',
-		cls : 'btnEvent',
+		cls : 'btnImport',
 		html : 'import',
 		handler : function() {
 			GreenFleet.importData();
