@@ -139,7 +139,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				status : record.get('status'),
 				icon : images[record.get('status')],
 				title : driverRecord ? driverRecord.get('name') : driver,
-				tooltip : record.get('registrationNumber') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
+				tooltip : record.get('registration_number') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
 			});
 
 			if(!bounds)

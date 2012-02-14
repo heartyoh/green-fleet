@@ -195,7 +195,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			xtype : 'datefield',
 			name : 'datetime',
 			hidden : true,
-			fieldLabel : 'Incident Time'
+			format : 'd-m-Y H:i:s'
 		},{
 			xtype : 'displayfield',
 			itemId : 'incident_time',

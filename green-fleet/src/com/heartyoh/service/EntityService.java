@@ -134,6 +134,19 @@ public abstract class EntityService {
 	 */
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
 		CustomUser user = SessionUtils.currentUser();
+		
+		String company = null;
+		if(user != null)
+			company = user.getCompany();
+		else
+			company = request.getParameter("company");
+		
+		Map<String, Object> commons = new HashMap<String, Object>();
+		Enumeration<String> names = request.getParameterNames();
+		while(names.hasMoreElements()) {
+			String name = names.nextElement();
+			commons.put(name, request.getParameter(name));
+		}
 
 		MultipartFile file = request.getFile("file");
 		String filename = file.getOriginalFilename();
@@ -153,7 +166,7 @@ public abstract class EntityService {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 		try {
-			Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), user.getCompany());
+			Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), company);
 
 			Date now = new Date();
 
@@ -168,6 +181,10 @@ public abstract class EntityService {
 				map.put("_filename", filename);
 				map.put("_content_type", contentType);
 				map.put("_now", now);
+				/*
+				 * Request의 파라미터를 모든 레코드의 공통 파라미터로 추가한다.
+				 */
+				map.put("_commons", commons);
 
 				Key key = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 				Entity entity = null;
@@ -199,12 +216,13 @@ public abstract class EntityService {
 
 		CustomUser user = SessionUtils.currentUser();
 
-		String key = request.getParameter("key");
 		String company = null;
 		if(user != null)
 			company = user.getCompany();
 		else
 			company = request.getParameter("company");
+
+		String key = request.getParameter("key");
 
 		Key objKey = null;
 		boolean creating = false;
@@ -312,6 +330,12 @@ public abstract class EntityService {
 
 	public List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
+		
+		String company = null;
+		if(user != null)
+			company = user.getCompany();
+		else
+			company = request.getParameter("company");
 
 		String jsonFilter = request.getParameter("filter");
 		String jsonSorter = request.getParameter("sort");
@@ -334,7 +358,7 @@ public abstract class EntityService {
 		}
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", user.getCompany());
+		Key companyKey = KeyFactory.createKey("Company", company);
 
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);

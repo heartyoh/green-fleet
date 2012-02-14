@@ -3467,7 +3467,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				status : record.get('status'),
 				icon : images[record.get('status')],
 				title : driverRecord ? driverRecord.get('name') : driver,
-				tooltip : record.get('registrationNumber') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
+				tooltip : record.get('registration_number') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
 			});
 
 			if(!bounds)
@@ -4559,7 +4559,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			xtype : 'datefield',
 			name : 'datetime',
 			hidden : true,
-			fieldLabel : 'Incident Time'
+			format : 'd-m-Y H:i:s'
 		},{
 			xtype : 'displayfield',
 			itemId : 'incident_time',
