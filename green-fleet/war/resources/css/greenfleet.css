@@ -33,8 +33,8 @@
 .appMenu.x-toolbar{padding:0}
 .appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:14px}
 .appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:8px 5px 0 5px;margin-right:10px}
-.appMenu .x-btn-default-toolbar-small-over{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff}
-.appMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff}
+.appMenu .x-btn-default-toolbar-small-over,.appMenu .x-btn-default-toolbar-small-active{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff}
+.appMenu .x-btn-default-toolbar-small-over .x-btn-inner,.appMenu .x-btn-default-toolbar-small-active .x-btn-inner{color:#fff}
 .sideMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:11px}
 .sideMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff;font-size:11px}
 .tool{background:url('../image/bgTool.gif') repeat-y}
@@ -60,6 +60,8 @@
 .tool .btnSave.x-btn-default-small-over{background:url('../image/iconSaveOn.png') 58% 2px no-repeat;color:#fff}
 .tool .btnExport{background:url('../image/iconExportOff.png') 58% 2px no-repeat;}
 .tool .btnExport.x-btn-default-small-over{background:url('../image/iconExportOn.png') 58% 2px no-repeat;color:#fff}
+.tool .btnImport{background:url('../image/iconImportOff.png') 58% 2px no-repeat;}
+.tool .btnImport.x-btn-default-small-over{background:url('../image/iconImportOn.png') 58% 2px no-repeat;color:#fff}
 
 
 /*summary board style*/
@@ -108,6 +110,7 @@
 .paddingleft10{margin-left:10px}
 .backgroundGray{background-color:#dfdfdf}
 .borderLeftGray{border-left:1px solid #ccc}
+.borderRightGray{border-left:1px solid #ccc}
 #content-body .x-tab-bar,#content-body .hIndexbar{background:url('../image/bgTab.gif') repeat-x;}
 #content-body .hIndexbar{background-position:0 -4px}
 .hIndexbar .x-panel-header-text-default{padding:2px 0 0 3px;color:#fff}
