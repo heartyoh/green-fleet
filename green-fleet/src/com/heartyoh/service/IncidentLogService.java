@@ -1,8 +1,10 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -65,6 +67,18 @@ public class IncidentLogService extends EntityService {
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
 		return super.imports(request, response);
+	}
+
+	@RequestMapping(value = "/incident_log/delete", method = RequestMethod.POST)
+	public @ResponseBody
+	String delete(HttpServletRequest request, HttpServletResponse response) {
+		return super.delete(request, response);
+	}
+
+	@RequestMapping(value = "/incident_log", method = RequestMethod.GET)
+	public @ResponseBody
+	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+		return super.retrieve(request, response);
 	}
 
 }
