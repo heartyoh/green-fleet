@@ -18,60 +18,73 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		var self = this;
 		
 		this.on('afterrender', function() {
+			var vehicleMapStore = Ext.getStore('VehicleMapStore');
+			
+			vehicleMapStore.on('datachanged', function() {
+				self.refreshMap(vehicleMapStore);//, self);
+			});
+//			vehicleMapStore.on('load', self.refreshMap, self);
+			
+			vehicleMapStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
+			
+			vehicleMapStore.load();
+			
+			setInterval(function() {
+				vehicleMapStore.load();
+			}, 10000);
+			
 			var vehicleStore = Ext.getStore('VehicleStore');
-			vehicleStore.on('load', self.refreshMap, self);
-			vehicleStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
 			vehicleStore.load();
 		});
 		
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 			if(self.sub('autofit').getValue())
-				self.refreshMap(Ext.getStore('VehicleStore'));
+				self.refreshMap(Ext.getStore('VehicleMapStore'));
 		});
 		
-		Ext.getCmp('east').sub('state_running').on('click', function() {
-			self.refreshMarkers();
-		});
-		
-		Ext.getCmp('east').sub('state_idle').on('click', function() {
-			self.refreshMarkers();
-		});
-		
-		Ext.getCmp('east').sub('state_incident').on('click', function() {
-			self.refreshMarkers();
-		});
+//		Ext.getCmp('east').sub('state_running').on('click', function() {
+//			self.refreshMarkers();
+//		});
+//		
+//		Ext.getCmp('east').sub('state_idle').on('click', function() {
+//			self.refreshMarkers();
+//		});
+//		
+//		Ext.getCmp('east').sub('state_incident').on('click', function() {
+//			self.refreshMarkers();
+//		});
 
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
-				self.refreshMap(Ext.getStore('VehicleStore'));
+				self.refreshMap(Ext.getStore('VehicleMapStore'));
 		});
 	},
 	
-	refreshMarkers : function() {
-		var markers = this.getMarkers();
-		var labels = this.getLabels();
-		
-		for (var vehicle in markers) {
-			var marker = markers[vehicle];
-			var label = labels[vehicle]; 
-
-			switch(marker.status) {
-			case 'Running' :
-				marker.setVisible(GreenFleet.show_running_vehicle);
-				label.setVisible(GreenFleet.show_running_vehicle);
-				break;
-			case 'Idle' :
-				marker.setVisible(GreenFleet.show_idle_vehicle);
-				label.setVisible(GreenFleet.show_idle_vehicle);
-				break;
-			case 'Incident' :
-				marker.setVisible(GreenFleet.show_incident_vehicle);
-				label.setVisible(GreenFleet.show_incident_vehicle);
-				break;
-			}
-		}
-	},
+//	refreshMarkers : function() {
+//		var markers = this.getMarkers();
+//		var labels = this.getLabels();
+//		
+//		for (var vehicle in markers) {
+//			var marker = markers[vehicle];
+//			var label = labels[vehicle]; 
+//
+//			switch(marker.status) {
+//			case 'Running' :
+//				marker.setVisible(GreenFleet.show_running_vehicle);
+//				label.setVisible(GreenFleet.show_running_vehicle);
+//				break;
+//			case 'Idle' :
+//				marker.setVisible(GreenFleet.show_idle_vehicle);
+//				label.setVisible(GreenFleet.show_idle_vehicle);
+//				break;
+//			case 'Incident' :
+//				marker.setVisible(GreenFleet.show_incident_vehicle);
+//				label.setVisible(GreenFleet.show_incident_vehicle);
+//				break;
+//			}
+//		}
+//	},
 	
 	getMap : function() {
 		if(!this.map) {
@@ -126,6 +139,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 
 		var bounds;
 		
+		console.log(store);
+		
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver_id');
@@ -162,13 +177,15 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			});
 		}, this);
 		
-		if(!bounds || bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+		if(!bounds) {
 			this.getMap().setCenter(new google.maps.LatLng(System.props.lattitude, System.props.longitude));
+		} else if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
 		} else {
 			this.getMap().fitBounds(bounds);
 		}
 
-		this.refreshMarkers();
+//		this.refreshMarkers();
 	},
 	
 	ztitle : {

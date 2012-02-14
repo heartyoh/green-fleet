@@ -19,11 +19,34 @@ Ext.define('GreenFleet.view.viewport.East', {
 		
 		var self = this;
 		
+//		this.sub('state_running').on('click', function() {
+//			var store = Ext.getStore('VehicleMapStore');
+//			store.clearFilter();
+//			self.sub('search').setValue('');
+//			
+//			GreenFleet.show_running_vehicle = true;
+//			if(GreenFleet.show_idle_vehicle) {
+//				GreenFleet.show_idle_vehicle = false;
+//				GreenFleet.show_incident_vehicle = false;
+//			} else {
+//				GreenFleet.show_idle_vehicle = true;
+//				GreenFleet.show_incident_vehicle = true;
+//			}
+//		});
+		
 		this.sub('state_running').on('click', function() {
+			var store = Ext.getStore('VehicleMapStore');
+			store.clearFilter();
+			self.sub('search').setValue('');
+			
 			GreenFleet.show_running_vehicle = true;
 			if(GreenFleet.show_idle_vehicle) {
 				GreenFleet.show_idle_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
+				store.filter([{
+					property : 'status',
+					value : 'Running'
+				}])
 			} else {
 				GreenFleet.show_idle_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
@@ -31,10 +54,18 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_idle').on('click', function() {
+			var store = Ext.getStore('VehicleMapStore');
+			store.clearFilter();
+			self.sub('search').setValue('');
+			
 			GreenFleet.show_idle_vehicle = true;
 			if(GreenFleet.show_incident_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
+				store.filter([{
+					property : 'status',
+					value : 'Idle'
+				}])
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
@@ -42,10 +73,18 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_incident').on('click', function() {
+			var store = Ext.getStore('VehicleMapStore');
+			store.clearFilter();
+			self.sub('search').setValue('');
+			
 			GreenFleet.show_incident_vehicle = true;
 			if(GreenFleet.show_running_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_idle_vehicle = false;
+				store.filter([{
+					property : 'status',
+					value : 'Incident'
+				}])
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_idle_vehicle = true;
@@ -118,7 +157,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	},
 	
 	items : [ {
-		xtype : 'combo',
+		xtype : 'searchfield',
 		cls : 'searchField',
 		fieldLabel : 'Search',
 		labelWidth : 50,
