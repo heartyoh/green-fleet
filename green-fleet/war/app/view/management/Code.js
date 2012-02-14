@@ -5,25 +5,26 @@ Ext.define('GreenFleet.view.management.Code', {
 
 	title : 'Code Mgmt.',
 
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-
+	entityUrl : 'code',
+	
 	/*
 	 * importUrl, afterImport config properties for Import util function
 	 */ 
 	importUrl : 'code/import',
 	
 	afterImport : function() {
-		this.sub('codelist').store.load();
+		this.sub('grid').store.load();
 		this.sub('form').getForm().reset();
 	},
 
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
 	initComponent : function() {
-		Ext.applyIf(this, {
-			items : [],
-		});
+		var self = this;
+		
 		this.items = [ {
 			html : '<div class="listTitle">Code List</div>'
 		}, {
@@ -46,57 +47,11 @@ Ext.define('GreenFleet.view.management.Code', {
 
 		this.callParent(arguments);
 		
-		var self = this;
-		
-		this.down('[itemId=save]').on('click', function() {
-			var form = self.sub('form').getForm();
-
-			if (form.isValid()) {
-				form.submit({
-					url : 'code/save',
-					success : function(form, action) {
-						var store = self.sub('codelist').store;
-						store.load(function() {
-							form.loadRecord(store.findRecord('key', action.result.key));
-						});
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result.msg);
-					}
-				});
-			}
-		});
-		
-		this.down('[itemId=delete]').on('click', function() {
-			var form = self.sub('form').getForm();
-
-			if (form.isValid()) {
-				form.submit({
-					url : 'code/delete',
-					success : function(form, action) {
-						self.sub('codelist').store.load();
-						form.reset();
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result.msg);
-					}
-				});
-			}
-		});
-		
-		this.down('[itemId=reset]').on('click', function() {
-			var group = self.sub('form').getForm().getValues()['group'];
-			self.sub('form').getForm().reset();
-			self.sub('form').getForm().setValues({
-				group : group
-			});
-		});
-		
-		this.sub('codelist').on('itemclick', function(grid, record) {
+		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
 		});
 		
-		this.sub('codelist').on('render', function(grid) {
+		this.sub('grid').on('render', function(grid) {
 			grid.store.clearFilter(true);
 			var group = self.sub('grouplist').store.first().get('group');
 			grid.store.filter('group', group);
@@ -106,8 +61,8 @@ Ext.define('GreenFleet.view.management.Code', {
 		});
 
 		this.sub('grouplist').on('itemclick', function(grid, record) {
-			self.sub('codelist').store.clearFilter(true);
-			self.sub('codelist').store.filter('group', record.get('group'));
+			self.sub('grid').store.clearFilter(true);
+			self.sub('grid').store.filter('group', record.get('group'));
 			self.sub('form').getForm().reset();
 			self.sub('form').getForm().setValues({
 				group : record.get('group')
@@ -117,8 +72,8 @@ Ext.define('GreenFleet.view.management.Code', {
 
 	zgrouplist : {
 		xtype : 'gridpanel',
-		store : 'CodeGroupStore',
 		itemId : 'grouplist',
+		store : 'CodeGroupStore',
 		title : 'Code Group',
 		width : 320,
 		columns : [ {
@@ -134,8 +89,8 @@ Ext.define('GreenFleet.view.management.Code', {
 
 	zcodelist : {
 		xtype : 'gridpanel',
+		itemId : 'grid',
 		store : 'CodeStore',
-		itemId : 'codelist',
 		title : 'Code List',
 		flex : 1,
 		columns : [ {
@@ -152,13 +107,13 @@ Ext.define('GreenFleet.view.management.Code', {
 			dataIndex : 'desc',
 			text : 'Description'
 		}, {
-			dataIndex : 'createdAt',
+			dataIndex : 'created_at',
 			text : 'Created At',
 			xtype : 'datecolumn',
 			format : F('datetime'),
 			width : 120
 		}, {
-			dataIndex : 'updatedAt',
+			dataIndex : 'updated_at',
 			text : 'Updated At',
 			xtype : 'datecolumn',
 			format : F('datetime'),
@@ -168,16 +123,18 @@ Ext.define('GreenFleet.view.management.Code', {
 
 	zform : {
 		xtype : 'form',
+		itemId : 'form',
 		bodyPadding : 10,
 		cls : 'hIndexbar',
 		title : 'Code Details',
-		itemId : 'form',
 		height : 200,
-		items : [ {
+		defaults : {
 			xtype : 'textfield',
+			anchor : '100%'
+		},
+		items : [ {
 			name : 'key',
 			fieldLabel : 'Key',
-			anchor : '100%',
 			hidden : true
 		}, {
 			xtype : 'combo',
@@ -186,55 +143,28 @@ Ext.define('GreenFleet.view.management.Code', {
 			queryMode : 'local',
 			store : 'CodeGroupStore',
 			displayField : 'group',
-			valueField : 'group',
-			anchor : '100%'
+			valueField : 'group'
 		}, {
-			xtype : 'textfield',
 			name : 'code',
-			fieldLabel : 'Code',
-			anchor : '100%'
+			fieldLabel : 'Code'
 		}, {
-			xtype : 'textfield',
 			name : 'desc',
-			fieldLabel : 'Description',
-			anchor : '100%'
+			fieldLabel : 'Description'
 		}, {
 			xtype : 'datefield',
-			name : 'updatedAt',
+			name : 'updated_at',
 			disabled : true,
 			fieldLabel : 'Updated At',
-			format : F('datetime'),
-			anchor : '100%'
+			format : F('datetime')
 		}, {
 			xtype : 'datefield',
-			name : 'createdAt',
+			name : 'created_at',
 			disabled : true,
 			fieldLabel : 'Created At',
-			format : F('datetime'),
-			anchor : '100%'
+			format : F('datetime')
 		} ],
 		dockedItems : [ {
-			xtype : 'toolbar',
-			dock : 'bottom',
-			layout : {
-				align : 'middle',
-				type : 'hbox'
-			},
-			items : [ {
-				xtype : 'tbfill'
-			}, {
-				xtype : 'button',
-				itemId : 'save',
-				text : 'Save'
-			}, {
-				xtype : 'button',
-				itemId : 'delete',
-				text : 'Delete'
-			}, {
-				xtype : 'button',
-				itemId : 'reset',
-				text : 'Reset'
-			} ]
+			xtype : 'entity_form_buttons'
 		} ]
 	}
 });

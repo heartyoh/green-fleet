@@ -16,11 +16,11 @@ Ext.define('GreenFleet.store.CodeStore', {
 		name : 'desc',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

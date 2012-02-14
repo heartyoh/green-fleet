@@ -10,20 +10,20 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		name : 'id',
 		type : 'string'
 	}, {
-		name : 'reservedDate',
+		name : 'reserved_date',
 		type : 'date',
-		dateFormat : 'timestamp'
+		dateFormat:'time'
 	}, {
-		name : 'driver',
+		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'vehicle',
+		name : 'vehicle_id',
 		type : 'string'
 	}, {
-		name : 'vehicleType',
+		name : 'vehicle_type',
 		type : 'string'
 	}, {
-		name : 'deliveryPlace',
+		name : 'delivery_place',
 		type : 'string'
 	}, {
 		name : 'destination',
@@ -35,11 +35,11 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		name : 'status',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

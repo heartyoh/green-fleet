@@ -1,9 +1,13 @@
 package com.heartyoh.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,6 +34,48 @@ public class SessionUtils {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(Long.parseLong(timestamp) * 1000);
 		return cal.getTime();
+	}
+	
+	public static Date stringToDateTime(String datetime) {
+		return stringToDateTime(datetime, null, null);
+	}
+	
+	public static Date stringToDateTime(String datetime, String format, String timezone) {
+		DateFormat df = null;
+		if(format == null)
+			df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		else
+			df = new SimpleDateFormat(format);
+		if(timezone != null)
+			df.setTimeZone(TimeZone.getTimeZone(timezone));
+
+		try {
+			return df.parse(datetime);
+		} catch (ParseException e) {
+		    e.printStackTrace();
+		    return null;
+		}
+	}
+	
+	public static Date stringToDate(String date) {
+		return stringToDate(date, null, null);
+	}
+	
+	public static Date stringToDate(String date, String format, String timezone) {
+		DateFormat df = null;
+		if(format == null)
+			df = new SimpleDateFormat("yyyy-MM-dd");
+		else
+			df = new SimpleDateFormat(format);
+		if(timezone != null)
+			df.setTimeZone(TimeZone.getTimeZone(timezone));
+
+		try {
+			return df.parse(date);
+		} catch (ParseException e) {
+		    e.printStackTrace();
+		    return null;
+		}
 	}
 	
 	public static boolean parseBoolean(String value) {

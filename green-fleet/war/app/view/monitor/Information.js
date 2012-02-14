@@ -49,8 +49,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 					url : 'track/save',
 					method : 'POST',
 					params : {
-						vehicle : self.getVehicle(),
-						driver : self.getDriver(),
+						vehicle_id : self.getVehicle(),
+						driver_id : self.getDriver(),
+						terminal_id : self.getTerminal(),
 						lattitude : e.latLng.lat(),
 						longitude : e.latLng.lng()
 					},
@@ -88,7 +89,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var vehicleStore = Ext.getStore('VehicleStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
-			var vehicleImageClip = vehicleRecord.get('imageClip');
+			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
 				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
 			} else {
@@ -100,9 +101,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
 			var driverStore = Ext.getStore('DriverStore');
-			var driverRecord = driverStore.findRecord('id', record.get('driver'));
+			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
 			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('imageClip');
+			var driverImageClip = driverRecord.get('image_clip');
 			if (driverImageClip) {
 				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
 			} else {
@@ -145,14 +146,14 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			// TODO ��� ��낫 ���媛����(�뱀� 二쇳�遺�� 蹂댁�湲���� �쇱� ��낫瑜��ㅼ����濡���� �대��쇱�留����留��.)
 			self.getTrackStore().clearFilter(true);
-			self.getTrackStore().filter('vehicle', vehicle); 
+			self.getTrackStore().filter('vehicle_id', vehicle); 
 			self.getTrackStore().load();
 			
 			/*
 			 * IncidentStore瑜��ㅼ� 濡����
 			 */
 			self.getIncidentStore().clearFilter(true);
-			self.getIncidentStore().filter('vehicle', vehicle);
+			self.getIncidentStore().filter('vehicle_id', vehicle);
 			self.getIncidentStore().load();
 		});
 	},
@@ -185,19 +186,27 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.trackline = trackline;
 	},
 	
-	getMarker : function() {
-		return this.marker;
+	getMarkers : function() {
+		return this.markers;
 	},
 	
-	setMarker : function(marker) {
-		if(this.marker)
-			this.marker.setMap(null);
-		this.marker = marker;
+	setMarkers : function(markers) {
+		if(this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.markers = markers;
 	},
 	
 	resetMarkers : function() {
-		if(this.markers)
-			this.markers.setMap(null);
+		if(this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
 		this.markers = null;
 	},
 	
@@ -221,14 +230,18 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		return this.sub('driver').getValue();
 	},
 	
+	getTerminal : function() {
+		return this.sub('terminal').getValue();
+	},
+	
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#770000',
-		    strokeOpacity: 0.7,
+		    strokeColor: '#FF0000',
+		    strokeOpacity: 1.0,
 		    strokeWeight: 4
 		}));
-		this.setMarker(null);
+		this.setMarkers(null);
 
 		var path = this.getTrackLine().getPath();
 		var bounds;
@@ -256,10 +269,20 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		var first = this.getTrackStore().first(); 
 		if(first) {
-			this.setMarker(new google.maps.Marker({
+			var start = new google.maps.Marker({
 			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
 			    map: this.getMap()
-			}));
+			});
+			
+			var last = this.getTrackStore().last();
+			
+			var end = new google.maps.Marker({
+			    position: new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
+			    icon : 'resources/image/iconStartPoint.png',
+			    map: this.getMap()
+			});
+			
+			this.setMarkers([start, end]);
 		}
 	},
 	
@@ -283,11 +306,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 					}
 				},
 				html : '<div class="vehicle">' + 
-					incident.get('vehicle') + 
+					incident.get('vehicle_id') + 
 					'</div><div class="driver">' + 
-					incident.get('driver') + 
+					incident.get('driver_id') + 
 					'</div><div class="date">' + 
-					Ext.Date.format(incident.get('incidentTime'), 'Y-m-d H:i:s') +
+					Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s') +
 					'</div>'
 			})
 		}
@@ -354,10 +377,16 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				itemId : 'id'
 			}, {
 				xtype : 'displayfield',
-				name : 'driver',
+				name : 'driver_id',
 				fieldLabel : 'Driver',
 				cls : 'dotUnderline',
 				itemId : 'driver'
+			}, {
+				xtype : 'displayfield',
+				name : 'terminal_id',
+				fieldLabel : 'Terminal',
+				cls : 'dotUnderline',
+				itemId : 'terminal'
 			}, {
 				xtype : 'displayfield',
 				name : 'location',
@@ -371,7 +400,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				fieldLabel : 'Run. Dist.'
 			}, {
 				xtype : 'displayfield',
-				name : 'runningTime',
+				name : 'running_time',
 				fieldLabel : 'Run. Time',
 				cls : 'dotUnderline'
 			} ]

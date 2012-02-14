@@ -74,9 +74,9 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'track',
 			closable : true
 		}, {
-			title : 'ControlData',
-			xtype : 'management_control_data',
-			itemId : 'control_data',
+			title : 'CheckinData',
+			xtype : 'management_checkin_data',
+			itemId : 'checkin_data',
 			closable : true
 		} ]
 	}, {

@@ -34,7 +34,7 @@ Ext.define('GreenFleet.view.common.ImportPopup', {
 				form.submit({
 					url : self.importUrl,
 					success : function(form, action) {
-						if (self.client.afterImport instanceof Function)
+						if (self.client && self.client.afterImport instanceof Function)
 							self.client.afterImport();
 						self.close();
 					},

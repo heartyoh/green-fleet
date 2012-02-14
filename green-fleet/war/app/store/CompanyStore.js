@@ -13,11 +13,14 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'name',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'desc',
+		type : 'string'
+	}, {
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

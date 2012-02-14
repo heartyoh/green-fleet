@@ -11,17 +11,17 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		name : 'key',
 		type : 'string'
 	}, {
-		name : 'incidentTime',
+		name : 'datetime',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat:'c'
 	}, {
-		name : 'driver',
+		name : 'terminal_id',
 		type : 'string'
 	}, {
-		name : 'vehicle',
+		name : 'vehicle_id',
 		type : 'string'
 	}, {
-		name : 'terminal',
+		name : 'driver_id',
 		type : 'string'
 	}, {
 		name : 'lattitude',
@@ -30,35 +30,41 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		name : 'longitude',
 		type : 'float'
 	}, {
-		name : 'impulse',
+		name : 'velocity',
 		type : 'float'
 	}, {
-		name : 'impulseThreshold',
+		name : 'impulse_abs',
 		type : 'float'
 	}, {
-		name : 'obdConnected',
+		name : 'impulse_x',
+		type : 'float'
+	}, {
+		name : 'impulse_y',
+		type : 'float'
+	}, {
+		name : 'impulse_z',
+		type : 'float'
+	}, {
+		name : 'impulse_threshold',
+		type : 'float'
+	}, {
+		name : 'obd_connected',
 		type : 'boolean'
 	}, {
-		name : 'engineTemp',
+		name : 'engine_temp',
 		type : 'float'
 	}, {
-		name : 'engineTempThreshold',
+		name : 'engine_temp_threshold',
 		type : 'float'
 	}, {
-		name : 'remainingFuel',
-		type : 'float'
-	}, {
-		name : 'fuelThreshold',
-		type : 'float'
-	}, {
-		name : 'videoClip',
+		name : 'video_clip',
 		type : 'string'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'
 	}, {
-		name : 'updatedAt',
+		name : 'updated_at',
 		type : 'date',
 		dateFormat:'time'
 	} ],

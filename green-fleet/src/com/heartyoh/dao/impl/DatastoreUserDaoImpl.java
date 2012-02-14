@@ -81,14 +81,16 @@ public class DatastoreUserDaoImpl implements UserDao {
         }
     }
 
-    public String registerUser(CustomUser newUser) {
+    public void registerUser(CustomUser newUser) {
         logger.debug("Attempting to create new user " + newUser);
         
         Key companyKey = KeyFactory.createKey("Company", newUser.getCompany());
         Key key = KeyFactory.createKey(companyKey, USER_TYPE, newUser.getEmail());
 
 //        Key key = KeyFactory.createKey(USER_TYPE, newUser.getUserId());
-        Entity user = new Entity(key);
+        
+        Entity user =  
+        		new Entity(key);
         user.setProperty(USER_EMAIL, newUser.getEmail());
         user.setProperty(USER_NICKNAME, newUser.getNickname());
         user.setProperty(USER_FORENAME, newUser.getForename());
@@ -108,8 +110,6 @@ public class DatastoreUserDaoImpl implements UserDao {
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         datastore.put(user);
-        
-        return KeyFactory.keyToString(key);
     }
 
     public void removeUser(String key) {

@@ -7,10 +7,10 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 		name : 'key',
 		type : 'string'
 	}, {
-		name : 'vehicle',
+		name : 'vehicle_id',
 		type : 'string'
 	}, {
-		name : 'driver',
+		name : 'driver_id',
 		type : 'string'
 	}, {
 		name : 'lattitude',
@@ -19,13 +19,13 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 		name : 'longitude',
 		type : 'number'
 	}, {
-		name : 'createdAt',
+		name : 'created_at',
 		type : 'date',
 		dateFormat : 'time'
 	} ],
 
 	sorters : [ {
-		property : 'createdAt',
+		property : 'created_at',
 		direction : 'DESC'
 	} ],
 

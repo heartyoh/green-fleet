@@ -5,56 +5,95 @@ Ext.define('GreenFleet.view.management.Reservation', {
 
 	title : 'Reservation',
 
+	entityUrl : 'reservation',
+
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
-	
-	items: {
+
+	items : {
 		html : '<div class="listTitle">Reservation List</div>'
 	},
 
 	initComponent : function() {
+		var self = this;
+
 		this.callParent(arguments);
 
 		this.add(this.buildList(this));
 		this.add(this.buildForm(this));
+
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+
+		this.sub('grid').on('render', function(grid) {
+			grid.store.load();
+		});
+
+		this.sub('vehicle_filter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.sub('reserved_date_filter').on('change', function(field, value) {
+			self.search(self);
+		});
+
+		this.down('#search_reset').on('click', function() {
+			self.sub('vehicle_filter').setValue('');
+			self.sub('reserved_date_filter').setValue('');
+		});
+
+		this.down('#search').on('click', function() {
+			self.sub('grid').store.load();
+		});
+
+	},
+
+	search : function(self) {
+		self.sub('grid').store.clearFilter();
+
+		self.sub('grid').store.filter([ {
+			property : 'vehicle_id',
+			value : self.sub('vehicle_filter').getValue()
+		}, {
+			property : 'reserved_date',
+			value : self.sub('reserved_date_filter').getValue()
+		} ]);
 	},
 
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
+			itemId : 'grid',
 			store : 'ReservationStore',
 			autoScroll : true,
 			flex : 1,
 			columns : [ {
 				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'id',
 				text : 'ID',
 				type : 'string'
 			}, {
-				dataIndex : 'reservedDate',
+				dataIndex : 'reserved_date',
 				text : 'Reserved Date',
-				type : 'string',
-				format : F('date')
+				xtype : 'datecolumn',
+				format : F('date'),
+				width : 120
 			}, {
-				dataIndex : 'driver',
+				dataIndex : 'driver_id',
 				text : 'Driver',
 				type : 'string'
 			}, {
-				dataIndex : 'vehicle',
+				dataIndex : 'vehicle_id',
 				text : 'Vehicle',
 				type : 'string'
 			}, {
-				dataIndex : 'vehicleType',
+				dataIndex : 'vehicle_type',
 				text : 'Vehicle Type',
 				type : 'string'
 			}, {
-				dataIndex : 'deliveryPlace',
+				dataIndex : 'delivery_place',
 				text : 'Delivery Place',
 				type : 'string'
 			}, {
@@ -70,84 +109,39 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				text : 'Status',
 				type : 'string'
 			}, {
-				dataIndex : 'createdAt',
+				dataIndex : 'created_at',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			}, {
-				dataIndex : 'updatedAt',
+				dataIndex : 'updated_at',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			} ],
 			viewConfig : {
 
 			},
-			listeners : {
-				itemclick : function(grid, record) {
-					var form = main.down('form');
-					form.loadRecord(record);
-				}
-			},
-			onSearch : function(grid) {
-				var idfilter = grid.down('textfield[name=idFilter]');
-				var vehicleFilter = grid.down('textfield[name=vehicleFilter]');
-				grid.store.load({
-					filters : [ {
-						property : 'id',
-						value : idfilter.getValue()
-					}, {
-						property : 'vehicle',
-						value : vehicleFilter.getValue()
-					} ]
-				});
-			},
-			onReset : function(grid) {
-				grid.down('textfield[name=idFilter]').setValue('');
-				grid.down('textfield[name=vehicleFilter]').setValue('');
-			},
-			tbar : [ 'Reservation ID', {
+			tbar : [ 'Vehicle', {
 				xtype : 'textfield',
-				name : 'idFilter',
+				name : 'vehicle_filter',
+				itemId : 'vehicle_filter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
-			}, 'Vehicle', {
-				xtype : 'textfield',
-				name : 'vehicleFilter',
+				width : 200
+			}, 'Date', {
+				xtype : 'datefield',
+				name : 'reserved_date_filter',
+				itemId : 'reserved_date_filter',
 				hideLabel : true,
-				width : 200,
-				listeners : {
-					specialkey : function(field, e) {
-						if (e.getKey() == e.ENTER) {
-							var grid = this.up('gridpanel');
-							grid.onSearch(grid);
-						}
-					}
-				}
+				width : 200
 			}, {
-				xtype : 'button',
 				text : 'Search',
-				tooltip : 'Find Reservation',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
+				itemId : 'search'
 			}, {
 				text : 'reset',
-				handler : function() {
-					var grid = this.up('gridpanel');
-					grid.onReset(grid);
-				}
+				itemId : 'search_reset'
 			} ]
 		}
 	},
@@ -155,144 +149,71 @@ Ext.define('GreenFleet.view.management.Reservation', {
 	buildForm : function(main) {
 		return {
 			xtype : 'form',
+			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Reservation Details',
 			autoScroll : true,
 			flex : 1,
-			items : [{
+			defaults : {
 				xtype : 'textfield',
+				anchor : '100%'
+			},
+			items : [ {
 				name : 'key',
-				fieldLabel : 'Key',
-				anchor : '100%',
-				hidden : true
-			}, {
-				xtype : 'textfield',
-				name : 'id',
 				fieldLabel : 'Reservation ID',
-				anchor : '100%'
+				disabled : true
 			}, {
 				xtype : 'datefield',
-				name : 'reservedDate',
-				disabled : true,
+				name : 'reserved_date',
 				fieldLabel : 'Reserved Date',
-				format : F('date'),
-				anchor : '100%'
+				format : F('date')
 			}, {
-				xtype : 'textfield',
-				name : 'vehicleType',
-				fieldLabel : 'Vehicle Type',
-				anchor : '100%'
+				name : 'vehicle_type',
+				fieldLabel : 'Vehicle Type'
 			}, {
 				xtype : 'combo',
-				name : 'vehicle',
-				queryMode: 'local',
+				name : 'vehicle_id',
+				queryMode : 'local',
 				store : 'VehicleStore',
-				displayField: 'id',
-			    valueField: 'key',
-				fieldLabel : 'Vehicle',
-				anchor : '100%'
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : 'Vehicle'
 			}, {
 				xtype : 'combo',
-				name : 'driver',
-				queryMode: 'local',
+				name : 'driver_id',
+				queryMode : 'local',
 				store : 'DriverStore',
-				displayField: 'name',
-			    valueField: 'key',
-				fieldLabel : 'Driver',
-				anchor : '100%'
+				displayField : 'name',
+				valueField : 'id',
+				fieldLabel : 'Driver'
 			}, {
-				xtype : 'textfield',
 				name : 'status',
-				fieldLabel : 'Status',
-				anchor : '100%'
+				fieldLabel : 'Status'
 			}, {
-				xtype : 'textfield',
-				name : 'deliveryPlace',
-				fieldLabel : 'Delivery Place',
-				anchor : '100%'
+				name : 'delivery_place',
+				fieldLabel : 'Delivery Place'
 			}, {
-				xtype : 'textfield',
 				name : 'destination',
-				fieldLabel : 'Destination',
-				anchor : '100%'
+				fieldLabel : 'Destination'
 			}, {
-				xtype : 'textfield',
 				name : 'purpose',
-				fieldLabel : 'Purpose',
-				anchor : '100%'
+				fieldLabel : 'Purpose'
 			}, {
 				xtype : 'datefield',
-				name : 'updatedAt',
+				name : 'updated_at',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format: F('datetime'),
-				anchor : '100%'
+				format : F('datetime')
 			}, {
 				xtype : 'datefield',
-				name : 'createdAt',
+				name : 'created_at',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format: F('datetime'),
-				anchor : '100%'
+				format : F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'toolbar',
-				dock : 'bottom',
-				layout : {
-					align : 'middle',
-					type : 'hbox'
-				},
-				items : [ {
-					xtype : 'tbfill'
-				},{
-					xtype : 'button',
-					text : 'Save',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'reservation/save',
-								success : function(form, action) {
-									var store = main.down('gridpanel').store;
-									store.load(function() {
-										form.loadRecord(store.findRecord('key', action.result.key));
-									});
-								},
-								failure : function(form, action) {
-									console.log(action);
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Delete',
-					handler : function() {
-						var form = this.up('form').getForm();
-
-						if (form.isValid()) {
-							form.submit({
-								url : 'reservation/delete',
-								success : function(form, action) {
-									main.down('gridpanel').store.load();
-									form.reset();
-								},
-								failure : function(form, action) {
-									GreenFleet.msg('Failed', action.result.msg);
-								}
-							});
-						}
-					}
-				}, {
-					xtype : 'button',
-					text : 'Reset',
-					handler : function() {
-						this.up('form').getForm().reset();
-					}
-				} ]
+				xtype : 'entity_form_buttons'
 			} ]
 		}
 	}

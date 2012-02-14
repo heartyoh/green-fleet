@@ -28,6 +28,20 @@ Ext.define('GreenFleet.view.viewport.West', {
 		}
 	}, {
 		xtype : 'button',
+		cls : 'btnEvent',
+		html : 'incident log',
+		handler : function() {
+			GreenFleet.uploadIncidentLog();
+		}
+	}, {
+		xtype : 'button',
+		cls : 'btnEvent',
+		html : 'incident video',
+		handler : function() {
+			GreenFleet.uploadIncidentVideo();
+		}
+	}, {
+		xtype : 'button',
 		cls : 'btnSave',
 		html : 'save'
 	}, {
