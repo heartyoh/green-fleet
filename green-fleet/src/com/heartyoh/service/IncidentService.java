@@ -69,7 +69,8 @@ public class IncidentService extends EntityService {
 		entity.setProperty("impulse_threshold", doubleProperty(map, "impulse_threshold"));
 		entity.setProperty("engine_temp", doubleProperty(map, "engine_temp"));
 		entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
-		entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
+		if(map.get("obd_connected") != null)
+			entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
 
 		super.onSave(entity, map, datastore);
 	}
