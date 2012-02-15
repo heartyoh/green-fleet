@@ -3399,7 +3399,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			
 			setInterval(function() {
 				vehicleMapStore.load();
-			}, 10000);
+			}, 60000);
 			
 			var vehicleStore = Ext.getStore('VehicleStore');
 			vehicleStore.load();
