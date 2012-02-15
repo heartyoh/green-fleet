@@ -47,8 +47,7 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
-			throws IOException {
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
 		entity.setProperty("video_clip", saveFile((MultipartFile) map.get("video_file")));
 
 		super.postMultipart(entity, map, request);
@@ -57,20 +56,34 @@ public class IncidentService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 
-		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
-		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
-		entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
-		entity.setProperty("longitude", doubleProperty(map, "longitude"));
-		entity.setProperty("velocity", doubleProperty(map, "velocity"));
-		entity.setProperty("impulse_abs", doubleProperty(map, "impulse_abs"));
-		entity.setProperty("impulse_x", doubleProperty(map, "impulse_x"));
-		entity.setProperty("impulse_y", doubleProperty(map, "impulse_y"));
-		entity.setProperty("impulse_z", doubleProperty(map, "impulse_z"));
-		entity.setProperty("impulse_threshold", doubleProperty(map, "impulse_threshold"));
-		entity.setProperty("engine_temp", doubleProperty(map, "engine_temp"));
-		entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
-		if(map.get("obd_connected") != null)
+		if (map.get("vehicle_id") != null)
+			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
+		if (map.get("driver_id") != null)
+			entity.setProperty("driver_id", stringProperty(map, "driver_id"));
+		if (map.get("lattitude") != null)
+			entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
+		if (map.get("longitude") != null)
+			entity.setProperty("longitude", doubleProperty(map, "longitude"));
+		if (map.get("velocity") != null)
+			entity.setProperty("velocity", doubleProperty(map, "velocity"));
+		if (map.get("impulse_abs") != null)
+			entity.setProperty("impulse_abs", doubleProperty(map, "impulse_abs"));
+		if (map.get("impulse_x") != null)
+			entity.setProperty("impulse_x", doubleProperty(map, "impulse_x"));
+		if (map.get("impulse_y") != null)
+			entity.setProperty("impulse_y", doubleProperty(map, "impulse_y"));
+		if (map.get("impulse_z") != null)
+			entity.setProperty("impulse_z", doubleProperty(map, "impulse_z"));
+		if (map.get("impulse_threshold") != null)
+			entity.setProperty("impulse_threshold", doubleProperty(map, "impulse_threshold"));
+		if (map.get("engine_temp") != null)
+			entity.setProperty("engine_temp", doubleProperty(map, "engine_temp"));
+		if (map.get("engine_temp_threshold") != null)
+			entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
+		if (map.get("obd_connected") != null)
 			entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
+		if (map.get("confirm") != null)
+			entity.setProperty("confirm", booleanProperty(map, "confirm"));
 
 		super.onSave(entity, map, datastore);
 	}

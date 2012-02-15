@@ -141,16 +141,16 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				});
 			}
 
-			/*
-			 * TrackStore瑜��ㅼ� 濡����
-			 */
-			// TODO ��� ��낫 ���媛����(�뱀� 二쇳�遺�� 蹂댁�湲���� �쇱� ��낫瑜��ㅼ����濡���� �대��쇱�留����留��.)
+		/*
+		 * TrackStore를 다시 로드함.
+		 */
+		// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
 			self.getTrackStore().clearFilter(true);
 			self.getTrackStore().filter('vehicle_id', vehicle); 
 			self.getTrackStore().load();
 			
 			/*
-			 * IncidentStore瑜��ㅼ� 濡����
+			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().clearFilter(true);
 			self.getIncidentStore().filter('vehicle_id', vehicle);

@@ -51,6 +51,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		name : 'obd_connected',
 		type : 'boolean'
 	}, {
+		name : 'confirm',
+		type : 'boolean'
+	}, {
 		name : 'engine_temp',
 		type : 'float'
 	}, {

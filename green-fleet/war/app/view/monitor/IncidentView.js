@@ -100,6 +100,28 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 			});
 		});
+		
+		this.sub('incident_form').on('afterrender', function(form) {
+			this.down('[itemId=confirm]').getEl().on('click', function(checkbox, dirty) {
+				var form = self.sub('incident_form').getForm();
+
+				if (form.getRecord() != null) {
+					form.submit({
+						url : 'incident/save',
+						success : function(form, action) {
+							var store = self.sub('grid').store;
+							store.load(function() {
+								form.loadRecord(store.findRecord('key', action.result.key));
+							});
+						},
+						failure : function(form, action) {
+							GreenFleet.msg('Failed', action.result.msg);
+						}
+					});
+				}
+			});
+		});
+		
 	},
 	
 	setIncident : function(incident, refresh) {
@@ -187,6 +209,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			cls : 'summaryCell'
 		},
 		items : [ {
+			xtype : 'textfield',
+			name : 'key',
+			hidden : true
+		}, {
 			xtype : 'image',
 			itemId : 'driverImage',
 			cls : 'imgDriverSmall',
@@ -221,6 +247,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			name : 'engine_temp',
 			width : 100,
 			fieldLabel : 'Engine Temp.'
+		}, {
+			xtype : 'checkbox',
+			name : 'confirm',
+			itemId : 'confirm',
+			fieldLabel : 'Confirm',
+			uncheckedValue : 'off'
 		}, {
 			xtype : 'displayfield',
 			name : 'video_clip',
@@ -345,6 +377,11 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			dataIndex : 'obd_connected',
 			text : 'OBD Connected',
+			type : 'boolean',
+			width : 80
+		}, {
+			dataIndex : 'confirm',
+			text : 'Confirm',
 			type : 'boolean',
 			width : 80
 		}, {

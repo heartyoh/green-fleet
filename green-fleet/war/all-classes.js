@@ -379,21 +379,6 @@ Ext.define('GreenFleet.view.viewport.East', {
 		
 		var self = this;
 		
-//		this.sub('state_running').on('click', function() {
-//			var store = Ext.getStore('VehicleMapStore');
-//			store.clearFilter();
-//			self.sub('search').setValue('');
-//			
-//			GreenFleet.show_running_vehicle = true;
-//			if(GreenFleet.show_idle_vehicle) {
-//				GreenFleet.show_idle_vehicle = false;
-//				GreenFleet.show_incident_vehicle = false;
-//			} else {
-//				GreenFleet.show_idle_vehicle = true;
-//				GreenFleet.show_incident_vehicle = true;
-//			}
-//		});
-		
 		this.sub('state_running').on('click', function() {
 			var store = Ext.getStore('VehicleMapStore');
 			store.clearFilter();
@@ -2100,7 +2085,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 	title : 'Incident',
 
 	entityUrl : 'incident',
-	
+
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
@@ -2142,14 +2127,14 @@ Ext.define('GreenFleet.view.management.Incident', {
 		this.down('#search').on('click', function() {
 			self.sub('grid').store.load();
 		});
-		
+
 		this.down('#video_clip').on('change', function(field, value) {
 			var video = self.sub('video');
-			
+
 			var url = '';
-			if(value != null && value.length > 1)
+			if (value != null && value.length > 1)
 				url = 'src="download?blob-key=' + value + '"'
-				
+
 			video.update({
 				value : url
 			});
@@ -2168,7 +2153,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 			value : self.sub('driver_filter').getValue()
 		} ]);
 	},
-	
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -2244,6 +2229,10 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : 'OBD Connected',
 				type : 'boolean'
 			}, {
+				dataIndex : 'confirm',
+				text : 'Confirm',
+				type : 'boolean'
+			}, {
 				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
@@ -2300,148 +2289,155 @@ Ext.define('GreenFleet.view.management.Incident', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [ {
-				xtype : 'form',
-				itemId : 'form',
-				flex : 1,
-				autoScroll : true,
-				defaults : {
-					anchor : '100%'
-				},
-				items : [ {
-					xtype : 'textfield',
-					name : 'key',
-					fieldLabel : 'Key',
-					hidden : true
-				}, {
-					xtype : 'datefield',
-					name : 'datetime',
-					fieldLabel : 'Incident Time',
-					submitFormat : F('datetime')
-				}, {
-					xtype : 'combo',
-					name : 'vehicle_id',
-					queryMode : 'local',
-					store : 'VehicleStore',
-					displayField : 'id',
-					valueField : 'id',
-					fieldLabel : 'Vehicle'
-				}, {
-					xtype : 'combo',
-					name : 'driver_id',
-					queryMode : 'local',
-					store : 'DriverStore',
-					displayField : 'id',
-					valueField : 'id',
-					fieldLabel : 'Driver'
-				}, {
-					xtype : 'combo',
-					name : 'terminal_id',
-					queryMode : 'local',
-					store : 'TerminalStore',
-					displayField : 'id',
-					valueField : 'id',
-					fieldLabel : 'Terminal'
-				}, {
-					xtype : 'textfield',
-					name : 'lattitude',
-					fieldLabel : 'Lattitude'
-				}, {
-					xtype : 'textfield',
-					name : 'longitude',
-					fieldLabel : 'Longitude'
-				}, {
-					xtype : 'textfield',
-					name : 'velocity',
-					fieldLabel : 'Velocity'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_abs',
-					fieldLabel : 'Impulse'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_x',
-					fieldLabel : 'Impulse X'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_y',
-					fieldLabel : 'Impulse Y'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_z',
-					fieldLabel : 'Impulse Z'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_threshold',
-					fieldLabel : 'Impulse Threshold'
-				}, {
-					xtype : 'textfield',
-					name : 'engine_temp',
-					fieldLabel : 'Engine Temp.'
-				}, {
-					xtype : 'textfield',
-					name : 'engine_temp_threshold',
-					fieldLabel : 'Engine Temp. Threshold'
-				}, {
-					xtype : 'checkbox',
-					name : 'obd_connected',
-					fieldLabel : 'OBD Connected'
-				}, {
-					xtype : 'filefield',
-					name : 'video_file',
-					fieldLabel : 'Video Upload',
-					msgTarget : 'side',
-					allowBlank : true,
-					buttonText : 'file...'
-				}, {
-					xtype : 'datefield',
-					name : 'updated_at',
-					disabled : true,
-					fieldLabel : 'Updated At',
-					format : 'd-m-Y H:i:s'
-				}, {
-					xtype : 'datefield',
-					name : 'created_at',
-					disabled : true,
-					fieldLabel : 'Created At',
-					format : 'd-m-Y H:i:s'
-				}, {
-					xtype : 'displayfield',
-					name : 'video_clip',
-					itemId : 'video_clip',
-					hidden : true
-				} ]
-			}, {
-				xtype : 'panel',
-				flex : 1,
-				
-				cls : 'incidentVOD paddingLeft10',
-
-				layout : {
-					type : 'vbox',
-					align : 'stretch',
-					itemCls : 'test'
-				},
-				
-				items : [
-						{
-							xtype : 'box',
-							itemId : 'video',
-							cls : 'incidentDetail',
-							tpl : [ '<video width="100%" height="95%" controls="controls">',
-									'<source {value} type="video/mp4" />',
-									'Your browser does not support the video tag.', '</video>' ]
+			items : [
+					{
+						xtype : 'form',
+						itemId : 'form',
+						flex : 1,
+						autoScroll : true,
+						defaults : {
+							anchor : '100%'
+						},
+						items : [ {
+							xtype : 'textfield',
+							name : 'key',
+							fieldLabel : 'Key',
+							hidden : true
 						}, {
-							xtype : 'box',
-							html : '<div class="btnFullscreen"></div>',
-							handler : function(button) {
-								if (!Ext.isWebKit)
-									return;
-								var video = button.up('container').getComponent('video');
-								video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
-							}
+							xtype : 'datefield',
+							name : 'datetime',
+							fieldLabel : 'Incident Time',
+							submitFormat : F('datetime')
+						}, {
+							xtype : 'combo',
+							name : 'vehicle_id',
+							queryMode : 'local',
+							store : 'VehicleStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Vehicle'
+						}, {
+							xtype : 'combo',
+							name : 'driver_id',
+							queryMode : 'local',
+							store : 'DriverStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Driver'
+						}, {
+							xtype : 'combo',
+							name : 'terminal_id',
+							queryMode : 'local',
+							store : 'TerminalStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Terminal'
+						}, {
+							xtype : 'textfield',
+							name : 'lattitude',
+							fieldLabel : 'Lattitude'
+						}, {
+							xtype : 'textfield',
+							name : 'longitude',
+							fieldLabel : 'Longitude'
+						}, {
+							xtype : 'textfield',
+							name : 'velocity',
+							fieldLabel : 'Velocity'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_abs',
+							fieldLabel : 'Impulse'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_x',
+							fieldLabel : 'Impulse X'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_y',
+							fieldLabel : 'Impulse Y'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_z',
+							fieldLabel : 'Impulse Z'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_threshold',
+							fieldLabel : 'Impulse Threshold'
+						}, {
+							xtype : 'textfield',
+							name : 'engine_temp',
+							fieldLabel : 'Engine Temp.'
+						}, {
+							xtype : 'textfield',
+							name : 'engine_temp_threshold',
+							fieldLabel : 'Engine Temp. Threshold'
+						}, {
+							xtype : 'checkbox',
+							name : 'obd_connected',
+							uncheckedValue : 'off',
+							fieldLabel : 'OBD Connected'
+						}, {
+							xtype : 'checkbox',
+							name : 'confirm',
+							uncheckedValue : 'off',
+							fieldLabel : 'Confirm'
+						}, {
+							xtype : 'filefield',
+							name : 'video_file',
+							fieldLabel : 'Video Upload',
+							msgTarget : 'side',
+							allowBlank : true,
+							buttonText : 'file...'
+						}, {
+							xtype : 'datefield',
+							name : 'updated_at',
+							disabled : true,
+							fieldLabel : 'Updated At',
+							format : 'd-m-Y H:i:s'
+						}, {
+							xtype : 'datefield',
+							name : 'created_at',
+							disabled : true,
+							fieldLabel : 'Created At',
+							format : 'd-m-Y H:i:s'
+						}, {
+							xtype : 'displayfield',
+							name : 'video_clip',
+							itemId : 'video_clip',
+							hidden : true
 						} ]
-			} ],
+					},
+					{
+						xtype : 'panel',
+						flex : 1,
+
+						cls : 'incidentVOD paddingLeft10',
+
+						layout : {
+							type : 'vbox',
+							align : 'stretch',
+							itemCls : 'test'
+						},
+
+						items : [
+								{
+									xtype : 'box',
+									itemId : 'video',
+									cls : 'incidentDetail',
+									tpl : [ '<video width="100%" height="95%" controls="controls">', '<source {value} type="video/mp4" />',
+											'Your browser does not support the video tag.', '</video>' ]
+								}, {
+									xtype : 'box',
+									html : '<div class="btnFullscreen"></div>',
+									handler : function(button) {
+										if (!Ext.isWebKit)
+											return;
+										var video = button.up('container').getComponent('video');
+										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+									}
+								} ]
+					} ],
 
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
@@ -3389,9 +3385,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var vehicleMapStore = Ext.getStore('VehicleMapStore');
 			
 			vehicleMapStore.on('datachanged', function() {
-				self.refreshMap(vehicleMapStore);//, self);
+				self.refreshMap(vehicleMapStore);
 			});
-//			vehicleMapStore.on('load', self.refreshMap, self);
 			
 			vehicleMapStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
 			
@@ -3411,48 +3406,11 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				self.refreshMap(Ext.getStore('VehicleMapStore'));
 		});
 		
-//		Ext.getCmp('east').sub('state_running').on('click', function() {
-//			self.refreshMarkers();
-//		});
-//		
-//		Ext.getCmp('east').sub('state_idle').on('click', function() {
-//			self.refreshMarkers();
-//		});
-//		
-//		Ext.getCmp('east').sub('state_incident').on('click', function() {
-//			self.refreshMarkers();
-//		});
-
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
 				self.refreshMap(Ext.getStore('VehicleMapStore'));
 		});
 	},
-	
-//	refreshMarkers : function() {
-//		var markers = this.getMarkers();
-//		var labels = this.getLabels();
-//		
-//		for (var vehicle in markers) {
-//			var marker = markers[vehicle];
-//			var label = labels[vehicle]; 
-//
-//			switch(marker.status) {
-//			case 'Running' :
-//				marker.setVisible(GreenFleet.show_running_vehicle);
-//				label.setVisible(GreenFleet.show_running_vehicle);
-//				break;
-//			case 'Idle' :
-//				marker.setVisible(GreenFleet.show_idle_vehicle);
-//				label.setVisible(GreenFleet.show_idle_vehicle);
-//				break;
-//			case 'Incident' :
-//				marker.setVisible(GreenFleet.show_incident_vehicle);
-//				label.setVisible(GreenFleet.show_incident_vehicle);
-//				break;
-//			}
-//		}
-//	},
 	
 	getMap : function() {
 		if(!this.map) {
@@ -3507,8 +3465,6 @@ Ext.define('GreenFleet.view.monitor.Map', {
 
 		var bounds;
 		
-		console.log(store);
-		
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver_id');
@@ -3552,8 +3508,6 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		} else {
 			this.getMap().fitBounds(bounds);
 		}
-
-//		this.refreshMarkers();
 	},
 	
 	ztitle : {
@@ -4127,16 +4081,16 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				});
 			}
 
-			/*
-			 * TrackStore瑜��ㅼ� 濡����
-			 */
-			// TODO ��� ��낫 ���媛����(�뱀� 二쇳�遺�� 蹂댁�湲���� �쇱� ��낫瑜��ㅼ����濡���� �대��쇱�留����留��.)
+		/*
+		 * TrackStore를 다시 로드함.
+		 */
+		// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
 			self.getTrackStore().clearFilter(true);
 			self.getTrackStore().filter('vehicle_id', vehicle); 
 			self.getTrackStore().load();
 			
 			/*
-			 * IncidentStore瑜��ㅼ� 濡����
+			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().clearFilter(true);
 			self.getIncidentStore().filter('vehicle_id', vehicle);
@@ -4521,6 +4475,28 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 			});
 		});
+		
+		this.sub('incident_form').on('afterrender', function(form) {
+			this.down('[itemId=confirm]').getEl().on('click', function(checkbox, dirty) {
+				var form = self.sub('incident_form').getForm();
+
+				if (form.getRecord() != null) {
+					form.submit({
+						url : 'incident/save',
+						success : function(form, action) {
+							var store = self.sub('grid').store;
+							store.load(function() {
+								form.loadRecord(store.findRecord('key', action.result.key));
+							});
+						},
+						failure : function(form, action) {
+							GreenFleet.msg('Failed', action.result.msg);
+						}
+					});
+				}
+			});
+		});
+		
 	},
 	
 	setIncident : function(incident, refresh) {
@@ -4608,6 +4584,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			cls : 'summaryCell'
 		},
 		items : [ {
+			xtype : 'textfield',
+			name : 'key',
+			hidden : true
+		}, {
 			xtype : 'image',
 			itemId : 'driverImage',
 			cls : 'imgDriverSmall',
@@ -4642,6 +4622,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			name : 'engine_temp',
 			width : 100,
 			fieldLabel : 'Engine Temp.'
+		}, {
+			xtype : 'checkbox',
+			name : 'confirm',
+			itemId : 'confirm',
+			fieldLabel : 'Confirm',
+			uncheckedValue : 'off'
 		}, {
 			xtype : 'displayfield',
 			name : 'video_clip',
@@ -4766,6 +4752,11 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			dataIndex : 'obd_connected',
 			text : 'OBD Connected',
+			type : 'boolean',
+			width : 80
+		}, {
+			dataIndex : 'confirm',
+			text : 'Confirm',
 			type : 'boolean',
 			width : 80
 		}, {
@@ -5578,6 +5569,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'float'
 	}, {
 		name : 'obd_connected',
+		type : 'boolean'
+	}, {
+		name : 'confirm',
 		type : 'boolean'
 	}, {
 		name : 'engine_temp',

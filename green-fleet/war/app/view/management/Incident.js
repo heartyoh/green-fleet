@@ -6,7 +6,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 	title : 'Incident',
 
 	entityUrl : 'incident',
-	
+
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
@@ -48,14 +48,14 @@ Ext.define('GreenFleet.view.management.Incident', {
 		this.down('#search').on('click', function() {
 			self.sub('grid').store.load();
 		});
-		
+
 		this.down('#video_clip').on('change', function(field, value) {
 			var video = self.sub('video');
-			
+
 			var url = '';
-			if(value != null && value.length > 1)
+			if (value != null && value.length > 1)
 				url = 'src="download?blob-key=' + value + '"'
-				
+
 			video.update({
 				value : url
 			});
@@ -74,7 +74,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 			value : self.sub('driver_filter').getValue()
 		} ]);
 	},
-	
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -150,6 +150,10 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : 'OBD Connected',
 				type : 'boolean'
 			}, {
+				dataIndex : 'confirm',
+				text : 'Confirm',
+				type : 'boolean'
+			}, {
 				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
@@ -206,148 +210,155 @@ Ext.define('GreenFleet.view.management.Incident', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [ {
-				xtype : 'form',
-				itemId : 'form',
-				flex : 1,
-				autoScroll : true,
-				defaults : {
-					anchor : '100%'
-				},
-				items : [ {
-					xtype : 'textfield',
-					name : 'key',
-					fieldLabel : 'Key',
-					hidden : true
-				}, {
-					xtype : 'datefield',
-					name : 'datetime',
-					fieldLabel : 'Incident Time',
-					submitFormat : F('datetime')
-				}, {
-					xtype : 'combo',
-					name : 'vehicle_id',
-					queryMode : 'local',
-					store : 'VehicleStore',
-					displayField : 'id',
-					valueField : 'id',
-					fieldLabel : 'Vehicle'
-				}, {
-					xtype : 'combo',
-					name : 'driver_id',
-					queryMode : 'local',
-					store : 'DriverStore',
-					displayField : 'id',
-					valueField : 'id',
-					fieldLabel : 'Driver'
-				}, {
-					xtype : 'combo',
-					name : 'terminal_id',
-					queryMode : 'local',
-					store : 'TerminalStore',
-					displayField : 'id',
-					valueField : 'id',
-					fieldLabel : 'Terminal'
-				}, {
-					xtype : 'textfield',
-					name : 'lattitude',
-					fieldLabel : 'Lattitude'
-				}, {
-					xtype : 'textfield',
-					name : 'longitude',
-					fieldLabel : 'Longitude'
-				}, {
-					xtype : 'textfield',
-					name : 'velocity',
-					fieldLabel : 'Velocity'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_abs',
-					fieldLabel : 'Impulse'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_x',
-					fieldLabel : 'Impulse X'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_y',
-					fieldLabel : 'Impulse Y'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_z',
-					fieldLabel : 'Impulse Z'
-				}, {
-					xtype : 'textfield',
-					name : 'impulse_threshold',
-					fieldLabel : 'Impulse Threshold'
-				}, {
-					xtype : 'textfield',
-					name : 'engine_temp',
-					fieldLabel : 'Engine Temp.'
-				}, {
-					xtype : 'textfield',
-					name : 'engine_temp_threshold',
-					fieldLabel : 'Engine Temp. Threshold'
-				}, {
-					xtype : 'checkbox',
-					name : 'obd_connected',
-					fieldLabel : 'OBD Connected'
-				}, {
-					xtype : 'filefield',
-					name : 'video_file',
-					fieldLabel : 'Video Upload',
-					msgTarget : 'side',
-					allowBlank : true,
-					buttonText : 'file...'
-				}, {
-					xtype : 'datefield',
-					name : 'updated_at',
-					disabled : true,
-					fieldLabel : 'Updated At',
-					format : 'd-m-Y H:i:s'
-				}, {
-					xtype : 'datefield',
-					name : 'created_at',
-					disabled : true,
-					fieldLabel : 'Created At',
-					format : 'd-m-Y H:i:s'
-				}, {
-					xtype : 'displayfield',
-					name : 'video_clip',
-					itemId : 'video_clip',
-					hidden : true
-				} ]
-			}, {
-				xtype : 'panel',
-				flex : 1,
-				
-				cls : 'incidentVOD paddingLeft10',
-
-				layout : {
-					type : 'vbox',
-					align : 'stretch',
-					itemCls : 'test'
-				},
-				
-				items : [
-						{
-							xtype : 'box',
-							itemId : 'video',
-							cls : 'incidentDetail',
-							tpl : [ '<video width="100%" height="95%" controls="controls">',
-									'<source {value} type="video/mp4" />',
-									'Your browser does not support the video tag.', '</video>' ]
+			items : [
+					{
+						xtype : 'form',
+						itemId : 'form',
+						flex : 1,
+						autoScroll : true,
+						defaults : {
+							anchor : '100%'
+						},
+						items : [ {
+							xtype : 'textfield',
+							name : 'key',
+							fieldLabel : 'Key',
+							hidden : true
 						}, {
-							xtype : 'box',
-							html : '<div class="btnFullscreen"></div>',
-							handler : function(button) {
-								if (!Ext.isWebKit)
-									return;
-								var video = button.up('container').getComponent('video');
-								video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
-							}
+							xtype : 'datefield',
+							name : 'datetime',
+							fieldLabel : 'Incident Time',
+							submitFormat : F('datetime')
+						}, {
+							xtype : 'combo',
+							name : 'vehicle_id',
+							queryMode : 'local',
+							store : 'VehicleStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Vehicle'
+						}, {
+							xtype : 'combo',
+							name : 'driver_id',
+							queryMode : 'local',
+							store : 'DriverStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Driver'
+						}, {
+							xtype : 'combo',
+							name : 'terminal_id',
+							queryMode : 'local',
+							store : 'TerminalStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : 'Terminal'
+						}, {
+							xtype : 'textfield',
+							name : 'lattitude',
+							fieldLabel : 'Lattitude'
+						}, {
+							xtype : 'textfield',
+							name : 'longitude',
+							fieldLabel : 'Longitude'
+						}, {
+							xtype : 'textfield',
+							name : 'velocity',
+							fieldLabel : 'Velocity'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_abs',
+							fieldLabel : 'Impulse'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_x',
+							fieldLabel : 'Impulse X'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_y',
+							fieldLabel : 'Impulse Y'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_z',
+							fieldLabel : 'Impulse Z'
+						}, {
+							xtype : 'textfield',
+							name : 'impulse_threshold',
+							fieldLabel : 'Impulse Threshold'
+						}, {
+							xtype : 'textfield',
+							name : 'engine_temp',
+							fieldLabel : 'Engine Temp.'
+						}, {
+							xtype : 'textfield',
+							name : 'engine_temp_threshold',
+							fieldLabel : 'Engine Temp. Threshold'
+						}, {
+							xtype : 'checkbox',
+							name : 'obd_connected',
+							uncheckedValue : 'off',
+							fieldLabel : 'OBD Connected'
+						}, {
+							xtype : 'checkbox',
+							name : 'confirm',
+							uncheckedValue : 'off',
+							fieldLabel : 'Confirm'
+						}, {
+							xtype : 'filefield',
+							name : 'video_file',
+							fieldLabel : 'Video Upload',
+							msgTarget : 'side',
+							allowBlank : true,
+							buttonText : 'file...'
+						}, {
+							xtype : 'datefield',
+							name : 'updated_at',
+							disabled : true,
+							fieldLabel : 'Updated At',
+							format : 'd-m-Y H:i:s'
+						}, {
+							xtype : 'datefield',
+							name : 'created_at',
+							disabled : true,
+							fieldLabel : 'Created At',
+							format : 'd-m-Y H:i:s'
+						}, {
+							xtype : 'displayfield',
+							name : 'video_clip',
+							itemId : 'video_clip',
+							hidden : true
 						} ]
-			} ],
+					},
+					{
+						xtype : 'panel',
+						flex : 1,
+
+						cls : 'incidentVOD paddingLeft10',
+
+						layout : {
+							type : 'vbox',
+							align : 'stretch',
+							itemCls : 'test'
+						},
+
+						items : [
+								{
+									xtype : 'box',
+									itemId : 'video',
+									cls : 'incidentDetail',
+									tpl : [ '<video width="100%" height="95%" controls="controls">', '<source {value} type="video/mp4" />',
+											'Your browser does not support the video tag.', '</video>' ]
+								}, {
+									xtype : 'box',
+									html : '<div class="btnFullscreen"></div>',
+									handler : function(button) {
+										if (!Ext.isWebKit)
+											return;
+										var video = button.up('container').getComponent('video');
+										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+									}
+								} ]
+					} ],
 
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',

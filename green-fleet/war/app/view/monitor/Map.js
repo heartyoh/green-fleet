@@ -21,9 +21,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var vehicleMapStore = Ext.getStore('VehicleMapStore');
 			
 			vehicleMapStore.on('datachanged', function() {
-				self.refreshMap(vehicleMapStore);//, self);
+				self.refreshMap(vehicleMapStore);
 			});
-//			vehicleMapStore.on('load', self.refreshMap, self);
 			
 			vehicleMapStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
 			
@@ -43,48 +42,11 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				self.refreshMap(Ext.getStore('VehicleMapStore'));
 		});
 		
-//		Ext.getCmp('east').sub('state_running').on('click', function() {
-//			self.refreshMarkers();
-//		});
-//		
-//		Ext.getCmp('east').sub('state_idle').on('click', function() {
-//			self.refreshMarkers();
-//		});
-//		
-//		Ext.getCmp('east').sub('state_incident').on('click', function() {
-//			self.refreshMarkers();
-//		});
-
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
 				self.refreshMap(Ext.getStore('VehicleMapStore'));
 		});
 	},
-	
-//	refreshMarkers : function() {
-//		var markers = this.getMarkers();
-//		var labels = this.getLabels();
-//		
-//		for (var vehicle in markers) {
-//			var marker = markers[vehicle];
-//			var label = labels[vehicle]; 
-//
-//			switch(marker.status) {
-//			case 'Running' :
-//				marker.setVisible(GreenFleet.show_running_vehicle);
-//				label.setVisible(GreenFleet.show_running_vehicle);
-//				break;
-//			case 'Idle' :
-//				marker.setVisible(GreenFleet.show_idle_vehicle);
-//				label.setVisible(GreenFleet.show_idle_vehicle);
-//				break;
-//			case 'Incident' :
-//				marker.setVisible(GreenFleet.show_incident_vehicle);
-//				label.setVisible(GreenFleet.show_incident_vehicle);
-//				break;
-//			}
-//		}
-//	},
 	
 	getMap : function() {
 		if(!this.map) {
@@ -139,8 +101,6 @@ Ext.define('GreenFleet.view.monitor.Map', {
 
 		var bounds;
 		
-		console.log(store);
-		
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver_id');
@@ -184,8 +144,6 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		} else {
 			this.getMap().fitBounds(bounds);
 		}
-
-//		this.refreshMarkers();
 	},
 	
 	ztitle : {
