@@ -10,9 +10,9 @@ Ext.define('GreenFleet.view.MainMenu', {
 			for ( var i = 0; i < closables.length; i++) {
 				content.remove(closables[i]);
 			}
-			
+
 			var first = null;
-			for(i = 0;i < button.submenus.length;i++) {
+			for (i = 0; i < button.submenus.length; i++) {
 				button.submenus[i]['listeners'] = {
 					activate : function(item) {
 						var menutab = Ext.getCmp('menutab');
@@ -24,12 +24,12 @@ Ext.define('GreenFleet.view.MainMenu', {
 				var item = content.add(button.submenus[i]);
 				first = first || item;
 			}
-			
-			if(first)
+
+			if (first)
 				GreenFleet.doMenu(first.itemId);
 		}
 	},
-	
+
 	items : [ {
 		text : 'Dashboard',
 		submenus : [ {
@@ -105,6 +105,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 		} ]
 	}, {
 		text : 'Maintenance',
-		submenus : []
+		submenus : [ {
+			title : 'Health',
+			xtype : 'dashboard_health',
+			itemId : 'health',
+			closable : true
+		} ]
 	} ]
 });
