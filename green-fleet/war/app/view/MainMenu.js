@@ -110,6 +110,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'dashboard_health',
 			itemId : 'health',
 			closable : true
+		}, {
+			title : 'Consumables',
+			xtype : 'pm_consumable',
+			itemId : 'consumable',
+			closable : true
 		} ]
 	} ]
 });
