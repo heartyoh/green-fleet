@@ -37,6 +37,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			items : [ this.zgrouplist, {
 				xtype : 'container',
 				flex : 1,
+				cls : 'borderRightGray',
 				layout : {
 					align : 'stretch',
 					type : 'vbox'
@@ -93,6 +94,7 @@ Ext.define('GreenFleet.view.management.Code', {
 		store : 'CodeStore',
 		title : 'Code List',
 		flex : 1,
+		cls : 'hIndexbarZero',
 		columns : [ {
 			dataIndex : 'key',
 			text : 'Key',

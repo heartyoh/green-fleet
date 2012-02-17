@@ -3,11 +3,12 @@ Ext.define('GreenFleet.view.common.ImportPopup', {
 	
 	modal : true,
 	
-	width : 300,
-	height : 200,
+	width : 350,
+	height : 150,
 	
 	items : [{
 		xtype : 'form',
+		cls : 'paddingAll10',
 		items : [ {
 			xtype : 'filefield',
 			name : 'file',

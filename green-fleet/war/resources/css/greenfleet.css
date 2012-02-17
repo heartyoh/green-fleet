@@ -108,12 +108,15 @@
 .paddingRight10{margin-right:10px}
 .paddingBottom10{margin-bottom:10px}
 .paddingleft10{margin-left:10px}
+.paddingAll10{margin:10px}
 .backgroundGray{background-color:#dfdfdf}
 .borderLeftGray{border-left:1px solid #ccc}
 .borderRightGray{border-left:1px solid #ccc}
-#content-body .x-tab-bar,#content-body .hIndexbar{background:url('../image/bgTab.gif') repeat-x;}
+#content-body .x-tab-bar,#content-body .hIndexbar,.hIndexbarZero{background:url('../image/bgTab.gif') repeat-x;}
 #content-body .hIndexbar{background-position:0 -4px}
-.hIndexbar .x-panel-header-text-default{padding:2px 0 0 3px;color:#fff}
+#content-body .hIndexbarZero{background-position:0 -1px}
+.hIndexbar .x-panel-header-text-default,.hIndexbarZero .x-panel-header-text-default{padding:2px 0 0 3px;color:#fff}
+.hIndexbarZero .x-docked-top{border-top:1px solid #5F7291}
 #content-body .x-tab-default-top{background:url('../image/bgTabItem.gif') repeat-x;box-shadow:none;border-bottom:0}
 #content-body .x-tab-default-top.x-tab button{color:#51698b;font-weight:normal}
 #content-body .x-tab-default-top-active{background:url('../image/bgTabItemActive.gif') repeat-x;}
@@ -131,6 +134,7 @@
 .dotUnderline{border-bottom:1px dotted #ccc;padding:0 0 1px 0}
 .noImage{background:url('../image/noImage.gif') 50% 50% no-repeat;}
 .x-boundlist-item-over,.x-boundlist-selected{border-color:#9ebfe4;background-color:#e2ebf7}
+/* .x-docked-top{border-width:1px 0} */
 
 /*map style*/
 span.mapTipID{
@@ -156,3 +160,8 @@ span.mapTipID{
 .btnFullscreen{background:url('../image/btnFullscreenOff.png') no-repeat;border:none;position:absolute;display:block;z-index:100;width:26px;height:21px;right:0;cursor:pointer}
 .btnFullscreen:hover{background:url('../image/btnFullscreenOn.png') no-repeat;}
 .incidentVOD .x-panel-body{background:url('../image/bgVOD.gif') 50% 50% no-repeat;background-color:#dfdfdf;border:1px solid #c0c0c0}
+
+/*window style*/
+.x-window-header-default-top{box-shadow:none;background:url('../image/bgTab.gif') repeat-x;}
+.x-window-header-text-default{color:#fff;font-size:13px;font-weight:bold}
+.x-window-default{border-color:#5F7291;background-color:#6982aa;padding:3px;box-shadow:none}
