@@ -150,6 +150,14 @@
                     "name": "EntityFormButtons.js"
                 },
                 {
+                    "path": "app/view/dashboard/",
+                    "name": "VehicleHealth.js"
+                },
+                {
+                    "path": "app/view/pm/",
+                    "name": "Consumable.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },

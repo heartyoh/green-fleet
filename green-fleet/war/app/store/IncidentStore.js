@@ -13,7 +13,7 @@ Ext.define('GreenFleet.store.IncidentStore', {
 	}, {
 		name : 'datetime',
 		type : 'date',
-		dateFormat:'c'
+		dateFormat:'time'
 	}, {
 		name : 'terminal_id',
 		type : 'string'

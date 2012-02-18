@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class IncidentService extends EntityService {
@@ -41,7 +42,7 @@ public class IncidentService extends EntityService {
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", map.get("datetime"));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
 
 		super.onCreate(entity, map, datastore);
 	}

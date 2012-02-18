@@ -571,9 +571,9 @@ Ext.define('GreenFleet.view.MainMenu', {
 			for ( var i = 0; i < closables.length; i++) {
 				content.remove(closables[i]);
 			}
-			
+
 			var first = null;
-			for(i = 0;i < button.submenus.length;i++) {
+			for (i = 0; i < button.submenus.length; i++) {
 				button.submenus[i]['listeners'] = {
 					activate : function(item) {
 						var menutab = Ext.getCmp('menutab');
@@ -585,12 +585,12 @@ Ext.define('GreenFleet.view.MainMenu', {
 				var item = content.add(button.submenus[i]);
 				first = first || item;
 			}
-			
-			if(first)
+
+			if (first)
 				GreenFleet.doMenu(first.itemId);
 		}
 	},
-	
+
 	items : [ {
 		text : 'Dashboard',
 		submenus : [ {
@@ -666,7 +666,17 @@ Ext.define('GreenFleet.view.MainMenu', {
 		} ]
 	}, {
 		text : 'Maintenance',
-		submenus : []
+		submenus : [ {
+			title : 'Health',
+			xtype : 'dashboard_health',
+			itemId : 'health',
+			closable : true
+		}, {
+			title : 'Consumables',
+			xtype : 'pm_consumable',
+			itemId : 'consumable',
+			closable : true
+		} ]
 	} ]
 });
 Ext.define('GreenFleet.view.SideMenu', {
@@ -1128,6 +1138,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			items : [ this.zgrouplist, {
 				xtype : 'container',
 				flex : 1,
+				cls : 'borderRightGray',
 				layout : {
 					align : 'stretch',
 					type : 'vbox'
@@ -1184,6 +1195,7 @@ Ext.define('GreenFleet.view.management.Code', {
 		store : 'CodeStore',
 		title : 'Code List',
 		flex : 1,
+		cls : 'hIndexbarZero',
 		columns : [ {
 			dataIndex : 'key',
 			text : 'Key',
@@ -2423,12 +2435,6 @@ Ext.define('GreenFleet.view.management.Incident', {
 						items : [
 								{
 									xtype : 'box',
-									itemId : 'video',
-									cls : 'incidentDetail',
-									tpl : [ '<video width="100%" height="95%" controls="controls">', '<source {value} type="video/mp4" />',
-											'Your browser does not support the video tag.', '</video>' ]
-								}, {
-									xtype : 'box',
 									html : '<div class="btnFullscreen"></div>',
 									handler : function(button) {
 										if (!Ext.isWebKit)
@@ -2436,6 +2442,13 @@ Ext.define('GreenFleet.view.management.Incident', {
 										var video = button.up('container').getComponent('video');
 										video.getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 									}
+									
+								}, {
+									xtype : 'box',
+									itemId : 'video',
+									cls : 'incidentDetail',
+									tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
+											'Your browser does not support the video tag.', '</video>' ]
 								} ]
 					} ],
 
@@ -5115,6 +5128,211 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 
 	}
 });
+Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
+	extend : 'Ext.Container',
+	
+	alias : 'widget.dashboard_health',
+	
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+	
+	items : [{
+		xtype : 'container',
+		cls :'pageTitle',
+		height: 35,
+		html : '<h1>Vehicle Health</h1>'
+	}],
+	
+	initComponent : function() {
+		this.callParent();
+		
+		var content = this.add({
+			xtype : 'container',
+			flex : 1,
+			layout : 'auto'
+		});
+		
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'data1', 'data2', 'data3', 'data4', 'data5'],
+		    data: [
+		        { 'name': 'Best',   'data1': 10, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': 'Better',   'data1': 7,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': 'Good', 'data1': 5,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
+		        { 'name': 'Worse',  'data1': 2,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
+		        { 'name': 'Worst',  'data1': 27, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
+		    ]
+		});
+
+		content.add(this.buildHealthChart(store, 'data1'));
+		content.add(this.buildHealthChart(store, 'data2'));
+		content.add(this.buildHealthChart(store, 'data3'));
+		content.add(this.buildHealthChart(store, 'data4'));
+	},
+	
+	buildHealthChart : function(store, idx) {
+		return {
+			width : 420,
+			height : 300,
+			xtype: 'chart',
+	        animate: true,
+	        store: store,
+	        shadow: true,
+	        legend: {
+	            position: 'right'
+	        },
+	        insetPadding: 60,
+	        theme: 'Base:gradients',
+	        series: [{
+	            type: 'pie',
+	            field: idx,
+	            showInLegend: true,
+	            donut: false,
+	            tips: {
+	              trackMouse: true,
+	              width: 140,
+	              height: 28,
+	              renderer: function(storeItem, item) {
+	                // calculate percentage.
+	                var total = 0;
+	                store.each(function(rec) {
+	                    total += rec.get(idx);
+	                });
+	                this.setTitle(storeItem.get('name') + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
+	              }
+	            },
+	            highlight: {
+	              segment: {
+	                margin: 20
+	              }
+	            },
+	            label: {
+	                field: 'name',
+	                display: 'rotate',
+	                contrast: true,
+	                font: '14px Arial'
+	            }
+	        }]
+		}
+	}
+
+});
+Ext.define('GreenFleet.view.pm.Consumable', {
+	extend : 'Ext.Container',
+	
+	alias : 'widget.pm_consumable',
+	
+	title : 'Consumables',
+	
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	initComponent : function() {
+		var self = this;
+		
+		this.items = [ {
+			html : '<div class="listTitle">Consumables Management</div>'
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ this.zvehiclelist, {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : {
+					align : 'stretch',
+					type : 'vbox'
+				},
+				items : [ this.zvehicleinfo, this.zconsumables, this.mainthistory ]
+			} ]
+		} ],
+		
+		this.callParent();
+		
+		
+	},
+	
+	zvehiclelist : {
+		xtype : 'gridpanel',
+		itemId : 'vehicle_info',
+		store : 'VehicleStore',
+		title : 'Vehicle List',
+		cls : 'hIndexbarZero',
+		width : 320,
+		tbar : [{
+			xtype : 'combo'
+		}, {
+			xtype : 'fieldcontainer',
+			defaultType : 'checkboxfield',
+			items : [{
+				boxLabel : 'Healthy',
+                name : 'healthy',
+                inputValue : '1',
+                itemId : 'check_healthy'
+			}, {
+				boxLabel : 'Normal',
+                name : 'normal',
+                inputValue : '1',
+                itemId : 'check_normal'
+			}, {
+				boxLabel : 'Impending',
+                name : 'impending',
+                inputValue : '1',
+                itemId : 'check_impending'
+			},{
+				boxLabel : 'Overdue',
+                name : 'overdue',
+                inputValue : '1',
+                itemId : 'check_overdue'
+			}]
+		}],
+		columns : [ {
+			dataIndex : 'healthy',
+			width : 20
+		}, {
+			dataIndex : 'id',
+			text : 'Id',
+			width : 100
+		}, {
+			dataIndex : 'registration_number',
+			text : 'Reg. Number',
+			width : 220
+		} ]
+	},
+	
+	zvehicleinfo : {
+		xtype : 'form',
+		cls : 'hIndexbar',
+		title : 'Vehicle Information',
+		defaultType : 'textfield',
+		items : [{
+			fieldLabel : 'ID'
+		}, {
+			fieldLabel : 'Reg. Number'
+		}, {
+			fieldLabel : 'Driving Distance'
+		}]
+	},
+	
+	zconsumables : {
+		title : 'Consumables',
+		cls : 'hIndexbar',
+		html : 'Consumables'
+	},
+	
+	mainthistory : {
+		title : 'Maint. History',
+		cls : 'hIndexbar',
+		html : 'Maint. History'
+	}
+});
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -5533,7 +5751,7 @@ Ext.define('GreenFleet.store.IncidentStore', {
 	}, {
 		name : 'datetime',
 		type : 'date',
-		dateFormat:'c'
+		dateFormat:'time'
 	}, {
 		name : 'terminal_id',
 		type : 'string'
@@ -6111,15 +6329,17 @@ Ext.define('GreenFleet.store.FileStore', {
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'DriverStore',
-			'ReservationStore', 'IncidentStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
-			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore' ],
+	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore',
+			'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore',
+			'OwnershipStore', 'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore',
+			'TerminalStore' ],
 	models : [ 'Code' ],
-	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu', 'management.Company',
-			'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal', 'management.Reservation',
-			'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 'monitor.Map',
-			'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo',
-			'form.DateTimeField', 'form.SearchField', 'common.EntityFormButtons' ],
+	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
+			'management.Company', 'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal',
+			'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
+			'management.CheckinData', 'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle',
+			'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo', 'form.DateTimeField',
+			'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'pm.Consumable' ],
 
 	init : function() {
 		this.control({

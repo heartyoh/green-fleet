@@ -39,7 +39,6 @@ public class IncidentVideoService extends EntityService {
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-//		entity.setProperty("datetime", map.get("datetime"));
 		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
 
 		super.onCreate(entity, map, datastore);
