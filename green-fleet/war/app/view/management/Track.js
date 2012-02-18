@@ -22,7 +22,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	},
 
 	items: {
-		html : '<div class="listTitle">Incident List</div>'
+		html : '<div class="listTitle">Tracking List</div>'
 	},
 
 	initComponent : function() {
