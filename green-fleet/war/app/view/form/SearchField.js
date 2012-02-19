@@ -33,7 +33,7 @@ Ext.define('GreenFleet.view.form.SearchField', {
 		getInnerTpl : function() {
 			return '<div class="appSearchItem"><span class="id">{id}</span> <span class="registration_number">{registration_number}</span></div>';
 		},
-		minWidth : 200
+		minWidth : 190
 	},
 	
 	listeners : {
