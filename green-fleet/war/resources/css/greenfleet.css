@@ -1,5 +1,6 @@
 .wrap{background:url('../image/bgHeader.gif') repeat-x}
 #content-body{background-color:#efefef}
+.backgroundNone{background:none}
 
 /* msg */
 .msg .x-box-mc {font-size:14px;}
@@ -69,11 +70,16 @@
 .summaryBoard .searchField{background:url('../image/bgSearchField.gif') repeat-x;height:35px;border-bottom:1px solid #23252d;color:#959595}
 .searchField .x-form-text{
 	background:none;background-color:#31343f;border:1px solid #616670;padding-right:25px;width:120px;
-	-webkit-border-radius: 12px;-moz-border-radius: 12px;border-radius: 12px;
+	-webkit-border-radius: 12px;-moz-border-radius: 12px;border-radius: 12px;color:#ccc
 }
 .searchField .x-form-item-body{top:5px}
 .searchField .x-form-trigger{background:url('../image/btnSearchIcon.gif') no-repeat;border:none;margin-left:-9px;width:27px}
-.summaryBoard .x-form-item-label{padding:10px 0 0 7px;font-size:11px}
+.x-boundlist-floating{background:url('../image/bgH1.gif') repeat-x;background-color:#c5c5c5;opacity:0.95;filter:alpha(opacity=95);-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;border:1px solid #000;padding:5px 4px}
+.x-boundlist-floating .x-boundlist-item{background:url('../image/dotGray.gif') 4px 10px no-repeat;border:none;border-bottom:1px solid #b4b4b4;padding:4px 2px 1px 11px}
+.appSearchItem{color:#333}
+.appSearchItem .id{color:#1b304e}
+.x-boundlist-selected.x-boundlist-item,.x-boundlist-item-over.x-boundlist-item{background-color:#fff;}
+.summaryBoard .x-form-item-label{padding:10px 0 0 7px;font-size:11px;}
 .summaryBoard .time{background:url('../image/iconTime.gif') 6px 4px no-repeat;color:#77bdff;padding:4px 3px 2px 25px;font-size:14px}
 .summaryBoard .count{background:url('../image/iconBus.gif') 6px 4px no-repeat;color:#fff;padding:4px 3px 2px 25px;margin-bottom:10px}
 .summaryBoard .x-panel-header-default{background:none;background-color:transparent;border:none}
@@ -156,6 +162,7 @@ span.mapTipID{
 .summaryCell label{white-space:nowrap;font-size:11px;color:#797979}
 .summaryCell .x-form-item-body{background-color:#50545f;border:1px solid #efefef;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;}
 .summaryCell .x-form-item-body .x-form-display-field{color:#fff;white-space:nowrap;padding:4px 5px 0 5px;}
+.labelStyle1{font-size:11px;color:#797979}
 .incidentDetail{background-color:#50545F;}
 .btnFullscreen{background:url('../image/btnFullscreenOff.png') no-repeat;border:none;position:absolute;display:block;z-index:100;width:26px;height:21px;right:0;cursor:pointer}
 .btnFullscreen:hover{background:url('../image/btnFullscreenOn.png') no-repeat;}

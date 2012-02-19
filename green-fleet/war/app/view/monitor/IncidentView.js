@@ -252,7 +252,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			name : 'confirm',
 			itemId : 'confirm',
 			fieldLabel : 'Confirm',
-			uncheckedValue : 'off'
+			uncheckedValue : 'off',
+			labelCls : 'labelStyle1',
+			cls :'backgroundNone'
 		}, {
 			xtype : 'displayfield',
 			name : 'video_clip',
