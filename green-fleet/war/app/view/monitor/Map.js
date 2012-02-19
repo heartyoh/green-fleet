@@ -19,18 +19,22 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		this.on('afterrender', function() {
 			var vehicleMapStore = Ext.getStore('VehicleMapStore');
+			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
+			var incidentStore = Ext.getStore('RecentIncidentStore');
 			
-			vehicleMapStore.on('datachanged', function() {
-				self.refreshMap(vehicleMapStore);
+			vehicleFilteredStore.on('datachanged', function() {
+				self.refreshMap(vehicleFilteredStore);
 			});
-			
-			vehicleMapStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
 			
 			vehicleMapStore.load();
 			
+			/*
+			 * TODO 1분에 한번씩 리프레쉬하도록 함.
+			 */
 			setInterval(function() {
 				vehicleMapStore.load();
-			}, 60000);
+				incidentStore.load();
+			}, 10000);
 			
 			var vehicleStore = Ext.getStore('VehicleStore');
 			vehicleStore.load();
@@ -39,12 +43,12 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 			if(self.sub('autofit').getValue())
-				self.refreshMap(Ext.getStore('VehicleMapStore'));
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'));
 		});
 		
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
-				self.refreshMap(Ext.getStore('VehicleMapStore'));
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'));
 		});
 	},
 	

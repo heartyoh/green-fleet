@@ -293,16 +293,15 @@ public abstract class EntityService {
 		} finally {
 		}
 
-		// Map<String, Object> result = new HashMap<String, Object>();
-		// result.put("success", true);
-		// result.put("msg", getEntityName() + " destroyed.");
-		//
-		// return result;
 		response.setContentType("text/html");
 
 		return "{ \"success\" : true, \"msg\" : \"" + getEntityName() + " destroyed\" }";
 	}
 
+	protected void addFilter(Query q, String property, String value) {
+		q.addFilter(property, FilterOperator.EQUAL, value);
+	}
+	
 	protected void buildQuery(Query q, List<Filter> filters, List<Sorter> sorters) {
 		if (filters != null) {
 			Iterator<Filter> it = filters.iterator();
@@ -311,7 +310,7 @@ public abstract class EntityService {
 				Filter filter = it.next();
 				String value = filter.getValue();
 				if (value != null && value.length() > 1)
-					q.addFilter(filter.getProperty(), FilterOperator.EQUAL, filter.getValue());
+					addFilter(q, filter.getProperty(), filter.getValue());
 			}
 		}
 
@@ -328,6 +327,14 @@ public abstract class EntityService {
 		}
 	}
 
+	protected void adjustFilters(List<Filter> filters) {
+		return;
+	}
+	
+	protected void adjustSorters(List<Sorter> sorters) {
+		return;
+	}
+	
 	public List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 		
@@ -356,6 +363,9 @@ public abstract class EntityService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		adjustFilters(filters);
+		adjustSorters(sorters);
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key companyKey = KeyFactory.createKey("Company", company);

@@ -42,10 +42,10 @@ V040,류 9865,Hyundai      ,F,2011,A,Idle     ,5114.286 ,35,1000  ,A,A,A,A,A,A,A
 V041,류 9080,Hyundai      ,F,2011,A,Idle     ,5242.857 ,35,2500  ,A,A,A,A,A,A,A
 V042,사 7263,Hyundai      ,F,2011,A,Idle     ,5371.429 ,35,1500  ,A,A,A,A,A,A,A
 V043,사 8976,Hyundai      ,F,2011,A,Idle     ,5500     ,36,100   ,A,A,A,A,A,A,A
-V044,사 0989,Hyundai      ,F,2011,A,Incident ,5628.571 ,37,500   ,A,A,A,A,A,A,A
-V045,사 7865,Kia          ,E,2011,A,Incident ,5757.143 ,38,500   ,A,A,A,A,A,A,A
-V046,나 3423,Kia          ,E,2011,A,Incident ,5885.714 ,39,400   ,A,A,A,A,A,A,A
-V047,나 6757,Kia          ,E,2011,A,Incident ,6014.286 ,50,900   ,A,A,A,A,A,A,A
-V048,나 8979,Kia          ,E,2011,A,Incident ,6142.857 ,45,2000  ,A,A,A,A,A,A,A
-V049,다 8765,Kia          ,E,2011,A,Incident ,6271.429 ,44,3000  ,A,A,A,A,A,A,A
-V050,라 0965,Kia          ,E,2011,A,Incident ,6400     ,43,2500  ,A,A,A,A,A,A,A
+V044,사 0989,Hyundai      ,F,2011,A,Running  ,5628.571 ,37,500   ,A,A,A,A,A,A,A
+V045,사 7865,Kia          ,E,2011,A,Running  ,5757.143 ,38,500   ,A,A,A,A,A,A,A
+V046,나 3423,Kia          ,E,2011,A,Running  ,5885.714 ,39,400   ,A,A,A,A,A,A,A
+V047,나 6757,Kia          ,E,2011,A,Running  ,6014.286 ,50,900   ,A,A,A,A,A,A,A
+V048,나 8979,Kia          ,E,2011,A,Running  ,6142.857 ,45,2000  ,A,A,A,A,A,A,A
+V049,다 8765,Kia          ,E,2011,A,Running  ,6271.429 ,44,3000  ,A,A,A,A,A,A,A
+V050,라 0965,Kia          ,E,2011,A,Running  ,6400     ,43,2500  ,A,A,A,A,A,A,A

@@ -20,7 +20,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		
 		this.sub('state_running').on('click', function() {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
 			
@@ -39,7 +39,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_idle').on('click', function() {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
 			
@@ -58,7 +58,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_incident').on('click', function() {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
 			
@@ -81,14 +81,15 @@ Ext.define('GreenFleet.view.viewport.East', {
 		}, 1000);
 		
 		this.on('afterrender', function() {
+			Ext.getStore('VehicleMapStore').on('load', self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
 			Ext.getStore('RecentIncidentStore').load();
 		});
 	},
 	
 	refreshVehicleCounts : function() {
-		var store = Ext.getStore('VehicleStore');
-		
+		var store = Ext.getStore('VehicleMapStore');
+
 		var total = store.count();
 		
 		var running = 0;

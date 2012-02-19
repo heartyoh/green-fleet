@@ -4,16 +4,16 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 	autoLoad : false,
 
 	remoteFilter : true,
-	
-	remoteSort : true,
-	
+
+	// remoteSort : true,
+
 	fields : [ {
 		name : 'key',
 		type : 'string'
 	}, {
 		name : 'datetime',
 		type : 'date',
-		dateFormat:'c'
+		dateFormat : 'time'
 	}, {
 		name : 'driver_id',
 		type : 'string'
@@ -38,13 +38,23 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 	}, {
 		name : 'created_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	}, {
 		name : 'updated_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	} ],
-	
+
+	filters : [ {
+		property : 'confirm',
+		value : false
+	} ],
+
+	sorters : [ {
+		property : 'datetime',
+		direction : 'DESC'
+	} ],
+
 	proxy : {
 		type : 'ajax',
 		url : 'incident',

@@ -183,6 +183,10 @@
                 },
                 {
                     "path": "app/store/",
+                    "name": "VehicleFilteredStore.js"
+                },
+                {
+                    "path": "app/store/",
                     "name": "DriverStore.js"
                 },
                 {
