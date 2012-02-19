@@ -1,6 +1,7 @@
 #!/bin/bash
 lat=37.38
 lng=127.11
+host="http://heartyoh.appspot.com"
 
 function incident {
 	dt_incident=$1
@@ -10,7 +11,7 @@ function incident {
 	DATA="company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=$dt_incident&lattitude=$lat_incident&longitude=$lng_incident&velocity=100&impulse_abs=121&impulse_x=30&impulse_y=34&impulse_z=45&impulse_threshold=100&obd_connected=true&engine_temp=123&engine_temp_threshold=150"
 	echo $DATA
 
-	curl=`curl --data "$DATA" http://localhost:8888/incident/save`
+	curl=`curl --data "$DATA" $host/incident/save`
 	
 	FORM_COMPANY="company=vitizen"
 	FORM_TERMINAL="terminal_id=T001"
@@ -19,7 +20,7 @@ function incident {
 	
 	echo $FORM_COMPANY $FORM_TERMINAL $FORM_DT $FORM_VIDEO
 	
-	curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO http://localhost:8888/incident/upload_video`
+	curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO $host/incident/upload_video`
 }
 
 for i in {1..100}
@@ -39,7 +40,7 @@ do
     DATA="company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=$CURRENT&lattitude=$lat&longitude=$lng&velocity=100"
     echo $DATA
     
-    curl=`curl --data "$DATA" http://localhost:8888/track/save`
+    curl=`curl --data "$DATA" $host/track/save`
 
 	if [ $i -eq 1 ]; then
 		incident "$CURRENT" $lat $lng 
