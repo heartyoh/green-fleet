@@ -38,7 +38,7 @@ public class ReservationService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("vehicle_id", map.get("vehicle_id"));
 		entity.setProperty("reserved_date", SessionUtils.stringToDate((String) map.get("reserved_date")));
 
@@ -46,7 +46,7 @@ public class ReservationService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		String driver = (String) map.get("driver_id");
 		String vehicle_type = (String) map.get("vehicle_type");
 		String delivery_place = (String) map.get("delivery_place");
@@ -66,7 +66,7 @@ public class ReservationService extends EntityService {
 
 	@RequestMapping(value = "/reservation/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 

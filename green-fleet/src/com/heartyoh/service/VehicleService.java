@@ -39,7 +39,7 @@ public class VehicleService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("id", map.get("id"));
 
 		super.onCreate(entity, map, datastore);
@@ -54,7 +54,7 @@ public class VehicleService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("manufacturer", map.get("manufacturer"));
 		entity.setProperty("vehicle_type", map.get("vehicle_type"));
 		entity.setProperty("birth_year", map.get("birth_year"));
@@ -77,13 +77,13 @@ public class VehicleService extends EntityService {
 
 	@RequestMapping(value = "/vehicle/import", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 

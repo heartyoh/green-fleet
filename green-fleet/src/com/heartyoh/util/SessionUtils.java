@@ -37,20 +37,21 @@ public class SessionUtils {
 	}
 	
 	public static Date stringToDateTime(String datetime) {
-		return stringToDateTime(datetime, null, null);
+		return stringToDateTime(datetime, null, 0);
 	}
 	
-	public static Date stringToDateTime(String datetime, String format, String timezone) {
+	public static Date stringToDateTime(String datetime, String format, int timezone) {
 		DateFormat df = null;
 		if(format == null)
 			df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		else
 			df = new SimpleDateFormat(format);
-		if(timezone != null)
-			df.setTimeZone(TimeZone.getTimeZone(timezone));
 
 		try {
-			return df.parse(datetime);
+			Date dt = df.parse(datetime);
+			if(timezone != 0)
+				dt.setTime(dt.getTime() - (timezone * 3600 * 1000));
+			return dt;
 		} catch (ParseException e) {
 		    e.printStackTrace();
 		    return null;

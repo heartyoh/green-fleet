@@ -44,36 +44,28 @@ public class CompanyService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("id", map.get("id"));
 
 		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("name", map.get("name"));
 		entity.setProperty("desc", map.get("desc"));
-
+		entity.setProperty("timezone", map.get("timezone"));
+		
 		super.onSave(entity, map, datastore);
 	}
 
-	// @RequestMapping(value = "/company/save", method = RequestMethod.POST)
-	// public @ResponseBody
-	// String save(HttpServletRequest request, HttpServletResponse response)
-	// throws IOException {
-	// return super.save(request, response);
-	// }
-
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> map = toMap(request);
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
 		}
-
-		// CustomUser user = SessionUtils.currentUser();
 
 		String key = request.getParameter("key");
 
@@ -133,12 +125,6 @@ public class CompanyService extends EntityService {
 
 		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
 	}
-
-	// @RequestMapping(value = "/company/delete", method = RequestMethod.POST)
-	// public @ResponseBody
-	// String delete(HttpServletRequest request, HttpServletResponse response) {
-	// return super.delete(request, response);
-	// }
 
 	@RequestMapping(value = "/company", method = RequestMethod.GET)
 	public @ResponseBody

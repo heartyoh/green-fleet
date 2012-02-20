@@ -5,7 +5,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 	
 	remoteFilter : true,
 	
-	remoteSort : true,
+//	remoteSort : true,
 	
 	fields : [ {
 		name : 'key',
@@ -25,13 +25,13 @@ Ext.define('GreenFleet.store.TrackStore', {
 		dateFormat : 'time'
 	}, {
 		name : 'lattitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'longitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'velocity',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'updated_at',
 		type : 'date',

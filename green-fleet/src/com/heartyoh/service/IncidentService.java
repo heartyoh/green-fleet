@@ -1,6 +1,8 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.model.Filter;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -40,9 +49,12 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		Entity company = datastore.get((Key)map.get("_company_key"));
+		
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone"))));
+		entity.setProperty("confirm", false);
 
 		super.onCreate(entity, map, datastore);
 	}
@@ -55,7 +67,7 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 
 		if (map.get("vehicle_id") != null)
 			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
@@ -83,21 +95,68 @@ public class IncidentService extends EntityService {
 			entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
 		if (map.get("obd_connected") != null)
 			entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
-		if (map.get("confirm") != null)
+		if (map.get("confirm") != null) {
 			entity.setProperty("confirm", booleanProperty(map, "confirm"));
+		}
 
 		super.onSave(entity, map, datastore);
+		
+		datastore.put(entity);
+		
+		/*
+		 * 관련 차량의 정보를 가져온다.
+		 */
+		Key vehicleKey = KeyFactory.createKey(entity.getParent(), "Vehicle", (String)entity.getProperty("vehicle_id"));
+		Entity vehicle;
+		try {
+			vehicle = datastore.get(vehicleKey);
+		} catch (EntityNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
+		boolean confirmed = (entity.getProperty("confirm") == null) ? false : ((Boolean)entity.getProperty("confirm")).booleanValue();
+		if(!confirmed) {
+			vehicle.setProperty("status", "Incident");
+			datastore.put(vehicle);
+			return;
+		}
+		
+		/*
+		 * 만약, 이 Incident의 컨펌 정보가 off이면, 차량의 상태는 무조건 Incident이며,
+		 * 컨펌정보가 on이면, 컨펌정보가 off인 Incident 리스트를 가져와서 하나라도 남아있으면, 차량의 상태는 Incident가 된다.
+		 * 따라서, 아래에서는 관련 차량의 Incident 정보중 아직 컨펌되지 않은 리스트를 가져온다.
+		 */
+		Query q = new Query("Incident");
+		q.setAncestor(entity.getParent());
+		q.addFilter("vehicle_id", FilterOperator.EQUAL, (String)vehicle.getProperty("id"));
+		q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);
+		
+		PreparedQuery pq = datastore.prepare(q);
+
+		List<Map<String, Object>> incidents = new LinkedList<Map<String, Object>>();
+		
+		for (Entity result : pq.asIterable()) {
+			incidents.add(SessionUtils.cvtEntityToMap(result));
+		}
+
+		if(incidents.size() > 0) {
+			vehicle.setProperty("status", "Incident");
+		} else {
+			vehicle.setProperty("status", "Running");
+		}
+
+		datastore.put(vehicle);
 	}
 
 	@RequestMapping(value = "/incident/import", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 
@@ -107,6 +166,15 @@ public class IncidentService extends EntityService {
 		return super.delete(request, response);
 	}
 
+	@Override
+	protected void addFilter(Query q, String property, String value) {
+		if(property.equals("confirm")) {
+			q.addFilter(property, FilterOperator.EQUAL, Boolean.parseBoolean(value));
+		} else {
+			super.addFilter(q, property, value);
+		}
+	}
+	
 	@RequestMapping(value = "/incident", method = RequestMethod.GET)
 	public @ResponseBody
 	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {

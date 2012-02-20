@@ -79,11 +79,11 @@ public abstract class EntityService {
 		return false;
 	}
 
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("created_at", map.get("_now"));
 	}
 
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("updated_at", map.get("_now"));
 	}
 
@@ -132,7 +132,7 @@ public abstract class EntityService {
 	 * getIdValue 에 넘겨지는 파라미터(map)에는 각 레코드의 데이타 외에 _filename 키로 파일이름이 넘겨지고,
 	 * _content_type 키로 컨텐트 타입이 넘겨진다.
 	 */
-	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		CustomUser user = SessionUtils.currentUser();
 		
 		String company = null;
@@ -181,6 +181,7 @@ public abstract class EntityService {
 				map.put("_filename", filename);
 				map.put("_content_type", contentType);
 				map.put("_now", now);
+				map.put("_company_key", companyKey);
 				/*
 				 * Request의 파라미터를 모든 레코드의 공통 파라미터로 추가한다.
 				 */
@@ -208,7 +209,7 @@ public abstract class EntityService {
 		return "{ \"success\" : true }";
 	}
 
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> map = toMap(request);
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
@@ -258,6 +259,7 @@ public abstract class EntityService {
 		Date now = new Date();
 		
 		map.put("_now", now);
+		map.put("_company_key", companyKey);
 
 		try {
 			if (creating) {
@@ -293,16 +295,15 @@ public abstract class EntityService {
 		} finally {
 		}
 
-		// Map<String, Object> result = new HashMap<String, Object>();
-		// result.put("success", true);
-		// result.put("msg", getEntityName() + " destroyed.");
-		//
-		// return result;
 		response.setContentType("text/html");
 
 		return "{ \"success\" : true, \"msg\" : \"" + getEntityName() + " destroyed\" }";
 	}
 
+	protected void addFilter(Query q, String property, String value) {
+		q.addFilter(property, FilterOperator.EQUAL, value);
+	}
+	
 	protected void buildQuery(Query q, List<Filter> filters, List<Sorter> sorters) {
 		if (filters != null) {
 			Iterator<Filter> it = filters.iterator();
@@ -311,7 +312,7 @@ public abstract class EntityService {
 				Filter filter = it.next();
 				String value = filter.getValue();
 				if (value != null && value.length() > 1)
-					q.addFilter(filter.getProperty(), FilterOperator.EQUAL, filter.getValue());
+					addFilter(q, filter.getProperty(), filter.getValue());
 			}
 		}
 
@@ -328,6 +329,14 @@ public abstract class EntityService {
 		}
 	}
 
+	protected void adjustFilters(List<Filter> filters) {
+		return;
+	}
+	
+	protected void adjustSorters(List<Sorter> sorters) {
+		return;
+	}
+	
 	public List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 		
@@ -356,6 +365,9 @@ public abstract class EntityService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		adjustFilters(filters);
+		adjustSorters(sorters);
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key companyKey = KeyFactory.createKey("Company", company);

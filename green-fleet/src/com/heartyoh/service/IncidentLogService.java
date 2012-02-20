@@ -1,6 +1,5 @@
 package com.heartyoh.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +30,11 @@ public class IncidentLogService extends EntityService {
 	}
 
 	@Override
+	protected boolean useFilter() {
+		return true;
+	}
+
+	@Override
 	protected String getIdValue(Map<String, Object> map) {
 		Map<String, Object> commons = (Map<String, Object>) map.get("_commons");
 
@@ -38,11 +42,12 @@ public class IncidentLogService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		Entity company = datastore.get((Key)map.get("_company_key"));
 		Map<String, Object> commons = (Map<String, Object>) map.get("_commons");
 
 		entity.setProperty("terminal_id", commons.get("terminal_id"));
-		entity.setProperty("datetime", SessionUtils.stringToDateTime((String) map.get("datetime")));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone"))));
 		Key incidentKey = KeyFactory.createKey(entity.getParent(), "Incident", commons.get("terminal_id") + "@"
 				+ commons.get("datetime"));
 		entity.setProperty("incident", KeyFactory.keyToString(incidentKey));
@@ -51,7 +56,7 @@ public class IncidentLogService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("datetime", SessionUtils.stringToDateTime((String) map.get("datetime")));
 		entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
 		entity.setProperty("longitude", doubleProperty(map, "longitude"));
@@ -65,7 +70,7 @@ public class IncidentLogService extends EntityService {
 
 	@RequestMapping(value = "/incident/upload_log", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 

@@ -380,7 +380,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		
 		this.sub('state_running').on('click', function() {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
 			
@@ -399,7 +399,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_idle').on('click', function() {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
 			
@@ -418,7 +418,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_incident').on('click', function() {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
 			
@@ -441,14 +441,15 @@ Ext.define('GreenFleet.view.viewport.East', {
 		}, 1000);
 		
 		this.on('afterrender', function() {
+			Ext.getStore('VehicleMapStore').on('load', self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
 			Ext.getStore('RecentIncidentStore').load();
 		});
 	},
 	
 	refreshVehicleCounts : function() {
-		var store = Ext.getStore('VehicleStore');
-		
+		var store = Ext.getStore('VehicleMapStore');
+
 		var total = store.count();
 		
 		var running = 0;
@@ -807,6 +808,9 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'desc',
 				text : 'Description'
 			}, {
+				dataIndex : 'timezone',
+				text : 'TimeZone'
+			}, {
 				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
@@ -874,6 +878,10 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				name : 'desc',
 				fieldLabel : 'Description'
+			}, {
+				xtype : 'tzcombo',
+				name : 'timezone',
+				fieldLabel : 'TimeZone'
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
@@ -3396,18 +3404,22 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		this.on('afterrender', function() {
 			var vehicleMapStore = Ext.getStore('VehicleMapStore');
+			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
+			var incidentStore = Ext.getStore('RecentIncidentStore');
 			
-			vehicleMapStore.on('datachanged', function() {
-				self.refreshMap(vehicleMapStore);
+			vehicleFilteredStore.on('datachanged', function() {
+				self.refreshMap(vehicleFilteredStore);
 			});
-			
-			vehicleMapStore.on('load', Ext.getCmp('east').refreshVehicleCounts, Ext.getCmp('east'));
 			
 			vehicleMapStore.load();
 			
+			/*
+			 * TODO 1분에 한번씩 리프레쉬하도록 함.
+			 */
 			setInterval(function() {
 				vehicleMapStore.load();
-			}, 60000);
+				incidentStore.load();
+			}, 10000);
 			
 			var vehicleStore = Ext.getStore('VehicleStore');
 			vehicleStore.load();
@@ -3416,12 +3428,12 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 			if(self.sub('autofit').getValue())
-				self.refreshMap(Ext.getStore('VehicleMapStore'));
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'));
 		});
 		
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
-				self.refreshMap(Ext.getStore('VehicleMapStore'));
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'));
 		});
 	},
 	
@@ -4399,7 +4411,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	},
 
 	initComponent : function() {
-		this.items = [{
+		this.items = [ {
 			xtype : 'container',
 			autoScroll : true,
 			layout : {
@@ -4407,9 +4419,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [this.zInfo, this.zVideoAndMap]
-		}, this.zList];
-		
+			items : [ this.zInfo, this.zVideoAndMap ]
+		}, this.zList ];
+
 		this.callParent(arguments);
 
 		/*
@@ -4417,39 +4429,47 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		 */
 
 		var self = this;
-		
+
 		this.sub('map').on('afterrender', function() {
 			var options = {
-				zoom : 10,
+				zoom : 12,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
 			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
+			
+			self.getLogStore().on('load', function() {
+				self.refreshTrack();
+			});
 		});
-		
+
 		this.on('activate', function(comp) {
 			google.maps.event.trigger(self.getMap(), 'resize');
 		});
-		
+
 		this.down('button[itemId=search]').on('click', function() {
 			self.refreshIncidentList();
 		});
-		
+
 		this.down('button[itemId=reset]').on('click', function() {
 			self.resetIncidentList();
 		});
-		
+
 		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
+			var url = '';
+			if (value != null && value.length > 1)
+				url = 'src="download?blob-key=' + value + '"'
+
 			self.sub('video').update({
-				value : value
+				value : url
 			});
 		});
-		
+
 		this.down('datefield[name=datetime]').on('change', function(field, value) {
 			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
 		});
-		
+
 		this.down('displayfield[name=driver_id]').on('change', function(field, value) {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
@@ -4468,19 +4488,19 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.sub('driver_filter').on('specialkey', function(fleld, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
-			};
+			}
 		});
-		
+
 		this.sub('vehicle_filter').on('specialkey', function(field, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
-			};
+			}
 		});
 
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.setIncident(record, false);
 		});
-		
+
 		this.sub('fullscreen').on('afterrender', function(comp) {
 			comp.getEl().on('click', function() {
 				if (!Ext.isWebKit)
@@ -4488,7 +4508,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 			});
 		});
-		
+
 		this.sub('incident_form').on('afterrender', function(form) {
 			this.down('[itemId=confirm]').getEl().on('click', function(checkbox, dirty) {
 				var form = self.sub('incident_form').getForm();
@@ -4509,25 +4529,31 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				}
 			});
 		});
-		
+
 	},
-	
+
+	getLogStore : function() {
+		if(!this.logStore)
+			this.logStore = Ext.getStore('IncidentLogStore');
+		return this.logStore;
+	},
+
 	setIncident : function(incident, refresh) {
 		this.incident = incident;
-		if(refresh) {
+		if (refresh) {
 			this.sub('vehicle_filter').setValue(incident.get('vehicle'));
 			this.sub('driver_filter').reset();
 			this.refreshIncidentList();
 		}
-		
+
 		this.sub('incident_form').loadRecord(incident);
 		this.refreshMap();
 	},
-	
+
 	getIncident : function() {
 		return this.incident;
 	},
-	
+
 	refreshIncidentList : function() {
 		this.sub('grid').store.load({
 			filters : [ {
@@ -4539,53 +4565,102 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			} ]
 		});
 	},
-	
+
 	resetIncidentList : function() {
 		this.sub('vehicle_filter').reset();
 		this.sub('driver_filter').reset();
-		
+
 		this.refreshIncidentList();
+	},
+
+	getTrackLine : function() {
+		return this.trackline;
+	},
+	
+	setTrackLine : function(trackline) {
+		if(this.trackline)
+			this.trackline.setMap(null);
+		this.trackline = trackline;
 	},
 	
 	getMarker : function() {
 		return this.marker;
 	},
-	
+
 	setMarker : function(marker) {
-		if(this.marker)
+		if (this.marker)
 			this.marker.setMap(null);
 		this.marker = marker;
 	},
 	
 	refreshMap : function() {
 		this.setMarker(null);
-		
+
 		var incident = this.getIncident();
 		var location = null;
-		if(!incident)
+		if (!incident)
 			location = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
 		else
 			location = new google.maps.LatLng(incident.get('lattitude'), incident.get('longitude'));
-		
+
 		this.getMap().setCenter(location);
 
-		if(incident) {
-			this.setMarker(new google.maps.Marker({
-			    position: location,
-			    map: this.getMap()
-			}));
+		if (!incident)
+			return;
+
+		this.setMarker(new google.maps.Marker({
+			position : location,
+			map : this.getMap()
+		}));
+
+		this.getLogStore().clearFilter(true);
+		this.getLogStore().filter([ {
+			property : "incident",
+			value : incident.get('key')
+		} ]);
+		this.getLogStore().load();
+	},
+	
+	refreshTrack : function() {
+		this.setTrackLine(new google.maps.Polyline({
+			map : this.getMap(),
+		    strokeColor: '#FF0000',
+		    strokeOpacity: 1.0,
+		    strokeWeight: 4
+		}));
+
+		var path = this.getTrackLine().getPath();
+		var bounds;
+		var latlng;
+
+		this.getLogStore().each(function(record) {
+			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			path.push(latlng);
+			if(!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+		});
+		
+		if(!bounds)
+			return;
+		
+		if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else {
+			this.getMap().fitBounds(bounds);
 		}
 	},
 	
 	getMap : function() {
 		return this.map;
 	},
-	
+
 	zInfo : {
 		xtype : 'form',
 		itemId : 'incident_form',
 		cls : 'incidentSummary',
-		height: 50,
+		height : 50,
 		layout : {
 			type : 'hbox',
 			align : 'stretch'
@@ -4604,13 +4679,13 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			xtype : 'image',
 			itemId : 'driverImage',
 			cls : 'imgDriverSmall',
-			height: 37
-		},{
+			height : 37
+		}, {
 			xtype : 'datefield',
 			name : 'datetime',
 			hidden : true,
 			format : 'd-m-Y H:i:s'
-		},{
+		}, {
 			xtype : 'displayfield',
 			itemId : 'incident_time',
 			width : 160,
@@ -4640,7 +4715,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			name : 'confirm',
 			itemId : 'confirm',
 			fieldLabel : 'Confirm',
-			uncheckedValue : 'off'
+			uncheckedValue : 'off',
+			labelCls : 'labelStyle1',
+			cls : 'backgroundNone'
 		}, {
 			xtype : 'displayfield',
 			name : 'video_clip',
@@ -4670,12 +4747,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 								xtype : 'box',
 								itemId : 'fullscreen',
 								html : '<div class="btnFullscreen"></div>'
-							}, {
+							},
+							{
 								xtype : 'box',
 								cls : 'incidentDetail',
 								itemId : 'video',
-								tpl : [ '<video width="100%" height="95%" controls="controls">',
-										'<source src="download?blob-key={value}" type="video/mp4" />',
+								tpl : [ '<video width="100%" height="95%" controls="controls">', '<source {value} type="video/mp4" />',
 										'Your browser does not support the video tag.', '</video>' ]
 							} ]
 				}, {
@@ -4795,8 +4872,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			format : F('datetime'),
 			width : 120
 		} ],
-		viewConfig : {
-		},
+		viewConfig : {},
 		tbar : [ {
 			xtype : 'combo',
 			queryMode : 'local',
@@ -4857,6 +4933,21 @@ Ext.define('GreenFleet.view.common.CodeCombo', {
 	}
 });
 
+Ext.define('GreenFleet.view.form.TimeZoneCombo', {
+	extend : 'Ext.form.field.ComboBox',
+	
+	alias : 'widget.tzcombo',
+	
+	fieldLabel: 'Choose TimeZone',
+	
+    store: 'TimeZoneStore',
+    
+    queryMode: 'local',
+    
+    displayField: 'display',
+    
+    valueField: 'value'
+});
 Ext.define('GreenFleet.view.form.DateTimeField', {
 	extend : 'Ext.form.FieldContainer',
 	alias: 'widget.datetimex',
@@ -5011,7 +5102,6 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	store : 'VehicleStore',
 	
 	initComponent : function() {
-		this.store = Ext.getStore('VehicleStore');
 		
 		this.callParent();
 		
@@ -5029,12 +5119,12 @@ Ext.define('GreenFleet.view.form.SearchField', {
 		getInnerTpl : function() {
 			return '<div class="appSearchItem"><span class="id">{id}</span> <span class="registration_number">{registration_number}</span></div>';
 		},
-		minWidth : 200
+		minWidth : 190
 	},
 	
 	listeners : {
 		'select' : function(combo, records, eOpts) {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			
 			store.clearFilter();
 			
@@ -5042,12 +5132,11 @@ Ext.define('GreenFleet.view.form.SearchField', {
 				property : 'id',
 				value : records[0].get('id')
 			} ]);
-			
-//			store.load();
 		}
 	}
 	
 });
+
 Ext.define('GreenFleet.view.common.EntityFormButtons', {
 	extend : 'Ext.toolbar.Toolbar',
 	
@@ -5147,92 +5236,165 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 	
 	initComponent : function() {
 		this.callParent();
-		
+
 		var content = this.add({
-			xtype : 'container',
+			xtype : 'panel',
 			flex : 1,
-			layout : 'auto'
+			autoScroll : true,
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			}
+		})
+		var row1 = content.add({
+			xtype : 'container',
+			height : 330,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
 		});
 		
-		var store = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'data1', 'data2', 'data3', 'data4', 'data5'],
+		var row2 = content.add({
+			xtype : 'container',
+			height : 330,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
+		});
+		
+		var store1 = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'age', 'data2', 'data3', 'data4', 'data5'],
 		    data: [
-		        { 'name': 'Best',   'data1': 10, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': 'Better',   'data1': 7,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': 'Good', 'data1': 5,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
-		        { 'name': 'Worse',  'data1': 2,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
-		        { 'name': 'Worst',  'data1': 27, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
+		        { 'name': '~ 1Y',   'age': 10, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': '1Y ~ 2Y',   'age': 13,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': '2Y ~ 3Y', 'age': 18,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
+		        { 'name': '3Y ~ 5Y',  'age': 5,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
+		        { 'name': '5Y ~ 10Y',  'age': 3, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 },
+		        { 'name': '10Y ~',  'age': 1, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
 		    ]
 		});
 
-		content.add(this.buildHealthChart(store, 'data1'));
-		content.add(this.buildHealthChart(store, 'data2'));
-		content.add(this.buildHealthChart(store, 'data3'));
-		content.add(this.buildHealthChart(store, 'data4'));
+		var store2 = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'rd', 'data2', 'data3', 'data4', 'data5'],
+		    data: [
+		        { 'name': '~ 10K',   'rd': 1, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': '10K ~ 30K',   'rd': 4,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': '30K ~ 50K', 'rd': 5,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
+		        { 'name': '50K ~ 100K',  'rd': 22,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
+		        { 'name': '100K ~ 200K',  'rd': 12, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 },
+		        { 'name': '200K ~',  'rd': 6, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
+		    ]
+		});
+
+		var store3 = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
+		    data: [
+		        { 'name': 'Health',   'tb': 31, 'eo': 27, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': 'Impending',   'tb': 17,  'eo': 19,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': 'Overdue', 'tb': 2,  'eo': 4,  'data3': 14, 'data4': 12, 'data5': 7  }
+		    ]
+		});
+
+		row1.add(this.buildHealthChart('Vehicle Age', store1, 'age'));
+		row1.add(this.buildHealthChart('Running Distance', store2, 'rd'));
+		row2.add(this.buildHealthChart('Timing Belt Health', store3, 'tb'));
+		row2.add(this.buildHealthChart('Engine Oil Health', store3, 'eo'));
 	},
 	
-	buildHealthChart : function(store, idx) {
+	buildHealthChart : function(title, store, idx) {
 		return {
-			width : 420,
-			height : 300,
-			xtype: 'chart',
-	        animate: true,
-	        store: store,
-	        shadow: true,
-	        legend: {
-	            position: 'right'
-	        },
-	        insetPadding: 60,
-	        theme: 'Base:gradients',
-	        series: [{
-	            type: 'pie',
-	            field: idx,
-	            showInLegend: true,
-	            donut: false,
-	            tips: {
-	              trackMouse: true,
-	              width: 140,
-	              height: 28,
-	              renderer: function(storeItem, item) {
-	                // calculate percentage.
-	                var total = 0;
-	                store.each(function(rec) {
-	                    total += rec.get(idx);
-	                });
-	                this.setTitle(storeItem.get('name') + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
-	              }
-	            },
-	            highlight: {
-	              segment: {
-	                margin: 20
-	              }
-	            },
-	            label: {
-	                field: 'name',
-	                display: 'rotate',
-	                contrast: true,
-	                font: '14px Arial'
-	            }
-	        }]
+			xtype : 'panel',
+			title : title,
+			width : 450,
+			height : 330,
+			frame : true,
+			items : [{
+				xtype: 'chart',
+		        animate: true,
+		        store: store,
+				width : 420,
+				height : 300,
+		        shadow: true,
+		        legend: {
+		            position: 'right'
+		        },
+		        insetPadding: 60,
+		        theme: 'Base:gradients',
+		        series: [{
+		            type: 'pie',
+		            field: idx,
+		            showInLegend: true,
+		            donut: false,
+		            tips: {
+		              trackMouse: true,
+		              width: 140,
+		              height: 28,
+		              renderer: function(storeItem, item) {
+		                // calculate percentage.
+		                var total = 0;
+		                store.each(function(rec) {
+		                    total += rec.get(idx);
+		                });
+		                this.setTitle(storeItem.get('name') + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
+		              }
+		            },
+		            highlight: {
+		              segment: {
+		                margin: 20
+		              }
+		            },
+		            label: {
+		                field: 'name',
+		                display: 'rotate',
+		                contrast: true,
+		                font: '14px Arial'
+		            }
+		        }]
+			}]
 		}
 	}
 
 });
 Ext.define('GreenFleet.view.pm.Consumable', {
 	extend : 'Ext.Container',
-	
+
 	alias : 'widget.pm_consumable',
-	
+
 	title : 'Consumables',
-	
+
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
-	
+
 	initComponent : function() {
 		var self = this;
-		
+
+		var consumables = Ext.create('Ext.data.Store', {
+			fields : [ 'name', 'value' ],
+			data : [ {
+				name : 'Engine Oil',
+				value : 'EngineOil'
+			}, {
+				name : 'Timing Belt',
+				value : 'TimingBelt'
+			}, {
+				name : 'Spark Plug',
+				value : 'SparkPlug'
+			}, {
+				name : 'Cooling Water',
+				value : 'CoolingWater'
+			}, {
+				name : 'Brake Oil',
+				value : 'BrakeOil'
+			}, {
+				name : 'Fuel Filter',
+				value : 'FuelFilter'
+			} ]
+		});
+
 		this.items = [ {
 			html : '<div class="listTitle">Consumables Management</div>'
 		}, {
@@ -5242,7 +5404,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				type : 'hbox',
 				align : 'stretch'
 			},
-			items : [ this.zvehiclelist, {
+			items : [ this.zvehiclelist(self, consumables), {
 				xtype : 'container',
 				flex : 1,
 				cls : 'borderRightGray',
@@ -5250,87 +5412,153 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					align : 'stretch',
 					type : 'vbox'
 				},
-				items : [ this.zvehicleinfo, this.zconsumables, this.mainthistory ]
+				items : [ this.zvehicleinfo, this.zconsumables, this.zmainthistory ]
 			} ]
 		} ],
-		
+
 		this.callParent();
-		
-		
+
+		this.sub('vehicle_info').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
 	},
-	
-	zvehiclelist : {
-		xtype : 'gridpanel',
-		itemId : 'vehicle_info',
-		store : 'VehicleStore',
-		title : 'Vehicle List',
-		cls : 'hIndexbarZero',
-		width : 320,
-		tbar : [{
-			xtype : 'combo'
-		}, {
-			xtype : 'fieldcontainer',
-			defaultType : 'checkboxfield',
-			items : [{
-				boxLabel : 'Healthy',
-                name : 'healthy',
-                inputValue : '1',
-                itemId : 'check_healthy'
+
+	zvehiclelist : function(self, consumables) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'vehicle_info',
+			store : 'VehicleStore',
+			title : 'Vehicle List',
+			cls : 'hIndexbarZero',
+			width : 320,
+			tbar : [ {
+				xtype : 'combo',
+				itemId : 'consumables_combo',
+				store : consumables,
+				queryMode : 'local',
+				displayField : 'name',
+				valueField : 'value'
 			}, {
-				boxLabel : 'Normal',
-                name : 'normal',
-                inputValue : '1',
-                itemId : 'check_normal'
+				xtype : 'fieldcontainer',
+				defaultType : 'checkboxfield',
+				items : [ {
+					boxLabel : 'Healthy',
+					name : 'healthy',
+					inputValue : '1',
+					itemId : 'check_healthy'
+				}, {
+					boxLabel : 'Impending',
+					name : 'impending',
+					inputValue : '1',
+					itemId : 'check_impending'
+				}, {
+					boxLabel : 'Overdue',
+					name : 'overdue',
+					inputValue : '1',
+					itemId : 'check_overdue'
+				} ]
+			} ],
+			columns : [ {
+				dataIndex : 'healthy',
+				width : 20
 			}, {
-				boxLabel : 'Impending',
-                name : 'impending',
-                inputValue : '1',
-                itemId : 'check_impending'
-			},{
-				boxLabel : 'Overdue',
-                name : 'overdue',
-                inputValue : '1',
-                itemId : 'check_overdue'
-			}]
-		}],
-		columns : [ {
-			dataIndex : 'healthy',
-			width : 20
-		}, {
-			dataIndex : 'id',
-			text : 'Id',
-			width : 100
-		}, {
-			dataIndex : 'registration_number',
-			text : 'Reg. Number',
-			width : 220
-		} ]
+				dataIndex : 'id',
+				text : 'Id',
+				width : 100
+			}, {
+				dataIndex : 'registration_number',
+				text : 'Reg. Number',
+				width : 220
+			} ]
+		}
 	},
-	
+
 	zvehicleinfo : {
 		xtype : 'form',
+		itemId : 'form',
 		cls : 'hIndexbar',
 		title : 'Vehicle Information',
-		defaultType : 'textfield',
-		items : [{
-			fieldLabel : 'ID'
+		height : 110,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		items : [ {
+			xtype : 'panel',
+			flex : 1,
+			defaultType : 'textfield',
+			items : [ {
+				fieldLabel : 'ID',
+				name : 'id'
+			}, {
+				fieldLabel : 'Reg. Number',
+				name : 'registration_number'
+			}, {
+				fieldLabel : 'Manufacturer',
+				name : 'manufacturer'
+			} ]
 		}, {
-			fieldLabel : 'Reg. Number'
-		}, {
-			fieldLabel : 'Driving Distance'
-		}]
+			xtype : 'panel',
+			flex : 1,
+			defaultType : 'textfield',
+			items : [ {
+				fieldLabel : 'Type',
+				name : 'vehicle_type'
+			}, {
+				fieldLabel : 'Total Dist.',
+				name : 'total_distance'
+			}, {
+				fieldLabel : 'Birth Year',
+				name : 'birth_year'
+			} ]
+		} ]
 	},
-	
+
 	zconsumables : {
+		xtype : 'grid',
+		store : 'ConsumableStore',
 		title : 'Consumables',
 		cls : 'hIndexbar',
-		html : 'Consumables'
+		flex : 1,
+		columns : [ {
+			header : 'Item',
+			dataIndex : 'item'
+		}, {
+			header : 'Recent Replacement',
+			dataIndex : 'recent_date'
+		}, {
+			header : 'Running Dist.',
+			dataIndex : 'running_qty'
+		}, {
+			header : 'Recent Replacement',
+			dataIndex : 'recent_date'
+		}, {
+			header : 'Threshold',
+			dataIndex : 'threshold'
+		}, {
+			header : 'Health Rate',
+			dataIndex : 'healthy'
+		}, {
+			header : 'state',
+			dataIndex : 'status'
+		}, {
+			header : 'Description',
+			dataIndex : 'desc',
+			flex : 1
+		} ]
 	},
-	
-	mainthistory : {
+
+	zmainthistory : {
+		xtype : 'panel',
 		title : 'Maint. History',
+		flex : 1,
 		cls : 'hIndexbar',
-		html : 'Maint. History'
+		layout : 'fit',
+		items : [{
+			xtype : 'textarea',
+			value : '2011-11-16 Replaced Temperature Sensor\n' +
+			'2011-12-28 Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter\n'
+		}]
 	}
 });
 Ext.define('GreenFleet.store.CompanyStore', {
@@ -5350,6 +5578,9 @@ Ext.define('GreenFleet.store.CompanyStore', {
 	}, {
 		name : 'desc',
 		type : 'string'
+	}, {
+		name : 'timezone',
+		type : 'int'
 	}, {
 		name : 'created_at',
 		type : 'date',
@@ -5630,6 +5861,19 @@ Ext.define('GreenFleet.store.VehicleStore', {
 	}
 });
 Ext.define('GreenFleet.store.VehicleMapStore', {
+	extend : 'GreenFleet.store.VehicleStore',
+	
+	listeners : {
+		load : function(store, data) {
+			Ext.getStore('VehicleFilteredStore').loadData(data);
+		}
+	}
+});
+/*
+ * This store only for local filtering. VehicleMapStore will load data on this
+ * store. So, never Load this Store.
+ */
+Ext.define('GreenFleet.store.VehicleFilteredStore', {
 	extend : 'GreenFleet.store.VehicleStore'
 });
 Ext.define('GreenFleet.store.DriverStore', {
@@ -5743,7 +5987,7 @@ Ext.define('GreenFleet.store.IncidentStore', {
 
 	remoteFilter : true,
 	
-	remoteSort : true,
+//	remoteSort : true,
 	
 	fields : [ {
 		name : 'key',
@@ -5810,6 +6054,11 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		dateFormat:'time'
 	} ],
 	
+	sorters : [ {
+		property : 'datetime',
+		direction : 'DESC'
+	} ],
+
 	proxy : {
 		type : 'ajax',
 		url : 'incident',
@@ -5823,9 +6072,9 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 
 	autoLoad : false,
 
-	remoteFilter : true,
+//	remoteFilter : true,
 	
-	remoteSort : true,
+//	remoteSort : true,
 	
 	fields : [ {
 		name : 'key',
@@ -5874,6 +6123,11 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 		dateFormat:'time'
 	} ],
 	
+	sorters : [ {
+		property : 'datetime',
+		direction : 'ASC'
+	} ],
+
 	proxy : {
 		type : 'ajax',
 		url : 'incident_log',
@@ -5889,7 +6143,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 	
 	remoteFilter : true,
 	
-	remoteSort : true,
+//	remoteSort : true,
 	
 	fields : [ {
 		name : 'key',
@@ -5909,13 +6163,13 @@ Ext.define('GreenFleet.store.TrackStore', {
 		dateFormat : 'time'
 	}, {
 		name : 'lattitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'longitude',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'velocity',
-		type : 'number'
+		type : 'float'
 	}, {
 		name : 'updated_at',
 		type : 'date',
@@ -6179,16 +6433,16 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 	autoLoad : false,
 
 	remoteFilter : true,
-	
-	remoteSort : true,
-	
+
+	// remoteSort : true,
+
 	fields : [ {
 		name : 'key',
 		type : 'string'
 	}, {
 		name : 'datetime',
 		type : 'date',
-		dateFormat:'c'
+		dateFormat : 'time'
 	}, {
 		name : 'driver_id',
 		type : 'string'
@@ -6213,13 +6467,23 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 	}, {
 		name : 'created_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	}, {
 		name : 'updated_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	} ],
-	
+
+	filters : [ {
+		property : 'confirm',
+		value : false
+	} ],
+
+	sorters : [ {
+		property : 'datetime',
+		direction : 'DESC'
+	} ],
+
 	proxy : {
 		type : 'ajax',
 		url : 'incident',
@@ -6269,6 +6533,106 @@ Ext.define('GreenFleet.store.TerminalStore', {
 			type : 'json'
 		}
 	}
+});
+Ext.define('GreenFleet.store.TimeZoneStore', {
+	extend : 'Ext.data.Store',
+
+	fields : [ 'value', 'display' ],
+
+	data : [ {
+		value : -12.0,
+		display : "(GMT -12:00) Eniwetok, Kwajalein"
+	}, {
+		value : -11.0,
+		display : "(GMT -11:00) Midway Island, Samoa"
+	}, {
+		value : -10.0,
+		display : "(GMT -10:00) Hawaii"
+	}, {
+		value : -9.0,
+		display : "(GMT -9:00) Alaska"
+	}, {
+		value : -8.0,
+		display : "(GMT -8:00) Pacific Time (US &amp; Canada)"
+	}, {
+		value : -7.0,
+		display : "(GMT -7:00) Mountain Time (US &amp; Canada)"
+	}, {
+		value : -6.0,
+		display : "(GMT -6:00) Central Time (US &amp; Canada), Mexico City"
+	}, {
+		value : -5.0,
+		display : "(GMT -5:00) Eastern Time (US &amp; Canada), Bogota, Lima"
+	}, {
+		value : -4.0,
+		display : "(GMT -4:00) Atlantic Time (Canada), Caracas, La Paz"
+	}, {
+		value : -3.5,
+		display : "(GMT -3:30) Newfoundland"
+	}, {
+		value : -3.0,
+		display : "(GMT -3:00) Brazil, Buenos Aires, Georgetown"
+	}, {
+		value : -2.0,
+		display : "(GMT -2:00) Mid-Atlantic"
+	}, {
+		value : -1.0,
+		display : "(GMT -1:00 hour) Azores, Cape Verde Islands"
+	}, {
+		value : 0.0,
+		display : "(GMT) Western Europe Time, London, Lisbon, Casablanca"
+	}, {
+		value : 1.0,
+		display : "(GMT +1:00 hour) Brussels, Copenhagen, Madrid, Paris"
+	}, {
+		value : 2.0,
+		display : "(GMT +2:00) Kaliningrad, South Africa"
+	}, {
+		value : 3.0,
+		display : "(GMT +3:00) Baghdad, Riyadh, Moscow, St. Petersburg"
+	}, {
+		value : 3.5,
+		display : "(GMT +3:30) Tehran"
+	}, {
+		value : 4.0,
+		display : "(GMT +4:00) Abu Dhabi, Muscat, Baku, Tbilisi"
+	}, {
+		value : 4.5,
+		display : "(GMT +4:30) Kabul"
+	}, {
+		value : 5.0,
+		display : "(GMT +5:00) Ekaterinburg, Islamabad, Karachi, Tashkent"
+	}, {
+		value : 5.5,
+		display : "(GMT +5:30) Bombay, Calcutta, Madras, New Delhi"
+	}, {
+		value : 5.75,
+		display : "(GMT +5:45) Kathmandu"
+	}, {
+		value : 6.0,
+		display : "(GMT +6:00) Almaty, Dhaka, Colombo"
+	}, {
+		value : 7.0,
+		display : "(GMT +7:00) Bangkok, Hanoi, Jakarta"
+	}, {
+		value : 8.0,
+		display : "(GMT +8:00) Beijing, Perth, Singapore, Hong Kong"
+	}, {
+		value : 9.0,
+		display : "(GMT +9:00) Tokyo, Seoul, Osaka, Sapporo, Yakutsk"
+	}, {
+		value : 9.5,
+		display : "(GMT +9:30) Adelaide, Darwin"
+	}, {
+		value : 10.0,
+		display : "(GMT +10:00) Eastern Australia, Guam, Vladivostok"
+	}, {
+		value : 11.0,
+		display : "(GMT +11:00) Magadan, Solomon Islands, New Caledonia"
+	}, {
+		value : 12.0,
+		display : "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka"
+	} ]
 });
 Ext.define('GreenFleet.model.File', {
     extend: 'Ext.data.Model',
@@ -6326,33 +6690,25 @@ Ext.define('GreenFleet.store.FileStore', {
     
     autoLoad: true
 });
-Ext.define('GreenFleet.controller.ApplicationController', {
-	extend : 'Ext.app.Controller',
-
-	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore',
-			'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore',
-			'OwnershipStore', 'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore',
-			'TerminalStore' ],
-	models : [ 'Code' ],
-	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
-			'management.Company', 'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal',
-			'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
-			'management.CheckinData', 'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle',
-			'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo', 'form.DateTimeField',
-			'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'pm.Consumable' ],
-
-	init : function() {
-		this.control({
-			'viewport' : {
-				afterrender : this.onViewportRendered
-			}
-		});
-	},
-
-	onViewportRendered : function() {
-	}
+Ext.define('GreenFleet.model.ConsumableHealth', {
+	extend : 'Ext.data.Model',
+	
+	fields : [ {
+		name : 'item'
+	}, {
+		name : 'recent_date'
+	}, {
+		name : 'running_qty',
+	}, {
+		name : 'threshold'
+	}, {
+		name : 'healthy'
+	}, {
+		name : 'status'
+	}, {
+		name : 'desc'
+	} ]
 });
-
 Ext.define('GreenFleet.controller.FileController', {
 	extend : 'Ext.app.Controller',
 
@@ -6372,5 +6728,86 @@ Ext.define('GreenFleet.controller.FileController', {
 	}
 
 });
+Ext.define('GreenFleet.store.ConsumableStore', {
+	extend : 'Ext.data.Store',
+
+	model : 'GreenFleet.model.ConsumableHealth',
+
+	data : [ {
+		item : 'Engine Oil',
+		recent_date : '2011-12-28',
+		running_qty : '4200 Km',
+		threshold : '5000 Km',
+		healthy : 84,
+		status : 'impending',
+		desc : ''
+	}, {
+		item : 'Timing Belt',
+		recent_date : '2011-12-28',
+		running_qty : '2300 Km',
+		threshold : '50000 Km',
+		healthy : 4.6,
+		status : 'healthy',
+		desc : ''
+	}, {
+		item : 'Spark Plug',
+		recent_date : '2011-12-28',
+		running_qty : '2300 Km',
+		threshold : '50000 Km',
+		healthy : 4.6,
+		status : 'healthy',
+		desc : ''
+	}, {
+		item : 'Cooling Water',
+		recent_date : '2011-12-28',
+		running_qty : '2300 Km',
+		threshold : '50000 Km',
+		healthy : 4.6,
+		status : 'healthy',
+		desc : ''
+	}, {
+		item : 'Brake Oil',
+		recent_date : '2011-12-28',
+		running_qty : '2300 Km',
+		threshold : '50000 Km',
+		healthy : 4.6,
+		status : 'healthy',
+		desc : ''
+	}, {
+		item : 'Fuel Filter',
+		recent_date : '2011-12-28',
+		running_qty : '2300 Km',
+		threshold : '5000 Km',
+		healthy : 84,
+		status : 'impending',
+		desc : ''
+	} ]
+});
+Ext.define('GreenFleet.controller.ApplicationController', {
+	extend : 'Ext.app.Controller',
+
+	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
+			'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
+			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TimeZoneStore', 'ConsumableStore' ],
+	models : [ 'Code' ],
+	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu', 'management.Company',
+			'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal', 'management.Reservation',
+			'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 'monitor.Map',
+			'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo',
+			'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth',
+			'pm.Consumable' ],
+
+	init : function() {
+		this.control({
+			'viewport' : {
+				afterrender : this.onViewportRendered
+			}
+		});
+	},
+
+	onViewportRendered : function() {
+	}
+});
+
 
 

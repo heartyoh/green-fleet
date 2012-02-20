@@ -16,7 +16,6 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	store : 'VehicleStore',
 	
 	initComponent : function() {
-		this.store = Ext.getStore('VehicleStore');
 		
 		this.callParent();
 		
@@ -34,12 +33,12 @@ Ext.define('GreenFleet.view.form.SearchField', {
 		getInnerTpl : function() {
 			return '<div class="appSearchItem"><span class="id">{id}</span> <span class="registration_number">{registration_number}</span></div>';
 		},
-		minWidth : 200
+		minWidth : 190
 	},
 	
 	listeners : {
 		'select' : function(combo, records, eOpts) {
-			var store = Ext.getStore('VehicleMapStore');
+			var store = Ext.getStore('VehicleFilteredStore');
 			
 			store.clearFilter();
 			
@@ -47,8 +46,6 @@ Ext.define('GreenFleet.view.form.SearchField', {
 				property : 'id',
 				value : records[0].get('id')
 			} ]);
-			
-//			store.load();
 		}
 	}
 	

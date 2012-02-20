@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -37,9 +38,11 @@ public class IncidentVideoService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		Entity company = datastore.get((Key)map.get("_company_key"));
+
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone"))));
 
 		super.onCreate(entity, map, datastore);
 	}
@@ -73,13 +76,13 @@ public class IncidentVideoService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		super.onSave(entity, map, datastore);
 	}
 
 	@RequestMapping(value = "/incident/upload_video", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 
