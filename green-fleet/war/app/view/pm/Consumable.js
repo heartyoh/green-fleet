@@ -53,7 +53,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					align : 'stretch',
 					type : 'vbox'
 				},
-				items : [ this.zvehicleinfo, this.zconsumables, this.zmainthistory ]
+				items : [ this.zvehicleinfo, this.zconsumables(), this.zmainthistory ]
 			} ]
 		} ],
 
@@ -161,37 +161,40 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		} ]
 	},
 
-	zconsumables : {
-		xtype : 'grid',
-		store : 'ConsumableStore',
-		cls : 'hIndexbar',
-		flex : 1,
-		columns : [ {
-			header : 'Item',
-			dataIndex : 'item'
-		}, {
-			header : 'Recent Replacement',
-			dataIndex : 'recent_date'
-		}, {
-			header : 'Running Dist.',
-			dataIndex : 'running_qty'
-		}, {
-			header : 'Recent Replacement',
-			dataIndex : 'recent_date'
-		}, {
-			header : 'Threshold',
-			dataIndex : 'threshold'
-		}, {
-			header : 'Health Rate',
-			dataIndex : 'healthy'
-		}, {
-			header : 'state',
-			dataIndex : 'status'
-		}, {
-			header : 'Description',
-			dataIndex : 'desc',
-			flex : 1
-		} ]
+	zconsumables : function() {
+		return {
+			xtype : 'grid',
+			store : 'ConsumableStore',
+			cls : 'hIndexbar',
+			flex : 1,
+			columns : [ {
+				header : 'Item',
+				dataIndex : 'item'
+			}, {
+				header : 'Recent Replacement',
+				dataIndex : 'recent_date'
+			}, {
+				header : 'Running Dist.',
+				dataIndex : 'running_qty'
+			}, {
+				header : 'Recent Replacement',
+				dataIndex : 'recent_date'
+			}, {
+				header : 'Threshold',
+				dataIndex : 'threshold'
+			}, {
+				header : 'Health Rate',
+				dataIndex : 'healthy',
+				xtype : 'progressbarcolumn'
+			}, {
+				header : 'state',
+				dataIndex : 'status'
+			}, {
+				header : 'Description',
+				dataIndex : 'desc',
+				flex : 1
+			} ]
+		}
 	},
 
 	zmainthistory : {

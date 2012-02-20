@@ -379,6 +379,21 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			type : 'string',
 			hidden : true
 		}, {
+			dataIndex : 'video_clip',
+			text : 'V',
+			renderer: function(value, cell) {
+			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			width : 20
+		}, {
+			dataIndex : 'confirm',
+			text : 'Confirm',
+			renderer: function(value, cell) {
+			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			align : 'center',
+			width : 50
+		}, {
 			dataIndex : 'datetime',
 			text : 'Incident Time',
 			xtype : 'datecolumn',
@@ -441,14 +456,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 80
 		}, {
 			dataIndex : 'obd_connected',
-			text : 'OBD Connected',
-			type : 'boolean',
-			width : 80
-		}, {
-			dataIndex : 'confirm',
-			text : 'Confirm',
-			type : 'boolean',
-			width : 80
+			text : 'OBD',
+			renderer: function(value, cell) {
+			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			align : 'center',
+			width : 40
 		}, {
 			dataIndex : 'engine_temp',
 			text : 'Engine Temp.',
