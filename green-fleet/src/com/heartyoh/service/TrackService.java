@@ -1,6 +1,5 @@
 package com.heartyoh.service;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,20 +50,22 @@ public class TrackService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		Entity company = datastore.get((Key)map.get("_company_key"));
+		
 		String datetime = (String)map.get("datetime");
 		
 		if(datetime == null) {
 			entity.setProperty("datetime", map.get("_now"));
 		} else {
-			entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime));
+			entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime, null, Integer.parseInt((String)company.getProperty("timezone"))));
 		}
 
 		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		String terminal_id = (String) map.get("terminal_id");
 		String vehicle_id = (String) map.get("vehicle_id");
 		String driver_id = (String) map.get("driver_id");
@@ -110,13 +111,13 @@ public class TrackService extends EntityService {
 
 	@RequestMapping(value = "/track/import", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = "/track/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 

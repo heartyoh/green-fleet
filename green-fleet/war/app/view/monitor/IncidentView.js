@@ -11,7 +11,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	},
 
 	initComponent : function() {
-		this.items = [{
+		this.items = [ {
 			xtype : 'container',
 			autoScroll : true,
 			layout : {
@@ -19,9 +19,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [this.zInfo, this.zVideoAndMap]
-		}, this.zList];
-		
+			items : [ this.zInfo, this.zVideoAndMap ]
+		}, this.zList ];
+
 		this.callParent(arguments);
 
 		/*
@@ -29,29 +29,33 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		 */
 
 		var self = this;
-		
+
 		this.sub('map').on('afterrender', function() {
 			var options = {
-				zoom : 10,
+				zoom : 12,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
 			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
+			
+			self.getLogStore().on('load', function() {
+				self.refreshTrack();
+			});
 		});
-		
+
 		this.on('activate', function(comp) {
 			google.maps.event.trigger(self.getMap(), 'resize');
 		});
-		
+
 		this.down('button[itemId=search]').on('click', function() {
 			self.refreshIncidentList();
 		});
-		
+
 		this.down('button[itemId=reset]').on('click', function() {
 			self.resetIncidentList();
 		});
-		
+
 		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
 			var url = '';
 			if (value != null && value.length > 1)
@@ -61,11 +65,11 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				value : url
 			});
 		});
-		
+
 		this.down('datefield[name=datetime]').on('change', function(field, value) {
 			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
 		});
-		
+
 		this.down('displayfield[name=driver_id]').on('change', function(field, value) {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
@@ -84,19 +88,19 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.sub('driver_filter').on('specialkey', function(fleld, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
-			};
+			}
 		});
-		
+
 		this.sub('vehicle_filter').on('specialkey', function(field, e) {
 			if (e.getKey() == e.ENTER) {
 				self.refreshIncidentList();
-			};
+			}
 		});
 
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.setIncident(record, false);
 		});
-		
+
 		this.sub('fullscreen').on('afterrender', function(comp) {
 			comp.getEl().on('click', function() {
 				if (!Ext.isWebKit)
@@ -104,7 +108,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
 			});
 		});
-		
+
 		this.sub('incident_form').on('afterrender', function(form) {
 			this.down('[itemId=confirm]').getEl().on('click', function(checkbox, dirty) {
 				var form = self.sub('incident_form').getForm();
@@ -125,25 +129,31 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				}
 			});
 		});
-		
+
 	},
-	
+
+	getLogStore : function() {
+		if(!this.logStore)
+			this.logStore = Ext.getStore('IncidentLogStore');
+		return this.logStore;
+	},
+
 	setIncident : function(incident, refresh) {
 		this.incident = incident;
-		if(refresh) {
+		if (refresh) {
 			this.sub('vehicle_filter').setValue(incident.get('vehicle'));
 			this.sub('driver_filter').reset();
 			this.refreshIncidentList();
 		}
-		
+
 		this.sub('incident_form').loadRecord(incident);
 		this.refreshMap();
 	},
-	
+
 	getIncident : function() {
 		return this.incident;
 	},
-	
+
 	refreshIncidentList : function() {
 		this.sub('grid').store.load({
 			filters : [ {
@@ -155,53 +165,102 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			} ]
 		});
 	},
-	
+
 	resetIncidentList : function() {
 		this.sub('vehicle_filter').reset();
 		this.sub('driver_filter').reset();
-		
+
 		this.refreshIncidentList();
+	},
+
+	getTrackLine : function() {
+		return this.trackline;
+	},
+	
+	setTrackLine : function(trackline) {
+		if(this.trackline)
+			this.trackline.setMap(null);
+		this.trackline = trackline;
 	},
 	
 	getMarker : function() {
 		return this.marker;
 	},
-	
+
 	setMarker : function(marker) {
-		if(this.marker)
+		if (this.marker)
 			this.marker.setMap(null);
 		this.marker = marker;
 	},
 	
 	refreshMap : function() {
 		this.setMarker(null);
-		
+
 		var incident = this.getIncident();
 		var location = null;
-		if(!incident)
+		if (!incident)
 			location = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
 		else
 			location = new google.maps.LatLng(incident.get('lattitude'), incident.get('longitude'));
-		
+
 		this.getMap().setCenter(location);
 
-		if(incident) {
-			this.setMarker(new google.maps.Marker({
-			    position: location,
-			    map: this.getMap()
-			}));
+		if (!incident)
+			return;
+
+		this.setMarker(new google.maps.Marker({
+			position : location,
+			map : this.getMap()
+		}));
+
+		this.getLogStore().clearFilter(true);
+		this.getLogStore().filter([ {
+			property : "incident",
+			value : incident.get('key')
+		} ]);
+		this.getLogStore().load();
+	},
+	
+	refreshTrack : function() {
+		this.setTrackLine(new google.maps.Polyline({
+			map : this.getMap(),
+		    strokeColor: '#FF0000',
+		    strokeOpacity: 1.0,
+		    strokeWeight: 4
+		}));
+
+		var path = this.getTrackLine().getPath();
+		var bounds;
+		var latlng;
+
+		this.getLogStore().each(function(record) {
+			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			path.push(latlng);
+			if(!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+		});
+		
+		if(!bounds)
+			return;
+		
+		if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else {
+			this.getMap().fitBounds(bounds);
 		}
 	},
 	
 	getMap : function() {
 		return this.map;
 	},
-	
+
 	zInfo : {
 		xtype : 'form',
 		itemId : 'incident_form',
 		cls : 'incidentSummary',
-		height: 50,
+		height : 50,
 		layout : {
 			type : 'hbox',
 			align : 'stretch'
@@ -220,13 +279,13 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			xtype : 'image',
 			itemId : 'driverImage',
 			cls : 'imgDriverSmall',
-			height: 37
-		},{
+			height : 37
+		}, {
 			xtype : 'datefield',
 			name : 'datetime',
 			hidden : true,
 			format : 'd-m-Y H:i:s'
-		},{
+		}, {
 			xtype : 'displayfield',
 			itemId : 'incident_time',
 			width : 160,
@@ -258,7 +317,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			fieldLabel : 'Confirm',
 			uncheckedValue : 'off',
 			labelCls : 'labelStyle1',
-			cls :'backgroundNone'
+			cls : 'backgroundNone'
 		}, {
 			xtype : 'displayfield',
 			name : 'video_clip',
@@ -288,12 +347,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 								xtype : 'box',
 								itemId : 'fullscreen',
 								html : '<div class="btnFullscreen"></div>'
-							}, {
+							},
+							{
 								xtype : 'box',
 								cls : 'incidentDetail',
 								itemId : 'video',
-								tpl : [ '<video width="100%" height="95%" controls="controls">',
-										'<source {value} type="video/mp4" />',
+								tpl : [ '<video width="100%" height="95%" controls="controls">', '<source {value} type="video/mp4" />',
 										'Your browser does not support the video tag.', '</video>' ]
 							} ]
 				}, {
@@ -413,8 +472,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			format : F('datetime'),
 			width : 120
 		} ],
-		viewConfig : {
-		},
+		viewConfig : {},
 		tbar : [ {
 			xtype : 'combo',
 			queryMode : 'local',

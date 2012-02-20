@@ -1,7 +1,8 @@
 #!/bin/bash
 lat=37.38
 lng=127.11
-host="http://heartyoh.appspot.com"
+#host="http://heartyoh.appspot.com"
+host="http://localhost:8888"
 
 function incident {
 	dt_incident=$1
@@ -21,6 +22,10 @@ function incident {
 	echo $FORM_COMPANY $FORM_TERMINAL $FORM_DT $FORM_VIDEO
 	
 	curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO $host/incident/upload_video`
+	
+	FORM_LOG="file=@/Users/shnam/Desktop/IncidentLog.csv"
+	
+	curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_LOG http://localhost:8888/incident/upload_log`
 }
 
 for i in {1..100}

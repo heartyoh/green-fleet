@@ -3,9 +3,9 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 
 	autoLoad : false,
 
-	remoteFilter : true,
+//	remoteFilter : true,
 	
-	remoteSort : true,
+//	remoteSort : true,
 	
 	fields : [ {
 		name : 'key',
@@ -54,6 +54,11 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 		dateFormat:'time'
 	} ],
 	
+	sorters : [ {
+		property : 'datetime',
+		direction : 'ASC'
+	} ],
+
 	proxy : {
 		type : 'ajax',
 		url : 'incident_log',

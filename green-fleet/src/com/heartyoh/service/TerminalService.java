@@ -40,7 +40,7 @@ public class TerminalService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("id", map.get("id"));
 
 		super.onCreate(entity, map, datastore);
@@ -55,7 +55,7 @@ public class TerminalService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("serial_no", stringProperty(map, "serial_no"));
 		entity.setProperty("buying_date", SessionUtils.stringToDate((String) map.get("buying_date")));
 		entity.setProperty("comment", stringProperty(map, "comment"));
@@ -65,13 +65,13 @@ public class TerminalService extends EntityService {
 
 	@RequestMapping(value = "/terminal/import", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = "/terminal/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 

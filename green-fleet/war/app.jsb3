@@ -139,6 +139,10 @@
                 },
                 {
                     "path": "app/view/form/",
+                    "name": "TimeZoneCombo.js"
+                },
+                {
+                    "path": "app/view/form/",
                     "name": "DateTimeField.js"
                 },
                 {
@@ -234,6 +238,10 @@
                     "name": "TerminalStore.js"
                 },
                 {
+                    "path": "app/store/",
+                    "name": "TimeZoneStore.js"
+                },
+                {
                     "path": "app/model/",
                     "name": "File.js"
                 },
@@ -246,12 +254,20 @@
                     "name": "FileStore.js"
                 },
                 {
-                    "path": "app/controller/",
-                    "name": "ApplicationController.js"
+                    "path": "app/model/",
+                    "name": "ConsumableHealth.js"
                 },
                 {
                     "path": "app/controller/",
                     "name": "FileController.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ConsumableStore.js"
+                },
+                {
+                    "path": "app/controller/",
+                    "name": "ApplicationController.js"
                 }
             ]
         },

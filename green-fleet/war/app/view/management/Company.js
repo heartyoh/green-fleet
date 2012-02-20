@@ -83,6 +83,9 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'desc',
 				text : 'Description'
 			}, {
+				dataIndex : 'timezone',
+				text : 'TimeZone'
+			}, {
 				dataIndex : 'created_at',
 				text : 'Created At',
 				xtype : 'datecolumn',
@@ -150,6 +153,10 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				name : 'desc',
 				fieldLabel : 'Description'
+			}, {
+				xtype : 'tzcombo',
+				name : 'timezone',
+				fieldLabel : 'TimeZone'
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',

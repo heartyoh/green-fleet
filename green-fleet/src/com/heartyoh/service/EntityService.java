@@ -79,11 +79,11 @@ public abstract class EntityService {
 		return false;
 	}
 
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("created_at", map.get("_now"));
 	}
 
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("updated_at", map.get("_now"));
 	}
 
@@ -132,7 +132,7 @@ public abstract class EntityService {
 	 * getIdValue 에 넘겨지는 파라미터(map)에는 각 레코드의 데이타 외에 _filename 키로 파일이름이 넘겨지고,
 	 * _content_type 키로 컨텐트 타입이 넘겨진다.
 	 */
-	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		CustomUser user = SessionUtils.currentUser();
 		
 		String company = null;
@@ -181,6 +181,7 @@ public abstract class EntityService {
 				map.put("_filename", filename);
 				map.put("_content_type", contentType);
 				map.put("_now", now);
+				map.put("_company_key", companyKey);
 				/*
 				 * Request의 파라미터를 모든 레코드의 공통 파라미터로 추가한다.
 				 */
@@ -208,7 +209,7 @@ public abstract class EntityService {
 		return "{ \"success\" : true }";
 	}
 
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> map = toMap(request);
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
@@ -258,6 +259,7 @@ public abstract class EntityService {
 		Date now = new Date();
 		
 		map.put("_now", now);
+		map.put("_company_key", companyKey);
 
 		try {
 			if (creating) {

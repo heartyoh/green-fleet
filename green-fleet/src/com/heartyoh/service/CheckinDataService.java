@@ -1,6 +1,5 @@
 package com.heartyoh.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -39,18 +39,20 @@ public class CheckinDataService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		Entity company = datastore.get((Key)map.get("_company_key"));
+
 		String terminal_id = (String) map.get("terminal_id");
 		String datetime = (String) map.get("datetime");
 
 		entity.setProperty("terminal_id", terminal_id);
-		entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime, null, Integer.parseInt((String)company.getProperty("timezone"))));
 
 		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
@@ -94,13 +96,13 @@ public class CheckinDataService extends EntityService {
 
 	@RequestMapping(value = "/checkin_data/import", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = "/checkin_data/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 

@@ -49,9 +49,11 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		Entity company = datastore.get((Key)map.get("_company_key"));
+		
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime")));
+		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone"))));
 		entity.setProperty("confirm", false);
 
 		super.onCreate(entity, map, datastore);
@@ -65,7 +67,7 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 
 		if (map.get("vehicle_id") != null)
 			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
@@ -148,13 +150,13 @@ public class IncidentService extends EntityService {
 
 	@RequestMapping(value = "/incident/import", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = "/incident/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 
