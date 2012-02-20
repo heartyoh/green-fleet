@@ -2,7 +2,8 @@
 lat=37.38
 lng=127.11
 #host="http://heartyoh.appspot.com"
-host="http://localhost:8888"
+host="http://g-fleet.appspot.com"
+#host="http://localhost:8888"
 
 function incident {
 	dt_incident=$1
@@ -17,7 +18,7 @@ function incident {
 	FORM_COMPANY="company=vitizen"
 	FORM_TERMINAL="terminal_id=T001"
 	FORM_DT="datetime=$1"
-	FORM_VIDEO="video_clip=@/Users/heartyoh/Desktop/v.mp4;type=video/mp4"
+	FORM_VIDEO="video_clip=@/Users/shnam/Desktop/v.mp4;type=video/mp4"
 	
 	echo $FORM_COMPANY $FORM_TERMINAL $FORM_DT $FORM_VIDEO
 	
@@ -25,7 +26,7 @@ function incident {
 	
 	FORM_LOG="file=@/Users/shnam/Desktop/IncidentLog.csv"
 	
-	curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_LOG http://localhost:8888/incident/upload_log`
+	curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_LOG $host/incident/upload_log`
 }
 
 for i in {1..100}
