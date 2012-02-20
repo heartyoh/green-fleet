@@ -2748,7 +2748,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	},
 
 	items: {
-		html : '<div class="listTitle">Incident List</div>'
+		html : '<div class="listTitle">Tracking List</div>'
 	},
 
 	initComponent : function() {
@@ -5429,8 +5429,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			itemId : 'vehicle_info',
 			store : 'VehicleStore',
 			title : 'Vehicle List',
-			cls : 'hIndexbarZero',
-			width : 320,
+			width : 300,
 			tbar : [ {
 				xtype : 'combo',
 				itemId : 'consumables_combo',
@@ -5441,21 +5440,27 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			}, {
 				xtype : 'fieldcontainer',
 				defaultType : 'checkboxfield',
+				cls :'paddingLeft5',
 				items : [ {
-					boxLabel : 'Healthy',
+					cls : 'iconHealthH floatLeft',
 					name : 'healthy',
 					inputValue : '1',
-					itemId : 'check_healthy'
+					itemId : 'check_healthy',
+					width:45
 				}, {
-					boxLabel : 'Impending',
+//					boxLabel : 'Impending',
+					cls : 'iconHealthI floatLeft',
 					name : 'impending',
 					inputValue : '1',
-					itemId : 'check_impending'
+					itemId : 'check_impending',
+					width:45
 				}, {
-					boxLabel : 'Overdue',
+//					boxLabel : 'Overdue',
+					cls : 'iconHealthO floatLeft',
 					name : 'overdue',
 					inputValue : '1',
-					itemId : 'check_overdue'
+					itemId : 'check_overdue',
+					width:45
 				} ]
 			} ],
 			columns : [ {
@@ -5476,9 +5481,10 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	zvehicleinfo : {
 		xtype : 'form',
 		itemId : 'form',
-		cls : 'hIndexbar',
+		cls : 'hIndexbarZero',
+		bodyCls : 'paddingAll10',
 		title : 'Vehicle Information',
-		height : 110,
+		height : 122,
 		layout : {
 			type : 'hbox',
 			align : 'stretch'
@@ -5517,7 +5523,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	zconsumables : {
 		xtype : 'grid',
 		store : 'ConsumableStore',
-		title : 'Consumables',
 		cls : 'hIndexbar',
 		flex : 1,
 		columns : [ {
@@ -5550,15 +5555,17 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 
 	zmainthistory : {
 		xtype : 'panel',
+		autoScroll:true,
 		title : 'Maint. History',
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
-		items : [{
-			xtype : 'textarea',
-			value : '2011-11-16 Replaced Temperature Sensor\n' +
-			'2011-12-28 Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter\n'
-		}]
+		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
+//		items : [{
+//			xtype : 'textarea',
+//			value : '2011-11-16 Replaced Temperature Sensor\n' +
+//			'2011-12-28 Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter\n'
+//		}]
 	}
 });
 Ext.define('GreenFleet.store.CompanyStore', {
