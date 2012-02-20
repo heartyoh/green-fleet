@@ -104,9 +104,16 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					width:45
 				} ]
 			} ],
+			
+			/*
+			 * iconHealthH
+			 * iconHealthI
+			 * iconHealthO
+			 */
 			columns : [ {
-				dataIndex : 'healthy',
-				width : 20
+				xtype:'templatecolumn',
+				tpl:'<div class="iconHealthH" style="width:20px;height:20px;background-position:5px 3px"></div>',
+				width : 35
 			}, {
 				dataIndex : 'id',
 				text : 'Id',
@@ -114,7 +121,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			}, {
 				dataIndex : 'registration_number',
 				text : 'Reg. Number',
-				width : 220
+				width : 160
 			} ]
 		}
 	},
@@ -176,14 +183,12 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			header : 'Running Dist.',
 			dataIndex : 'running_qty'
 		}, {
-			header : 'Recent Replacement',
-			dataIndex : 'recent_date'
-		}, {
-			header : 'Threshold',
+			header : 'Replacement Dist.',
 			dataIndex : 'threshold'
 		}, {
 			header : 'Health Rate',
-			dataIndex : 'healthy'
+			dataIndex : 'healthy',
+			xtype : 'progresscolumn'
 		}, {
 			header : 'state',
 			dataIndex : 'status'
@@ -201,7 +206,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
-		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
+		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Temperature Sensor</div>' 
+			+ '<div class="maintCell"><span>2011-11-28</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
 //		items : [{
 //			xtype : 'textarea',
 //			value : '2011-11-16 Replaced Temperature Sensor\n' +

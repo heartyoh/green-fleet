@@ -21,6 +21,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		var content = this.add({
 			xtype : 'panel',
 			flex : 1,
+			cls : 'paddingAll10',
 			autoScroll : true,
 			layout : {
 				type : 'vbox',
@@ -29,7 +30,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		})
 		var row1 = content.add({
 			xtype : 'container',
-			height : 330,
+			flex : 1,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -38,7 +39,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		
 		var row2 = content.add({
 			xtype : 'container',
-			height : 330,
+			flex : 1,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -82,26 +83,29 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		row1.add(this.buildHealthChart('Running Distance', store2, 'rd'));
 		row2.add(this.buildHealthChart('Timing Belt Health', store3, 'tb'));
 		row2.add(this.buildHealthChart('Engine Oil Health', store3, 'eo'));
+		
 	},
 	
 	buildHealthChart : function(title, store, idx) {
 		return {
 			xtype : 'panel',
 			title : title,
-			width : 450,
-			height : 330,
-			frame : true,
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280,
 			items : [{
 				xtype: 'chart',
 		        animate: true,
 		        store: store,
-				width : 420,
-				height : 300,
+				width : 440,
+				height : 270,
 		        shadow: true,
 		        legend: {
-		            position: 'right'
+		            position: 'right',
+		            labelFont : '10px',
+		            boxStroke : '#cfcfcf'
 		        },
-		        insetPadding: 60,
+		        insetPadding: 15,
 		        theme: 'Base:gradients',
 		        series: [{
 		            type: 'pie',
@@ -111,7 +115,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		            tips: {
 		              trackMouse: true,
 		              width: 140,
-		              height: 28,
+		              height: 25,
 		              renderer: function(storeItem, item) {
 		                // calculate percentage.
 		                var total = 0;

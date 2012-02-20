@@ -10,7 +10,8 @@ Ext.define('GreenFleet.model.ConsumableHealth', {
 	}, {
 		name : 'threshold'
 	}, {
-		name : 'healthy'
+		name : 'healthy',
+		type : 'float'
 	}, {
 		name : 'status'
 	}, {

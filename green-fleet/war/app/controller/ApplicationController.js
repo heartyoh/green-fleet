@@ -10,7 +10,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 'monitor.Map',
 			'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo',
 			'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth',
-			'pm.Consumable' ],
+			'pm.Consumable', 'common.ProgressColumn' ],
 
 	init : function() {
 		this.control({
