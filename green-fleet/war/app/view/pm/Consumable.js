@@ -131,7 +131,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		itemId : 'form',
 		cls : 'hIndexbarZero',
 		bodyCls : 'paddingAll10',
-		title : 'Vehicle Information',
+		title : 'Consumable Parts',
 		height : 122,
 		layout : {
 			type : 'hbox',

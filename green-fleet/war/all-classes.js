@@ -192,6 +192,134 @@ Ext.define('GreenFleet.view.Viewport', {
 	} ]
 });
 
+Ext.define('GreenFleet.view.common.ProgressBar', {
+	extend: 'Ext.grid.column.Column',
+	alias: 'widget.progressbarcolumn',
+
+	header: '&#160;',
+
+	/**
+	 * @cfg {number} min
+	 * The min of the progress bar, for normalization purpose. Defaults to <tt>0</tt>
+	 */
+	min: 0,
+
+	/**
+	 * @cfg {number} max
+	 * The max of the progress bar, for normalization purpose. Defaults to <tt>100</tt>
+	 */
+	max: 100,
+
+	constructor: function (config) {
+
+		var me = this;
+		me.callParent(arguments);
+		
+		me.renderer = function (v, meta, rec, r, c, store, view) {
+			setTimeout(function() {
+				
+				var row = view.getNode(rec);
+				
+				//v = Math.random()*100;
+				
+				var pb = Ext.create('Ext.ProgressBar', {
+					renderTo: Ext.fly(Ext.fly(row).query('.x-grid-cell')[c]).down('div'),
+					value: v,
+					min: me.min,
+					max: me.max
+				});
+				
+//				me.on('resize', function(cp, w, h) {
+//					pb.resize(w, h);
+//				});
+			}, 1000);
+		};
+	},
+	
+	/**
+	 * Destroy?
+	 */
+	destroy: function() {
+		delete this.renderer;
+		delete this.pb;
+		return this.callParent(arguments);
+	}
+});
+Ext.define('GreenFleet.model.File', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        {name: 'filename', type: 'string'},
+        {name: 'creation', type: 'number'},
+        {name: 'md5_hash', type: 'string'},
+        {name: 'content_type', type: 'string'},
+        {name: 'size', type: 'string'}
+    ]
+});
+
+Ext.define('GreenFleet.view.file.FileManager', {
+	extend : 'Ext.panel.Panel',
+
+	alias : 'widget.filemanager',
+	
+	title : 'FileManager',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch',
+		pack : 'start'
+	},
+
+	initComponent : function() {
+		this.callParent();
+
+		this.add(Ext.create('GreenFleet.view.file.FileViewer', {
+			flex : 1
+		}));
+		this.add(Ext.create('GreenFleet.view.file.FileUploader', {
+			flex : 1
+		}));
+		this.add(Ext.create('GreenFleet.view.file.FileList', {
+			flex : 2
+		}));
+	}
+});
+Ext.define('GreenFleet.store.FileStore', {
+	extend : 'Ext.data.Store',
+	
+	storeId : 'filestore',
+	
+	model: 'GreenFleet.model.File',
+    
+	proxy: {
+        type: 'ajax',
+        url : '/data/files.json',
+        reader: {
+            type: 'json'
+        }
+    },
+    
+    autoLoad: true
+});
+Ext.define('GreenFleet.controller.FileController', {
+	extend : 'Ext.app.Controller',
+
+	stores : [ 'FileStore' ],
+	models : [ 'File' ],
+	views : [ 'file.FileManager' ],
+
+	init : function() {
+		this.control({
+			'viewport' : {
+				afterrender : this.onViewportRendered
+			}
+		});
+	},
+
+	onViewportRendered : function() {
+	}
+
+});
 Ext.define('GreenFleet.model.Code', {
     extend: 'Ext.data.Model',
     
@@ -2748,7 +2876,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	},
 
 	items: {
-		html : '<div class="listTitle">Incident List</div>'
+		html : '<div class="listTitle">Tracking List</div>'
 	},
 
 	initComponent : function() {
@@ -4779,6 +4907,21 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			type : 'string',
 			hidden : true
 		}, {
+			dataIndex : 'video_clip',
+			text : 'V',
+			renderer: function(value, cell) {
+			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			width : 20
+		}, {
+			dataIndex : 'confirm',
+			text : 'Confirm',
+			renderer: function(value, cell) {
+			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			align : 'center',
+			width : 50
+		}, {
 			dataIndex : 'datetime',
 			text : 'Incident Time',
 			xtype : 'datecolumn',
@@ -4841,14 +4984,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 80
 		}, {
 			dataIndex : 'obd_connected',
-			text : 'OBD Connected',
-			type : 'boolean',
-			width : 80
-		}, {
-			dataIndex : 'confirm',
-			text : 'Confirm',
-			type : 'boolean',
-			width : 80
+			text : 'OBD',
+			renderer: function(value, cell) {
+			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			align : 'center',
+			width : 40
 		}, {
 			dataIndex : 'engine_temp',
 			text : 'Engine Temp.',
@@ -5412,7 +5553,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					align : 'stretch',
 					type : 'vbox'
 				},
-				items : [ this.zvehicleinfo, this.zconsumables, this.zmainthistory ]
+				items : [ this.zvehicleinfo, this.zconsumables(), this.zmainthistory ]
 			} ]
 		} ],
 
@@ -5429,8 +5570,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			itemId : 'vehicle_info',
 			store : 'VehicleStore',
 			title : 'Vehicle List',
-			cls : 'hIndexbarZero',
-			width : 320,
+			width : 300,
 			tbar : [ {
 				xtype : 'combo',
 				itemId : 'consumables_combo',
@@ -5441,21 +5581,27 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			}, {
 				xtype : 'fieldcontainer',
 				defaultType : 'checkboxfield',
+				cls :'paddingLeft5',
 				items : [ {
-					boxLabel : 'Healthy',
+					cls : 'iconHealthH floatLeft',
 					name : 'healthy',
 					inputValue : '1',
-					itemId : 'check_healthy'
+					itemId : 'check_healthy',
+					width:45
 				}, {
-					boxLabel : 'Impending',
+//					boxLabel : 'Impending',
+					cls : 'iconHealthI floatLeft',
 					name : 'impending',
 					inputValue : '1',
-					itemId : 'check_impending'
+					itemId : 'check_impending',
+					width:45
 				}, {
-					boxLabel : 'Overdue',
+//					boxLabel : 'Overdue',
+					cls : 'iconHealthO floatLeft',
 					name : 'overdue',
 					inputValue : '1',
-					itemId : 'check_overdue'
+					itemId : 'check_overdue',
+					width:45
 				} ]
 			} ],
 			columns : [ {
@@ -5476,9 +5622,10 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	zvehicleinfo : {
 		xtype : 'form',
 		itemId : 'form',
-		cls : 'hIndexbar',
+		cls : 'hIndexbarZero',
+		bodyCls : 'paddingAll10',
 		title : 'Vehicle Information',
-		height : 110,
+		height : 122,
 		layout : {
 			type : 'hbox',
 			align : 'stretch'
@@ -5514,51 +5661,55 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		} ]
 	},
 
-	zconsumables : {
-		xtype : 'grid',
-		store : 'ConsumableStore',
-		title : 'Consumables',
-		cls : 'hIndexbar',
-		flex : 1,
-		columns : [ {
-			header : 'Item',
-			dataIndex : 'item'
-		}, {
-			header : 'Recent Replacement',
-			dataIndex : 'recent_date'
-		}, {
-			header : 'Running Dist.',
-			dataIndex : 'running_qty'
-		}, {
-			header : 'Recent Replacement',
-			dataIndex : 'recent_date'
-		}, {
-			header : 'Threshold',
-			dataIndex : 'threshold'
-		}, {
-			header : 'Health Rate',
-			dataIndex : 'healthy'
-		}, {
-			header : 'state',
-			dataIndex : 'status'
-		}, {
-			header : 'Description',
-			dataIndex : 'desc',
-			flex : 1
-		} ]
+	zconsumables : function() {
+		return {
+			xtype : 'grid',
+			store : 'ConsumableStore',
+			cls : 'hIndexbar',
+			flex : 1,
+			columns : [ {
+				header : 'Item',
+				dataIndex : 'item'
+			}, {
+				header : 'Recent Replacement',
+				dataIndex : 'recent_date'
+			}, {
+				header : 'Running Dist.',
+				dataIndex : 'running_qty'
+			}, {
+				header : 'Recent Replacement',
+				dataIndex : 'recent_date'
+			}, {
+				header : 'Threshold',
+				dataIndex : 'threshold'
+			}, {
+				header : 'Health Rate',
+				dataIndex : 'healthy',
+				xtype : 'progressbarcolumn'
+			}, {
+				header : 'state',
+				dataIndex : 'status'
+			}, {
+				header : 'Description',
+				dataIndex : 'desc',
+				flex : 1
+			} ]
+		}
 	},
 
 	zmainthistory : {
 		xtype : 'panel',
+		autoScroll:true,
 		title : 'Maint. History',
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
-		items : [{
-			xtype : 'textarea',
-			value : '2011-11-16 Replaced Temperature Sensor\n' +
-			'2011-12-28 Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter\n'
-		}]
+		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
+//		items : [{
+//			xtype : 'textarea',
+//			value : '2011-11-16 Replaced Temperature Sensor\n' +
+//			'2011-12-28 Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter\n'
+//		}]
 	}
 });
 Ext.define('GreenFleet.store.CompanyStore', {
@@ -6634,62 +6785,6 @@ Ext.define('GreenFleet.store.TimeZoneStore', {
 		display : "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka"
 	} ]
 });
-Ext.define('GreenFleet.model.File', {
-    extend: 'Ext.data.Model',
-    
-    fields: [
-        {name: 'filename', type: 'string'},
-        {name: 'creation', type: 'number'},
-        {name: 'md5_hash', type: 'string'},
-        {name: 'content_type', type: 'string'},
-        {name: 'size', type: 'string'}
-    ]
-});
-
-Ext.define('GreenFleet.view.file.FileManager', {
-	extend : 'Ext.panel.Panel',
-
-	alias : 'widget.filemanager',
-	
-	title : 'FileManager',
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch',
-		pack : 'start'
-	},
-
-	initComponent : function() {
-		this.callParent();
-
-		this.add(Ext.create('GreenFleet.view.file.FileViewer', {
-			flex : 1
-		}));
-		this.add(Ext.create('GreenFleet.view.file.FileUploader', {
-			flex : 1
-		}));
-		this.add(Ext.create('GreenFleet.view.file.FileList', {
-			flex : 2
-		}));
-	}
-});
-Ext.define('GreenFleet.store.FileStore', {
-	extend : 'Ext.data.Store',
-	
-	storeId : 'filestore',
-	
-	model: 'GreenFleet.model.File',
-    
-	proxy: {
-        type: 'ajax',
-        url : '/data/files.json',
-        reader: {
-            type: 'json'
-        }
-    },
-    
-    autoLoad: true
-});
 Ext.define('GreenFleet.model.ConsumableHealth', {
 	extend : 'Ext.data.Model',
 	
@@ -6709,25 +6804,6 @@ Ext.define('GreenFleet.model.ConsumableHealth', {
 		name : 'desc'
 	} ]
 });
-Ext.define('GreenFleet.controller.FileController', {
-	extend : 'Ext.app.Controller',
-
-	stores : [ 'FileStore' ],
-	models : [ 'File' ],
-	views : [ 'file.FileManager' ],
-
-	init : function() {
-		this.control({
-			'viewport' : {
-				afterrender : this.onViewportRendered
-			}
-		});
-	},
-
-	onViewportRendered : function() {
-	}
-
-});
 Ext.define('GreenFleet.store.ConsumableStore', {
 	extend : 'Ext.data.Store',
 
@@ -6735,10 +6811,10 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 
 	data : [ {
 		item : 'Engine Oil',
-		recent_date : '2011-12-28',
+		recent_date : '2011-11-16',
 		running_qty : '4200 Km',
 		threshold : '5000 Km',
-		healthy : 84,
+		healthy : 0.84,
 		status : 'impending',
 		desc : ''
 	}, {
@@ -6746,7 +6822,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 4.6,
+		healthy : 0.046,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -6754,7 +6830,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 4.6,
+		healthy : 0.046,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -6762,7 +6838,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 4.6,
+		healthy : 0.046,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -6770,7 +6846,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 4.6,
+		healthy : 0.046,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -6778,13 +6854,14 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '5000 Km',
-		healthy : 84,
+		healthy : 0.84,
 		status : 'impending',
 		desc : ''
 	} ]
 });
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
+	requires : ['GreenFleet.view.common.ProgressBar'],
 
 	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
 			'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',

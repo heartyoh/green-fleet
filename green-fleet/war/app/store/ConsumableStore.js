@@ -5,7 +5,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 
 	data : [ {
 		item : 'Engine Oil',
-		recent_date : '2011-11-28',
+		recent_date : '2011-11-16',
 		running_qty : '4200 Km',
 		threshold : '5000 Km',
 		healthy : 0.84,

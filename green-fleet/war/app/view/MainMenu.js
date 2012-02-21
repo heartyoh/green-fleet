@@ -106,14 +106,14 @@ Ext.define('GreenFleet.view.MainMenu', {
 	}, {
 		text : 'Maintenance',
 		submenus : [ {
-			title : 'Health',
-			xtype : 'dashboard_health',
-			itemId : 'health',
-			closable : true
-		}, {
 			title : 'Consumables',
 			xtype : 'pm_consumable',
 			itemId : 'consumable',
+			closable : true
+		}, {
+			title : 'Health',
+			xtype : 'dashboard_health',
+			itemId : 'health',
 			closable : true
 		} ]
 	} ]
