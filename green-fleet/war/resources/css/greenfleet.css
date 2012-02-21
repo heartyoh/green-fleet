@@ -183,6 +183,11 @@ span.mapTipID{
 .maintCell{background:url('../image/imgRepair.gif') 9px 5px no-repeat;margin:5px 5px 0 5px;padding:7px 10px 7px 55px;background-color:#fff;color:#333;font-size:11px;border:1px solid #dfdfdf}
 .maintCell span{display:block;border-bottom:1px dotted #cfcfcf;padding-bottom:3px;margin-bottom:3px;color:#478802;}
 .healthDashboard{background-color:#dfdfdf;border:1px solid #c0c0c0}
+.x-progress .x-grid-cell-inner{margin:0;padding:1px;height:15px;background-color:#666}
+.x-progress-default .x-progress-bar{background:url('../image/bgProgressBar.gif') no-repeat;}
+.x-progress-text{height:13px;line-height:13px;font-size:10px}
+.x-progress-bar{height:13px;border:none}
+.x-progress-default .x-progress-text-back{color:#ccc}
 
 /*window style*/
 .x-window-header-default-top{box-shadow:none;background:url('../image/bgTab.gif') repeat-x;}

@@ -8,7 +8,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-11-16',
 		running_qty : '4200 Km',
 		threshold : '5000 Km',
-		healthy : 0.84,
+		healthy : 0.95,
 		status : 'impending',
 		desc : ''
 	}, {
@@ -24,7 +24,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 0.046,
+		healthy : 0.56,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -40,7 +40,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 0.046,
+		healthy : 0.28,
 		status : 'healthy',
 		desc : ''
 	}, {
