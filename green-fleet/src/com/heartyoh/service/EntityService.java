@@ -13,12 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -26,6 +27,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -42,6 +44,8 @@ import com.heartyoh.model.Sorter;
 import com.heartyoh.util.SessionUtils;
 
 public abstract class EntityService {
+	private static final Logger logger = LoggerFactory.getLogger(EntityService.class);
+
 	abstract protected String getEntityName();
 
 	abstract protected String getIdValue(Map<String, Object> map);
@@ -380,6 +384,9 @@ public abstract class EntityService {
 
 		PreparedQuery pq = datastore.prepare(q);
 
+		int totalEntities = pq.countEntities(FetchOptions.Builder.withOffset(0).limit(Integer.MAX_VALUE));
+		logger.info("Total Count : " + totalEntities);
+		
 		List<Map<String, Object>> list = new LinkedList<Map<String, Object>>();
 
 		for (Entity result : pq.asIterable()) {

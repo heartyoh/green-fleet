@@ -192,134 +192,6 @@ Ext.define('GreenFleet.view.Viewport', {
 	} ]
 });
 
-Ext.define('GreenFleet.view.common.ProgressBar', {
-	extend: 'Ext.grid.column.Column',
-	alias: 'widget.progressbarcolumn',
-
-	header: '&#160;',
-
-	/**
-	 * @cfg {number} min
-	 * The min of the progress bar, for normalization purpose. Defaults to <tt>0</tt>
-	 */
-	min: 0,
-
-	/**
-	 * @cfg {number} max
-	 * The max of the progress bar, for normalization purpose. Defaults to <tt>100</tt>
-	 */
-	max: 100,
-
-	constructor: function (config) {
-
-		var me = this;
-		me.callParent(arguments);
-		
-		me.renderer = function (v, meta, rec, r, c, store, view) {
-			setTimeout(function() {
-				
-				var row = view.getNode(rec);
-				
-				//v = Math.random()*100;
-				
-				var pb = Ext.create('Ext.ProgressBar', {
-					renderTo: Ext.fly(Ext.fly(row).query('.x-grid-cell')[c]).down('div'),
-					value: v,
-					min: me.min,
-					max: me.max
-				});
-				
-//				me.on('resize', function(cp, w, h) {
-//					pb.resize(w, h);
-//				});
-			}, 1000);
-		};
-	},
-	
-	/**
-	 * Destroy?
-	 */
-	destroy: function() {
-		delete this.renderer;
-		delete this.pb;
-		return this.callParent(arguments);
-	}
-});
-Ext.define('GreenFleet.model.File', {
-    extend: 'Ext.data.Model',
-    
-    fields: [
-        {name: 'filename', type: 'string'},
-        {name: 'creation', type: 'number'},
-        {name: 'md5_hash', type: 'string'},
-        {name: 'content_type', type: 'string'},
-        {name: 'size', type: 'string'}
-    ]
-});
-
-Ext.define('GreenFleet.view.file.FileManager', {
-	extend : 'Ext.panel.Panel',
-
-	alias : 'widget.filemanager',
-	
-	title : 'FileManager',
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch',
-		pack : 'start'
-	},
-
-	initComponent : function() {
-		this.callParent();
-
-		this.add(Ext.create('GreenFleet.view.file.FileViewer', {
-			flex : 1
-		}));
-		this.add(Ext.create('GreenFleet.view.file.FileUploader', {
-			flex : 1
-		}));
-		this.add(Ext.create('GreenFleet.view.file.FileList', {
-			flex : 2
-		}));
-	}
-});
-Ext.define('GreenFleet.store.FileStore', {
-	extend : 'Ext.data.Store',
-	
-	storeId : 'filestore',
-	
-	model: 'GreenFleet.model.File',
-    
-	proxy: {
-        type: 'ajax',
-        url : '/data/files.json',
-        reader: {
-            type: 'json'
-        }
-    },
-    
-    autoLoad: true
-});
-Ext.define('GreenFleet.controller.FileController', {
-	extend : 'Ext.app.Controller',
-
-	stores : [ 'FileStore' ],
-	models : [ 'File' ],
-	views : [ 'file.FileManager' ],
-
-	init : function() {
-		this.control({
-			'viewport' : {
-				afterrender : this.onViewportRendered
-			}
-		});
-	},
-
-	onViewportRendered : function() {
-	}
-
-});
 Ext.define('GreenFleet.model.Code', {
     extend: 'Ext.data.Model',
     
@@ -4081,7 +3953,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 Ext.define('GreenFleet.view.monitor.Information', {
 	extend : 'Ext.Container',
 	alias : 'widget.monitor_information',
-	
+
 	id : 'monitor_information',
 
 	layout : {
@@ -4090,7 +3962,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	},
 
 	initComponent : function() {
-		this.items = [this.ztitle, {
+		this.items = [ this.ztitle, {
 			xtype : 'container',
 			height : 300,
 			layout : {
@@ -4106,12 +3978,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				},
 				items : [ this.zvehicleinfo, this.zincidents ]
 			}, this.zmap ]
-		}, this.ztabpanel];
-		
+		}, this.ztabpanel ];
+
 		this.callParent();
 
 		var self = this;
-		
+
 		this.sub('map').on('afterrender', function(mapbox) {
 			var options = {
 				zoom : 10,
@@ -4147,25 +4019,26 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				});
 			});
 		});
-		
+
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 		});
-		
+
 		this.getTrackStore().on('load', function() {
 			self.refreshTrack();
 		});
-		
+
 		this.getIncidentStore().on('load', function() {
-			if(self.isVisible(true))
+			if (self.isVisible(true))
 				self.refreshIncidents();
 		});
-		
+
 		this.sub('id').on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
-			
+
 			/*
-			 * Get Vehicle Information (Image, Registration #, ..) from VehicleStore
+			 * Get Vehicle Information (Image, Registration #, ..) from
+			 * VehicleStore
 			 */
 			var vehicleStore = Ext.getStore('VehicleStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
@@ -4175,7 +4048,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			} else {
 				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
 			}
-			
+
 			self.sub('title').vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
@@ -4200,40 +4073,40 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				var lattitude = record.get('lattitude');
 				var longitude = record.get('longitude');
 
-				if (!lattitude || !longitude)
-					return;
+				if (lattitude !== undefined && longitude !== undefined) {
+					var latlng = new google.maps.LatLng(lattitude, longitude);
 
-				var latlng = new google.maps.LatLng(lattitude, longitude);
-
-				geocoder = new google.maps.Geocoder();
-				geocoder.geocode({
-					'latLng' : latlng
-				}, function(results, status) {
-					if (status == google.maps.GeocoderStatus.OK) {
-						if (results[0]) {
-							var address = results[0].formatted_address
-							record.set('location', address);
-							self.sub('location').setValue(address);
+					geocoder = new google.maps.Geocoder();
+					geocoder.geocode({
+						'latLng' : latlng
+					}, function(results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+							if (results[0]) {
+								var address = results[0].formatted_address
+								record.set('location', address);
+								self.sub('location').setValue(address);
+							}
+						} else {
+							console.log("Geocoder failed due to: " + status);
 						}
-					} else {
-						console.log("Geocoder failed due to: " + status);
-					}
-				});
+					});
+				}
 			}
 
-		/*
-		 * TrackStore를 다시 로드함.
-		 */
+			/*
+			 * TrackStore를 다시 로드함.
+			 */
 			self.getTrackStore().load({
 				filters : [ {
 					property : 'vehicle_id',
 					value : vehicle
 				}, {
 					property : 'date',
-					value : Ext.Date.format(Ext.Date.parse(Ext.Date.format(new Date(), 'Y-m-d'), 'Y-m-d'), 'U') 
+					/* for Unix timestamp (in seconds) */
+					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
 				} ]
 			});
-			
+
 			/*
 			 * IncidentStore를 다시 로드함.
 			 */
@@ -4242,41 +4115,41 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			self.getIncidentStore().load();
 		});
 	},
-	
+
 	setVehicle : function(vehicleRecord) {
 		this.getForm().loadRecord(vehicleRecord);
 	},
-	
+
 	getForm : function() {
-		if(!this.form)
+		if (!this.form)
 			this.form = this.down('form');
 		return this.form;
 	},
-	
+
 	getMap : function() {
 		return this.map;
 	},
-	
+
 	setMap : function(map) {
 		this.map = map;
 	},
-	
+
 	getTrackLine : function() {
 		return this.trackline;
 	},
-	
+
 	setTrackLine : function(trackline) {
-		if(this.trackline)
+		if (this.trackline)
 			this.trackline.setMap(null);
 		this.trackline = trackline;
 	},
-	
+
 	getMarkers : function() {
 		return this.markers;
 	},
-	
+
 	setMarkers : function(markers) {
-		if(this.markers) {
+		if (this.markers) {
 			Ext.each(this.markers, function(marker) {
 				marker.setMap(null);
 			});
@@ -4284,9 +4157,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		this.markers = markers;
 	},
-	
+
 	resetMarkers : function() {
-		if(this.markers) {
+		if (this.markers) {
 			Ext.each(this.markers, function(marker) {
 				marker.setMap(null);
 			});
@@ -4294,37 +4167,37 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		this.markers = null;
 	},
-	
+
 	getTrackStore : function() {
-		if(!this.trackStore)
+		if (!this.trackStore)
 			this.trackStore = Ext.getStore('TrackByVehicleStore');
 		return this.trackStore;
 	},
 
 	getIncidentStore : function() {
-		if(!this.incidentStore)
+		if (!this.incidentStore)
 			this.incidentStore = Ext.getStore('IncidentStore');
 		return this.incidentStore;
 	},
-	
+
 	getVehicle : function() {
 		return this.sub('id').getValue();
 	},
-	
+
 	getDriver : function() {
 		return this.sub('driver').getValue();
 	},
-	
+
 	getTerminal : function() {
 		return this.sub('terminal').getValue();
 	},
-	
+
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#FF0000',
-		    strokeOpacity: 1.0,
-		    strokeWeight: 4
+			strokeColor : '#FF0000',
+			strokeOpacity : 1.0,
+			strokeWeight : 4
 		}));
 		this.setMarkers(null);
 
@@ -4335,69 +4208,66 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.getTrackStore().each(function(record) {
 			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
 			path.push(latlng);
-			if(!bounds)
+			if (!bounds)
 				bounds = new google.maps.LatLngBounds(latlng, latlng);
 			else
 				bounds.extend(latlng);
 		});
-		
-		if(!bounds) {
+
+		if (!bounds) {
 			var defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
 			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
 		}
-		
-		if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+
+		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
 			this.getMap().setCenter(bounds.getNorthEast());
 		} else {
 			this.getMap().fitBounds(bounds);
 		}
 
-		var first = this.getTrackStore().first(); 
-		if(first) {
+		var first = this.getTrackStore().first();
+		if (first) {
 			var start = new google.maps.Marker({
-			    position: new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
-			    map: this.getMap()
+				position : new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
+				map : this.getMap()
 			});
-			
+
 			var last = this.getTrackStore().last();
-			
+
 			var end = new google.maps.Marker({
-			    position: new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
-			    icon : 'resources/image/iconStartPoint.png',
-			    map: this.getMap()
+				position : new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
+				icon : 'resources/image/iconStartPoint.png',
+				map : this.getMap()
 			});
-			
-			this.setMarkers([start, end]);
+
+			this.setMarkers([ start, end ]);
 		}
 	},
-	
+
 	incidentHandler : function(e, el, incident) {
 		GreenFleet.doMenu('monitor_incident');
 		GreenFleet.getMenu('monitor_incident').setIncident(incident, true);
 	},
-	
+
 	refreshIncidents : function() {
 		this.sub('incidents').removeAll();
 		var max = this.getIncidentStore().count() > 4 ? 4 : this.getIncidentStore().count();
-		for(var i = 0;i < max;i++) {
+		for ( var i = 0; i < max; i++) {
 			var incident = this.getIncidentStore().getAt(i);
 			var self = this;
-			this.sub('incidents').add({
-				xtype : 'box',
-				cls : 'incidentThumb',
-				listeners : {
-					'render' : function() {
-						this.getEl().on('click', self.incidentHandler, self, incident);
-					}
-				},
-				html : '<div class="vehicle">' + 
-					incident.get('vehicle_id') + 
-					'</div><div class="driver">' + 
-					incident.get('driver_id') + 
-					'</div><div class="date">' + 
-					Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s') +
-					'</div>'
-			})
+			this.sub('incidents').add(
+					{
+						xtype : 'box',
+						cls : 'incidentThumb',
+						listeners : {
+							'render' : function() {
+								this.getEl().on('click', self.incidentHandler, self, incident);
+							}
+						},
+						html : '<div class="vehicle">' + incident.get('vehicle_id') + '</div><div class="driver">'
+								+ incident.get('driver_id') + '</div><div class="date">'
+								+ Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s') + '</div>'
+					})
 		}
 	},
 
@@ -4412,7 +4282,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		renderTpl : '<h1>Vehicle : <span class="vehicle">Vehicle</span>, Driver : <span class="driver">Driver</span></h1>',
 		height : 35
 	},
-	
+
 	ztabpanel : {
 		xtype : 'tabpanel',
 		flex : 1,
@@ -4429,7 +4299,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			title : 'Maintenance'
 		} ]
 	},
-	
+
 	zvehicleinfo : {
 		xtype : 'panel',
 		title : 'Vehicle Information',
@@ -4491,7 +4361,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			} ]
 		} ]
 	},
-	
+
 	zincidents : {
 		xtype : 'panel',
 		title : 'Incidents',
@@ -4507,7 +4377,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			}
 		} ]
 	},
-	
+
 	zmap : {
 		xtype : 'panel',
 		title : 'Tracking Recent Driving',
@@ -6878,6 +6748,62 @@ Ext.define('GreenFleet.store.TimeZoneStore', {
 		display : "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka"
 	} ]
 });
+Ext.define('GreenFleet.model.File', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        {name: 'filename', type: 'string'},
+        {name: 'creation', type: 'number'},
+        {name: 'md5_hash', type: 'string'},
+        {name: 'content_type', type: 'string'},
+        {name: 'size', type: 'string'}
+    ]
+});
+
+Ext.define('GreenFleet.view.file.FileManager', {
+	extend : 'Ext.panel.Panel',
+
+	alias : 'widget.filemanager',
+	
+	title : 'FileManager',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch',
+		pack : 'start'
+	},
+
+	initComponent : function() {
+		this.callParent();
+
+		this.add(Ext.create('GreenFleet.view.file.FileViewer', {
+			flex : 1
+		}));
+		this.add(Ext.create('GreenFleet.view.file.FileUploader', {
+			flex : 1
+		}));
+		this.add(Ext.create('GreenFleet.view.file.FileList', {
+			flex : 2
+		}));
+	}
+});
+Ext.define('GreenFleet.store.FileStore', {
+	extend : 'Ext.data.Store',
+	
+	storeId : 'filestore',
+	
+	model: 'GreenFleet.model.File',
+    
+	proxy: {
+        type: 'ajax',
+        url : '/data/files.json',
+        reader: {
+            type: 'json'
+        }
+    },
+    
+    autoLoad: true
+});
 Ext.define('GreenFleet.model.ConsumableHealth', {
 	extend : 'Ext.data.Model',
 	
@@ -6897,6 +6823,25 @@ Ext.define('GreenFleet.model.ConsumableHealth', {
 	}, {
 		name : 'desc'
 	} ]
+});
+Ext.define('GreenFleet.controller.FileController', {
+	extend : 'Ext.app.Controller',
+
+	stores : [ 'FileStore' ],
+	models : [ 'File' ],
+	views : [ 'file.FileManager' ],
+
+	init : function() {
+		this.control({
+			'viewport' : {
+				afterrender : this.onViewportRendered
+			}
+		});
+	},
+
+	onViewportRendered : function() {
+	}
+
 });
 Ext.define('GreenFleet.store.ConsumableStore', {
 	extend : 'Ext.data.Store',
@@ -6956,7 +6901,6 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
-	requires : ['GreenFleet.view.common.ProgressBar'],
 
 	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
 			'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',

@@ -42,26 +42,6 @@
                     "name": "Viewport.js"
                 },
                 {
-                    "path": "app/view/common/",
-                    "name": "ProgressBar.js"
-                },
-                {
-                    "path": "app/model/",
-                    "name": "File.js"
-                },
-                {
-                    "path": "app/view/file/",
-                    "name": "FileManager.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "FileStore.js"
-                },
-                {
-                    "path": "app/controller/",
-                    "name": "FileController.js"
-                },
-                {
                     "path": "app/model/",
                     "name": "Code.js"
                 },
@@ -267,7 +247,23 @@
                 },
                 {
                     "path": "app/model/",
+                    "name": "File.js"
+                },
+                {
+                    "path": "app/view/file/",
+                    "name": "FileManager.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "FileStore.js"
+                },
+                {
+                    "path": "app/model/",
                     "name": "ConsumableHealth.js"
+                },
+                {
+                    "path": "app/controller/",
+                    "name": "FileController.js"
                 },
                 {
                     "path": "app/store/",
