@@ -25,7 +25,7 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 	} ],
 
 	sorters : [ {
-		property : 'created_at',
+		property : 'datetime',
 		direction : 'DESC'
 	} ],
 

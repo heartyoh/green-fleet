@@ -796,14 +796,14 @@ Ext.define('GreenFleet.view.MainMenu', {
 	}, {
 		text : 'Maintenance',
 		submenus : [ {
-			title : 'Health',
-			xtype : 'dashboard_health',
-			itemId : 'health',
-			closable : true
-		}, {
 			title : 'Consumables',
 			xtype : 'pm_consumable',
 			itemId : 'consumable',
+			closable : true
+		}, {
+			title : 'Health',
+			xtype : 'dashboard_health',
+			itemId : 'health',
 			closable : true
 		} ]
 	} ]
@@ -2892,46 +2892,43 @@ Ext.define('GreenFleet.view.management.Track', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+			//grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search(self);
+			//self.search(self);
 		});
 
-		this.sub('driver_filter').on('change', function(field, value) {
-			self.search(self);
-		});
-
-		this.sub('terminal_filter').on('change', function(field, value) {
-			self.search(self);
+		this.sub('date_filter').on('change', function(field, value) {
+			//self.search(self);
 		});
 
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
-			self.sub('driver_filter').setValue('');
-			self.sub('terminal_filter').setValue('');
+			self.sub('date_filter').setValue(new Date());
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(self);
 		});
 		
 	},
-
+	
 	search : function(self) {
-		self.sub('grid').store.clearFilter();
-
-		self.sub('grid').store.filter([ {
-			property : 'vehicle_id',
-			value : self.sub('vehicle_filter').getValue()
-		}, {
-			property : 'driver_id',
-			value : self.sub('driver_filter').getValue()
-		}, {
-			property : 'terminal_id',
-			value : self.sub('terminal_filter').getValue()
-		} ]);
+		if(!self.sub('vehicle_filter').getValue() || !self.sub('date_filter').getSubmitValue()) {
+			Ext.Msg.alert('Condition', 'Please select conditions!');
+			return;
+		}
+		
+		self.sub('grid').store.load({
+			filters : [ {
+				property : 'vehicle_id',
+				value : self.sub('vehicle_filter').getValue()
+			}, {
+				property : 'date',
+				value : self.sub('date_filter').getSubmitValue()
+			} ]
+		});
 	},
 	
 	buildList : function(main) {
@@ -3003,24 +3000,14 @@ Ext.define('GreenFleet.view.management.Track', {
 				fieldLabel : 'Vehicle',
 				width : 200
 			}, {
-				xtype : 'combo',
-				name : 'driver_filter',
-				itemId : 'driver_filter',
-				queryMode: 'local',
-				store : 'DriverStore',
-				displayField: 'id',
-			    valueField: 'id',
-				fieldLabel : 'Driver',
-				width : 200
-			}, {
-				xtype : 'combo',
-				name : 'terminal_filter',
-				itemId : 'terminal_filter',
-				queryMode: 'local',
-				store : 'TerminalStore',
-				displayField: 'id',
-			    valueField: 'id',
-				fieldLabel : 'Terminal',
+		        xtype: 'datefield',
+				name : 'date_filter',
+				itemId : 'date_filter',
+				fieldLabel : 'Date',
+				format: 'Y-m-d',
+				submitFormat : 'U',
+		        maxValue: new Date(),  // limited to the current date or prior
+		        value : new Date(),
 				width : 200
 			}, {
 				text : 'Search',
@@ -4237,10 +4224,15 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		/*
 		 * TrackStore를 다시 로드함.
 		 */
-		// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
-			self.getTrackStore().clearFilter(true);
-			self.getTrackStore().filter('vehicle_id', vehicle); 
-			self.getTrackStore().load();
+			self.getTrackStore().load({
+				filters : [ {
+					property : 'vehicle_id',
+					value : vehicle
+				}, {
+					property : 'date',
+					value : Ext.Date.format(Ext.Date.parse(Ext.Date.format(new Date(), 'Y-m-d'), 'Y-m-d'), 'U') 
+				} ]
+			});
 			
 			/*
 			 * IncidentStore를 다시 로드함.
@@ -5381,6 +5373,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		var content = this.add({
 			xtype : 'panel',
 			flex : 1,
+			cls : 'paddingAll10',
 			autoScroll : true,
 			layout : {
 				type : 'vbox',
@@ -5389,7 +5382,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		})
 		var row1 = content.add({
 			xtype : 'container',
-			height : 330,
+			flex : 1,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -5398,7 +5391,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		
 		var row2 = content.add({
 			xtype : 'container',
-			height : 330,
+			flex : 1,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -5442,26 +5435,29 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		row1.add(this.buildHealthChart('Running Distance', store2, 'rd'));
 		row2.add(this.buildHealthChart('Timing Belt Health', store3, 'tb'));
 		row2.add(this.buildHealthChart('Engine Oil Health', store3, 'eo'));
+		
 	},
 	
 	buildHealthChart : function(title, store, idx) {
 		return {
 			xtype : 'panel',
 			title : title,
-			width : 450,
-			height : 330,
-			frame : true,
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280,
 			items : [{
 				xtype: 'chart',
 		        animate: true,
 		        store: store,
-				width : 420,
-				height : 300,
+				width : 440,
+				height : 270,
 		        shadow: true,
 		        legend: {
-		            position: 'right'
+		            position: 'right',
+		            labelFont : '10px',
+		            boxStroke : '#cfcfcf'
 		        },
-		        insetPadding: 60,
+		        insetPadding: 15,
 		        theme: 'Base:gradients',
 		        series: [{
 		            type: 'pie',
@@ -5471,7 +5467,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		            tips: {
 		              trackMouse: true,
 		              width: 140,
-		              height: 28,
+		              height: 25,
 		              renderer: function(storeItem, item) {
 		                // calculate percentage.
 		                var total = 0;
@@ -5553,7 +5549,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					align : 'stretch',
 					type : 'vbox'
 				},
-				items : [ this.zvehicleinfo, this.zconsumables(), this.zmainthistory ]
+				items : [ this.zvehicleinfo, this.zconsumables, this.zmainthistory ]
 			} ]
 		} ],
 
@@ -5604,9 +5600,16 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					width:45
 				} ]
 			} ],
+			
+			/*
+			 * iconHealthH
+			 * iconHealthI
+			 * iconHealthO
+			 */
 			columns : [ {
-				dataIndex : 'healthy',
-				width : 20
+				xtype:'templatecolumn',
+				tpl:'<div class="iconHealthH" style="width:20px;height:20px;background-position:5px 3px"></div>',
+				width : 35
 			}, {
 				dataIndex : 'id',
 				text : 'Id',
@@ -5614,7 +5617,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			}, {
 				dataIndex : 'registration_number',
 				text : 'Reg. Number',
-				width : 220
+				width : 160
 			} ]
 		}
 	},
@@ -5624,7 +5627,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		itemId : 'form',
 		cls : 'hIndexbarZero',
 		bodyCls : 'paddingAll10',
-		title : 'Vehicle Information',
+		title : 'Consumable Parts',
 		height : 122,
 		layout : {
 			type : 'hbox',
@@ -5661,40 +5664,35 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		} ]
 	},
 
-	zconsumables : function() {
-		return {
-			xtype : 'grid',
-			store : 'ConsumableStore',
-			cls : 'hIndexbar',
-			flex : 1,
-			columns : [ {
-				header : 'Item',
-				dataIndex : 'item'
-			}, {
-				header : 'Recent Replacement',
-				dataIndex : 'recent_date'
-			}, {
-				header : 'Running Dist.',
-				dataIndex : 'running_qty'
-			}, {
-				header : 'Recent Replacement',
-				dataIndex : 'recent_date'
-			}, {
-				header : 'Threshold',
-				dataIndex : 'threshold'
-			}, {
-				header : 'Health Rate',
-				dataIndex : 'healthy',
-				xtype : 'progressbarcolumn'
-			}, {
-				header : 'state',
-				dataIndex : 'status'
-			}, {
-				header : 'Description',
-				dataIndex : 'desc',
-				flex : 1
-			} ]
-		}
+	zconsumables : {
+		xtype : 'grid',
+		store : 'ConsumableStore',
+		cls : 'hIndexbar',
+		flex : 1,
+		columns : [ {
+			header : 'Item',
+			dataIndex : 'item'
+		}, {
+			header : 'Recent Replacement',
+			dataIndex : 'recent_date'
+		}, {
+			header : 'Running Dist.',
+			dataIndex : 'running_qty'
+		}, {
+			header : 'Replacement Dist.',
+			dataIndex : 'threshold'
+		}, {
+			header : 'Health Rate',
+			dataIndex : 'healthy',
+			xtype : 'progresscolumn'
+		}, {
+			header : 'state',
+			dataIndex : 'status'
+		}, {
+			header : 'Description',
+			dataIndex : 'desc',
+			flex : 1
+		} ]
 	},
 
 	zmainthistory : {
@@ -5704,7 +5702,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
-		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
+		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Temperature Sensor</div>' 
+			+ '<div class="maintCell"><span>2011-11-28</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
 //		items : [{
 //			xtype : 'textarea',
 //			value : '2011-11-16 Replaced Temperature Sensor\n' +
@@ -5712,6 +5711,100 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 //		}]
 	}
 });
+
+/**
+ * @class Ext.ux.grid.column.Progress
+ * @extends Ext.grid.Column
+ * <p>
+ * A Grid column type which renders a numeric value as a progress bar.
+ * </p>
+ * <p>
+ * <b>Notes:</b><ul>
+ * <li>Compatible with Ext 4.0</li>
+ * </ul>
+ * </p>
+ * Example usage:
+ * <pre><code>
+    var grid = new Ext.grid.Panel({
+        columns: [{
+            dataIndex: 'progress'
+            ,xtype: 'progresscolumn'
+        },{
+           ...
+        ]}
+        ...
+    });
+ * </code></pre>
+ * <p>The column can be at any index in the columns array, and a grid can have any number of progress columns.</p>
+ * @author Phil Crawford
+ * @license Licensed under the terms of the Open Source <a href="http://www.gnu.org/licenses/lgpl.html">LGPL 3.0 license</a>.  Commercial use is permitted to the extent that the code/component(s) do NOT become part of another Open Source or Commercially licensed development library or toolkit without explicit permission.
+ * @version 0.1 (June 30, 2011)
+ * @constructor
+ * @param {Object} config 
+ */
+Ext.define('GreenFleet.view.common.ProgressColumn', {
+    extend: 'Ext.grid.column.Column'
+    ,alias: 'widget.progresscolumn'
+    
+    ,cls: 'x-progress-column'
+    
+    /**
+     * @cfg {String} progressCls
+     */
+    ,progressCls: 'x-progress'
+    /**
+     * @cfg {String} progressText
+     */
+    ,progressText: '{0} %'
+    
+    /**
+     * @private
+     * @param {Object} config
+     */
+    ,constructor: function(config){
+        var me = this
+            ,cfg = Ext.apply({}, config)
+            ,cls = me.progressCls;
+
+        me.callParent([cfg]);
+
+//      Renderer closure iterates through items creating an <img> element for each and tagging with an identifying 
+//      class name x-action-col-{n}
+        me.renderer = function(v, meta) {
+            var text, newWidth;
+            
+            newWidth = Math.floor(v * me.getWidth(true)); //me = column
+            
+//          Allow a configured renderer to create initial value (And set the other values in the "metadata" argument!)
+            v = Ext.isFunction(cfg.renderer) ? cfg.renderer.apply(this, arguments)||v : v; //this = renderer scope
+            text = Ext.String.format(me.progressText,Math.round(v*100));
+            
+            meta.tdCls += ' ' + cls + ' ' + cls + '-' + me.ui;
+            v = '<div class="' + cls + '-text ' + cls + '-text-back">' +
+                    '<div>' + text + '</div>' +
+                '</div>' +
+                '<div class="' + cls + '-bar" style="width: '+ newWidth + 'px;">' +
+                    '<div class="' + cls + '-text">' +
+                        '<div>' + text + '</div>' +
+                    '</div>' +
+                '</div>' 
+            return v;
+        };    
+        
+    }//eof constructor
+    
+
+    /**
+     * @private
+     */
+    ,destroy: function() {
+        delete this.renderer;
+        return this.callParent(arguments);
+    }//eof destroy
+    
+}); //eo extend
+
+//end of file
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -6292,7 +6385,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 
 	autoLoad : false,
 	
-	remoteFilter : true,
+//	remoteFilter : false,
 	
 //	remoteSort : true,
 	
@@ -6566,7 +6659,7 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 	} ],
 
 	sorters : [ {
-		property : 'created_at',
+		property : 'datetime',
 		direction : 'DESC'
 	} ],
 
@@ -6797,7 +6890,8 @@ Ext.define('GreenFleet.model.ConsumableHealth', {
 	}, {
 		name : 'threshold'
 	}, {
-		name : 'healthy'
+		name : 'healthy',
+		type : 'float'
 	}, {
 		name : 'status'
 	}, {
@@ -6814,7 +6908,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-11-16',
 		running_qty : '4200 Km',
 		threshold : '5000 Km',
-		healthy : 0.84,
+		healthy : 0.95,
 		status : 'impending',
 		desc : ''
 	}, {
@@ -6830,7 +6924,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 0.046,
+		healthy : 0.56,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -6846,7 +6940,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		recent_date : '2011-12-28',
 		running_qty : '2300 Km',
 		threshold : '50000 Km',
-		healthy : 0.046,
+		healthy : 0.28,
 		status : 'healthy',
 		desc : ''
 	}, {
@@ -6859,6 +6953,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 		desc : ''
 	} ]
 });
+
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 	requires : ['GreenFleet.view.common.ProgressBar'],
@@ -6872,7 +6967,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 'monitor.Map',
 			'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo',
 			'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth',
-			'pm.Consumable' ],
+			'pm.Consumable', 'common.ProgressColumn' ],
 
 	init : function() {
 		this.control({

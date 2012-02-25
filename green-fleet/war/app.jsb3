@@ -182,6 +182,10 @@
                     "name": "Consumable.js"
                 },
                 {
+                    "path": "app/view/common/",
+                    "name": "ProgressColumn.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },

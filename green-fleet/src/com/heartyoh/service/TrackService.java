@@ -2,7 +2,9 @@ package com.heartyoh.service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,11 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.heartyoh.model.Filter;
+import com.heartyoh.model.Sorter;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -133,4 +140,19 @@ public class TrackService extends EntityService {
 		return super.retrieve(request, response);
 	}
 
+	@Override
+	protected void addFilter(Query q, String property, String value) {
+		if("date".equals(property)) {
+			long fromMillis = Long.parseLong(value);
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(fromMillis * 1000);
+			Date fromDate = c.getTime();
+			c.setTimeInMillis((fromMillis + (60 * 60 * 24)) * 1000);
+			Date toDate = c.getTime();
+			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		} else {			
+			q.addFilter(property, FilterOperator.EQUAL, value);
+		}
+	}
 }

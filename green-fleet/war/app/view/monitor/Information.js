@@ -144,10 +144,15 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		/*
 		 * TrackStore를 다시 로드함.
 		 */
-		// TODO 시간 정보 필터가 필요(당일 주행분만 보이기 또는 일자 정보를 설정하도록 하여 해당일자만 필터링함.)
-			self.getTrackStore().clearFilter(true);
-			self.getTrackStore().filter('vehicle_id', vehicle); 
-			self.getTrackStore().load();
+			self.getTrackStore().load({
+				filters : [ {
+					property : 'vehicle_id',
+					value : vehicle
+				}, {
+					property : 'date',
+					value : Ext.Date.format(Ext.Date.parse(Ext.Date.format(new Date(), 'Y-m-d'), 'Y-m-d'), 'U') 
+				} ]
+			});
 			
 			/*
 			 * IncidentStore를 다시 로드함.

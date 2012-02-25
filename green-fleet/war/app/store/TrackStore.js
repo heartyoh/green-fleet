@@ -3,7 +3,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 
 	autoLoad : false,
 	
-	remoteFilter : true,
+//	remoteFilter : false,
 	
 //	remoteSort : true,
 	

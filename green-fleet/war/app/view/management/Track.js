@@ -38,46 +38,43 @@ Ext.define('GreenFleet.view.management.Track', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+			//grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search(self);
+			//self.search(self);
 		});
 
-		this.sub('driver_filter').on('change', function(field, value) {
-			self.search(self);
-		});
-
-		this.sub('terminal_filter').on('change', function(field, value) {
-			self.search(self);
+		this.sub('date_filter').on('change', function(field, value) {
+			//self.search(self);
 		});
 
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
-			self.sub('driver_filter').setValue('');
-			self.sub('terminal_filter').setValue('');
+			self.sub('date_filter').setValue(new Date());
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(self);
 		});
 		
 	},
-
+	
 	search : function(self) {
-		self.sub('grid').store.clearFilter();
-
-		self.sub('grid').store.filter([ {
-			property : 'vehicle_id',
-			value : self.sub('vehicle_filter').getValue()
-		}, {
-			property : 'driver_id',
-			value : self.sub('driver_filter').getValue()
-		}, {
-			property : 'terminal_id',
-			value : self.sub('terminal_filter').getValue()
-		} ]);
+		if(!self.sub('vehicle_filter').getValue() || !self.sub('date_filter').getSubmitValue()) {
+			Ext.Msg.alert('Condition', 'Please select conditions!');
+			return;
+		}
+		
+		self.sub('grid').store.load({
+			filters : [ {
+				property : 'vehicle_id',
+				value : self.sub('vehicle_filter').getValue()
+			}, {
+				property : 'date',
+				value : self.sub('date_filter').getSubmitValue()
+			} ]
+		});
 	},
 	
 	buildList : function(main) {
@@ -149,24 +146,14 @@ Ext.define('GreenFleet.view.management.Track', {
 				fieldLabel : 'Vehicle',
 				width : 200
 			}, {
-				xtype : 'combo',
-				name : 'driver_filter',
-				itemId : 'driver_filter',
-				queryMode: 'local',
-				store : 'DriverStore',
-				displayField: 'id',
-			    valueField: 'id',
-				fieldLabel : 'Driver',
-				width : 200
-			}, {
-				xtype : 'combo',
-				name : 'terminal_filter',
-				itemId : 'terminal_filter',
-				queryMode: 'local',
-				store : 'TerminalStore',
-				displayField: 'id',
-			    valueField: 'id',
-				fieldLabel : 'Terminal',
+		        xtype: 'datefield',
+				name : 'date_filter',
+				itemId : 'date_filter',
+				fieldLabel : 'Date',
+				format: 'Y-m-d',
+				submitFormat : 'U',
+		        maxValue: new Date(),  // limited to the current date or prior
+		        value : new Date(),
 				width : 200
 			}, {
 				text : 'Search',
