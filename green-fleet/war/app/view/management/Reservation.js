@@ -29,15 +29,15 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search(self);
+			self.search();
 		});
 
 		this.sub('reserved_date_filter').on('change', function(field, value) {
-			self.search(self);
+			self.search();
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -46,21 +46,23 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+//			self.sub('grid').store.load();
+			self.sub('grid').search();
 		});
 
 	},
 
-	search : function(self) {
-		self.sub('grid').store.clearFilter();
-
-		self.sub('grid').store.filter([ {
-			property : 'vehicle_id',
-			value : self.sub('vehicle_filter').getValue()
-		}, {
-			property : 'reserved_date',
-			value : self.sub('reserved_date_filter').getValue()
-		} ]);
+	search : function(callback) {
+		this.sub('grid').store.load({
+			filters : [ {
+				property : 'vehicle_id',
+				value : self.sub('vehicle_filter').getSubmitValue()
+			}, {
+				property : 'reserved_date',
+				value : self.sub('reserved_date_filter').getSubmitValue()
+			} ],
+			callback : callback
+		});
 	},
 
 	buildList : function(main) {
@@ -213,7 +215,11 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				format : F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'entity_form_buttons'
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : main.search,
+					scope : main
+				}
 			} ]
 		}
 	}

@@ -48,7 +48,10 @@ public class VehicleService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		entity.setProperty("image_clip", saveFile((MultipartFile) map.get("image_file")));
+		String image_file = saveFile((MultipartFile) map.get("image_file"));
+		if(image_file != null) {
+			entity.setProperty("image_clip", image_file);
+		}
 
 		super.postMultipart(entity, map, request);
 	}

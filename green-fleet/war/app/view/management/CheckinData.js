@@ -28,15 +28,15 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search(self);
+//			self.search();
 		});
 
 		this.sub('driver_filter').on('change', function(field, value) {
-			self.search(self);
+//			self.search();
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -45,21 +45,35 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+//			self.sub('grid').store.load();
+			self.sub('grid').search();
 		});
 		
 	},
 
-	search : function(self) {
-		self.sub('grid').store.clearFilter();
-
-		self.sub('grid').store.filter([ {
-			property : 'vehicle_filter',
-			value : self.sub('vehicle_filter').getValue()
-		}, {
-			property : 'driver_filter',
-			value : self.sub('driver_filter').getValue()
-		} ]);
+	search : function(callback) {
+//		self.sub('grid').store.clearFilter();
+//
+//		self.sub('grid').store.filter([ {
+//			property : 'vehicle_filter',
+//			value : self.sub('vehicle_filter').getValue()
+//		}, {
+//			property : 'driver_filter',
+//			value : self.sub('driver_filter').getValue()
+//		} ]);
+		this.sub('grid').store.load({
+			filters : [ {
+				property : 'vehicle_id',
+				value : this.sub('vehicle_filter').getValue()
+			}, {
+				property : 'driver_id',
+				value : this.sub('driver_filter').getValue()
+			}, {
+				property : 'date',
+				value : this.sub('date_filter').getSubmitValue()
+			} ],
+			callback : callback
+		})
 	},
 	
 	buildList : function(main) {
@@ -227,6 +241,16 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				fieldLabel : 'Driver',
 				name : 'driver_filter',
 				itemId : 'driver_filter',
+				width : 200
+			}, {
+		        xtype: 'datefield',
+				name : 'date_filter',
+				itemId : 'date_filter',
+				fieldLabel : 'Date',
+				format: 'Y-m-d',
+				submitFormat : 'U',
+		        maxValue: new Date(),  // limited to the current date or prior
+		        value : new Date(),
 				width : 200
 			}, {
 				itemId : 'search',
@@ -398,7 +422,11 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				format: F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'entity_form_buttons'
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : main.search,
+					scope : main
+				}
 			} ]
 		}
 	}

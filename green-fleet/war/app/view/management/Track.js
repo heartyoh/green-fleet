@@ -8,11 +8,11 @@ Ext.define('GreenFleet.view.management.Track', {
 	entityUrl : 'track',
 	/*
 	 * importUrl, afterImport config properties for Import util function
-	 */ 
+	 */
 	importUrl : 'track/import',
-	
+
 	afterImport : function() {
-		this.sub('grid').store.load();
+		this.search();
 		this.sub('form').getForm().reset();
 	},
 
@@ -21,13 +21,13 @@ Ext.define('GreenFleet.view.management.Track', {
 		type : 'vbox'
 	},
 
-	items: {
+	items : {
 		html : '<div class="listTitle">Tracking List</div>'
 	},
 
 	initComponent : function() {
 		var self = this;
-		
+
 		this.callParent(arguments);
 
 		this.add(this.buildList(this));
@@ -38,15 +38,19 @@ Ext.define('GreenFleet.view.management.Track', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			//grid.store.load();
+			// grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			//self.search(self);
+			/*
+			 * Remote Filter를 사용하는 경우에는 검색 아이템의 선택에 바로 반응하지 않는다. Search 버튼을
+			 * 누를때만, 반응한다.
+			 */
+			// self.search();
 		});
 
 		this.sub('date_filter').on('change', function(field, value) {
-			//self.search(self);
+			// self.search();
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -55,28 +59,29 @@ Ext.define('GreenFleet.view.management.Track', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.search(self);
+			self.search();
 		});
-		
+
 	},
-	
-	search : function(self) {
-		if(!self.sub('vehicle_filter').getValue() || !self.sub('date_filter').getSubmitValue()) {
+
+	search : function(callback) {
+		if (!this.sub('vehicle_filter').getValue() || !this.sub('date_filter').getSubmitValue()) {
 			Ext.Msg.alert('Condition', 'Please select conditions!');
 			return;
 		}
-		
-		self.sub('grid').store.load({
+
+		this.sub('grid').store.load({
 			filters : [ {
 				property : 'vehicle_id',
-				value : self.sub('vehicle_filter').getValue()
+				value : this.sub('vehicle_filter').getValue()
 			}, {
 				property : 'date',
-				value : self.sub('date_filter').getSubmitValue()
-			} ]
+				value : this.sub('date_filter').getSubmitValue()
+			} ],
+			callback : callback
 		});
 	},
-	
+
 	buildList : function(main) {
 		return {
 			xtype : 'gridpanel',
@@ -104,8 +109,8 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				dataIndex : 'datetime',
 				text : 'DateTime',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'lattitude',
@@ -122,14 +127,14 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				dataIndex : 'updated_at',
 				text : 'Updated At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'created_at',
 				text : 'Created At',
-				xtype:'datecolumn',
-				format:F('datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
 				width : 120
 			} ],
 			viewConfig : {
@@ -139,21 +144,21 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'combo',
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
-				queryMode: 'local',
+				queryMode : 'local',
 				store : 'VehicleStore',
-				displayField: 'id',
-			    valueField: 'id',
+				displayField : 'id',
+				valueField : 'id',
 				fieldLabel : 'Vehicle',
 				width : 200
 			}, {
-		        xtype: 'datefield',
+				xtype : 'datefield',
 				name : 'date_filter',
 				itemId : 'date_filter',
 				fieldLabel : 'Date',
-				format: 'Y-m-d',
+				format : 'Y-m-d',
 				submitFormat : 'U',
-		        maxValue: new Date(),  // limited to the current date or prior
-		        value : new Date(),
+				maxValue : new Date(), // limited to the current date or prior
+				value : new Date(),
 				width : 200
 			}, {
 				text : 'Search',
@@ -185,32 +190,32 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				xtype : 'combo',
 				name : 'terminal_id',
-				queryMode: 'local',
+				queryMode : 'local',
 				store : 'TerminalStore',
-				displayField: 'id',
-			    valueField: 'id',
+				displayField : 'id',
+				valueField : 'id',
 				fieldLabel : 'Terminal'
 			}, {
 				xtype : 'combo',
 				name : 'vehicle_id',
-				queryMode: 'local',
+				queryMode : 'local',
 				store : 'VehicleStore',
-				displayField: 'id',
-			    valueField: 'id',
+				displayField : 'id',
+				valueField : 'id',
 				fieldLabel : 'Vehicle'
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
-				queryMode: 'local',
+				queryMode : 'local',
 				store : 'DriverStore',
-				displayField: 'id',
-			    valueField: 'id',
+				displayField : 'id',
+				valueField : 'id',
 				fieldLabel : 'Driver'
 			}, {
 				xtype : 'datefield',
 				name : 'datetime',
 				fieldLabel : 'DateTime',
-				format: F('datetime')
+				format : F('datetime')
 			}, {
 				name : 'lattitude',
 				fieldLabel : 'Lattitude'
@@ -225,16 +230,20 @@ Ext.define('GreenFleet.view.management.Track', {
 				name : 'updated_at',
 				disabled : true,
 				fieldLabel : 'Updated At',
-				format: F('datetime')
+				format : F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
 				fieldLabel : 'Created At',
-				format: F('datetime')
+				format : F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'entity_form_buttons'
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : main.search,
+					scope : main
+				}
 			} ]
 		}
 	}

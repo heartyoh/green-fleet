@@ -21,7 +21,8 @@ Text.title = {
 	incident : 'Incident',
 	track : 'Track',
 	employee : 'Employee',
-	terminal : 'Terminal'
+	terminal : 'Terminal',
+	driver : 'Driver'
 }
 
 Text.format = {

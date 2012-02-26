@@ -49,9 +49,12 @@ public class TerminalService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		super.postMultipart(entity, map, request);
+		String image_file = saveFile((MultipartFile) map.get("image_file"));
+		if(image_file != null) {
+			entity.setProperty("image_clip", image_file);
+		}
 
-		entity.setProperty("image_clip", saveFile((MultipartFile) map.get("image_file")));
+		super.postMultipart(entity, map, request);
 	}
 
 	@Override

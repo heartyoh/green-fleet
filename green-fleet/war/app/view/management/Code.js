@@ -6,12 +6,12 @@ Ext.define('GreenFleet.view.management.Code', {
 	title : 'Code Mgmt.',
 
 	entityUrl : 'code',
-	
+
 	/*
 	 * importUrl, afterImport config properties for Import util function
-	 */ 
+	 */
 	importUrl : 'code/import',
-	
+
 	afterImport : function() {
 		this.sub('grid').store.load();
 		this.sub('form').getForm().reset();
@@ -24,7 +24,7 @@ Ext.define('GreenFleet.view.management.Code', {
 
 	initComponent : function() {
 		var self = this;
-		
+
 		this.items = [ {
 			html : '<div class="listTitle">Code List</div>'
 		}, {
@@ -34,7 +34,7 @@ Ext.define('GreenFleet.view.management.Code', {
 				type : 'hbox',
 				align : 'stretch'
 			},
-			items : [ this.zgrouplist, {
+			items : [ this.buildGroupList(this), {
 				xtype : 'container',
 				flex : 1,
 				cls : 'borderRightGray',
@@ -42,16 +42,16 @@ Ext.define('GreenFleet.view.management.Code', {
 					align : 'stretch',
 					type : 'vbox'
 				},
-				items : [ this.zcodelist, this.zform ]
+				items : [ this.buildCodeList(this), this.buildForm(this) ]
 			} ]
 		} ],
 
 		this.callParent(arguments);
-		
+
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
 		});
-		
+
 		this.sub('grid').on('render', function(grid) {
 			grid.store.clearFilter(true);
 			var group = self.sub('grouplist').store.first().get('group');
@@ -71,102 +71,114 @@ Ext.define('GreenFleet.view.management.Code', {
 		});
 	},
 
-	zgrouplist : {
-		xtype : 'gridpanel',
-		itemId : 'grouplist',
-		store : 'CodeGroupStore',
-		title : 'Code Group',
-		width : 320,
-		columns : [ {
-			dataIndex : 'group',
-			text : 'Group',
-			width : 100
-		}, {
-			dataIndex : 'desc',
-			text : 'Description',
-			width : 220
-		} ]
-	},
-
-	zcodelist : {
-		xtype : 'gridpanel',
-		itemId : 'grid',
-		store : 'CodeStore',
-		title : 'Code List',
-		flex : 1,
-		cls : 'hIndexbarZero',
-		columns : [ {
-			dataIndex : 'key',
-			text : 'Key',
-			hidden : true
-		}, {
-			dataIndex : 'group',
-			text : 'Group'
-		}, {
-			dataIndex : 'code',
-			text : 'Code'
-		}, {
-			dataIndex : 'desc',
-			text : 'Description'
-		}, {
-			dataIndex : 'created_at',
-			text : 'Created At',
-			xtype : 'datecolumn',
-			format : F('datetime'),
-			width : 120
-		}, {
-			dataIndex : 'updated_at',
-			text : 'Updated At',
-			xtype : 'datecolumn',
-			format : F('datetime'),
-			width : 120
-		} ]
-	},
-
-	zform : {
-		xtype : 'form',
-		itemId : 'form',
-		bodyPadding : 10,
-		cls : 'hIndexbar',
-		title : 'Code Details',
-		height : 200,
-		defaults : {
-			xtype : 'textfield',
-			anchor : '100%'
-		},
-		items : [ {
-			name : 'key',
-			fieldLabel : 'Key',
-			hidden : true
-		}, {
-			xtype : 'combo',
-			name : 'group',
-			fieldLabel : 'Group',
-			queryMode : 'local',
+	buildGroupList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'grouplist',
 			store : 'CodeGroupStore',
-			displayField : 'group',
-			valueField : 'group'
-		}, {
-			name : 'code',
-			fieldLabel : 'Code'
-		}, {
-			name : 'desc',
-			fieldLabel : 'Description'
-		}, {
-			xtype : 'datefield',
-			name : 'updated_at',
-			disabled : true,
-			fieldLabel : 'Updated At',
-			format : F('datetime')
-		}, {
-			xtype : 'datefield',
-			name : 'created_at',
-			disabled : true,
-			fieldLabel : 'Created At',
-			format : F('datetime')
-		} ],
-		dockedItems : [ {
-			xtype : 'entity_form_buttons'
-		} ]
+			title : 'Code Group',
+			width : 320,
+			columns : [ {
+				dataIndex : 'group',
+				text : 'Group',
+				width : 100
+			}, {
+				dataIndex : 'desc',
+				text : 'Description',
+				width : 220
+			} ]
+		}
+	},
+
+	buildCodeList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'grid',
+			store : 'CodeStore',
+			title : 'Code List',
+			flex : 1,
+			cls : 'hIndexbarZero',
+			columns : [ {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
+				dataIndex : 'group',
+				text : 'Group'
+			}, {
+				dataIndex : 'code',
+				text : 'Code'
+			}, {
+				dataIndex : 'desc',
+				text : 'Description'
+			}, {
+				dataIndex : 'created_at',
+				text : 'Created At',
+				xtype : 'datecolumn',
+				format : F('datetime'),
+				width : 120
+			}, {
+				dataIndex : 'updated_at',
+				text : 'Updated At',
+				xtype : 'datecolumn',
+				format : F('datetime'),
+				width : 120
+			} ]
+		}
+	},
+
+	buildForm : function(main) {
+		return {
+			xtype : 'form',
+			itemId : 'form',
+			bodyPadding : 10,
+			cls : 'hIndexbar',
+			title : 'Code Details',
+			height : 200,
+			defaults : {
+				xtype : 'textfield',
+				anchor : '100%'
+			},
+			items : [ {
+				name : 'key',
+				fieldLabel : 'Key',
+				hidden : true
+			}, {
+				xtype : 'combo',
+				name : 'group',
+				fieldLabel : 'Group',
+				queryMode : 'local',
+				store : 'CodeGroupStore',
+				displayField : 'group',
+				valueField : 'group'
+			}, {
+				name : 'code',
+				fieldLabel : 'Code'
+			}, {
+				name : 'desc',
+				fieldLabel : 'Description'
+			}, {
+				xtype : 'datefield',
+				name : 'updated_at',
+				disabled : true,
+				fieldLabel : 'Updated At',
+				format : F('datetime')
+			}, {
+				xtype : 'datefield',
+				name : 'created_at',
+				disabled : true,
+				fieldLabel : 'Created At',
+				format : F('datetime')
+			} ],
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
+			} ]
+		}
 	}
 });

@@ -12,7 +12,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 	initComponent : function() {
 		this.items = [ this.ztitle, {
 			xtype : 'container',
-			height : 300,
+			height : 320,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -97,7 +97,6 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
 			}
 
-			self.sub('title').vehicle.dom.innerHTML = vehicle + '[' + vehicleRecord.get('registrationNumber') + ']';
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
@@ -111,7 +110,10 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 			}
 
-			self.sub('title').driver.dom.innerHTML = driver + '[' + driverRecord.get('name') + ']';
+			self.sub('title').update({
+				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
+				driver : driver + ' (' + driverRecord.get('name') + ')'
+			});
 
 			/*
 			 * Get Address of the location by ReverseGeoCode.
@@ -158,9 +160,15 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			/*
 			 * IncidentStore를 다시 로드함.
 			 */
-			self.getIncidentStore().clearFilter(true);
-			self.getIncidentStore().filter('vehicle_id', vehicle);
-			self.getIncidentStore().load();
+			self.getIncidentStore().load({
+				filters : [ {
+					property : 'vehicle_id',
+					value : vehicle
+				}, {
+					property : 'confirm',
+					value : false
+				} ]
+			});
 		});
 	},
 
@@ -224,7 +232,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 	getIncidentStore : function() {
 		if (!this.incidentStore)
-			this.incidentStore = Ext.getStore('IncidentStore');
+			this.incidentStore = Ext.getStore('IncidentByVehicleStore');
 		return this.incidentStore;
 	},
 
@@ -312,9 +320,13 @@ Ext.define('GreenFleet.view.monitor.Information', {
 								this.getEl().on('click', self.incidentHandler, self, incident);
 							}
 						},
-						html : '<div class="vehicle">' + incident.get('vehicle_id') + '</div><div class="driver">'
-								+ incident.get('driver_id') + '</div><div class="date">'
-								+ Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s') + '</div>'
+						data : {
+							vehicle_id : incident.get('vehicle_id'),
+							driver_id : incident.get('driver_id'),
+							datetime : Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s')
+						},
+						tpl : [ '<div class="vehicle">{vehicle_id}</div>', '<div class="driver">{driver_id}</div>',
+								'<div class="date">{datetime}</div>' ]
 					})
 		}
 	},
@@ -323,11 +335,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		xtype : 'box',
 		cls : 'pageTitle',
 		itemId : 'title',
-		renderSelectors : {
-			vehicle : 'span.vehicle',
-			driver : 'span.driver'
+		data : {
+			vehicle : 'Vehicle',
+			driver : 'Driver'
 		},
-		renderTpl : '<h1>Vehicle : <span class="vehicle">Vehicle</span>, Driver : <span class="driver">Driver</span></h1>',
+		tpl : '<h1>Vehicle : <span class="vehicle">{vehicle}</span>, Driver : <span class="driver">{driver}</span></h1>',
 		height : 35
 	},
 
@@ -365,7 +377,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			cls : 'imgDriver'
 		}, {
 			xtype : 'form',
-			height : 140,
+			height : 160,
 			flex : 1,
 			defaults : {
 				labelWidth : 60,

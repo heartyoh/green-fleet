@@ -30,11 +30,11 @@ Ext.define('GreenFleet.view.management.User', {
 		});
 		
 		this.sub('email_filter').on('change', function(field, value) {
-			self.search(self);
+			self.search();
 		});
 		
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search(self);
+			self.search();
 		});
 		
 		this.down('#search_reset').on('click', function() {
@@ -48,15 +48,15 @@ Ext.define('GreenFleet.view.management.User', {
 		
 	},
 
-	search : function(self) {
-		self.sub('grid').store.clearFilter();
+	search : function() {
+		this.sub('grid').store.clearFilter();
 
-		self.sub('grid').store.filter([ {
+		this.sub('grid').store.filter([ {
 			property : 'email',
-			value : self.sub('email_filter').getValue()
+			value : this.sub('email_filter').getValue()
 		}, {
 			property : 'surname',
-			value : self.sub('name_filter').getValue()
+			value : this.sub('name_filter').getValue()
 		} ]);
 	},
 	
@@ -170,11 +170,13 @@ Ext.define('GreenFleet.view.management.User', {
 				xtype : 'checkbox',
 				name : 'enabled',
 				fieldLabel : 'Enabled',
+				uncheckedValue : 'off',
 				anchor : '100%'
 			}, {
 				xtype : 'checkbox',
 				name : 'admin',
 				fieldLabel : 'Admin',
+				uncheckedValue : 'off',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
@@ -200,6 +202,12 @@ Ext.define('GreenFleet.view.management.User', {
 			
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
 			} ]
 		}
 	}

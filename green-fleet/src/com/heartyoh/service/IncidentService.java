@@ -1,7 +1,8 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.heartyoh.model.Filter;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -61,7 +61,10 @@ public class IncidentService extends EntityService {
 
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
-		entity.setProperty("video_clip", saveFile((MultipartFile) map.get("video_file")));
+		String video_file = saveFile((MultipartFile) map.get("video_file"));
+		if(video_file != null) {
+			entity.setProperty("video_clip", video_file);
+		}
 
 		super.postMultipart(entity, map, request);
 	}
@@ -170,6 +173,15 @@ public class IncidentService extends EntityService {
 	protected void addFilter(Query q, String property, String value) {
 		if(property.equals("confirm")) {
 			q.addFilter(property, FilterOperator.EQUAL, Boolean.parseBoolean(value));
+		} else if("date".equals(property)) {
+			long fromMillis = Long.parseLong(value);
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(fromMillis * 1000);
+			Date fromDate = c.getTime();
+			c.setTimeInMillis((fromMillis + (60 * 60 * 24)) * 1000);
+			Date toDate = c.getTime();
+			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
 		} else {
 			super.addFilter(q, property, value);
 		}
@@ -180,5 +192,4 @@ public class IncidentService extends EntityService {
 	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
-
 }

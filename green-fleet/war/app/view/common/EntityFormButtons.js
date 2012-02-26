@@ -38,10 +38,12 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 				form.submit({
 					url : url + '/save',
 					success : function(form, action) {
-						var store = client.sub('grid').store;
-						store.load(function() {
-							form.loadRecord(store.findRecord('key', action.result.key));
-						});
+						if(self.loader && typeof(self.loader.fn) === 'function') {
+							self.loader.fn.call(self.loader.scope || client, function(records) {
+								var store = client.sub('grid').store;
+								form.loadRecord(store.findRecord('key', action.result.key));
+							});
+						}
 					},
 					failure : function(form, action) {
 						GreenFleet.msg('Failed', action.result.msg);
@@ -60,7 +62,10 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 				form.submit({
 					url : url + '/delete',
 					success : function(form, action) {
-						client.sub('grid').store.load();
+//						client.sub('grid').store.load();
+						if(self.loader && typeof(self.loader.fn) === 'function') {
+							self.loader.fn.call(self.loader.scope || client, null);
+						}
 						form.reset();
 					},
 					failure : function(form, action) {

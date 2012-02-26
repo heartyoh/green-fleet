@@ -29,24 +29,30 @@ Ext.define('GreenFleet.view.management.Incident', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search(self);
+			/* 
+			 * Remote Filter를 사용하는 경우에는 검색 아이템의 선택에 바로 반응하지 않는다.
+			 * Search 버튼을 누를때만, 반응한다.
+			 */
+//			self.search();
 		});
 
 		this.sub('driver_filter').on('change', function(field, value) {
-			self.search(self);
+//			self.search();
 		});
 
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
 			self.sub('driver_filter').setValue('');
+			self.sub('date_filter').setValue(new Date());
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+//			self.sub('grid').store.load();
+			self.search();
 		});
 
 		this.down('#video_clip').on('change', function(field, value) {
@@ -63,16 +69,20 @@ Ext.define('GreenFleet.view.management.Incident', {
 
 	},
 
-	search : function(self) {
-		self.sub('grid').store.clearFilter();
-
-		self.sub('grid').store.filter([ {
-			property : 'vehicle_id',
-			value : self.sub('vehicle_filter').getValue()
-		}, {
-			property : 'driver_id',
-			value : self.sub('driver_filter').getValue()
-		} ]);
+	search : function(callback) {
+		this.sub('grid').store.load({
+			filters : [ {
+				property : 'vehicle_id',
+				value : this.sub('vehicle_filter').getValue()
+			}, {
+				property : 'driver_id',
+				value : this.sub('driver_filter').getValue()
+			}, {
+				property : 'date',
+				value : this.sub('date_filter').getSubmitValue()
+			} ],
+			callback : callback
+		})
 	},
 
 	buildList : function(main) {
@@ -188,6 +198,16 @@ Ext.define('GreenFleet.view.management.Incident', {
 				fieldLabel : 'Driver',
 				itemId : 'driver_filter',
 				name : 'driver_filter',
+				width : 200
+			}, {
+		        xtype: 'datefield',
+				name : 'date_filter',
+				itemId : 'date_filter',
+				fieldLabel : 'Date',
+				format: 'Y-m-d',
+				submitFormat : 'U',
+		        maxValue: new Date(),  // limited to the current date or prior
+		        value : new Date(),
 				width : 200
 			}, {
 				text : 'Search',
@@ -363,6 +383,10 @@ Ext.define('GreenFleet.view.management.Incident', {
 
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
+				loader : {
+					fn : main.search,
+					scope : main
+				}
 			} ]
 		}
 	}

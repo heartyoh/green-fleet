@@ -80,7 +80,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			closable : true
 		} ]
 	}, {
-		text : T('employee'),
+		text : T('driver'),
 		submenus : [ {
 			title : 'Driver',
 			xtype : 'management_driver',

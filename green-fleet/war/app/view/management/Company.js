@@ -33,11 +33,11 @@ Ext.define('GreenFleet.view.management.Company', {
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
-			self.search(self);
+			self.search();
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search(self);
+			self.search();
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -51,15 +51,15 @@ Ext.define('GreenFleet.view.management.Company', {
 
 	},
 
-	search : function(self) {
-		self.sub('grid').store.clearFilter();
+	search : function() {
+		this.sub('grid').store.clearFilter();
 
-		self.sub('grid').store.filter([ {
+		this.sub('grid').store.filter([ {
 			property : 'id',
-			value : self.sub('id_filter').getValue()
+			value : this.sub('id_filter').getValue()
 		}, {
 			property : 'name',
-			value : self.sub('name_filter').getValue()
+			value : this.sub('name_filter').getValue()
 		} ]);
 	},
 	
@@ -171,7 +171,13 @@ Ext.define('GreenFleet.view.management.Company', {
 				format : F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'entity_form_buttons'
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
 			} ]
 		}
 	}

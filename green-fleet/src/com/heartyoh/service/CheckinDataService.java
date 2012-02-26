@@ -1,5 +1,7 @@
 package com.heartyoh.service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -118,4 +122,19 @@ public class CheckinDataService extends EntityService {
 		return super.retrieve(request, response);
 	}
 
+	@Override
+	protected void addFilter(Query q, String property, String value) {
+		if("date".equals(property)) {
+			long fromMillis = Long.parseLong(value);
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(fromMillis * 1000);
+			Date fromDate = c.getTime();
+			c.setTimeInMillis((fromMillis + (60 * 60 * 24)) * 1000);
+			Date toDate = c.getTime();
+			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		} else {			
+			q.addFilter(property, FilterOperator.EQUAL, value);
+		}
+	}
 }

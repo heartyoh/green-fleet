@@ -38,7 +38,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			};
 
 			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
-			
+
 			self.getLogStore().on('load', function() {
 				self.refreshTrack();
 			});
@@ -53,7 +53,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		});
 
 		this.down('button[itemId=reset]').on('click', function() {
-			self.resetIncidentList();
+			self.sub('vehicle_filter').reset();
+			self.sub('driver_filter').reset();
 		});
 
 		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
@@ -117,9 +118,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 					form.submit({
 						url : 'incident/save',
 						success : function(form, action) {
-							var store = self.sub('grid').store;
-							store.load(function() {
-								form.loadRecord(store.findRecord('key', action.result.key));
+							self.refreshIncidentList(function() {
+								/* Confirm 이후에는 그리드 리스트에서 사라지므로 찾을 수 없음. */
+								// form.loadRecord(self.sub('grid').store.findRecord('key',
+								// action.result.key));
 							});
 						},
 						failure : function(form, action) {
@@ -133,7 +135,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	},
 
 	getLogStore : function() {
-		if(!this.logStore)
+		if (!this.logStore)
 			this.logStore = Ext.getStore('IncidentLogStore');
 		return this.logStore;
 	},
@@ -141,7 +143,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	setIncident : function(incident, refresh) {
 		this.incident = incident;
 		if (refresh) {
-			this.sub('vehicle_filter').setValue(incident.get('vehicle'));
+			this.sub('vehicle_filter').setValue(incident.get('vehicle_id'));
 			this.sub('driver_filter').reset();
 			this.refreshIncidentList();
 		}
@@ -154,7 +156,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		return this.incident;
 	},
 
-	refreshIncidentList : function() {
+	refreshIncidentList : function(callback) {
 		this.sub('grid').store.load({
 			filters : [ {
 				property : 'vehicle_id',
@@ -162,27 +164,24 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			}, {
 				property : 'driver_id',
 				value : this.sub('driver_filter').getValue()
-			} ]
+			}, {
+				property : 'confirm',
+				value : false
+			} ],
+			callback : callback
 		});
-	},
-
-	resetIncidentList : function() {
-		this.sub('vehicle_filter').reset();
-		this.sub('driver_filter').reset();
-
-		this.refreshIncidentList();
 	},
 
 	getTrackLine : function() {
 		return this.trackline;
 	},
-	
+
 	setTrackLine : function(trackline) {
-		if(this.trackline)
+		if (this.trackline)
 			this.trackline.setMap(null);
 		this.trackline = trackline;
 	},
-	
+
 	getMarker : function() {
 		return this.marker;
 	},
@@ -192,7 +191,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			this.marker.setMap(null);
 		this.marker = marker;
 	},
-	
+
 	refreshMap : function() {
 		this.setMarker(null);
 
@@ -220,13 +219,13 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		} ]);
 		this.getLogStore().load();
 	},
-	
+
 	refreshTrack : function() {
 		this.setTrackLine(new google.maps.Polyline({
 			map : this.getMap(),
-		    strokeColor: '#FF0000',
-		    strokeOpacity: 1.0,
-		    strokeWeight: 4
+			strokeColor : '#FF0000',
+			strokeOpacity : 1.0,
+			strokeWeight : 4
 		}));
 
 		var path = this.getTrackLine().getPath();
@@ -236,22 +235,22 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.getLogStore().each(function(record) {
 			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
 			path.push(latlng);
-			if(!bounds)
+			if (!bounds)
 				bounds = new google.maps.LatLngBounds(latlng, latlng);
 			else
 				bounds.extend(latlng);
 		});
-		
-		if(!bounds)
+
+		if (!bounds)
 			return;
-		
-		if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+
+		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
 			this.getMap().setCenter(bounds.getNorthEast());
 		} else {
 			this.getMap().fitBounds(bounds);
 		}
 	},
-	
+
 	getMap : function() {
 		return this.map;
 	},
@@ -370,7 +369,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		itemId : 'grid',
 		cls : 'hIndexbar',
 		title : 'Incident List',
-		store : 'IncidentStore',
+		store : 'IncidentByVehicleStore',
 		autoScroll : true,
 		flex : 1,
 		columns : [ {
@@ -381,15 +380,15 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			dataIndex : 'video_clip',
 			text : 'V',
-			renderer: function(value, cell) {
-			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			renderer : function(value, cell) {
+				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
 			},
 			width : 20
 		}, {
 			dataIndex : 'confirm',
 			text : 'Confirm',
-			renderer: function(value, cell) {
-			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			renderer : function(value, cell) {
+				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
 			},
 			align : 'center',
 			width : 50
@@ -457,8 +456,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			dataIndex : 'obd_connected',
 			text : 'OBD',
-			renderer: function(value, cell) {
-			   return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			renderer : function(value, cell) {
+				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
 			},
 			align : 'center',
 			width : 40

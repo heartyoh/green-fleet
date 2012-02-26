@@ -207,6 +207,10 @@
                 },
                 {
                     "path": "app/store/",
+                    "name": "IncidentByVehicleStore.js"
+                },
+                {
+                    "path": "app/store/",
                     "name": "IncidentLogStore.js"
                 },
                 {
