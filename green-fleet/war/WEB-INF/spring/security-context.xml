@@ -22,6 +22,8 @@
 -->
         <intercept-url pattern="/_ah/login" access="permitAll" />
         <intercept-url pattern="/_ah/logout" access="permitAll" />
+        <intercept-url pattern="/_ah/queue/__deferred__" access="hasRole('USER')" />
+        
 <!-- 여기까지 코멘트 처리해야 함. -->        
         <intercept-url pattern="/logout" access="permitAll" />
         <intercept-url pattern="/register" access="hasRole('NEW_USER')" />

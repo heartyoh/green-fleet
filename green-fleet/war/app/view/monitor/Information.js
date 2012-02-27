@@ -44,28 +44,28 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			/*
 			 * For test only.
 			 */
-			google.maps.event.addListener(self.getMap(), 'click', function(e) {
-				Ext.Ajax.request({
-					url : 'track/save',
-					method : 'POST',
-					params : {
-						vehicle_id : self.getVehicle(),
-						driver_id : self.getDriver(),
-						terminal_id : self.getTerminal(),
-						lattitude : e.latLng.lat(),
-						longitude : e.latLng.lng()
-					},
-					success : function(resp, opts) {
-						var path = self.getTrackLine().getPath();
-						path.insertAt(0, e.latLng);
-						Ext.getStore('VehicleStore').load();
-					},
-					failure : function(resp, opts) {
-						console.log('Failed');
-						console.log(resp);
-					}
-				});
-			});
+//			google.maps.event.addListener(self.getMap(), 'click', function(e) {
+//				Ext.Ajax.request({
+//					url : 'track/save',
+//					method : 'POST',
+//					params : {
+//						vehicle_id : self.getVehicle(),
+//						driver_id : self.getDriver(),
+//						terminal_id : self.getTerminal(),
+//						lattitude : e.latLng.lat(),
+//						longitude : e.latLng.lng()
+//					},
+//					success : function(resp, opts) {
+//						var path = self.getTrackLine().getPath();
+//						path.insertAt(0, e.latLng);
+//						Ext.getStore('VehicleStore').load();
+//					},
+//					failure : function(resp, opts) {
+//						console.log('Failed');
+//						console.log(resp);
+//					}
+//				});
+//			});
 		});
 
 		this.on('activate', function() {
