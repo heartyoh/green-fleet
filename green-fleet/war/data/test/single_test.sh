@@ -1,2 +1,2 @@
 #!/bin/bash
-./track.sh a b
+./track.sh 37.38 127.11  T001 D001 V001 &

@@ -85,18 +85,25 @@ public class TrackService extends EntityService {
 			e.printStackTrace();
 		}
 
+		double dblLattitude = 0;
+		double dblLongitude = 0;
+		
 		if (lattitude != null) {
-			double dblLattitude = Double.parseDouble(lattitude);
+			dblLattitude = Double.parseDouble(lattitude);
 			entity.setProperty("lattitude", dblLattitude);
 			if (objVehicle != null)
 				objVehicle.setProperty("lattitude", dblLattitude);
 		}
 		if (longitude != null) {
-			double dblLongitude = Double.parseDouble(longitude);
+			dblLongitude = Double.parseDouble(longitude);
 			entity.setProperty("longitude", dblLongitude);
 			if (objVehicle != null)
 				objVehicle.setProperty("longitude", dblLongitude);
 		}
+		
+		if(dblLattitude == 0 && dblLongitude == 0)
+			throw new Exception("Both of lattitude & longitude values are 0. It might meant to be non stable status of blackbox.");
+		
 		entity.setProperty("terminal_id", terminal_id);
 		entity.setProperty("vehicle_id", vehicle_id);
 		entity.setProperty("driver_id", driver_id);

@@ -4325,16 +4325,31 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		var latlng;
 
 		this.getTrackStore().each(function(record) {
-			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
-			path.push(latlng);
-			if (!bounds)
-				bounds = new google.maps.LatLngBounds(latlng, latlng);
-			else
-				bounds.extend(latlng);
+			var lat = record.get('lattitude');
+			var lng = record.get('longitude');
+
+			if(lat !== 0 || lng !== 0) {
+				latlng = new google.maps.LatLng(lat, lng);
+				path.push(latlng);
+				if (!bounds)
+					bounds = new google.maps.LatLngBounds(latlng, latlng);
+				else
+					bounds.extend(latlng);
+			}
 		});
 
-		if (!bounds) {
-			var defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+		if (path.getLength() === 0) {
+			var record = this.getForm().getRecord();
+			var lat = record.get('lattitude');
+			var lng = record.get('longitude');
+			var defaultLatlng = null;
+			
+			if(lat === 0 && lng === 0) {
+				defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			} else {
+				defaultLatlng = new google.maps.LatLng(lat, lng);
+			}
+			path.push(defaultLatlng);
 			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
 		}
 
@@ -4344,17 +4359,18 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			this.getMap().fitBounds(bounds);
 		}
 
-		var first = this.getTrackStore().first();
+		var first = path.getAt(0);
+
 		if (first) {
 			var start = new google.maps.Marker({
-				position : new google.maps.LatLng(first.get('lattitude'), first.get('longitude')),
+				position : new google.maps.LatLng(first.lat(), first.lng()),
 				map : this.getMap()
 			});
 
-			var last = this.getTrackStore().last();
+			var last = path.getAt(path.getLength() - 1);
 
 			var end = new google.maps.Marker({
-				position : new google.maps.LatLng(last.get('lattitude'), last.get('longitude')),
+				position : new google.maps.LatLng(last.lat(), last.lng()),
 				icon : 'resources/image/iconStartPoint.png',
 				map : this.getMap()
 			});
