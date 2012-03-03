@@ -1,6 +1,6 @@
-function InitLocale(text, locale) {
-	Text = Text || {};
+var Text = Text || {};
 
+function InitLocale(text, locale) {
 	document.write('<script type="text/javascript" src="resources/text/' + (locale || 'en') + '.js"></script>');
 
 	text.T = function(key) {

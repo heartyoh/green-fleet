@@ -217,7 +217,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 	            store: 'IncidentStore',
 	            displayInfo: true,
 	            displayMsg: 'Displaying incidents {0} - {1} of {2}',
-	            emptyMsg: "No incidents to display",
+	            emptyMsg: "No incidents to display"
 	        }
 		}
 	},

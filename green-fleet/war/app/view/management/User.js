@@ -134,7 +134,7 @@ Ext.define('GreenFleet.view.management.User', {
 	            store: 'UserStore',
 	            displayInfo: true,
 	            displayMsg: 'Displaying users {0} - {1} of {2}',
-	            emptyMsg: "No users to display",
+	            emptyMsg: "No users to display"
 	        }
 		}
 	},

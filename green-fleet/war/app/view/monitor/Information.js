@@ -369,7 +369,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [ {
-			xtype : 'monitor_info_by_vehicle',
+			xtype : 'monitor_info_by_vehicle'
 		}, {
 			xtype : 'monitor_control_by_vehicle',
 			title : 'Control By Vehicle'

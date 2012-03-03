@@ -6,7 +6,7 @@ Ext.define('GreenFleet.model.ConsumableHealth', {
 	}, {
 		name : 'recent_date'
 	}, {
-		name : 'running_qty',
+		name : 'running_qty'
 	}, {
 		name : 'threshold'
 	}, {

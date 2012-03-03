@@ -47,7 +47,6 @@ Ext.define('GreenFleet.view.viewport.West', {
 	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : 'export',
-		
+		html : 'export'
 	} ]
 });

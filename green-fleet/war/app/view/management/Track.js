@@ -165,7 +165,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	            store: 'TrackStore',
 	            displayInfo: true,
 	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
-	            emptyMsg: "No tracks to display",
+	            emptyMsg: "No tracks to display"
 	        }
 		}
 	},
