@@ -131,7 +131,9 @@ Ext.define('GreenFleet.store.CheckinDataStore', {
 		type : 'ajax',
 		url : 'checkin_data',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

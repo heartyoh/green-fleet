@@ -3,7 +3,9 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 
 	autoLoad : false,
 
-	remoteFilter : true,
+	pageSize : 5,
+	
+//	remoteFilter : true,
 
 	// remoteSort : true,
 
@@ -45,10 +47,10 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 		dateFormat : 'time'
 	} ],
 
-	filters : [ {
-		property : 'confirm',
-		value : false
-	} ],
+//	filters : [ {
+//		property : 'confirm',
+//		value : false
+//	} ],
 
 	sorters : [ {
 		property : 'datetime',
@@ -58,8 +60,13 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'incident',
+		extraParams : {
+			confirm : false
+		},
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

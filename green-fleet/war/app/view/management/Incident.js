@@ -67,22 +67,17 @@ Ext.define('GreenFleet.view.management.Incident', {
 			});
 		})
 
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['driver_id'] = self.sub('driver_filter').getSubmitValue();
+			operation.params['date'] = self.sub('date_filter').getSubmitValue();
+		});
+
 	},
 
-	search : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'driver_id',
-				value : this.sub('driver_filter').getValue()
-			}, {
-				property : 'date',
-				value : this.sub('date_filter').getSubmitValue()
-			} ],
-			callback : callback
-		})
+	search : function() {
+		this.sub('pagingtoolbar').moveFirst();
 	},
 
 	buildList : function(main) {
@@ -92,7 +87,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 			store : 'IncidentStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -216,6 +211,14 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : 'Reset',
 				itemId : 'search_reset'
 			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'IncidentStore',
+	            displayInfo: true,
+	            displayMsg: 'Displaying incidents {0} - {1} of {2}',
+	            emptyMsg: "No incidents to display",
+	        }
 		}
 	},
 

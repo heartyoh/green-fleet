@@ -72,7 +72,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			store : 'ReservationStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'ID',
 				type : 'string'

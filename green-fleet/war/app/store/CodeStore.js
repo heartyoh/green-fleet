@@ -2,6 +2,8 @@ Ext.define('GreenFleet.store.CodeStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : true,
+	
+	pageSize : 10000,
 
 	fields : [ {
 		name : 'key',
@@ -29,7 +31,9 @@ Ext.define('GreenFleet.store.CodeStore', {
 		type : 'ajax',
 		url : 'code',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	},
 	

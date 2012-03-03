@@ -9,9 +9,11 @@ Ext.define('GreenFleet.store.FileStore', {
         type: 'ajax',
         url : '/data/files.json',
         reader: {
-            type: 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
         }
     },
     
-    autoLoad: true
+    autoLoad: false
 });

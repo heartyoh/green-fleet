@@ -1,4 +1,4 @@
-Ext.define('GreenFleet.store.IncidentByVehicleStore', {
+Ext.define('GreenFleet.store.IncidentViewStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,

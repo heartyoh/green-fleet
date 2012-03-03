@@ -478,7 +478,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	
 	refreshIncidents : function(store) {
 		if(!store)
-			store = Ext.getStore('RecentIncidentsStore');
+			store = Ext.getStore('RecentIncidentStore');
 		
 		this.sub('incidents').removeAll();
 		
@@ -794,7 +794,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			itemId : 'grid',
 			store : 'CompanyStore',
 			flex : 3,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true
@@ -975,7 +975,7 @@ Ext.define('GreenFleet.view.management.User', {
 			itemId : 'grid',
 			store : 'UserStore',
 			flex : 3,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true
@@ -1036,7 +1036,15 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				text : 'reset',
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'UserStore',
+	            displayInfo: true,
+	            displayMsg: 'Displaying users {0} - {1} of {2}',
+	            emptyMsg: "No users to display",
+	        }
 		}
 	},
 
@@ -1201,7 +1209,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			store : 'CodeGroupStore',
 			title : 'Code Group',
 			width : 320,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'group',
 				text : 'Group',
 				width : 100
@@ -1221,7 +1229,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			title : 'Code List',
 			flex : 1,
 			cls : 'hIndexbarZero',
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true
@@ -1395,7 +1403,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			store : 'VehicleStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -1762,7 +1770,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			store : 'TerminalStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -1989,7 +1997,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			store : 'ReservationStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'ID',
 				type : 'string'
@@ -2210,22 +2218,17 @@ Ext.define('GreenFleet.view.management.Incident', {
 			});
 		})
 
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['driver_id'] = self.sub('driver_filter').getSubmitValue();
+			operation.params['date'] = self.sub('date_filter').getSubmitValue();
+		});
+
 	},
 
-	search : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'driver_id',
-				value : this.sub('driver_filter').getValue()
-			}, {
-				property : 'date',
-				value : this.sub('date_filter').getSubmitValue()
-			} ],
-			callback : callback
-		})
+	search : function() {
+		this.sub('pagingtoolbar').moveFirst();
 	},
 
 	buildList : function(main) {
@@ -2235,7 +2238,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 			store : 'IncidentStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -2359,6 +2362,14 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : 'Reset',
 				itemId : 'search_reset'
 			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'IncidentStore',
+	            displayInfo: true,
+	            displayMsg: 'Displaying incidents {0} - {1} of {2}',
+	            emptyMsg: "No incidents to display",
+	        }
 		}
 	},
 
@@ -2626,7 +2637,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			store : 'DriverStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -2861,25 +2872,17 @@ Ext.define('GreenFleet.view.management.Track', {
 		this.down('#search').on('click', function() {
 			self.search();
 		});
+		
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['date'] = self.sub('date_filter').getSubmitValue();
+		});
 
 	},
 
-	search : function(callback) {
-		if (!this.sub('vehicle_filter').getValue() || !this.sub('date_filter').getSubmitValue()) {
-			Ext.Msg.alert('Condition', 'Please select conditions!');
-			return;
-		}
-
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'date',
-				value : this.sub('date_filter').getSubmitValue()
-			} ],
-			callback : callback
-		});
+	search : function() {
+		this.sub('pagingtoolbar').moveFirst();
 	},
 
 	buildList : function(main) {
@@ -2889,7 +2892,7 @@ Ext.define('GreenFleet.view.management.Track', {
 			store : 'TrackStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -2966,7 +2969,15 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				text : 'Reset',
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'TrackStore',
+	            displayInfo: true,
+	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
+	            emptyMsg: "No tracks to display",
+	        }
 		}
 	},
 
@@ -3133,7 +3144,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			store : 'CheckinDataStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true
@@ -3669,19 +3680,24 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	}
 });
 
-Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {			
+Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 	extend : 'Ext.grid.Panel',
 
 	alias : 'widget.monitor_control_by_vehicle',
-	
+
 	title : 'Control By Vehicle',
-	
+
 	store : 'CheckinDataStore',
 	autoScroll : true,
-	
-	listeners : {
+
+	listeners : {},
+
+	initComponent : function() {
+		this.columns = this.buildColumns();
+
+		this.callParent();
 	},
-	
+
 	onSearch : function(grid) {
 		var vehicle_filter = grid.down('textfield[name=vehicle_filter]');
 		var driver_filter = grid.down('textfield[name=driver_filter]');
@@ -3689,7 +3705,7 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 			filters : [ {
 				property : 'vehicle_id',
 				value : vehicle_filter.getValue()
-			},{
+			}, {
 				property : 'driver_id',
 				value : driver_filter.getValue()
 			} ]
@@ -3703,10 +3719,10 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 	tbar : [ {
 		xtype : 'combo',
 		name : 'vehicle_filter',
-		queryMode: 'local',
+		queryMode : 'local',
 		store : 'VehicleStore',
-		displayField: 'id',
-	    valueField: 'id',
+		displayField : 'id',
+		valueField : 'id',
 		fieldLabel : 'Vehicle',
 		width : 200,
 		listeners : {
@@ -3720,10 +3736,10 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 	}, {
 		xtype : 'combo',
 		name : 'driver_filter',
-		queryMode: 'local',
+		queryMode : 'local',
 		store : 'DriverStore',
-		displayField: 'id',
-	    valueField: 'id',
+		displayField : 'id',
+		valueField : 'id',
 		fieldLabel : 'Driver',
 		width : 200,
 		listeners : {
@@ -3750,139 +3766,141 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 		}
 	} ],
 
-	columns : [ {
-		dataIndex : 'key',
-		text : 'Key',
-		hidden : true
-	}, {
-		dataIndex : 'terminal_id',
-		text : 'Terminal',
-	}, {
-		dataIndex : 'vehicle_id',
-		text : 'Vehicle',
-	}, {
-		dataIndex : 'driver_id',
-		text : 'Driver',
-	}, {
-		dataIndex : 'datetime',
-		text : 'Date',
-		xtype:'datecolumn',
-		format:F('date')
-	}, {
-		dataIndex : 'distance',
-		text : 'Distance',
-	}, {
-		dataIndex : 'running_time',
-		text : 'Running Time',
-	}, {
-		dataIndex : 'less_than_10km',
-		text : 'Less Than 10Km',
-	}, {
-		dataIndex : 'less_than_20km',
-		text : 'Less Than 20Km',
-	}, {
-		dataIndex : 'less_than_30km',
-		text : 'Less Than 30Km',
-	}, {
-		dataIndex : 'less_than_40km',
-		text : 'Less Than 40Km',
-	}, {
-		dataIndex : 'less_than_50km',
-		text : 'Less Than 50Km',
-	}, {
-		dataIndex : 'less_than_60km',
-		text : 'Less Than 60Km',
-	}, {
-		dataIndex : 'less_than_70km',
-		text : 'Less Than 70Km',
-	}, {
-		dataIndex : 'less_than_80km',
-		text : 'Less Than 80Km',
-	}, {
-		dataIndex : 'less_than_90km',
-		text : 'Less Than 90Km',
-	}, {
-		dataIndex : 'less_than_100km',
-		text : 'Less Than 100Km',
-	}, {
-		dataIndex : 'less_than_110km',
-		text : 'Less Than 110Km',
-	}, {
-		dataIndex : 'less_than_120km',
-		text : 'Less Than 120Km',
-	}, {
-		dataIndex : 'less_than_130km',
-		text : 'Less Than 130Km',
-	}, {
-		dataIndex : 'less_than_140km',
-		text : 'Less Than 140Km',
-	}, {
-		dataIndex : 'less_than_150km',
-		text : 'Less Than 150Km',
-	}, {
-		dataIndex : 'less_than_160km',
-		text : 'Less Than 160Km',
-	}, {
-		dataIndex : 'engine_start_time',
-		text : 'Start Time',
-		xtype:'datecolumn',
-		format:F('datetime'),
-		width : 120
-	}, {
-		dataIndex : 'engine_end_time',
-		text : 'End Time',
-		xtype:'datecolumn',
-		format:F('datetime'),
-		width : 120
-	}, {
-		dataIndex : 'average_speed',
-		text : 'Average Speed',
-	}, {
-		dataIndex : 'max_speed',
-		text : 'Highest Speed',
-	}, {
-		dataIndex : 'fuel_consumption',
-		text : 'Fuel Consumption',
-	}, {
-		dataIndex : 'fuel_efficiency',
-		text : 'Fuel Efficiency',
-	}, {
-		dataIndex : 'sudden_accel_count',
-		text : 'Sudden Accel Count',
-	}, {
-		dataIndex : 'sudden_brake_count',
-		text : 'Sudden Brake Count',
-	}, {
-		dataIndex : 'idle_time',
-		text : 'Idling Time'
-	}, {
-		dataIndex : 'eco_driving_time',
-		text : 'Econo Driving Time',
-	}, {
-		dataIndex : 'over_speed_time',
-		text : 'Over Speeding Time'
-	}, {
-		dataIndex : 'co2_emissions',
-		text : 'CO2 Emissions'
-	}, {
-		dataIndex : 'max_cooling_water_temp',
-		text : 'Max Cooling Water Temp'
-	}, {
-		dataIndex : 'avg_battery_volt',
-		text : 'Average Battery Voltage'
-	}, {
-		dataIndex : 'created_at',
-		text : 'Created At',
-		xtype:'datecolumn',
-		format:F('datetime'),
-		width : 120
-	}, {
-		dataIndex : 'updated_at',
-		text : 'Updated At',
-		xtype:'datecolumn',
-		format:F('datetime'),
-		width : 120
-	} ]
+	buildColumns : function() {
+		return [ new Ext.grid.RowNumberer(), {
+			dataIndex : 'key',
+			text : 'Key',
+			hidden : true
+		}, {
+			dataIndex : 'terminal_id',
+			text : 'Terminal',
+		}, {
+			dataIndex : 'vehicle_id',
+			text : 'Vehicle',
+		}, {
+			dataIndex : 'driver_id',
+			text : 'Driver',
+		}, {
+			dataIndex : 'datetime',
+			text : 'Date',
+			xtype : 'datecolumn',
+			format : F('date')
+		}, {
+			dataIndex : 'distance',
+			text : 'Distance',
+		}, {
+			dataIndex : 'running_time',
+			text : 'Running Time',
+		}, {
+			dataIndex : 'less_than_10km',
+			text : 'Less Than 10Km',
+		}, {
+			dataIndex : 'less_than_20km',
+			text : 'Less Than 20Km',
+		}, {
+			dataIndex : 'less_than_30km',
+			text : 'Less Than 30Km',
+		}, {
+			dataIndex : 'less_than_40km',
+			text : 'Less Than 40Km',
+		}, {
+			dataIndex : 'less_than_50km',
+			text : 'Less Than 50Km',
+		}, {
+			dataIndex : 'less_than_60km',
+			text : 'Less Than 60Km',
+		}, {
+			dataIndex : 'less_than_70km',
+			text : 'Less Than 70Km',
+		}, {
+			dataIndex : 'less_than_80km',
+			text : 'Less Than 80Km',
+		}, {
+			dataIndex : 'less_than_90km',
+			text : 'Less Than 90Km',
+		}, {
+			dataIndex : 'less_than_100km',
+			text : 'Less Than 100Km',
+		}, {
+			dataIndex : 'less_than_110km',
+			text : 'Less Than 110Km',
+		}, {
+			dataIndex : 'less_than_120km',
+			text : 'Less Than 120Km',
+		}, {
+			dataIndex : 'less_than_130km',
+			text : 'Less Than 130Km',
+		}, {
+			dataIndex : 'less_than_140km',
+			text : 'Less Than 140Km',
+		}, {
+			dataIndex : 'less_than_150km',
+			text : 'Less Than 150Km',
+		}, {
+			dataIndex : 'less_than_160km',
+			text : 'Less Than 160Km',
+		}, {
+			dataIndex : 'engine_start_time',
+			text : 'Start Time',
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		}, {
+			dataIndex : 'engine_end_time',
+			text : 'End Time',
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		}, {
+			dataIndex : 'average_speed',
+			text : 'Average Speed',
+		}, {
+			dataIndex : 'max_speed',
+			text : 'Highest Speed',
+		}, {
+			dataIndex : 'fuel_consumption',
+			text : 'Fuel Consumption',
+		}, {
+			dataIndex : 'fuel_efficiency',
+			text : 'Fuel Efficiency',
+		}, {
+			dataIndex : 'sudden_accel_count',
+			text : 'Sudden Accel Count',
+		}, {
+			dataIndex : 'sudden_brake_count',
+			text : 'Sudden Brake Count',
+		}, {
+			dataIndex : 'idle_time',
+			text : 'Idling Time'
+		}, {
+			dataIndex : 'eco_driving_time',
+			text : 'Econo Driving Time',
+		}, {
+			dataIndex : 'over_speed_time',
+			text : 'Over Speeding Time'
+		}, {
+			dataIndex : 'co2_emissions',
+			text : 'CO2 Emissions'
+		}, {
+			dataIndex : 'max_cooling_water_temp',
+			text : 'Max Cooling Water Temp'
+		}, {
+			dataIndex : 'avg_battery_volt',
+			text : 'Average Battery Voltage'
+		}, {
+			dataIndex : 'created_at',
+			text : 'Created At',
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		}, {
+			dataIndex : 'updated_at',
+			text : 'Updated At',
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		} ]
+	}
 
 });
 
@@ -3893,11 +3911,11 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	
 	title : 'Information By Vehicle',
 
-	store : 'VehicleStore',
+	store : 'VehicleInfoStore',
 
 	autoScroll : true,
 
-	columns : [ {
+	columns : [ new Ext.grid.RowNumberer(), {
 		dataIndex : 'key',
 		text : 'Key',
 		type : 'string',
@@ -4151,7 +4169,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Vehicle Information (Image, Registration #, ..) from
 			 * VehicleStore
 			 */
-			var vehicleStore = Ext.getStore('VehicleStore');
+			var vehicleStore = Ext.getStore('VehicleInfoStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
@@ -4210,27 +4228,33 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * TrackStore를 다시 로드함.
 			 */
 			self.getTrackStore().load({
-				filters : [ {
-					property : 'vehicle_id',
-					value : vehicle
-				}, {
-					property : 'date',
+				params : {
+					vehicle_id : vehicle,
 					/* for Unix timestamp (in seconds) */
-					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
-				} ]
+					date : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000),
+					start : 0,
+					limit : 1000
+				}
+//				filters : [ {
+//					property : 'vehicle_id',
+//					value : vehicle
+//				}, {
+//					property : 'date',
+//					/* for Unix timestamp (in seconds) */
+//					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
+//				} ]
 			});
 
 			/*
 			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().load({
-				filters : [ {
-					property : 'vehicle_id',
-					value : vehicle
-				}, {
-					property : 'confirm',
-					value : false
-				} ]
+				params : {
+					vehicle_id : vehicle,
+					confirm : false,
+					start : 0,
+					limit : 4
+				}
 			});
 		});
 	},
@@ -4639,26 +4663,29 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			});
 		});
 
-		this.sub('incident_form').on('afterrender', function(form) {
-			this.down('[itemId=confirm]').getEl().on('click', function(checkbox, dirty) {
+		this.sub('incident_form').on('afterrender', function() {
+			this.down('[itemId=confirm]').getEl().on('click', function(e, t) {
 				var form = self.sub('incident_form').getForm();
 
 				if (form.getRecord() != null) {
 					form.submit({
 						url : 'incident/save',
 						success : function(form, action) {
-							self.refreshIncidentList(function() {
-								/* Confirm 이후에는 그리드 리스트에서 사라지므로 찾을 수 없음. */
-								// form.loadRecord(self.sub('grid').store.findRecord('key',
-								// action.result.key));
-							});
+							self.sub('grid').store.findRecord('key', action.result.key).set('confirm', form.findField('confirm').getValue());
 						},
 						failure : function(form, action) {
 							GreenFleet.msg('Failed', action.result.msg);
+							form.reset();
 						}
 					});
 				}
 			});
+		});
+		
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['driver_id'] = self.sub('driver_filter').getSubmitValue();
 		});
 
 	},
@@ -4685,20 +4712,22 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		return this.incident;
 	},
 
-	refreshIncidentList : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'driver_id',
-				value : this.sub('driver_filter').getValue()
-			}, {
-				property : 'confirm',
-				value : false
-			} ],
-			callback : callback
-		});
+	refreshIncidentList : function() {
+		this.sub('pagingtoolbar').moveFirst();
+//
+//		this.sub('grid').store.load({
+//			filters : [ {
+//				property : 'vehicle_id',
+//				value : this.sub('vehicle_filter').getValue()
+//			}, {
+//				property : 'driver_id',
+//				value : this.sub('driver_filter').getValue()
+//			}, {
+//				property : 'confirm',
+//				value : false
+//			} ],
+//			callback : callback
+//		});
 	},
 
 	getTrackLine : function() {
@@ -4898,10 +4927,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		itemId : 'grid',
 		cls : 'hIndexbar',
 		title : 'Incident List',
-		store : 'IncidentByVehicleStore',
+		store : 'IncidentViewStore',
 		autoScroll : true,
 		flex : 1,
-		columns : [ {
+		columns : [ new Ext.grid.RowNumberer(), {
 			dataIndex : 'key',
 			text : 'Key',
 			type : 'string',
@@ -5038,7 +5067,15 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			itemId : 'reset',
 			text : 'Reset'
-		} ]
+		} ],
+		bbar: {
+			xtype : 'pagingtoolbar',
+			itemId : 'pagingtoolbar',
+            store: 'IncidentViewStore',
+            displayInfo: true,
+            displayMsg: 'Displaying incidents {0} - {1} of {2}',
+            emptyMsg: "No incidents to display",
+        }
 	}
 });
 
@@ -5851,12 +5888,16 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		type : 'ajax',
 		url : 'company',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
 Ext.define('GreenFleet.store.UserStore', {
 	extend : 'Ext.data.Store',
+	
+	pageSize : 250,
 
 	fields : [ {
 		name : 'key',
@@ -5896,7 +5937,9 @@ Ext.define('GreenFleet.store.UserStore', {
 		type : 'ajax',
 		url : 'user',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -5961,6 +6004,8 @@ Ext.define('GreenFleet.store.CodeStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : true,
+	
+	pageSize : 10000,
 
 	fields : [ {
 		name : 'key',
@@ -5988,7 +6033,9 @@ Ext.define('GreenFleet.store.CodeStore', {
 		type : 'ajax',
 		url : 'code',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	},
 	
@@ -6023,6 +6070,8 @@ Ext.define('GreenFleet.store.VehicleStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
+	
+	pageSize : 1000,
 	
 	fields : [ {
 		name : 'key',
@@ -6113,7 +6162,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'ajax',
 		url : 'vehicle',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6133,10 +6184,15 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
 Ext.define('GreenFleet.store.VehicleFilteredStore', {
 	extend : 'GreenFleet.store.VehicleStore'
 });
+Ext.define('GreenFleet.store.VehicleInfoStore', {
+	extend : 'GreenFleet.store.VehicleStore'
+});
 Ext.define('GreenFleet.store.DriverStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : true,
+	
+	pageSize : 1000,
 	
 	fields : [ {
 		name : 'key',
@@ -6179,7 +6235,9 @@ Ext.define('GreenFleet.store.DriverStore', {
 		type : 'ajax',
 		url : 'driver',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6233,7 +6291,9 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		type : 'ajax',
 		url : 'reservation',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6242,7 +6302,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 
 	autoLoad : false,
 
-	remoteFilter : true,
+	pageSize : 25,
+	
+//	remoteFilter : true,
 	
 //	remoteSort : true,
 	
@@ -6320,7 +6382,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'ajax',
 		url : 'incident',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6328,6 +6392,8 @@ Ext.define('GreenFleet.store.IncidentByVehicleStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
+	
+	pageSize : 25,
 
 //	remoteFilter : true,
 	
@@ -6407,7 +6473,100 @@ Ext.define('GreenFleet.store.IncidentByVehicleStore', {
 		type : 'ajax',
 		url : 'incident',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
+Ext.define('GreenFleet.store.IncidentViewStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+	
+	pageSize : 25,
+
+//	remoteFilter : true,
+	
+//	remoteSort : true,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'datetime',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'terminal_id',
+		type : 'string'
+	}, {
+		name : 'vehicle_id',
+		type : 'string'
+	}, {
+		name : 'driver_id',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'float'
+	}, {
+		name : 'longitude',
+		type : 'float'
+	}, {
+		name : 'velocity',
+		type : 'float'
+	}, {
+		name : 'impulse_abs',
+		type : 'float'
+	}, {
+		name : 'impulse_x',
+		type : 'float'
+	}, {
+		name : 'impulse_y',
+		type : 'float'
+	}, {
+		name : 'impulse_z',
+		type : 'float'
+	}, {
+		name : 'impulse_threshold',
+		type : 'float'
+	}, {
+		name : 'obd_connected',
+		type : 'boolean'
+	}, {
+		name : 'confirm',
+		type : 'boolean'
+	}, {
+		name : 'engine_temp',
+		type : 'float'
+	}, {
+		name : 'engine_temp_threshold',
+		type : 'float'
+	}, {
+		name : 'video_clip',
+		type : 'string'
+	}, {
+		name : 'created_at',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updated_at',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	sorters : [ {
+		property : 'datetime',
+		direction : 'DESC'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'incident',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6415,6 +6574,8 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
+	
+	pageSize : 1000,
 
 //	remoteFilter : true,
 	
@@ -6476,7 +6637,9 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 		type : 'ajax',
 		url : 'incident_log',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6485,7 +6648,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 
 	autoLoad : false,
 	
-//	remoteFilter : false,
+//	remoteFilter : true,
 	
 //	remoteSort : true,
 	
@@ -6533,7 +6696,9 @@ Ext.define('GreenFleet.store.TrackStore', {
 		type : 'ajax',
 		url : 'track',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6733,7 +6898,9 @@ Ext.define('GreenFleet.store.CheckinDataStore', {
 		type : 'ajax',
 		url : 'checkin_data',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6772,7 +6939,9 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 		type : 'ajax',
 		url : 'track',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6781,7 +6950,9 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 
 	autoLoad : false,
 
-	remoteFilter : true,
+	pageSize : 5,
+	
+//	remoteFilter : true,
 
 	// remoteSort : true,
 
@@ -6823,10 +6994,10 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 		dateFormat : 'time'
 	} ],
 
-	filters : [ {
-		property : 'confirm',
-		value : false
-	} ],
+//	filters : [ {
+//		property : 'confirm',
+//		value : false
+//	} ],
 
 	sorters : [ {
 		property : 'datetime',
@@ -6836,8 +7007,13 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'incident',
+		extraParams : {
+			confirm : false
+		},
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -6879,7 +7055,9 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		type : 'ajax',
 		url : 'terminal',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });
@@ -7033,11 +7211,13 @@ Ext.define('GreenFleet.store.FileStore', {
         type: 'ajax',
         url : '/data/files.json',
         reader: {
-            type: 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
         }
     },
     
-    autoLoad: true
+    autoLoad: false
 });
 Ext.define('GreenFleet.model.ConsumableHealth', {
 	extend : 'Ext.data.Model',
@@ -7138,8 +7318,9 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
 	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
-			'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentByVehicleStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
-			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TimeZoneStore', 'ConsumableStore' ],
+			'VehicleInfoStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentByVehicleStore', 'IncidentViewStore',
+			'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'CheckinDataStore',
+			'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TimeZoneStore', 'ConsumableStore' ],
 	models : [ 'Code' ],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu', 'management.Company',
 			'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal', 'management.Reservation',

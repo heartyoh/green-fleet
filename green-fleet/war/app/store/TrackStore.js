@@ -3,7 +3,7 @@ Ext.define('GreenFleet.store.TrackStore', {
 
 	autoLoad : false,
 	
-//	remoteFilter : false,
+//	remoteFilter : true,
 	
 //	remoteSort : true,
 	
@@ -51,7 +51,9 @@ Ext.define('GreenFleet.store.TrackStore', {
 		type : 'ajax',
 		url : 'track',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

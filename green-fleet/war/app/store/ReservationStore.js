@@ -48,7 +48,9 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		type : 'ajax',
 		url : 'reservation',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

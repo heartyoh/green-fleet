@@ -61,25 +61,17 @@ Ext.define('GreenFleet.view.management.Track', {
 		this.down('#search').on('click', function() {
 			self.search();
 		});
+		
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['date'] = self.sub('date_filter').getSubmitValue();
+		});
 
 	},
 
-	search : function(callback) {
-		if (!this.sub('vehicle_filter').getValue() || !this.sub('date_filter').getSubmitValue()) {
-			Ext.Msg.alert('Condition', 'Please select conditions!');
-			return;
-		}
-
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'date',
-				value : this.sub('date_filter').getSubmitValue()
-			} ],
-			callback : callback
-		});
+	search : function() {
+		this.sub('pagingtoolbar').moveFirst();
 	},
 
 	buildList : function(main) {
@@ -89,7 +81,7 @@ Ext.define('GreenFleet.view.management.Track', {
 			store : 'TrackStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',
@@ -166,7 +158,15 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				text : 'Reset',
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'TrackStore',
+	            displayInfo: true,
+	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
+	            emptyMsg: "No tracks to display",
+	        }
 		}
 	},
 

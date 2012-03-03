@@ -95,7 +95,7 @@ public class DriverService extends EntityService {
 
 	@RequestMapping(value = "/driver", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 

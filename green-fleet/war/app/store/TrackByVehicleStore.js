@@ -33,7 +33,9 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 		type : 'ajax',
 		url : 'track',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

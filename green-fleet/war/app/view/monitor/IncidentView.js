@@ -110,26 +110,29 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			});
 		});
 
-		this.sub('incident_form').on('afterrender', function(form) {
-			this.down('[itemId=confirm]').getEl().on('click', function(checkbox, dirty) {
+		this.sub('incident_form').on('afterrender', function() {
+			this.down('[itemId=confirm]').getEl().on('click', function(e, t) {
 				var form = self.sub('incident_form').getForm();
 
 				if (form.getRecord() != null) {
 					form.submit({
 						url : 'incident/save',
 						success : function(form, action) {
-							self.refreshIncidentList(function() {
-								/* Confirm 이후에는 그리드 리스트에서 사라지므로 찾을 수 없음. */
-								// form.loadRecord(self.sub('grid').store.findRecord('key',
-								// action.result.key));
-							});
+							self.sub('grid').store.findRecord('key', action.result.key).set('confirm', form.findField('confirm').getValue());
 						},
 						failure : function(form, action) {
 							GreenFleet.msg('Failed', action.result.msg);
+							form.reset();
 						}
 					});
 				}
 			});
+		});
+		
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['driver_id'] = self.sub('driver_filter').getSubmitValue();
 		});
 
 	},
@@ -156,20 +159,22 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		return this.incident;
 	},
 
-	refreshIncidentList : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'driver_id',
-				value : this.sub('driver_filter').getValue()
-			}, {
-				property : 'confirm',
-				value : false
-			} ],
-			callback : callback
-		});
+	refreshIncidentList : function() {
+		this.sub('pagingtoolbar').moveFirst();
+//
+//		this.sub('grid').store.load({
+//			filters : [ {
+//				property : 'vehicle_id',
+//				value : this.sub('vehicle_filter').getValue()
+//			}, {
+//				property : 'driver_id',
+//				value : this.sub('driver_filter').getValue()
+//			}, {
+//				property : 'confirm',
+//				value : false
+//			} ],
+//			callback : callback
+//		});
 	},
 
 	getTrackLine : function() {
@@ -369,10 +374,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		itemId : 'grid',
 		cls : 'hIndexbar',
 		title : 'Incident List',
-		store : 'IncidentByVehicleStore',
+		store : 'IncidentViewStore',
 		autoScroll : true,
 		flex : 1,
-		columns : [ {
+		columns : [ new Ext.grid.RowNumberer(), {
 			dataIndex : 'key',
 			text : 'Key',
 			type : 'string',
@@ -509,6 +514,14 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			itemId : 'reset',
 			text : 'Reset'
-		} ]
+		} ],
+		bbar: {
+			xtype : 'pagingtoolbar',
+			itemId : 'pagingtoolbar',
+            store: 'IncidentViewStore',
+            displayInfo: true,
+            displayMsg: 'Displaying incidents {0} - {1} of {2}',
+            emptyMsg: "No incidents to display",
+        }
 	}
 });

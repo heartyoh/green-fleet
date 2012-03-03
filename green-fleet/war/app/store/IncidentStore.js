@@ -3,7 +3,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 
 	autoLoad : false,
 
-	remoteFilter : true,
+	pageSize : 25,
+	
+//	remoteFilter : true,
 	
 //	remoteSort : true,
 	
@@ -81,7 +83,9 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		type : 'ajax',
 		url : 'incident',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

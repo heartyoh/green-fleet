@@ -88,7 +88,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Vehicle Information (Image, Registration #, ..) from
 			 * VehicleStore
 			 */
-			var vehicleStore = Ext.getStore('VehicleStore');
+			var vehicleStore = Ext.getStore('VehicleInfoStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
@@ -147,27 +147,33 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * TrackStore를 다시 로드함.
 			 */
 			self.getTrackStore().load({
-				filters : [ {
-					property : 'vehicle_id',
-					value : vehicle
-				}, {
-					property : 'date',
+				params : {
+					vehicle_id : vehicle,
 					/* for Unix timestamp (in seconds) */
-					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
-				} ]
+					date : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000),
+					start : 0,
+					limit : 1000
+				}
+//				filters : [ {
+//					property : 'vehicle_id',
+//					value : vehicle
+//				}, {
+//					property : 'date',
+//					/* for Unix timestamp (in seconds) */
+//					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
+//				} ]
 			});
 
 			/*
 			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().load({
-				filters : [ {
-					property : 'vehicle_id',
-					value : vehicle
-				}, {
-					property : 'confirm',
-					value : false
-				} ]
+				params : {
+					vehicle_id : vehicle,
+					confirm : false,
+					start : 0,
+					limit : 4
+				}
 			});
 		});
 	},

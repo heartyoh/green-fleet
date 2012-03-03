@@ -36,7 +36,9 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		type : 'ajax',
 		url : 'terminal',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

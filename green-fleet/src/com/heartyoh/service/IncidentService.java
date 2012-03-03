@@ -170,11 +170,10 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void addFilter(Query q, String property, String value) {
-		if(property.equals("confirm")) {
-			q.addFilter(property, FilterOperator.EQUAL, Boolean.parseBoolean(value));
-		} else if("date".equals(property)) {
-			long fromMillis = Long.parseLong(value);
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		String date = request.getParameter("date");
+		if(date != null) {
+			long fromMillis = Long.parseLong(date);
 			Calendar c = Calendar.getInstance();
 			c.setTimeInMillis(fromMillis * 1000);
 			Date fromDate = c.getTime();
@@ -182,14 +181,27 @@ public class IncidentService extends EntityService {
 			Date toDate = c.getTime();
 			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
-		} else {
-			super.addFilter(q, property, value);
+		}
+		
+		String vehicle_id = request.getParameter("vehicle_id");
+		if(vehicle_id != null && !vehicle_id.isEmpty()) {
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle_id);
+		}
+
+		String driver_id = request.getParameter("driver_id");
+		if(driver_id != null && !driver_id.isEmpty()) {
+			q.addFilter("driver_id", FilterOperator.EQUAL, driver_id);
+		}
+
+		String confirm = request.getParameter("confirm");
+		if(confirm != null && !confirm.isEmpty()) {
+			q.addFilter("confirm", FilterOperator.EQUAL, confirm.equals("true") || confirm.equals("on"));
 		}
 	}
-	
+
 	@RequestMapping(value = "/incident", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 }

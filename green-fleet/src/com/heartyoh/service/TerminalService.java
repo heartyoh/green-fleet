@@ -86,7 +86,7 @@ public class TerminalService extends EntityService {
 
 	@RequestMapping(value = "/terminal", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 

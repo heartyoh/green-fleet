@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -139,14 +140,15 @@ public class TrackService extends EntityService {
 
 	@RequestMapping(value = "/track", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrievex(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 
 	@Override
-	protected void addFilter(Query q, String property, String value) {
-		if("date".equals(property)) {
-			long fromMillis = Long.parseLong(value);
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		String date = request.getParameter("date");
+		if(date != null) {
+			long fromMillis = Long.parseLong(date);
 			Calendar c = Calendar.getInstance();
 			c.setTimeInMillis(fromMillis * 1000);
 			Date fromDate = c.getTime();
@@ -154,8 +156,11 @@ public class TrackService extends EntityService {
 			Date toDate = c.getTime();
 			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
-		} else {			
-			q.addFilter(property, FilterOperator.EQUAL, value);
+		}
+		
+		String vehicle_id = request.getParameter("vehicle_id");
+		if(vehicle_id != null && !vehicle_id.isEmpty()) {
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle_id);
 		}
 	}
 }

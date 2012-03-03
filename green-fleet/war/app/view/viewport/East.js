@@ -118,7 +118,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	
 	refreshIncidents : function(store) {
 		if(!store)
-			store = Ext.getStore('RecentIncidentsStore');
+			store = Ext.getStore('RecentIncidentStore');
 		
 		this.sub('incidents').removeAll();
 		

@@ -66,7 +66,7 @@ Ext.define('GreenFleet.view.management.User', {
 			itemId : 'grid',
 			store : 'UserStore',
 			flex : 3,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true
@@ -127,7 +127,15 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				text : 'reset',
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'UserStore',
+	            displayInfo: true,
+	            displayMsg: 'Displaying users {0} - {1} of {2}',
+	            emptyMsg: "No users to display",
+	        }
 		}
 	},
 

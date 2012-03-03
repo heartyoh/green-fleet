@@ -78,7 +78,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			store : 'CodeGroupStore',
 			title : 'Code Group',
 			width : 320,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'group',
 				text : 'Group',
 				width : 100
@@ -98,7 +98,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			title : 'Code List',
 			flex : 1,
 			cls : 'hIndexbarZero',
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true

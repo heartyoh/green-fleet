@@ -1,5 +1,7 @@
 Ext.define('GreenFleet.store.UserStore', {
 	extend : 'Ext.data.Store',
+	
+	pageSize : 250,
 
 	fields : [ {
 		name : 'key',
@@ -39,7 +41,9 @@ Ext.define('GreenFleet.store.UserStore', {
 		type : 'ajax',
 		url : 'user',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

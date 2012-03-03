@@ -88,7 +88,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			store : 'TerminalStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				type : 'string',

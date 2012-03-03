@@ -31,7 +31,9 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		type : 'ajax',
 		url : 'company',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

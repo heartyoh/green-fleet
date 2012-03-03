@@ -2,6 +2,8 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
+	
+	pageSize : 1000,
 
 //	remoteFilter : true,
 	
@@ -63,7 +65,9 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 		type : 'ajax',
 		url : 'incident_log',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

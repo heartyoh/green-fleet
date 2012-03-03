@@ -82,7 +82,7 @@ public class ReservationService extends EntityService {
 
 	@RequestMapping(value = "/reservation", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 

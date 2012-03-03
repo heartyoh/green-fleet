@@ -83,7 +83,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			store : 'CheckinDataStore',
 			autoScroll : true,
 			flex : 1,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true

@@ -3,6 +3,8 @@ Ext.define('GreenFleet.store.VehicleStore', {
 
 	autoLoad : false,
 	
+	pageSize : 1000,
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'
@@ -92,7 +94,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'ajax',
 		url : 'vehicle',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

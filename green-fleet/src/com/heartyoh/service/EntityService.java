@@ -333,6 +333,11 @@ public abstract class EntityService {
 		}
 	}
 
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		
+		return;
+	}
+
 	protected void adjustFilters(List<Filter> filters) {
 		return;
 	}
@@ -341,7 +346,7 @@ public abstract class EntityService {
 		return;
 	}
 	
-	public List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	public Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
 		
 		String company = null;
@@ -379,21 +384,43 @@ public abstract class EntityService {
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);
 
+		buildQuery(q, request);
 		if (useFilter())
 			buildQuery(q, filters, sorters);
 
 		PreparedQuery pq = datastore.prepare(q);
-
-		int totalEntities = pq.countEntities(FetchOptions.Builder.withOffset(0).limit(Integer.MAX_VALUE));
-		logger.info("Total Count : " + totalEntities);
 		
-		List<Map<String, Object>> list = new LinkedList<Map<String, Object>>();
+		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
+		
+		String pLimit = request.getParameter("limit");
+		String pPage = request.getParameter("page");
+		String pStart = request.getParameter("start");
 
-		for (Entity result : pq.asIterable()) {
-			list.add(SessionUtils.cvtEntityToMap(result));
+		int page = 1;
+		int offset = 0;
+		int limit = Integer.MAX_VALUE;
+		
+		if(pPage != null) {
+			page = Integer.parseInt(pPage);
+		}
+		if(pStart != null) {
+			offset = Integer.parseInt(pStart);
+		}
+		if(pLimit != null) {
+			limit = Integer.parseInt(pLimit);
 		}
 
-		return list;
-	}
+		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 
+		for (Entity result : pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset))) {
+			items.add(SessionUtils.cvtEntityToMap(result));
+		}
+
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("total", total);
+		result.put("success", true);
+		result.put("items", items);
+		
+		return result;
+	}
 }

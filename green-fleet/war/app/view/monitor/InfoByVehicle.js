@@ -5,11 +5,11 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	
 	title : 'Information By Vehicle',
 
-	store : 'VehicleStore',
+	store : 'VehicleInfoStore',
 
 	autoScroll : true,
 
-	columns : [ {
+	columns : [ new Ext.grid.RowNumberer(), {
 		dataIndex : 'key',
 		text : 'Key',
 		type : 'string',

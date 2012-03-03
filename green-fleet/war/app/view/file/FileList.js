@@ -5,7 +5,7 @@ Ext.define('GreenFleet.view.file.FileList', {
 
 	store : 'FileStore',
 
-	columns : [ {
+	columns : [ new Ext.grid.RowNumberer(), {
 		header : 'Name',
 		dataIndex : 'filename'
 	}, {

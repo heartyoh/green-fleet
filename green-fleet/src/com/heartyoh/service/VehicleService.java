@@ -98,7 +98,7 @@ public class VehicleService extends EntityService {
 
 	@RequestMapping(value = "/vehicle", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 

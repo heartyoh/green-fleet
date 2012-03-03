@@ -82,7 +82,7 @@ public class IncidentLogService extends EntityService {
 
 	@RequestMapping(value = "/incident_log", method = RequestMethod.GET)
 	public @ResponseBody
-	List<Map<String, Object>> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
 

@@ -3,6 +3,8 @@ Ext.define('GreenFleet.store.DriverStore', {
 
 	autoLoad : true,
 	
+	pageSize : 1000,
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'
@@ -44,7 +46,9 @@ Ext.define('GreenFleet.store.DriverStore', {
 		type : 'ajax',
 		url : 'driver',
 		reader : {
-			type : 'json'
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
 		}
 	}
 });

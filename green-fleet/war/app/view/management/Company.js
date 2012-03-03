@@ -69,7 +69,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			itemId : 'grid',
 			store : 'CompanyStore',
 			flex : 3,
-			columns : [ {
+			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
 				hidden : true
