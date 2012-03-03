@@ -353,8 +353,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : 'export',
-		
+		html : 'export'
 	} ]
 });
 
@@ -1043,7 +1042,7 @@ Ext.define('GreenFleet.view.management.User', {
 	            store: 'UserStore',
 	            displayInfo: true,
 	            displayMsg: 'Displaying users {0} - {1} of {2}',
-	            emptyMsg: "No users to display",
+	            emptyMsg: "No users to display"
 	        }
 		}
 	},
@@ -2368,7 +2367,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 	            store: 'IncidentStore',
 	            displayInfo: true,
 	            displayMsg: 'Displaying incidents {0} - {1} of {2}',
-	            emptyMsg: "No incidents to display",
+	            emptyMsg: "No incidents to display"
 	        }
 		}
 	},
@@ -2976,7 +2975,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	            store: 'TrackStore',
 	            displayInfo: true,
 	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
-	            emptyMsg: "No tracks to display",
+	            emptyMsg: "No tracks to display"
 	        }
 		}
 	},
@@ -3150,13 +3149,13 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				hidden : true
 			}, {
 				dataIndex : 'terminal_id',
-				text : 'Terminal',
+				text : 'Terminal'
 			}, {
 				dataIndex : 'vehicle_id',
-				text : 'Vehicle',
+				text : 'Vehicle'
 			}, {
 				dataIndex : 'driver_id',
-				text : 'Driver',
+				text : 'Driver'
 			}, {
 				dataIndex : 'datetime',
 				text : 'Date/Time',
@@ -3165,58 +3164,58 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				width : 120
 			}, {
 				dataIndex : 'distance',
-				text : 'Distance',
+				text : 'Distance'
 			}, {
 				dataIndex : 'running_time',
-				text : 'Running Time',
+				text : 'Running Time'
 			}, {
 				dataIndex : 'less_than_10km',
-				text : 'Less Than 10Km',
+				text : 'Less Than 10Km'
 			}, {
 				dataIndex : 'less_than_20km',
-				text : 'Less Than 20Km',
+				text : 'Less Than 20Km'
 			}, {
 				dataIndex : 'less_than_30km',
-				text : 'Less Than 30Km',
+				text : 'Less Than 30Km'
 			}, {
 				dataIndex : 'less_than_40km',
-				text : 'Less Than 40Km',
+				text : 'Less Than 40Km'
 			}, {
 				dataIndex : 'less_than_50km',
-				text : 'Less Than 50Km',
+				text : 'Less Than 50Km'
 			}, {
 				dataIndex : 'less_than_60km',
-				text : 'Less Than 60Km',
+				text : 'Less Than 60Km'
 			}, {
 				dataIndex : 'less_than_70km',
-				text : 'Less Than 70Km',
+				text : 'Less Than 70Km'
 			}, {
 				dataIndex : 'less_than_80km',
-				text : 'Less Than 80Km',
+				text : 'Less Than 80Km'
 			}, {
 				dataIndex : 'less_than_90km',
-				text : 'Less Than 90Km',
+				text : 'Less Than 90Km'
 			}, {
 				dataIndex : 'less_than_100km',
-				text : 'Less Than 100Km',
+				text : 'Less Than 100Km'
 			}, {
 				dataIndex : 'less_than_110km',
-				text : 'Less Than 110Km',
+				text : 'Less Than 110Km'
 			}, {
 				dataIndex : 'less_than_120km',
-				text : 'Less Than 120Km',
+				text : 'Less Than 120Km'
 			}, {
 				dataIndex : 'less_than_130km',
-				text : 'Less Than 130Km',
+				text : 'Less Than 130Km'
 			}, {
 				dataIndex : 'less_than_140km',
-				text : 'Less Than 140Km',
+				text : 'Less Than 140Km'
 			}, {
 				dataIndex : 'less_than_150km',
-				text : 'Less Than 150Km',
+				text : 'Less Than 150Km'
 			}, {
 				dataIndex : 'less_than_160km',
-				text : 'Less Than 160Km',
+				text : 'Less Than 160Km'
 			}, {
 				dataIndex : 'engine_start_time',
 				text : 'Start Time',
@@ -3231,28 +3230,28 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				width : 120
 			}, {
 				dataIndex : 'average_speed',
-				text : 'Average Speed',
+				text : 'Average Speed'
 			}, {
 				dataIndex : 'max_speed',
-				text : 'Highest Speed',
+				text : 'Highest Speed'
 			}, {
 				dataIndex : 'fuel_consumption',
-				text : 'Fuel Consumption',
+				text : 'Fuel Consumption'
 			}, {
 				dataIndex : 'fuel_efficiency',
-				text : 'Fuel Efficiency',
+				text : 'Fuel Efficiency'
 			}, {
 				dataIndex : 'sudden_accel_count',
-				text : 'Sudden Accel Count',
+				text : 'Sudden Accel Count'
 			}, {
 				dataIndex : 'sudden_brake_count',
-				text : 'Sudden Brake Count',
+				text : 'Sudden Brake Count'
 			}, {
 				dataIndex : 'idle_time',
 				text : 'Idling Time'
 			}, {
 				dataIndex : 'eco_driving_time',
-				text : 'Econo Driving Time',
+				text : 'Econo Driving Time'
 			}, {
 				dataIndex : 'over_speed_time',
 				text : 'Over Speeding Time'
@@ -3773,13 +3772,13 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 			hidden : true
 		}, {
 			dataIndex : 'terminal_id',
-			text : 'Terminal',
+			text : 'Terminal'
 		}, {
 			dataIndex : 'vehicle_id',
-			text : 'Vehicle',
+			text : 'Vehicle'
 		}, {
 			dataIndex : 'driver_id',
-			text : 'Driver',
+			text : 'Driver'
 		}, {
 			dataIndex : 'datetime',
 			text : 'Date',
@@ -3787,58 +3786,58 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 			format : F('date')
 		}, {
 			dataIndex : 'distance',
-			text : 'Distance',
+			text : 'Distance'
 		}, {
 			dataIndex : 'running_time',
-			text : 'Running Time',
+			text : 'Running Time'
 		}, {
 			dataIndex : 'less_than_10km',
-			text : 'Less Than 10Km',
+			text : 'Less Than 10Km'
 		}, {
 			dataIndex : 'less_than_20km',
-			text : 'Less Than 20Km',
+			text : 'Less Than 20Km'
 		}, {
 			dataIndex : 'less_than_30km',
-			text : 'Less Than 30Km',
+			text : 'Less Than 30Km'
 		}, {
 			dataIndex : 'less_than_40km',
-			text : 'Less Than 40Km',
+			text : 'Less Than 40Km'
 		}, {
 			dataIndex : 'less_than_50km',
-			text : 'Less Than 50Km',
+			text : 'Less Than 50Km'
 		}, {
 			dataIndex : 'less_than_60km',
-			text : 'Less Than 60Km',
+			text : 'Less Than 60Km'
 		}, {
 			dataIndex : 'less_than_70km',
-			text : 'Less Than 70Km',
+			text : 'Less Than 70Km'
 		}, {
 			dataIndex : 'less_than_80km',
-			text : 'Less Than 80Km',
+			text : 'Less Than 80Km'
 		}, {
 			dataIndex : 'less_than_90km',
-			text : 'Less Than 90Km',
+			text : 'Less Than 90Km'
 		}, {
 			dataIndex : 'less_than_100km',
-			text : 'Less Than 100Km',
+			text : 'Less Than 100Km'
 		}, {
 			dataIndex : 'less_than_110km',
-			text : 'Less Than 110Km',
+			text : 'Less Than 110Km'
 		}, {
 			dataIndex : 'less_than_120km',
-			text : 'Less Than 120Km',
+			text : 'Less Than 120Km'
 		}, {
 			dataIndex : 'less_than_130km',
-			text : 'Less Than 130Km',
+			text : 'Less Than 130Km'
 		}, {
 			dataIndex : 'less_than_140km',
-			text : 'Less Than 140Km',
+			text : 'Less Than 140Km'
 		}, {
 			dataIndex : 'less_than_150km',
-			text : 'Less Than 150Km',
+			text : 'Less Than 150Km'
 		}, {
 			dataIndex : 'less_than_160km',
-			text : 'Less Than 160Km',
+			text : 'Less Than 160Km'
 		}, {
 			dataIndex : 'engine_start_time',
 			text : 'Start Time',
@@ -3853,28 +3852,28 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 			width : 120
 		}, {
 			dataIndex : 'average_speed',
-			text : 'Average Speed',
+			text : 'Average Speed'
 		}, {
 			dataIndex : 'max_speed',
-			text : 'Highest Speed',
+			text : 'Highest Speed'
 		}, {
 			dataIndex : 'fuel_consumption',
-			text : 'Fuel Consumption',
+			text : 'Fuel Consumption'
 		}, {
 			dataIndex : 'fuel_efficiency',
-			text : 'Fuel Efficiency',
+			text : 'Fuel Efficiency'
 		}, {
 			dataIndex : 'sudden_accel_count',
-			text : 'Sudden Accel Count',
+			text : 'Sudden Accel Count'
 		}, {
 			dataIndex : 'sudden_brake_count',
-			text : 'Sudden Brake Count',
+			text : 'Sudden Brake Count'
 		}, {
 			dataIndex : 'idle_time',
 			text : 'Idling Time'
 		}, {
 			dataIndex : 'eco_driving_time',
-			text : 'Econo Driving Time',
+			text : 'Econo Driving Time'
 		}, {
 			dataIndex : 'over_speed_time',
 			text : 'Over Speeding Time'
@@ -4450,7 +4449,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [ {
-			xtype : 'monitor_info_by_vehicle',
+			xtype : 'monitor_info_by_vehicle'
 		}, {
 			xtype : 'monitor_control_by_vehicle',
 			title : 'Control By Vehicle'
@@ -5074,7 +5073,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
             store: 'IncidentViewStore',
             displayInfo: true,
             displayMsg: 'Displaying incidents {0} - {1} of {2}',
-            emptyMsg: "No incidents to display",
+            emptyMsg: "No incidents to display"
         }
 	}
 });
@@ -7388,7 +7387,7 @@ Ext.define('GreenFleet.model.ConsumableHealth', {
 	}, {
 		name : 'recent_date'
 	}, {
-		name : 'running_qty',
+		name : 'running_qty'
 	}, {
 		name : 'threshold'
 	}, {
