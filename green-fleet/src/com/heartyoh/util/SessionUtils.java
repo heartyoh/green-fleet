@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -91,6 +93,20 @@ public class SessionUtils {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.putAll(entity.getProperties());
 		map.put("key", KeyFactory.keyToString(entity.getKey()));
+		return map;
+	}
+
+	public static Map<String, Object> cvtEntityToMap(Entity entity, String[] selects) {
+		if(selects == null || selects.length == 0)
+			return cvtEntityToMap(entity);
+		Map<String, Object> map = new HashMap<String, Object>();
+		for(int i = 0;i < selects.length;i++) {
+			String propkey = selects[i];
+			map.put(propkey, entity.getProperty(propkey));
+		}
+		if(map.containsKey("key")) {
+			map.put("key", KeyFactory.keyToString(entity.getKey()));
+		}
 		return map;
 	}
 }

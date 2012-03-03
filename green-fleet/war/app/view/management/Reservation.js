@@ -177,7 +177,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'combo',
 				name : 'vehicle_id',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle'
@@ -185,7 +185,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'combo',
 				name : 'driver_id',
 				queryMode : 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField : 'name',
 				valueField : 'id',
 				fieldLabel : 'Driver'

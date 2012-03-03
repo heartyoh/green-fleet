@@ -39,7 +39,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
@@ -95,12 +95,12 @@ Ext.define('GreenFleet.view.management.Driver', {
 				type : 'string',
 				hidden : true
 			}, {
-				dataIndex : 'name',
-				text : 'Name',
+				dataIndex : 'id',
+				text : 'Driver Id',
 				type : 'string'
 			}, {
-				dataIndex : 'id',
-				text : 'Employee Id',
+				dataIndex : 'name',
+				text : 'Name',
 				type : 'string'
 			}, {
 				dataIndex : 'division',
@@ -186,11 +186,11 @@ Ext.define('GreenFleet.view.management.Driver', {
 					fieldLabel : 'Key',
 					hidden : true
 				}, {
+					name : 'id',
+					fieldLabel : 'Driver Id'
+				}, {
 					name : 'name',
 					fieldLabel : 'Name'
-				}, {
-					name : 'id',
-					fieldLabel : 'Employee Id'
 				}, {
 					xtype : 'codecombo',
 					name : 'division',

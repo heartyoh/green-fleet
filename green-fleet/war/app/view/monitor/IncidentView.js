@@ -75,7 +75,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
-			var driverStore = Ext.getStore('DriverStore');
+			var driverStore = Ext.getStore('DriverBriefStore');
 			var driverRecord = driverStore.findRecord('id', value);
 			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('image_clip');
@@ -493,7 +493,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		tbar : [ {
 			xtype : 'combo',
 			queryMode : 'local',
-			store : 'VehicleStore',
+			store : 'VehicleBriefStore',
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Vehicle',
@@ -502,7 +502,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			xtype : 'combo',
 			queryMode : 'local',
-			store : 'DriverStore',
+			store : 'DriverBriefStore',
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Driver',

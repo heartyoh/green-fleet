@@ -199,7 +199,15 @@
                 },
                 {
                     "path": "app/store/",
+                    "name": "VehicleBriefStore.js"
+                },
+                {
+                    "path": "app/store/",
                     "name": "DriverStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverBriefStore.js"
                 },
                 {
                     "path": "app/store/",
@@ -252,6 +260,10 @@
                 {
                     "path": "app/store/",
                     "name": "TerminalStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "TerminalBriefStore.js"
                 },
                 {
                     "path": "app/store/",

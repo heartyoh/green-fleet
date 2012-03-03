@@ -1,7 +1,9 @@
 Ext.define('GreenFleet.store.TerminalStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
+	
+	pageSize : 1000,
 	
 	fields : [ {
 		name : 'key',

@@ -13,11 +13,13 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	
 	emptyText : 'Alt+Q',
 	
-	store : 'VehicleInfoStore',
+	store : 'VehicleBriefStore',
 	
 	initComponent : function() {
 		
 		this.callParent();
+		
+		var self = this;
 		
 		new Ext.util.KeyMap(document, {
 			key : 'q',
@@ -25,6 +27,8 @@ Ext.define('GreenFleet.view.form.SearchField', {
 			fn : this.focus,
 			scope : this
 		});
+		
+		this.store.load();
 	},
 	
 	listConfig : {
@@ -40,7 +44,7 @@ Ext.define('GreenFleet.view.form.SearchField', {
 		'select' : function(combo, records, eOpts) {
 			var store = Ext.getStore('VehicleFilteredStore');
 			
-			store.clearFilter();
+			store.clearFilter(true);
 			
 			store.filter([ {
 				property : 'id',

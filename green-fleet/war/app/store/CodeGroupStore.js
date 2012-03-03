@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.store.CodeGroupStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 
 	fields : [ {
 		name : 'group',

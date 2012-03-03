@@ -137,7 +137,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle',
@@ -199,7 +199,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'combo',
 				name : 'vehicle_id',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle'
@@ -207,7 +207,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'combo',
 				name : 'driver_id',
 				queryMode : 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Driver'

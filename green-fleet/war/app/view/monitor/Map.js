@@ -36,8 +36,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				incidentStore.load();
 			}, 10000);
 			
-			var vehicleStore = Ext.getStore('VehicleInfoStore');
-			vehicleStore.load();
+//			var vehicleStore = Ext.getStore('VehicleInfoStore');
+//			vehicleStore.load();
 		});
 		
 		this.on('activate', function() {
@@ -108,7 +108,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver_id');
-			var driverRecord = Ext.getStore('DriverStore').findRecord('id', driver);
+			var driverRecord = Ext.getStore('DriverBriefStore').findRecord('id', driver);
 			
 			var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
 			

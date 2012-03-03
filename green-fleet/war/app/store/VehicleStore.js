@@ -63,9 +63,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'spark_plug_status',
 		type : 'string'
 	}, {
-		name : 'driver_id',
-		type : 'string'
-	}, {
 		name : 'lattitude',
 		type : 'float'
 	}, {

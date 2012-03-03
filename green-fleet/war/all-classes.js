@@ -1353,7 +1353,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
@@ -1720,7 +1720,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
@@ -2102,7 +2102,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'combo',
 				name : 'vehicle_id',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle'
@@ -2110,7 +2110,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'combo',
 				name : 'driver_id',
 				queryMode : 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField : 'name',
 				valueField : 'id',
 				fieldLabel : 'Driver'
@@ -2327,7 +2327,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				xtype : 'combo',
 				name : 'vehicle',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle',
@@ -2338,7 +2338,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				xtype : 'combo',
 				name : 'driver',
 				queryMode : 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Driver',
@@ -2407,7 +2407,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 							xtype : 'combo',
 							name : 'vehicle_id',
 							queryMode : 'local',
-							store : 'VehicleStore',
+							store : 'VehicleBriefStore',
 							displayField : 'id',
 							valueField : 'id',
 							fieldLabel : 'Vehicle'
@@ -2415,7 +2415,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 							xtype : 'combo',
 							name : 'driver_id',
 							queryMode : 'local',
-							store : 'DriverStore',
+							store : 'DriverBriefStore',
 							displayField : 'id',
 							valueField : 'id',
 							fieldLabel : 'Driver'
@@ -2587,7 +2587,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
@@ -2643,12 +2643,12 @@ Ext.define('GreenFleet.view.management.Driver', {
 				type : 'string',
 				hidden : true
 			}, {
-				dataIndex : 'name',
-				text : 'Name',
+				dataIndex : 'id',
+				text : 'Driver Id',
 				type : 'string'
 			}, {
-				dataIndex : 'id',
-				text : 'Employee Id',
+				dataIndex : 'name',
+				text : 'Name',
 				type : 'string'
 			}, {
 				dataIndex : 'division',
@@ -2734,11 +2734,11 @@ Ext.define('GreenFleet.view.management.Driver', {
 					fieldLabel : 'Key',
 					hidden : true
 				}, {
+					name : 'id',
+					fieldLabel : 'Driver Id'
+				}, {
 					name : 'name',
 					fieldLabel : 'Name'
-				}, {
-					name : 'id',
-					fieldLabel : 'Employee Id'
 				}, {
 					xtype : 'codecombo',
 					name : 'division',
@@ -2948,7 +2948,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle',
@@ -3010,7 +3010,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'combo',
 				name : 'vehicle_id',
 				queryMode : 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Vehicle'
@@ -3018,7 +3018,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'combo',
 				name : 'driver_id',
 				queryMode : 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : 'Driver'
@@ -3285,7 +3285,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				xtype : 'combo',
 				name : 'vehicle_id',
 				queryMode: 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
 				fieldLabel : 'Vehicle',
@@ -3296,7 +3296,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				xtype : 'combo',
 				name : 'driver_id',
 				queryMode: 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
 				fieldLabel : 'Driver',
@@ -3344,7 +3344,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				xtype : 'combo',
 				name : 'vehicle_id',
 				queryMode: 'local',
-				store : 'VehicleStore',
+				store : 'VehicleBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
 				fieldLabel : 'Vehicle'
@@ -3352,7 +3352,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				xtype : 'combo',
 				name : 'driver_id',
 				queryMode: 'local',
-				store : 'DriverStore',
+				store : 'DriverBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
 				fieldLabel : 'Driver'
@@ -3530,8 +3530,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				incidentStore.load();
 			}, 10000);
 			
-			var vehicleStore = Ext.getStore('VehicleInfoStore');
-			vehicleStore.load();
+//			var vehicleStore = Ext.getStore('VehicleInfoStore');
+//			vehicleStore.load();
 		});
 		
 		this.on('activate', function() {
@@ -3602,7 +3602,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		store.each(function(record) {
 			var vehicle = record.get('id');
 			var driver = record.get('driver_id');
-			var driverRecord = Ext.getStore('DriverStore').findRecord('id', driver);
+			var driverRecord = Ext.getStore('DriverBriefStore').findRecord('id', driver);
 			
 			var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
 			
@@ -3720,7 +3720,7 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 		xtype : 'combo',
 		name : 'vehicle_filter',
 		queryMode : 'local',
-		store : 'VehicleStore',
+		store : 'VehicleBriefStore',
 		displayField : 'id',
 		valueField : 'id',
 		fieldLabel : 'Vehicle',
@@ -3737,7 +3737,7 @@ Ext.define('GreenFleet.view.monitor.CheckinByVehicle', {
 		xtype : 'combo',
 		name : 'driver_filter',
 		queryMode : 'local',
-		store : 'DriverStore',
+		store : 'DriverBriefStore',
 		displayField : 'id',
 		valueField : 'id',
 		fieldLabel : 'Driver',
@@ -4169,7 +4169,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Vehicle Information (Image, Registration #, ..) from
 			 * VehicleStore
 			 */
-			var vehicleStore = Ext.getStore('VehicleInfoStore');
+			var vehicleStore = Ext.getStore('VehicleBriefStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
@@ -4181,7 +4181,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
-			var driverStore = Ext.getStore('DriverStore');
+			var driverStore = Ext.getStore('DriverBriefStore');
 			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
 			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('image_clip');
@@ -4628,7 +4628,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
-			var driverStore = Ext.getStore('DriverStore');
+			var driverStore = Ext.getStore('DriverBriefStore');
 			var driverRecord = driverStore.findRecord('id', value);
 			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('image_clip');
@@ -5046,7 +5046,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		tbar : [ {
 			xtype : 'combo',
 			queryMode : 'local',
-			store : 'VehicleStore',
+			store : 'VehicleBriefStore',
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Vehicle',
@@ -5055,7 +5055,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		}, {
 			xtype : 'combo',
 			queryMode : 'local',
-			store : 'DriverStore',
+			store : 'DriverBriefStore',
 			displayField : 'id',
 			valueField : 'id',
 			fieldLabel : 'Driver',
@@ -5277,11 +5277,13 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	
 	emptyText : 'Alt+Q',
 	
-	store : 'VehicleInfoStore',
+	store : 'VehicleBriefStore',
 	
 	initComponent : function() {
 		
 		this.callParent();
+		
+		var self = this;
 		
 		new Ext.util.KeyMap(document, {
 			key : 'q',
@@ -5289,6 +5291,8 @@ Ext.define('GreenFleet.view.form.SearchField', {
 			fn : this.focus,
 			scope : this
 		});
+		
+		this.store.load();
 	},
 	
 	listConfig : {
@@ -5304,7 +5308,7 @@ Ext.define('GreenFleet.view.form.SearchField', {
 		'select' : function(combo, records, eOpts) {
 			var store = Ext.getStore('VehicleFilteredStore');
 			
-			store.clearFilter();
+			store.clearFilter(true);
 			
 			store.filter([ {
 				property : 'id',
@@ -5858,7 +5862,7 @@ Ext.define('GreenFleet.view.common.ProgressColumn', {
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 
 	fields : [ {
 		name : 'key',
@@ -5878,12 +5882,13 @@ Ext.define('GreenFleet.store.CompanyStore', {
 	}, {
 		name : 'created_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	}, {
 		name : 'updated_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	} ],
+	
 	proxy : {
 		type : 'ajax',
 		url : 'company',
@@ -5896,6 +5901,8 @@ Ext.define('GreenFleet.store.CompanyStore', {
 });
 Ext.define('GreenFleet.store.UserStore', {
 	extend : 'Ext.data.Store',
+	
+	autoLoad : false,
 	
 	pageSize : 250,
 
@@ -5946,7 +5953,7 @@ Ext.define('GreenFleet.store.UserStore', {
 Ext.define('GreenFleet.store.CodeGroupStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 
 	fields : [ {
 		name : 'group',
@@ -6131,9 +6138,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'spark_plug_status',
 		type : 'string'
 	}, {
-		name : 'driver_id',
-		type : 'string'
-	}, {
 		name : 'lattitude',
 		type : 'float'
 	}, {
@@ -6169,8 +6173,48 @@ Ext.define('GreenFleet.store.VehicleStore', {
 	}
 });
 Ext.define('GreenFleet.store.VehicleMapStore', {
-	extend : 'GreenFleet.store.VehicleStore',
-	
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	pageSize : 1000,
+
+	fields : [ {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'registration_number',
+		type : 'string'
+	}, {
+		name : 'status',
+		type : 'string'
+	}, {
+		name : 'driver_id',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'float'
+	}, {
+		name : 'longitude',
+		type : 'float'
+	}, {
+		name : 'location',
+		type : 'string'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle',
+		extraParams : {
+			select : [ 'id', 'registration_number', 'status', 'driver_id', 'lattitude', 'longitude' ]
+		},
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	},
+
 	listeners : {
 		load : function(store, data) {
 			Ext.getStore('VehicleFilteredStore').loadData(data);
@@ -6182,15 +6226,73 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
  * store. So, never Load this Store.
  */
 Ext.define('GreenFleet.store.VehicleFilteredStore', {
-	extend : 'GreenFleet.store.VehicleStore'
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	pageSize : 1000,
+
+	fields : [ {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'registration_number',
+		type : 'string'
+	}, {
+		name : 'status',
+		type : 'string'
+	}, {
+		name : 'driver_id',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'float'
+	}, {
+		name : 'longitude',
+		type : 'float'
+	}, {
+		name : 'location',
+		type : 'string'
+	} ]
 });
 Ext.define('GreenFleet.store.VehicleInfoStore', {
 	extend : 'GreenFleet.store.VehicleStore'
 });
-Ext.define('GreenFleet.store.DriverStore', {
+Ext.define('GreenFleet.store.VehicleBriefStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : true,
+
+	pageSize : 1000,
+
+	fields : [ {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'registration_number',
+		type : 'string'
+	}, {
+		name : 'image_clip',
+		type : 'string'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle',
+		extraParams : {
+			select : [ 'id', 'registration_number', 'image_clip' ]
+		},
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
+Ext.define('GreenFleet.store.DriverStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
 	
 	pageSize : 1000,
 	
@@ -6234,6 +6336,37 @@ Ext.define('GreenFleet.store.DriverStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'driver',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
+Ext.define('GreenFleet.store.DriverBriefStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+
+	pageSize : 1000,
+
+	fields : [ {
+		name : 'name',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'image_clip',
+		type : 'string'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'driver',
+		extraParams : {
+			select : [ 'id', 'name', 'image_clip' ]
+		},
 		reader : {
 			type : 'json',
 			root : 'items',
@@ -7020,7 +7153,9 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
 Ext.define('GreenFleet.store.TerminalStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
+	
+	pageSize : 1000,
 	
 	fields : [ {
 		name : 'key',
@@ -7054,6 +7189,32 @@ Ext.define('GreenFleet.store.TerminalStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'terminal',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
+Ext.define('GreenFleet.store.TerminalBriefStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+
+	fields : [ {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'serial_no',
+		type : 'string'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'terminal',
+		extraParams : {
+			select : [ 'id', 'serial_no' ]
+		},
 		reader : {
 			type : 'json',
 			root : 'items',
@@ -7318,9 +7479,10 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
 	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
-			'VehicleInfoStore', 'DriverStore', 'ReservationStore', 'IncidentStore', 'IncidentByVehicleStore', 'IncidentViewStore',
-			'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'CheckinDataStore',
-			'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TimeZoneStore', 'ConsumableStore' ],
+			'VehicleInfoStore', 'VehicleBriefStore', 'DriverStore', 'DriverBriefStore', 'ReservationStore', 'IncidentStore',
+			'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
+			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
+			'TimeZoneStore', 'ConsumableStore' ],
 	models : [ 'Code' ],
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu', 'management.Company',
 			'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal', 'management.Reservation',

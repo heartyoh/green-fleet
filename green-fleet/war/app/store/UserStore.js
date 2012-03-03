@@ -1,6 +1,8 @@
 Ext.define('GreenFleet.store.UserStore', {
 	extend : 'Ext.data.Store',
 	
+	autoLoad : false,
+	
 	pageSize : 250,
 
 	fields : [ {

@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 
 	fields : [ {
 		name : 'key',
@@ -21,12 +21,13 @@ Ext.define('GreenFleet.store.CompanyStore', {
 	}, {
 		name : 'created_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	}, {
 		name : 'updated_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	} ],
+	
 	proxy : {
 		type : 'ajax',
 		url : 'company',

@@ -61,22 +61,22 @@ public abstract class EntityService {
 	}
 
 	protected static boolean booleanProperty(Map<String, Object> map, String property) {
-		String value = (String)map.get(property);
+		String value = (String) map.get(property);
 		return value.equals("true") || value.equals("on");
 	}
 
 	protected static double doubleProperty(Map<String, Object> map, String property) {
-		String value = (String)map.get(property);
+		String value = (String) map.get(property);
 		return Double.parseDouble(value);
 	}
 
 	protected static int intProperty(Map<String, Object> map, String property) {
-		String value = (String)map.get(property);
+		String value = (String) map.get(property);
 		return Integer.parseInt(value);
 	}
 
 	protected static String stringProperty(Map<String, Object> map, String property) {
-		return (String)map.get(property);
+		return (String) map.get(property);
 	}
 
 	protected boolean useFilter() {
@@ -103,12 +103,12 @@ public abstract class EntityService {
 			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
 
 			writeChannel.closeFinally();
-			
+
 			return fileService.getBlobKey(appfile).getKeyString();
 		}
 		return null;
 	}
-	
+
 	protected void preMultipart(Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
 		Map<String, MultipartFile> filemap = request.getFileMap();
 
@@ -124,8 +124,7 @@ public abstract class EntityService {
 		}
 	}
 
-	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
-			throws IOException {
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
 	}
 
 	/*
@@ -138,16 +137,16 @@ public abstract class EntityService {
 	 */
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		CustomUser user = SessionUtils.currentUser();
-		
+
 		String company = null;
-		if(user != null)
+		if (user != null)
 			company = user.getCompany();
 		else
 			company = request.getParameter("company");
-		
+
 		Map<String, Object> commons = new HashMap<String, Object>();
 		Enumeration<String> names = request.getParameterNames();
-		while(names.hasMoreElements()) {
+		while (names.hasMoreElements()) {
 			String name = names.nextElement();
 			commons.put(name, request.getParameter(name));
 		}
@@ -222,7 +221,7 @@ public abstract class EntityService {
 		CustomUser user = SessionUtils.currentUser();
 
 		String company = null;
-		if(user != null)
+		if (user != null)
 			company = user.getCompany();
 		else
 			company = request.getParameter("company");
@@ -256,12 +255,13 @@ public abstract class EntityService {
 
 			}
 			// It's Not OK. You try to add duplicated identifier.
-//			if (obj != null)
-//				throw new EntityExistsException(getEntityName() + " with id (" + getIdValue(map) + ") already Exist.");
+			// if (obj != null)
+			// throw new EntityExistsException(getEntityName() + " with id (" +
+			// getIdValue(map) + ") already Exist.");
 		}
 
 		Date now = new Date();
-		
+
 		map.put("_now", now);
 		map.put("_company_key", companyKey);
 
@@ -307,7 +307,7 @@ public abstract class EntityService {
 	protected void addFilter(Query q, String property, String value) {
 		q.addFilter(property, FilterOperator.EQUAL, value);
 	}
-	
+
 	protected void buildQuery(Query q, List<Filter> filters, List<Sorter> sorters) {
 		if (filters != null) {
 			Iterator<Filter> it = filters.iterator();
@@ -334,38 +334,38 @@ public abstract class EntityService {
 	}
 
 	protected void buildQuery(Query q, HttpServletRequest request) {
-		
+
 		return;
 	}
 
 	protected void adjustFilters(List<Filter> filters) {
 		return;
 	}
-	
+
 	protected void adjustSorters(List<Sorter> sorters) {
 		return;
 	}
-	
+
 	public Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		CustomUser user = SessionUtils.currentUser();
-		
+
 		String company = null;
-		if(user != null)
+		if (user != null)
 			company = user.getCompany();
 		else
 			company = request.getParameter("company");
 
 		String jsonFilter = request.getParameter("filter");
 		String jsonSorter = request.getParameter("sort");
+		String[] selects = request.getParameterValues("select");
 
 		List<Filter> filters = null;
 		List<Sorter> sorters = null;
 
 		try {
 			if (jsonFilter != null) {
-				filters = new ObjectMapper().readValue(request.getParameter("filter"),
-						new TypeReference<List<Filter>>() {
-						});
+				filters = new ObjectMapper().readValue(request.getParameter("filter"), new TypeReference<List<Filter>>() {
+				});
 			}
 			if (jsonSorter != null) {
 				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>() {
@@ -374,7 +374,7 @@ public abstract class EntityService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		adjustFilters(filters);
 		adjustSorters(sorters);
 
@@ -389,9 +389,9 @@ public abstract class EntityService {
 			buildQuery(q, filters, sorters);
 
 		PreparedQuery pq = datastore.prepare(q);
-		
+
 		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
-		
+
 		String pLimit = request.getParameter("limit");
 		String pPage = request.getParameter("page");
 		String pStart = request.getParameter("start");
@@ -399,28 +399,28 @@ public abstract class EntityService {
 		int page = 1;
 		int offset = 0;
 		int limit = Integer.MAX_VALUE;
-		
-		if(pPage != null) {
+
+		if (pPage != null) {
 			page = Integer.parseInt(pPage);
 		}
-		if(pStart != null) {
+		if (pStart != null) {
 			offset = Integer.parseInt(pStart);
 		}
-		if(pLimit != null) {
+		if (pLimit != null) {
 			limit = Integer.parseInt(pLimit);
 		}
 
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 
 		for (Entity result : pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset))) {
-			items.add(SessionUtils.cvtEntityToMap(result));
+			items.add(SessionUtils.cvtEntityToMap(result, selects));
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("total", total);
 		result.put("success", true);
 		result.put("items", items);
-		
+
 		return result;
 	}
 }

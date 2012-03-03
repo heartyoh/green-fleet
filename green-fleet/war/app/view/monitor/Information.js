@@ -88,7 +88,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Vehicle Information (Image, Registration #, ..) from
 			 * VehicleStore
 			 */
-			var vehicleStore = Ext.getStore('VehicleInfoStore');
+			var vehicleStore = Ext.getStore('VehicleBriefStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
 			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
@@ -100,7 +100,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			/*
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
-			var driverStore = Ext.getStore('DriverStore');
+			var driverStore = Ext.getStore('DriverBriefStore');
 			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
 			var driver = driverRecord.get('id');
 			var driverImageClip = driverRecord.get('image_clip');

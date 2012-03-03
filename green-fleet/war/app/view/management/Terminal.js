@@ -38,7 +38,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			grid.store.load();
+//			grid.store.load();
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {

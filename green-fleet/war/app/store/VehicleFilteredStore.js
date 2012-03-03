@@ -3,5 +3,32 @@
  * store. So, never Load this Store.
  */
 Ext.define('GreenFleet.store.VehicleFilteredStore', {
-	extend : 'GreenFleet.store.VehicleStore'
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	pageSize : 1000,
+
+	fields : [ {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'registration_number',
+		type : 'string'
+	}, {
+		name : 'status',
+		type : 'string'
+	}, {
+		name : 'driver_id',
+		type : 'string'
+	}, {
+		name : 'lattitude',
+		type : 'float'
+	}, {
+		name : 'longitude',
+		type : 'float'
+	}, {
+		name : 'location',
+		type : 'string'
+	} ]
 });
