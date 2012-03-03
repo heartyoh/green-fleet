@@ -36,7 +36,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				incidentStore.load();
 			}, 10000);
 			
-			var vehicleStore = Ext.getStore('VehicleStore');
+			var vehicleStore = Ext.getStore('VehicleInfoStore');
 			vehicleStore.load();
 		});
 		

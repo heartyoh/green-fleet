@@ -13,7 +13,7 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	
 	emptyText : 'Alt+Q',
 	
-	store : 'VehicleStore',
+	store : 'VehicleInfoStore',
 	
 	initComponent : function() {
 		

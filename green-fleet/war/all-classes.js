@@ -3530,7 +3530,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				incidentStore.load();
 			}, 10000);
 			
-			var vehicleStore = Ext.getStore('VehicleStore');
+			var vehicleStore = Ext.getStore('VehicleInfoStore');
 			vehicleStore.load();
 		});
 		
@@ -5277,7 +5277,7 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	
 	emptyText : 'Alt+Q',
 	
-	store : 'VehicleStore',
+	store : 'VehicleInfoStore',
 	
 	initComponent : function() {
 		
