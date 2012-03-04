@@ -20,7 +20,16 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			},
 			flex : 1,
 			items : [ this.zInfo, this.zVideoAndMap ]
-		}, this.zList ];
+		}, {
+			xtype : 'container',
+			autoScroll : true,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			flex : 1,
+			items : [ this.zList, this.zChart ]
+		} ];
 
 		this.callParent(arguments);
 
@@ -110,25 +119,30 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			});
 		});
 
-		this.sub('incident_form').on('afterrender', function() {
-			this.down('[itemId=confirm]').getEl().on('click', function(e, t) {
-				var form = self.sub('incident_form').getForm();
+		this.sub('incident_form').on(
+				'afterrender',
+				function() {
+					this.down('[itemId=confirm]').getEl().on(
+							'click',
+							function(e, t) {
+								var form = self.sub('incident_form').getForm();
 
-				if (form.getRecord() != null) {
-					form.submit({
-						url : 'incident/save',
-						success : function(form, action) {
-							self.sub('grid').store.findRecord('key', action.result.key).set('confirm', form.findField('confirm').getValue());
-						},
-						failure : function(form, action) {
-							GreenFleet.msg('Failed', action.result.msg);
-							form.reset();
-						}
-					});
-				}
-			});
-		});
-		
+								if (form.getRecord() != null) {
+									form.submit({
+										url : 'incident/save',
+										success : function(form, action) {
+											self.sub('grid').store.findRecord('key', action.result.key).set('confirm',
+													form.findField('confirm').getValue());
+										},
+										failure : function(form, action) {
+											GreenFleet.msg('Failed', action.result.msg);
+											form.reset();
+										}
+									});
+								}
+							});
+				});
+
 		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
 			operation.params = operation.params || {};
 			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
@@ -161,20 +175,20 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 	refreshIncidentList : function() {
 		this.sub('pagingtoolbar').moveFirst();
-//
-//		this.sub('grid').store.load({
-//			filters : [ {
-//				property : 'vehicle_id',
-//				value : this.sub('vehicle_filter').getValue()
-//			}, {
-//				property : 'driver_id',
-//				value : this.sub('driver_filter').getValue()
-//			}, {
-//				property : 'confirm',
-//				value : false
-//			} ],
-//			callback : callback
-//		});
+		//
+		// this.sub('grid').store.load({
+		// filters : [ {
+		// property : 'vehicle_id',
+		// value : this.sub('vehicle_filter').getValue()
+		// }, {
+		// property : 'driver_id',
+		// value : this.sub('driver_filter').getValue()
+		// }, {
+		// property : 'confirm',
+		// value : false
+		// } ],
+		// callback : callback
+		// });
 	},
 
 	getTrackLine : function() {
@@ -255,7 +269,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			this.getMap().fitBounds(bounds);
 		}
 	},
-
+	
 	getMap : function() {
 		return this.map;
 	},
@@ -367,6 +381,42 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 					itemId : 'map',
 					html : '<div class="map"></div>'
 				} ]
+	},
+
+	zChart : {
+		xtype : 'chart',
+		itemId : 'chart',
+		flex : 1,
+		legend : true,
+		store : 'IncidentLogStore',
+		axes : [ {
+			title : 'Acceleration',
+			type : 'Numeric',
+			position : 'left',
+			fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
+//			minimum : -2,
+//			maximum : 2
+		}, {
+			title : 'Time',
+			type : 'Category',
+			position : 'bottom',
+			fields : [ 'datetime' ]
+//			dateFormat : 'M d g:i:s',
+//			step : [Ext.Date.SECOND, 1]
+		} ],
+		series : [ {
+			type : 'line',
+			xField : 'datetime',
+			yField : 'accelate_x'
+		}, {
+			type : 'line',
+			xField : 'datetime',
+			yField : 'accelate_y'
+		}, {
+			type : 'line',
+			xField : 'datetime',
+			yField : 'accelate_z'
+		} ]
 	},
 
 	zList : {
@@ -515,13 +565,13 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			itemId : 'reset',
 			text : 'Reset'
 		} ],
-		bbar: {
+		bbar : {
 			xtype : 'pagingtoolbar',
 			itemId : 'pagingtoolbar',
-            store: 'IncidentViewStore',
-            displayInfo: true,
-            displayMsg: 'Displaying incidents {0} - {1} of {2}',
-            emptyMsg: "No incidents to display"
-        }
+			store : 'IncidentViewStore',
+			displayInfo : true,
+			displayMsg : 'Displaying incidents {0} - {1} of {2}',
+			emptyMsg : "No incidents to display"
+		}
 	}
 });
