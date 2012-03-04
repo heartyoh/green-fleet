@@ -4944,7 +4944,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			this.getMap().fitBounds(bounds);
 		}
 	},
-
+	
 	getMap : function() {
 		return this.map;
 	},
@@ -5056,6 +5056,42 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 					itemId : 'map',
 					html : '<div class="map"></div>'
 				} ]
+	},
+
+	zChart : {
+		xtype : 'chart',
+		itemId : 'chart',
+		flex : 1,
+		legend : true,
+		store : 'IncidentLogStore',
+		axes : [ {
+			title : 'Acceleration',
+			type : 'Numeric',
+			position : 'left',
+			fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
+//			minimum : -2,
+//			maximum : 2
+		}, {
+			title : 'Time',
+			type : 'Category',
+			position : 'bottom',
+			fields : [ 'datetime' ]
+//			dateFormat : 'M d g:i:s',
+//			step : [Ext.Date.SECOND, 1]
+		} ],
+		series : [ {
+			type : 'line',
+			xField : 'datetime',
+			yField : 'accelate_x'
+		}, {
+			type : 'line',
+			xField : 'datetime',
+			yField : 'accelate_y'
+		}, {
+			type : 'line',
+			xField : 'datetime',
+			yField : 'accelate_z'
+		} ]
 	},
 
 	buildChart : function() {
