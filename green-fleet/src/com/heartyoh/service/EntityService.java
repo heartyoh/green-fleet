@@ -37,7 +37,6 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
-import com.heartyoh.model.Company;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
@@ -169,7 +168,7 @@ public abstract class EntityService {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 		try {
-			Key companyKey = KeyFactory.createKey(Company.class.getSimpleName(), company);
+			Key companyKey = KeyFactory.createKey("Company", company);
 
 			Date now = new Date();
 

@@ -42,8 +42,9 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
 	},
 
 	listeners : {
-		load : function(store, data) {
-			Ext.getStore('VehicleFilteredStore').loadData(data);
+		load : function(store, data, success) {
+			if(success)
+				Ext.getStore('VehicleFilteredStore').loadData(data);
 		}
 	}
 });

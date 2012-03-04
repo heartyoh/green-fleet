@@ -74,6 +74,14 @@ Ext.define('GreenFleet.view.management.Incident', {
 			operation.params['date'] = self.sub('date_filter').getSubmitValue();
 		});
 
+		this.sub('fullscreen').on('afterrender', function(comp) {
+			comp.getEl().on('click', function() {
+				if (!Ext.isWebKit)
+					return;
+				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+			});
+		});
+
 	},
 
 	search : function() {
@@ -367,6 +375,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 						items : [
 								{
 									xtype : 'box',
+									itemId : 'fullscreen',
 									html : '<div class="btnFullscreen"></div>',
 									handler : function(button) {
 										if (!Ext.isWebKit)

@@ -4,10 +4,6 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 	autoLoad : false,
 	
 	pageSize : 1000,
-
-//	remoteFilter : true,
-	
-//	remoteSort : true,
 	
 	fields : [ {
 		name : 'key',

@@ -25,11 +25,6 @@
     
     <datastore-index kind="Track" ancestor="true">
         <property name="vehicle_id" direction="asc" />
-        <property name="created_at" direction="desc" />
-    </datastore-index>
-    
-    <datastore-index kind="Track" ancestor="true">
-        <property name="vehicle_id" direction="asc" />
         <property name="datetime" direction="desc" />
     </datastore-index>
     

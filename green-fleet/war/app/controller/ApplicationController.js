@@ -1,6 +1,8 @@
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
+	requires : [ 'GreenFleet.store.IncidentLogChartStore' ],
+
 	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
 			'VehicleInfoStore', 'VehicleBriefStore', 'DriverStore', 'DriverBriefStore', 'ReservationStore', 'IncidentStore',
 			'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
