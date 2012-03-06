@@ -35,9 +35,10 @@
 			longitude : 126.97
 		};
 
-		InitLocale(this, login.locale);
+		initLocalization(this);
 		</script>
 		
+		<script src="resources/text/ko.js"></script>
 		<script src="ext-all.js"></script>
 		<script src="app-all.js"></script> 
 
