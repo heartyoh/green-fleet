@@ -26,6 +26,14 @@ Ext.define('GreenFleet.view.management.Company', {
 
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
+			
+			var image = self.sub('image');
+			var value = record.raw.image_clip;
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgVehicle.png');			
 		});
 
 		this.sub('grid').on('render', function(grid) {
@@ -49,6 +57,14 @@ Ext.define('GreenFleet.view.management.Company', {
 			self.sub('grid').store.load();
 		});
 
+		this.down('#image_clip').on('change', function(field, value) {
+			var image = self.sub('image');
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgVehicle.png');
+		})		
 	},
 
 	search : function() {
@@ -129,47 +145,80 @@ Ext.define('GreenFleet.view.management.Company', {
 
 	buildForm : function(main) {
 		return {
-			xtype : 'form',
-			itemId : 'form',
-			autoScroll : true,
+			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Company Details',
-			flex : 2,
-			defaults : {
-				xtype : 'textfield',
-				anchor : '100%'
-			},
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},			
 			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
+				xtype : 'form',
+				itemId : 'form',
+				flex : 1,
+				autoScroll : true,
+				defaults : {
+					xtype : 'textfield',
+					anchor : '100%'
+				},
+				items : [ {
+					name : 'key',
+					fieldLabel : 'Key',
+					hidden : true
+				}, {
+					name : 'id',
+					fieldLabel : 'ID'
+				}, {
+					name : 'name',
+					fieldLabel : 'Name'
+				}, {
+					name : 'desc',
+					fieldLabel : 'Description'
+				}, {
+					xtype : 'tzcombo',
+					name : 'timezone',
+					fieldLabel : 'TimeZone'
+				}, {
+					xtype : 'filefield',
+					name : 'image_file',
+					fieldLabel : 'Image Upload',
+					msgTarget : 'side',
+					allowBlank : true,
+					buttonText : 'file...'
+				}, {
+					xtype : 'datefield',
+					name : 'updated_at',
+					disabled : true,
+					fieldLabel : 'Updated At',
+					format : F('datetime')
+				}, {
+					xtype : 'datefield',
+					name : 'created_at',
+					disabled : true,
+					fieldLabel : 'Created At',
+					format : F('datetime')
+				}, {
+					xtype : 'displayfield',
+					name : 'image_clip',
+					itemId : 'image_clip',
+					hidden : true
+				}  ]
 			}, {
-				name : 'id',
-				fieldLabel : 'ID'
-			}, {
-				name : 'name',
-				fieldLabel : 'Name'
-			}, {
-				name : 'desc',
-				fieldLabel : 'Description'
-			}, {
-				xtype : 'tzcombo',
-				name : 'timezone',
-				fieldLabel : 'TimeZone'
-			}, {
-				xtype : 'datefield',
-				name : 'updated_at',
-				disabled : true,
-				fieldLabel : 'Updated At',
-				format : F('datetime')
-			}, {
-				xtype : 'datefield',
-				name : 'created_at',
-				disabled : true,
-				fieldLabel : 'Created At',
-				format : F('datetime')
-			} ],
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'	
+				},
+				cls : 'noImage paddingLeft10',
+				items : [ {
+					xtype : 'image',
+					height : '100%',
+					itemId : 'image'
+				} ]
+			} ],				
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
 				loader : {

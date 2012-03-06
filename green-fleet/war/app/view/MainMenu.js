@@ -55,6 +55,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_code',
 			itemId : 'code',
 			closable : true
+		}, {
+			title : 'Vehicle Group',
+			xtype : 'management_vehicle_group',
+			itemId : 'vehicle_group',
+			closable : true
 		} ]
 	}, {
 		text : 'Vehicle',

@@ -12,6 +12,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'id',
 		type : 'string'
 	}, {
+		name : 'vehicle_group',
+		type : 'string'
+	}, {
 		name : 'registration_number',
 		type : 'string'
 	}, {

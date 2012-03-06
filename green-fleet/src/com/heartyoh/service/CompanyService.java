@@ -2,7 +2,6 @@ package com.heartyoh.service;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityExistsException;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -59,6 +59,17 @@ public class CompanyService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 
+	@Override
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
+			throws IOException {
+		String image_file = saveFile((MultipartFile) map.get("image_file"));
+		if(image_file != null) {
+			entity.setProperty("image_clip", image_file);
+		}
+
+		super.postMultipart(entity, map, request);
+	}
+	
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
