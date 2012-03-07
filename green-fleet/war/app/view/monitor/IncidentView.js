@@ -432,6 +432,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		return {
 			xtype : 'chart',
 			itemId : 'chart',
+			cls : 'paddingPanel backgroundGray borderLeftGray',
 			flex : 1,
 			legend : true,
 			store : Ext.create('GreenFleet.store.IncidentLogChartStore'),
@@ -618,6 +619,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		bbar : {
 			xtype : 'pagingtoolbar',
 			itemId : 'pagingtoolbar',
+			cls : 'pagingtoolbar',
 			store : 'IncidentViewStore',
 			displayInfo : true,
 			displayMsg : 'Displaying incidents {0} - {1} of {2}',

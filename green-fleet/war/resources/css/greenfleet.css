@@ -145,6 +145,13 @@
 #content-body .x-toolbar-docked-bottom .x-btn-default-toolbar-small-over{background:url('../image/bgBtnBarBtnOver.gif') repeat-x;border:1px solid #2e5986;}
 #content-body .x-toolbar-docked-bottom .x-btn-default-toolbar-small .x-btn-inner{color:#d6e3f1}
 #content-body .x-toolbar-docked-bottom .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff}
+#content-body .pagingtoolbar.x-toolbar-docked-bottom .x-btn-default-toolbar-small{background:none;border:none;}
+.pagingtoolbar .x-tbar-page-first{background:url('../image/iconPagination.png') 5px 3px repeat-x !important;}
+.pagingtoolbar .x-tbar-page-prev{background:url('../image/iconPagination.png') -20px 3px repeat-x !important;}
+.pagingtoolbar .x-tbar-page-next{background:url('../image/iconPagination.png') -43px 3px repeat-x !important;}
+.pagingtoolbar .x-tbar-page-last{background:url('../image/iconPagination.png') -72px 3px repeat-x !important;}
+.pagingtoolbar .x-tbar-loading{background:url('../image/iconPagination.png') -97px 3px repeat-x !important;}
+.x-toolbar .x-toolbar-separator-horizontal{border-left:1px solid #b4b4b4;border-right:1px solid #efefef}
 .dotUnderline{border-bottom:1px dotted #ccc;padding:0 0 1px 0}
 .noImage{background:url('../image/noImage.gif') 50% 50% no-repeat;}
 .x-boundlist-item-over,.x-boundlist-selected{border-color:#9ebfe4;background-color:#e2ebf7}
