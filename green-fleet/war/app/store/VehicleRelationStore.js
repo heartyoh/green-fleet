@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.store.VehicleGroupStore', {
+Ext.define('GreenFleet.store.VehicleRelationStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 	
 	pageSize : 1000,
 	
@@ -9,10 +9,10 @@ Ext.define('GreenFleet.store.VehicleGroupStore', {
 		name : 'key',
 		type : 'string'
 	}, {
-		name : 'id',
+		name : 'vehicle_id',
 		type : 'string'
 	}, {
-		name : 'desc',
+		name : 'vehicle_group_id',
 		type : 'string'
 	}, {
 		name : 'created_at',
@@ -26,7 +26,7 @@ Ext.define('GreenFleet.store.VehicleGroupStore', {
 	
 	proxy : {
 		type : 'ajax',
-		url : 'vehicle_group',
+		url : 'vehicle_relation',
 		reader : {
 			type : 'json',
 			root : 'items',

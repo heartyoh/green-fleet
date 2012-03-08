@@ -42,25 +42,20 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.sub('registration_number_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 		
-		this.sub('vehicle_group_filter').on('change', function(field, value) {
-			self.search();
-		});		
-
 		this.down('#search_reset').on('click', function() {
 			self.sub('id_filter').setValue('');
 			self.sub('registration_number_filter').setValue('');
-			self.sub('vehicle_group_filter').setValue('');
 		});
 
 		this.down('#search').on('click', function() {
-			self.search();
+			self.search(true);
 		});
 		
 		this.down('#image_clip').on('change', function(field, value) {
@@ -74,27 +69,25 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		
 	},
 
-	search : function() {
+	search : function(searchRemote) {
 		this.sub('grid').store.clearFilter(true);
 
 		var id_filter = this.sub('id_filter').getValue();
-		var vehicle_group_filter = this.sub('vehicle_group_filter').getValue();
 		var registration_filter = this.sub('registration_number_filter').getValue();
 		
-		if(id_filter || vehicle_group_filter || registration_filter) {
+		if(id_filter || registration_filter) {
 			this.sub('grid').store.filter([ {
 				property : 'id',
 				value : this.sub('id_filter').getValue()
-			}, {
-				property : 'vehicle_group',
-				value : this.sub('vehicle_group_filter').getValue()
 			}, {
 				property : 'registration_number',
 				value : this.sub('registration_number_filter').getValue()
 			} ]);
 		}
 		
-		this.sub('grid').store.load();
+		if(searchRemote) {
+			this.sub('grid').store.load();
+		}
 	},
 	
 	buildList : function(main) {
@@ -112,10 +105,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			}, {
 				dataIndex : 'id',
 				text : 'Vehicle Id',
-				type : 'string'
-			}, {
-				dataIndex : 'vehicle_group',
-				text : 'Vehicle Group',
 				type : 'string'
 			}, {
 				dataIndex : 'registration_number',
@@ -209,15 +198,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				itemId : 'id_filter',
 				hideLabel : true,
 				width : 133
-			}, 'Vehicle Group', {
-				xtype : 'combo',
-				name : 'vehicle_group_filter',
-				itemId : 'vehicle_group_filter',
-				queryMode : 'local',
-				store : 'VehicleGroupStore',
-				displayField : 'name', 
-				valueField : 'name',
-				width : 133
 			}, 'Registeration Number', {
 				xtype : 'textfield',
 				name : 'registration_number_filter',
@@ -264,14 +244,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				}, {
 					name : 'registration_number',
 					fieldLabel : 'Registration Number'
-				}, {
-					xtype : 'combo',
-					name : 'vehicle_group',
-					fieldLabel : 'Vehicle Group',
-					queryMode : 'local',
-					store : 'VehicleGroupStore',
-					displayField : 'name', 
-					valueField : 'name'
 				}, {
 					xtype : 'codecombo',
 					name : 'manufacturer',

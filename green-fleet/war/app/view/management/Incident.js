@@ -224,6 +224,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				itemId : 'pagingtoolbar',
 	            store: 'IncidentStore',
 	            displayInfo: true,
+	            cls : 'pagingtoolbar',
 	            displayMsg: 'Displaying incidents {0} - {1} of {2}',
 	            emptyMsg: "No incidents to display"
 	        }

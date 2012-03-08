@@ -314,7 +314,7 @@ public abstract class EntityService {
 			while (it.hasNext()) {
 				Filter filter = it.next();
 				String value = filter.getValue();
-				if (value != null && value.length() > 1)
+				if (value != null && value.length() > 0)
 					addFilter(q, filter.getProperty(), filter.getValue());
 			}
 		}

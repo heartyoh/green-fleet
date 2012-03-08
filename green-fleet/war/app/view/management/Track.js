@@ -164,6 +164,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				itemId : 'pagingtoolbar',
 	            store: 'TrackStore',
 	            displayInfo: true,
+	            cls : 'pagingtoolbar',
 	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
 	            emptyMsg: "No tracks to display"
 	        }
