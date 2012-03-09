@@ -72,16 +72,16 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	search : function(searchRemote) {
 		this.sub('grid').store.clearFilter(true);
 
-		var id_filter = this.sub('id_filter').getValue();
-		var registration_filter = this.sub('registration_number_filter').getValue();
+		var id_filter_value = this.sub('id_filter').getValue();
+		var registration_filter_value = this.sub('registration_number_filter').getValue();
 		
-		if(id_filter || registration_filter) {
+		if(id_filter_value || registration_filter_value) {
 			this.sub('grid').store.filter([ {
 				property : 'id',
-				value : this.sub('id_filter').getValue()
+				value : id_filter_value
 			}, {
 				property : 'registration_number',
-				value : this.sub('registration_number_filter').getValue()
+				value : registration_filter_value
 			} ]);
 		}
 		

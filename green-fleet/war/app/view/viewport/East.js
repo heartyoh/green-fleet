@@ -83,7 +83,9 @@ Ext.define('GreenFleet.view.viewport.East', {
 		this.on('afterrender', function() {
 			Ext.getStore('VehicleMapStore').on('load', self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
-			Ext.getStore('RecentIncidentStore').load();
+			Ext.getStore('RecentIncidentStore').load();			
+			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
+			Ext.getStore('VehicleCountByGroupStore').on('write', self.refreshVehicleGroups, self);
 		});
 	},
 	
@@ -142,6 +144,58 @@ Ext.define('GreenFleet.view.viewport.East', {
 		}
 	},
 	
+	refreshVehicleGroups : function() {
+		
+		var countStore = Ext.getStore('VehicleCountByGroupStore');
+		this.sub('vehicle_groups').removeAll();
+		
+		countStore.load({			
+			callback : function(records, operation, success) {
+				
+				if(!success)
+					return;
+				
+				Ext.each(records, function(record) {
+					this.sub('vehicle_groups').add({
+						xtype : 'button',
+						listeners : {
+							click : this.filterByVehicleGroup, scope : this
+						},
+						vehicleGroup : record,
+						html : '<a href="#">' + record.get('vehicle_group_id') + '<span>(' + record.get('vehicle_count') + ')</span></a>'
+					});
+				}, this);
+			},
+			scope : this
+		});		
+	},
+	
+	filterByVehicleGroup : function(button) {
+		this.sub('search').setValue('');
+		
+		// TODO 다른 조건들도 고려, VehicleRelationFilteredStore를 Refresh하는 시점을 ....
+		var vehicleGroupId = button.vehicleGroup.get('vehicle_group_id');
+		var relStore = Ext.getStore('VehicleRelationFilteredStore');
+		relStore.clearFilter();
+		relStore.filter([{
+			property : 'vehicle_group_id',
+			value : vehicleGroupId
+		}]);
+		
+		var relCount = relStore.count();
+		var relVehicleIdArr = [];		
+		for(var i = 0 ; i < relCount ; i++)
+			relVehicleIdArr[i] = relStore.getAt(i).get('vehicle_id');
+		
+		var vehicleStore = Ext.getStore('VehicleFilteredStore');		
+		vehicleStore.filterBy(function(record) {
+			var myVehicleId = record.get('id');
+			if(Ext.Array.indexOf(relVehicleIdArr, myVehicleId) >= 0) {
+				return true;
+			}			
+		});
+	},
+	
 	items : [ {
 		xtype : 'searchfield',
 		cls : 'searchField',
@@ -183,9 +237,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		xtype : 'panel',
 		title : 'Group',
 		cls :'groupPanel',
-		items : [{
-			html : '<a href="#">강남 ~ 분당노선 1 <span>(14)</span></a><a href="#">강남 ~ 분당노선 1 <span>(14)</span></a>'
-		}]
+		itemId : 'vehicle_groups'
 	}, {
 		xtype : 'panel',
 		title : 'Incidents Alarm',
