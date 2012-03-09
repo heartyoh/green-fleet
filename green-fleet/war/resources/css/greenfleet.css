@@ -67,6 +67,10 @@
 /*grid style*/
 .x-grid-header-ct{border-left:none}
 .x-grid-row{height:24px;vertical-align:middle}
+.x-grid-row-over .x-grid-cell{background-image:none !important;background-color:#e1efcd !important;border-style:solid;border-color:#cae0aa}
+.x-grid-row-over .x-grid-cell-first{background-color:#d5e9b8 !important;}
+.x-grid-row-selected .x-grid-cell{background-image:none !important;background-color:#dbe5f6 !important;border-style:solid;border-color:#bbd0f3}
+.x-grid-row-selected .x-grid-cell-first{background-color:#c5d4ef !important;}
 
 /*summary board style*/
 .summaryBoard{border-width:0px;border-left:2px solid #2f3137;background-color:#43464f}

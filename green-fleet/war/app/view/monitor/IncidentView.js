@@ -619,7 +619,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		bbar : {
 			xtype : 'pagingtoolbar',
 			itemId : 'pagingtoolbar',
-			cls : 'pagingtoolbar',
+			cls : 'pagingtoolbar', // 하단 page tool bar에 대한 아이콘 버튼 class
 			store : 'IncidentViewStore',
 			displayInfo : true,
 			displayMsg : 'Displaying incidents {0} - {1} of {2}',
