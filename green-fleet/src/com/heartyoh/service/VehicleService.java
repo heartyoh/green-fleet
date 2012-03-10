@@ -151,11 +151,7 @@ public class VehicleService extends EntityService {
 			}
 		}
 		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("total", total);
-		result.put("success", true);
-		result.put("items", items);
-		return result;
+		return this.packResultDataset(true, total, items);
 	}
 	
 	private Map<String, Object> retrieveVehicleRelations(String company, String vehicleGroup, String filterStr, String sorterStr, String limitStr, String startStr) {
@@ -209,11 +205,11 @@ public class VehicleService extends EntityService {
 			}
 		}
 		
-		Map<String, Object> result = new HashMap<String, Object>();
+		/*Map<String, Object> result = new HashMap<String, Object>();
 		result.put("total", total);
 		result.put("success", true);
-		result.put("items", relationItems);	
-		return result;
+		result.put("items", relationItems);*/	
+		return this.packResultDataset(true, total, relationItems);
 	}
 	
 	@Override

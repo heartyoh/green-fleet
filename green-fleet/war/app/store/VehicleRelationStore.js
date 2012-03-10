@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.store.VehicleRelationStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : false,
+	autoLoad : true,
 	
 	pageSize : 1000,
 	
@@ -14,14 +14,6 @@ Ext.define('GreenFleet.store.VehicleRelationStore', {
 	}, {
 		name : 'vehicle_group_id',
 		type : 'string'
-	}, {
-		name : 'created_at',
-		type : 'date',
-		dateFormat:'time'
-	}, {
-		name : 'updated_at',
-		type : 'date',
-		dateFormat:'time'
 	} ],
 	
 	proxy : {
@@ -30,7 +22,15 @@ Ext.define('GreenFleet.store.VehicleRelationStore', {
 		reader : {
 			type : 'json',
 			root : 'items',
-			totalProperty : 'total'
+			totalProperty : 'total',
+			successProperty : 'success'
 		}
-	}
+	},
+	
+	listeners : {
+		load : function(store, data, success) {
+			if(success)
+				Ext.getStore('VehicleRelationFilteredStore').loadData(data);
+		}
+	}	
 });

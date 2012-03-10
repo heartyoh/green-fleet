@@ -1,8 +1,8 @@
 #!/bin/bash
 lat=37.38
 lng=127.11
-#host="http://green-fleets.appspot.com"
-host="http://localhost:8888"
+host="http://green-fleets.appspot.com"
+#host="http://localhost:8888"
 tid="T016"
 did="D016"
 vid="V016"
@@ -19,12 +19,12 @@ curl=`curl --data "$DATA" $host/incident/save`
 FORM_COMPANY="company=vitizen"
 FORM_TERMINAL="terminal_id=$tid"
 FORM_DT="datetime=$dt_incident"
-FORM_VIDEO="video_clip=@/Users/shnam/Desktop/v.mp4;type=video/mp4"
+FORM_VIDEO="video_clip=@/Users/jhnam/Desktop/v.mp4;type=video/mp4"
 	
 echo $FORM_COMPANY $FORM_TERMINAL $FORM_DT $FORM_VIDEO
 	
 curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO $host/incident/upload_video`
 	
-FORM_LOG="file=@/Users/shnam/Desktop/IncidentLog.csv"
+FORM_LOG="file=@/Users/jhnam/Desktop/IncidentLog.csv"
 	
 curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_LOG $host/incident/upload_log`

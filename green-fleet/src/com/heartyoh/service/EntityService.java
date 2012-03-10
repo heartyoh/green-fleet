@@ -58,7 +58,21 @@ public abstract class EntityService {
 		}
 		return map;
 	}
-
+	
+	protected Key getCompanyKey(HttpServletRequest request) {
+		CustomUser user = SessionUtils.currentUser();
+		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		return KeyFactory.createKey("Company", company);
+	}
+	
+	protected Map<String, Object> packResultDataset(boolean success, int totalCount, List items) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("success", success);
+		result.put("total", totalCount);
+		result.put("items", items);		
+		return result;
+	}
+	
 	protected static boolean booleanProperty(Map<String, Object> map, String property) {
 		String value = (String) map.get(property);
 		return value.equals("true") || value.equals("on");
@@ -217,7 +231,7 @@ public abstract class EntityService {
 			preMultipart(map, (MultipartHttpServletRequest) request);
 		}
 
-		CustomUser user = SessionUtils.currentUser();
+		/*CustomUser user = SessionUtils.currentUser();
 
 		String company = null;
 		if (user != null)
@@ -225,15 +239,14 @@ public abstract class EntityService {
 		else
 			company = request.getParameter("company");
 
+		Key companyKey = KeyFactory.createKey("Company", company);*/
+		
 		String key = request.getParameter("key");
-
+		Key companyKey = this.getCompanyKey(request);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
+		
 		Key objKey = null;
 		boolean creating = false;
-
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
-		Key companyKey = KeyFactory.createKey("Company", company);
-
 		Entity obj = null;
 
 		if (key != null && key.trim().length() > 0) {
@@ -251,7 +264,6 @@ public abstract class EntityService {
 			} catch (EntityNotFoundException e) {
 				// It's OK.
 				creating = true;
-
 			}
 			// It's Not OK. You try to add duplicated identifier.
 			// if (obj != null)
@@ -260,7 +272,6 @@ public abstract class EntityService {
 		}
 
 		Date now = new Date();
-
 		map.put("_now", now);
 		map.put("_company_key", companyKey);
 
@@ -346,13 +357,14 @@ public abstract class EntityService {
 	}
 
 	public Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
-		CustomUser user = SessionUtils.currentUser();
-
+		
+		/*CustomUser user = SessionUtils.currentUser();
 		String company = null;
 		if (user != null)
 			company = user.getCompany();
 		else
 			company = request.getParameter("company");
+		Key companyKey = KeyFactory.createKey("Company", company);*/
 
 		String jsonFilter = request.getParameter("filter");
 		String jsonSorter = request.getParameter("sort");
@@ -378,17 +390,16 @@ public abstract class EntityService {
 		adjustSorters(sorters);
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", company);
-
+		Key companyKey = this.getCompanyKey(request);
+		
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);
-
 		buildQuery(q, request);
+		
 		if (useFilter())
 			buildQuery(q, filters, sorters);
 
 		PreparedQuery pq = datastore.prepare(q);
-
 		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 
 		String pLimit = request.getParameter("limit");
@@ -415,11 +426,11 @@ public abstract class EntityService {
 			items.add(SessionUtils.cvtEntityToMap(result, selects));
 		}
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		/*Map<String, Object> result = new HashMap<String, Object>();
 		result.put("total", total);
 		result.put("success", true);
-		result.put("items", items);
+		result.put("items", items);*/
 
-		return result;
+		return packResultDataset(true, total, items);
 	}
 }

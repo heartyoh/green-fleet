@@ -8,7 +8,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	cls : 'summaryBoard',
 	
 	width : 200,
-
+	
 	layout : {
 		type : 'vbox',
 		align : 'stretch'
@@ -20,6 +20,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		
 		this.sub('state_running').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+			
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
@@ -39,6 +41,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_idle').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
@@ -58,6 +62,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_incident').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
@@ -77,17 +83,32 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		setInterval(function() {
+			if(self.isHidden())
+				return;
+
 			self.sub('time').update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
 		}, 1000);
 		
 		this.on('afterrender', function() {
 			Ext.getStore('VehicleMapStore').on('load', self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
-			Ext.getStore('RecentIncidentStore').load();
+			Ext.getStore('RecentIncidentStore').load();			
+			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
+			Ext.getStore('VehicleCountByGroupStore').on('write', self.refreshVehicleGroups, self);
 		});
 	},
 	
+	toggleHide : function() {
+		if(this.isVisible())
+			this.hide();
+		else
+			this.show();
+	},
+	
 	refreshVehicleCounts : function() {
+		if(this.isHidden())
+			return;
+
 		var store = Ext.getStore('VehicleMapStore');
 
 		var total = store.count();
@@ -142,6 +163,62 @@ Ext.define('GreenFleet.view.viewport.East', {
 		}
 	},
 	
+	refreshVehicleGroups : function() {
+		if(this.isHidden())
+			return;
+		
+		var countStore = Ext.getStore('VehicleCountByGroupStore');
+		this.sub('vehicle_groups').removeAll();
+		
+		countStore.load({			
+			callback : function(records, operation, success) {
+				
+				if(!success)
+					return;
+				
+				Ext.each(records, function(record) {
+					this.sub('vehicle_groups').add({
+						xtype : 'button',
+						listeners : {
+							click : this.filterByVehicleGroup, scope : this
+						},
+						vehicleGroup : record,
+						html : '<a href="#">' + record.get('vehicle_group_id') + '<span>(' + record.get('vehicle_count') + ')</span></a>'
+					});
+				}, this);
+			},
+			scope : this
+		});		
+	},
+	
+	filterByVehicleGroup : function(button) {
+		GreenFleet.doMenu('monitor_map');
+
+		this.sub('search').setValue('');
+		
+		// TODO 다른 조건들도 고려, VehicleRelationFilteredStore를 Refresh하는 시점을 ....
+		var vehicleGroupId = button.vehicleGroup.get('vehicle_group_id');
+		var relStore = Ext.getStore('VehicleRelationFilteredStore');
+		relStore.clearFilter();
+		relStore.filter([{
+			property : 'vehicle_group_id',
+			value : vehicleGroupId
+		}]);
+		
+		var relCount = relStore.count();
+		var relVehicleIdArr = [];		
+		for(var i = 0 ; i < relCount ; i++)
+			relVehicleIdArr[i] = relStore.getAt(i).get('vehicle_id');
+		
+		var vehicleStore = Ext.getStore('VehicleFilteredStore');		
+		vehicleStore.filterBy(function(record) {
+			var myVehicleId = record.get('id');
+			if(Ext.Array.indexOf(relVehicleIdArr, myVehicleId) >= 0) {
+				return true;
+			}			
+		});
+	},
+	
 	items : [ {
 		xtype : 'searchfield',
 		cls : 'searchField',
@@ -183,9 +260,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		xtype : 'panel',
 		title : 'Group',
 		cls :'groupPanel',
-		items : [{
-			html : '<a href="#">강남 ~ 분당노선 1 <span>(14)</span></a><a href="#">강남 ~ 분당노선 1 <span>(14)</span></a>'
-		}]
+		itemId : 'vehicle_groups'
 	}, {
 		xtype : 'panel',
 		title : 'Incidents Alarm',
