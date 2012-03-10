@@ -9,16 +9,16 @@ Ext.define('GreenFleet.view.viewport.West', {
 	},
 	items : [ {
 		xtype : 'button',
-		cls : 'btnAdd',
-		html : 'add'
+		cls : 'btnDashboard',
+		html : 'D.board'
 	}, {
 		xtype : 'button',
-		cls : 'btnRemove',
-		html : 'remove'
+		cls : 'btnInfo',
+		html : 'Info'
 	}, {
 		xtype : 'button',
-		cls : 'btnRefresh',
-		html : 'refresh'
+		cls : 'btnIncidentInfo',
+		html : 'Incident'
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',
@@ -40,10 +40,6 @@ Ext.define('GreenFleet.view.viewport.West', {
 		handler : function() {
 			GreenFleet.uploadIncidentVideo();
 		}
-	}, {
-		xtype : 'button',
-		cls : 'btnSave',
-		html : 'save'
 	}, {
 		xtype : 'button',
 		cls : 'btnExport',
