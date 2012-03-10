@@ -25,12 +25,5 @@ Ext.define('GreenFleet.store.VehicleRelationStore', {
 			totalProperty : 'total',
 			successProperty : 'success'
 		}
-	},
-	
-	listeners : {
-		load : function(store, data, success) {
-			if(success)
-				Ext.getStore('VehicleRelationFilteredStore').loadData(data);
-		}
-	}	
+	}
 });
