@@ -30,8 +30,6 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
-import com.heartyoh.model.CustomUser;
-import com.heartyoh.util.SessionUtils;
 
 /**
  * vehicle group service
@@ -79,15 +77,13 @@ public class VehicleGroupService extends EntityService {
 		String newVehicleGroupId = (String)map.get("id");
 		
 		if(newVehicleGroupId == null || newVehicleGroupId.isEmpty()) {
-			return "{ \"success\" : false, \"msg\" : \"Not allowed empty vehicle group id!\" }";
+			return this.getResultMsg(false, "Not allowed empty vehicle group id!");
 		}
 		
-		CustomUser user = SessionUtils.currentUser();
-		String company = (user != null) ? user.getCompany() : (String)map.get("company");
-		String key = (String)map.get("key");
-		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", company);
+		Key companyKey = this.getCompanyKey(request);
+		
+		String key = (String)map.get("key");
 		Key objKey = (key != null && !key.isEmpty()) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		
 		String oldVehicleGroupId = null;
@@ -124,7 +120,7 @@ public class VehicleGroupService extends EntityService {
 			} else {
 				// 0. 기존에 ID가 존재한다면 변경 실패
 				if(this.checkExist(datastore, companyKey, newVehicleGroupId)) {
-					return "{ \"success\" : false, \"msg\" : \"Vehicle group id [" + newVehicleGroupId + "] already exist!\" }";
+					return this.getResultMsg(false, "Vehicle group id " + newVehicleGroupId + " already exist!");
 				}
 				
 				// 1. transaction
@@ -139,7 +135,7 @@ public class VehicleGroupService extends EntityService {
 					datastore.put(obj);
 					
 					// 3. find relation by group id					
-					List<Entity> oldRelations = this.getRelationsByGroupId(company, oldVehicleGroupId);
+					List<Entity> oldRelations = this.getRelationsByGroupId(companyKey, oldVehicleGroupId);
 					if(!oldRelations.isEmpty()) {
 						// 4. 기존 릴레이션이 있으면 릴레이션 삭제 후 재 생성
 						List<Key> keyListToDel = new ArrayList<Key>();
@@ -169,7 +165,7 @@ public class VehicleGroupService extends EntityService {
 					txn.commit();
 					
 				} catch (Throwable th) {					
-					resultMsg = "{ \"success\" : false, \"msg\" : \"" + th.getMessage() + "\" }";
+					resultMsg = this.getResultMsg(false, th.getMessage());
 					txn.rollback();	
 				} 
 			}								
@@ -196,10 +192,31 @@ public class VehicleGroupService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
-	private List<Entity> getRelationsByGroupId(String company, String vehicleGroupId) {
+	@Override
+	protected void adjustItem(Map<String, Object> item) {
+		
+		String groupKey = (String)item.get("key");
+		String groupId = (String)item.get("id");
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Key companyKey = KeyFactory.stringToKey(groupKey).getParent();
+		
+		Query q = new Query("VehicleRelation");
+		q.setAncestor(companyKey);
+		q.addFilter("vehicle_group_id", Query.FilterOperator.EQUAL, groupId);
+
+		PreparedQuery pq = datastore.prepare(q);
+		List<String> vehicles = new LinkedList<String>();
+
+		for (Entity result : pq.asIterable()) {
+			vehicles.add((String)result.getProperty("vehicle_id"));
+		}
+		
+		item.put("vehicles", vehicles);
+	}
+	
+	private List<Entity> getRelationsByGroupId(Key companyKey, String vehicleGroupId) {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", company);
 		Query q = new Query("VehicleRelation");
 		q.setAncestor(companyKey);
 		q.addFilter("vehicle_group_id", FilterOperator.EQUAL, vehicleGroupId);

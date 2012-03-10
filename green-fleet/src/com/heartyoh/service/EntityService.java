@@ -51,6 +51,7 @@ public abstract class EntityService {
 
 	protected static Map<String, Object> toMap(HttpServletRequest request) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		@SuppressWarnings("rawtypes")
 		Enumeration e = request.getParameterNames();
 		while (e.hasMoreElements()) {
 			String name = (String) e.nextElement();
@@ -65,7 +66,7 @@ public abstract class EntityService {
 		return KeyFactory.createKey("Company", company);
 	}
 	
-	protected Map<String, Object> packResultDataset(boolean success, int totalCount, List items) {
+	protected Map<String, Object> packResultDataset(boolean success, int totalCount, Object items) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", success);
 		result.put("total", totalCount);
@@ -94,6 +95,40 @@ public abstract class EntityService {
 
 	protected boolean useFilter() {
 		return false;
+	}
+	
+	/**
+	 * save 결과 메시지를 json형태의 문자열로 리턴한다.
+	 * 
+	 * @param success
+	 * @param entity
+	 * @return
+	 */
+	protected String getCreateResultMsg(boolean success, Entity entity) {
+		return "{ \"success\" : " + success + ", \"key\" : \"" + KeyFactory.keyToString(entity.getKey()) + "\" }";
+	}
+	
+	/**
+	 * delete 결과 메시지를 json형태의 문자열로 리턴한다.
+	 * 
+	 * @param success
+	 * @param key
+	 * @return
+	 */
+	protected String getDeleteResultMsg(boolean success, String key) {
+		return "{ \"success\" : " + success + ", \"msg\" : \"" + getEntityName() + " destroyed!\", \"key\" : \"" + key + "\" }";
+	}
+	
+	/**
+	 * 일반적인 success와 결과 메시지를 json형태의 문자열로 리턴한다.
+	 * FIXME 문자열 escape를 위해 리턴 결과셋을 오브젝트화 하고 이를 json 형태의 문자열로 변환한다.
+	 * 
+	 * @param success
+	 * @param msg
+	 * @return {success : true, msg : 'message...'}
+	 */
+	protected String getResultMsg(boolean success, String msg) {
+		return "{ \"success\" : " + success + ", \"msg\" : \"" + msg + "\" }";
 	}
 
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
@@ -149,15 +184,9 @@ public abstract class EntityService {
 	 * _content_type 키로 컨텐트 타입이 넘겨진다.
 	 */
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		CustomUser user = SessionUtils.currentUser();
-
-		String company = null;
-		if (user != null)
-			company = user.getCompany();
-		else
-			company = request.getParameter("company");
 
 		Map<String, Object> commons = new HashMap<String, Object>();
+		@SuppressWarnings("unchecked")
 		Enumeration<String> names = request.getParameterNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
@@ -180,10 +209,10 @@ public abstract class EntityService {
 		 * Next lines for the values
 		 */
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
+		int successCount = 0;
+		
 		try {
-			Key companyKey = KeyFactory.createKey("Company", company);
-
+			Key companyKey = this.getCompanyKey(request);
 			Date now = new Date();
 
 			while ((line = br.readLine()) != null) {
@@ -194,6 +223,7 @@ public abstract class EntityService {
 				for (int i = 0; i < keys.length; i++) {
 					map.put(keys[i].trim(), values[i].trim());
 				}
+				
 				map.put("_filename", filename);
 				map.put("_content_type", contentType);
 				map.put("_now", now);
@@ -214,62 +244,36 @@ public abstract class EntityService {
 				}
 
 				onSave(entity, map, datastore);
-
 				datastore.put(entity);
+				successCount++;
 			}
 		} finally {
 		}
 
 		response.setContentType("text/html");
-
-		return "{ \"success\" : true }";
+		return this.getResultMsg(true, "Imported " + successCount + " count successfully!");
 	}
 
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
 		Map<String, Object> map = toMap(request);
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
 		}
 
-		/*CustomUser user = SessionUtils.currentUser();
-
-		String company = null;
-		if (user != null)
-			company = user.getCompany();
-		else
-			company = request.getParameter("company");
-
-		Key companyKey = KeyFactory.createKey("Company", company);*/
-		
 		String key = request.getParameter("key");
 		Key companyKey = this.getCompanyKey(request);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
+		Key objKey = (key != null && key.trim().length() > 0) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		
-		Key objKey = null;
 		boolean creating = false;
 		Entity obj = null;
 
-		if (key != null && key.trim().length() > 0) {
-			objKey = KeyFactory.stringToKey(key);
-			try {
-				obj = datastore.get(objKey);
-			} catch (EntityNotFoundException e) {
-				// It's OK.(but Lost Key maybe.)
-				creating = true;
-			}
-		} else {
-			objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
-			try {
-				obj = datastore.get(objKey);
-			} catch (EntityNotFoundException e) {
-				// It's OK.
-				creating = true;
-			}
-			// It's Not OK. You try to add duplicated identifier.
-			// if (obj != null)
-			// throw new EntityExistsException(getEntityName() + " with id (" +
-			// getIdValue(map) + ") already Exist.");
-		}
+		try {
+			obj = datastore.get(objKey);
+		} catch (EntityNotFoundException e) {
+			creating = true;
+		}		
 
 		Date now = new Date();
 		map.put("_now", now);
@@ -295,10 +299,9 @@ public abstract class EntityService {
 		}
 
 		response.setContentType("text/html");
-
-		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
+		return this.getCreateResultMsg(true, obj);
 	}
-
+	
 	public String delete(HttpServletRequest request, HttpServletResponse response) {
 		String key = request.getParameter("key");
 
@@ -310,8 +313,7 @@ public abstract class EntityService {
 		}
 
 		response.setContentType("text/html");
-
-		return "{ \"success\" : true, \"msg\" : \"" + getEntityName() + " destroyed\" }";
+		return this.getDeleteResultMsg(true, key);
 	}
 
 	protected void addFilter(Query q, String property, String value) {
@@ -355,43 +357,22 @@ public abstract class EntityService {
 	protected void adjustSorters(List<Sorter> sorters) {
 		return;
 	}
+	
+	/**
+	 * retrieve 시점에 최종 결과 result dataset의 items에 담기전에 item에 대해서 핸들링 
+	 * @param item
+	 */
+	protected void adjustItem(Map<String, Object> item) {
+		return;
+	}	
 
 	public Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		
-		/*CustomUser user = SessionUtils.currentUser();
-		String company = null;
-		if (user != null)
-			company = user.getCompany();
-		else
-			company = request.getParameter("company");
-		Key companyKey = KeyFactory.createKey("Company", company);*/
-
-		String jsonFilter = request.getParameter("filter");
-		String jsonSorter = request.getParameter("sort");
-		String[] selects = request.getParameterValues("select");
-
-		List<Filter> filters = null;
-		List<Sorter> sorters = null;
-
-		try {
-			if (jsonFilter != null) {
-				filters = new ObjectMapper().readValue(request.getParameter("filter"), new TypeReference<List<Filter>>() {
-				});
-			}
-			if (jsonSorter != null) {
-				sorters = new ObjectMapper().readValue(request.getParameter("sort"), new TypeReference<List<Sorter>>() {
-				});
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		adjustFilters(filters);
-		adjustSorters(sorters);
+		List<Filter> filters = this.parseFilters(request.getParameter("filter"));
+		List<Sorter> sorters = this.parseSorters(request.getParameter("sort"));
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = this.getCompanyKey(request);
-		
+		Key companyKey = this.getCompanyKey(request);		
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);
 		buildQuery(q, request);
@@ -402,35 +383,87 @@ public abstract class EntityService {
 		PreparedQuery pq = datastore.prepare(q);
 		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 
-		String pLimit = request.getParameter("limit");
-		String pPage = request.getParameter("page");
-		String pStart = request.getParameter("start");
-
-		int page = 1;
-		int offset = 0;
-		int limit = Integer.MAX_VALUE;
-
-		if (pPage != null) {
-			page = Integer.parseInt(pPage);
-		}
-		if (pStart != null) {
-			offset = Integer.parseInt(pStart);
-		}
-		if (pLimit != null) {
-			limit = Integer.parseInt(pLimit);
-		}
+		int[] limit_offset = this.getLimitOffsetCount(request);
+		int limit = limit_offset[0];
+		int offset = limit_offset[1];		
 
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
-
+		
 		for (Entity result : pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset))) {
-			items.add(SessionUtils.cvtEntityToMap(result, selects));
+			Map<String, Object> item = SessionUtils.cvtEntityToMap(result, request.getParameterValues("select"));
+			this.adjustItem(item);
+			items.add(item);
 		}
-
-		/*Map<String, Object> result = new HashMap<String, Object>();
-		result.put("total", total);
-		result.put("success", true);
-		result.put("items", items);*/
 
 		return packResultDataset(true, total, items);
 	}
+	
+	/**
+	 * request에서 paging을 위한 limit 값과 offset 값을 찾아 계산 후 리턴
+	 *  
+	 * @param request
+	 * @return 첫 번째 값이 limit, 두 번째 값이 offset
+	 */
+	protected int[] getLimitOffsetCount(HttpServletRequest request) {
+
+		String pLimit = request.getParameter("limit");
+		String pStart = request.getParameter("start");
+
+		int offset = 0;
+		int limit = Integer.MAX_VALUE;
+
+		if (pStart != null) {
+			offset = Integer.parseInt(pStart);
+		}
+		
+		if (pLimit != null) {
+			limit = Integer.parseInt(pLimit);
+		}
+		
+		return new int[] {limit, offset};
+	}
+	
+	/**
+	 * filterStr 파싱 
+	 * 
+	 * @param filterStr
+	 * @return
+	 */
+	protected List<Filter> parseFilters(String filterStr) {
+		
+		List<Filter> filters = null;
+
+		if (filterStr != null) {
+			try {
+				filters = new ObjectMapper().readValue(filterStr, new TypeReference<List<Filter>>() {});
+				adjustFilters(filters);
+			} catch (Exception e) {
+				logger.error("Failed to parse filter string to json!", e);
+			}
+		}
+		
+		return filters;
+	}
+	
+	/**
+	 * sorterStr 파싱
+	 * 
+	 * @param sorterStr
+	 * @return
+	 */
+	protected List<Sorter> parseSorters(String sorterStr) {
+		
+		List<Sorter> sorters = null;
+
+		if (sorterStr != null) {
+			try {
+				sorters = new ObjectMapper().readValue(sorterStr, new TypeReference<List<Sorter>>() {});
+				adjustSorters(sorters);
+			} catch (Exception e) {
+				logger.error("Failed to parse sorter string to json!", e);
+			}
+		}
+		
+		return sorters;
+	}	
 }

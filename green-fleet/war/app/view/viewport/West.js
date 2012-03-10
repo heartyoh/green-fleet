@@ -10,15 +10,24 @@ Ext.define('GreenFleet.view.viewport.West', {
 	items : [ {
 		xtype : 'button',
 		cls : 'btnDashboard',
-		html : 'D.board'
+		html : 'D.board',
+		handler : function() {
+			GreenFleet.doMenu('monitor_map');
+		}
 	}, {
 		xtype : 'button',
 		cls : 'btnInfo',
-		html : 'Info'
+		html : 'Info',
+		handler : function() {
+			GreenFleet.doMenu('information');
+		}		
 	}, {
 		xtype : 'button',
 		cls : 'btnIncidentInfo',
-		html : 'Incident'
+		html : 'Incident',
+		handler : function() {
+			GreenFleet.doMenu('monitor_incident');
+		}		
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',

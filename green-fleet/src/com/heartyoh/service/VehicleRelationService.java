@@ -81,8 +81,7 @@ public class VehicleRelationService extends EntityService {
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		CustomUser user = SessionUtils.currentUser();
-		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		Key companyKey = this.getCompanyKey(request);
 		String vehicleGroupId = request.getParameter("vehicle_group_id");
 		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
 		List<Entity> objList = new ArrayList<Entity>();
@@ -90,8 +89,8 @@ public class VehicleRelationService extends EntityService {
 		String resultMsg = null;
 		
 		for(int i = 0 ; i < vehicleIdArr.length ; i++) {
-			if(!this.checkExist(datastore, company, vehicleGroupId, vehicleIdArr[i])) {
-				objList.add(this.makeEntity(company, vehicleGroupId, vehicleIdArr[i]));
+			if(!this.checkExist(datastore, companyKey, vehicleGroupId, vehicleIdArr[i])) {
+				objList.add(this.makeEntity(companyKey, vehicleGroupId, vehicleIdArr[i]));
 			}
 		}
 		
@@ -113,9 +112,8 @@ public class VehicleRelationService extends EntityService {
 		return resultMsg;
 	}
 	
-	private boolean checkExist(DatastoreService datastore, String company, String vehicleGroupId, String vehicleId) {
+	private boolean checkExist(DatastoreService datastore, Key companyKey, String vehicleGroupId, String vehicleId) {
 		
-		Key companyKey = KeyFactory.createKey("Company", company);
 		Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(vehicleId, vehicleGroupId));
 		Entity obj = null;
 
@@ -130,9 +128,8 @@ public class VehicleRelationService extends EntityService {
 		return false;
 	}
 	
-	private Entity makeEntity(String company, String vehicleGroupId, String vehicleId) throws Exception {
+	private Entity makeEntity(Key companyKey, String vehicleGroupId, String vehicleId) throws Exception {
 		
-		Key companyKey = KeyFactory.createKey("Company", company);
 		Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(vehicleId, vehicleGroupId));
 		Entity obj = new Entity(objKey);
 		Date now = new Date();
@@ -147,13 +144,11 @@ public class VehicleRelationService extends EntityService {
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) {
 		
-		CustomUser user = SessionUtils.currentUser();
-		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		Key companyKey = this.getCompanyKey(request);
 		String vehicleGroupId = request.getParameter("vehicle_group_id");
 		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
 		List<Key> keyList = new ArrayList<Key>();
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", company);
 		String resultMsg = null;
 		
 		for(int i = 0 ; i < vehicleIdArr.length ; i++) {

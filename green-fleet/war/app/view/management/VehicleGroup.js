@@ -163,7 +163,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				        self.sub('all_vehicles_grid').getSelectionModel().deselectAll(true);
 				        self.searchGroupedVehicles();
 				        GreenFleet.msg("Success", resultObj.msg);
-				        self.fireEventToVehicleCountByGroupStore();
+				        self.changedGroupedVehicleCount();
 			        } else {
 			        	Ext.MessageBox.alert("Failure", resultObj.msg);
 			        }
@@ -206,7 +206,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			        if(resultObj.success) {
 				        self.searchGroupedVehicles();
 				        GreenFleet.msg("Success", resultObj.msg);
-				        self.fireEventToVehicleCountByGroupStore();
+				        self.changedGroupedVehicleCount();
 			        } else {
 			        	Ext.MessageBox.alert("Failure", resultObj.msg);
 			        }
@@ -247,8 +247,8 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 	 * Vehicle Group의 Vehicle 개수가 변경되었을 경우 
 	 * 우측 Vehicle 검색 조건 (East.js)에 Vehicle Group 정보(Vehicle Group의 Vehicle 개수)를 Refresh 하라는 이벤트를 날려준다.
 	 */
-	fireEventToVehicleCountByGroupStore : function() {
-		Ext.getStore('VehicleCountByGroupStore').fireEvent('write');
+	changedGroupedVehicleCount : function() {
+		Ext.getStore('VehicleGroupStore').load();
 	},
 	
 	buildVehicleGroupList : function(main) {

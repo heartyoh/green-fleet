@@ -125,22 +125,19 @@ public class VehicleService extends EntityService {
 
 	private Map<String, Object> retrieveByGroup(HttpServletRequest request, HttpServletResponse response) {
 		
-		// FIXME 추후 그룹 조건도 필터와 같이 동작하도록 수정 필요 
-		CustomUser user = SessionUtils.currentUser();
-		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		Key companyKey = this.getCompanyKey(request);
 		String vehicleGroup = request.getParameter("vehicle_group_id");
 		String jsonFilter = request.getParameter("filter");
 		String jsonSorter = request.getParameter("sort");
 		String[] selects = request.getParameterValues("select");
 
-		Map<String, Object> relationResults = this.retrieveVehicleRelations(company, vehicleGroup, jsonFilter, jsonSorter, request.getParameter("limit"), request.getParameter("start"));
+		Map<String, Object> relationResults = this.retrieveVehicleRelations(companyKey, vehicleGroup, jsonFilter, jsonSorter, request.getParameter("limit"), request.getParameter("start"));
 		int total = (Integer)relationResults.get("total");
 		List<String> relationItems = (List<String>)relationResults.get("items");
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		
 		if(total > 0 && !relationItems.isEmpty()) {
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			Key companyKey = KeyFactory.createKey("Company", company);
 			Query q = new Query(this.getEntityName());
 			q.setAncestor(companyKey);
 			q.addFilter("id", FilterOperator.IN, relationItems);
@@ -154,37 +151,21 @@ public class VehicleService extends EntityService {
 		return this.packResultDataset(true, total, items);
 	}
 	
-	private Map<String, Object> retrieveVehicleRelations(String company, String vehicleGroup, String filterStr, String sorterStr, String limitStr, String startStr) {
+	private Map<String, Object> retrieveVehicleRelations(Key companyKey, String vehicleGroup, String filterStr, String sorterStr, String limitStr, String startStr) {
 		
-		List<Filter> filters = null;
-		List<Sorter> sorters = null;
-
-		try {
-			if (filterStr != null) {
-				filters = new ObjectMapper().readValue(filterStr, new TypeReference<List<Filter>>() {
-				});
-			} else {
-				filters = new ArrayList<Filter>();
-			}
-			
-			if (sorterStr != null) {
-				sorters = new ObjectMapper().readValue(sorterStr, new TypeReference<List<Sorter>>() {
-				});
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		adjustFilters(filters);
-		adjustSorters(sorters);
+		List<Filter> filters = this.parseFilters(filterStr);
+		List<Sorter> sorters = this.parseSorters(sorterStr);
 
 		Filter vehicleGroupFilter = new Filter();
 		vehicleGroupFilter.setProperty("vehicle_group_id");
 		vehicleGroupFilter.setValue(vehicleGroup);
+		
+		if(filters == null)
+			filters = new ArrayList<Filter>();
+		
 		filters.add(vehicleGroupFilter);
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = KeyFactory.createKey("Company", company);
 		Query q = new Query("VehicleRelation");
 		q.setAncestor(companyKey);
 		buildQuery(q, filters, sorters);
@@ -205,10 +186,6 @@ public class VehicleService extends EntityService {
 			}
 		}
 		
-		/*Map<String, Object> result = new HashMap<String, Object>();
-		result.put("total", total);
-		result.put("success", true);
-		result.put("items", relationItems);*/	
 		return this.packResultDataset(true, total, relationItems);
 	}
 	

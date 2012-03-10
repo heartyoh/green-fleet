@@ -2,13 +2,13 @@ Ext.define('GreenFleet.view.viewport.East', {
 	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.viewport.east',
-	
+
 	id : 'east',
-	
+
 	cls : 'summaryBoard',
-	
+
 	width : 200,
-	
+
 	layout : {
 		type : 'vbox',
 		align : 'stretch'
@@ -16,209 +16,203 @@ Ext.define('GreenFleet.view.viewport.East', {
 
 	initComponent : function() {
 		this.callParent();
-		
+
 		var self = this;
-		
+
 		this.sub('state_running').on('click', function() {
 			GreenFleet.doMenu('monitor_map');
-			
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
-			
+
 			GreenFleet.show_running_vehicle = true;
-			if(GreenFleet.show_idle_vehicle) {
+			if (GreenFleet.show_idle_vehicle) {
 				GreenFleet.show_idle_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
-				store.filter([{
+				store.filter([ {
 					property : 'status',
 					value : 'Running'
-				}])
+				} ])
 			} else {
 				GreenFleet.show_idle_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
 			}
 		});
-		
+
 		this.sub('state_idle').on('click', function() {
 			GreenFleet.doMenu('monitor_map');
 
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
-			
+
 			GreenFleet.show_idle_vehicle = true;
-			if(GreenFleet.show_incident_vehicle) {
+			if (GreenFleet.show_incident_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
-				store.filter([{
+				store.filter([ {
 					property : 'status',
 					value : 'Idle'
-				}])
+				} ])
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
 			}
 		});
-		
+
 		this.sub('state_incident').on('click', function() {
 			GreenFleet.doMenu('monitor_map');
 
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
-			
+
 			GreenFleet.show_incident_vehicle = true;
-			if(GreenFleet.show_running_vehicle) {
+			if (GreenFleet.show_running_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_idle_vehicle = false;
-				store.filter([{
+				store.filter([ {
 					property : 'status',
 					value : 'Incident'
-				}])
+				} ])
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_idle_vehicle = true;
 			}
 		});
-		
+
 		setInterval(function() {
-			if(self.isHidden())
+			if (self.isHidden())
 				return;
 
 			self.sub('time').update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
 		}, 1000);
-		
+
 		this.on('afterrender', function() {
-			Ext.getStore('VehicleMapStore').on('load', self.refreshVehicleCounts, self);
+			Ext.getStore('VehicleMapStore').on('load',self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
-			Ext.getStore('RecentIncidentStore').load();			
+			Ext.getStore('RecentIncidentStore').load();
 			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
-			Ext.getStore('VehicleCountByGroupStore').on('write', self.refreshVehicleGroups, self);
 		});
 	},
-	
+
 	toggleHide : function() {
-		if(this.isVisible())
+		if (this.isVisible())
 			this.hide();
 		else
 			this.show();
 	},
-	
+
 	refreshVehicleCounts : function() {
-		if(this.isHidden())
+		if (this.isHidden())
 			return;
 
 		var store = Ext.getStore('VehicleMapStore');
 
 		var total = store.count();
-		
+
 		var running = 0;
 		var idle = 0;
 		var incident = 0;
 
 		store.each(function(record) {
-			switch(record.get('status')) {
-			case 'Running' :
+			switch (record.get('status')) {
+			case 'Running':
 				running++;
 				break;
-			case 'Idle' :
+			case 'Idle':
 				idle++;
 				break;
-			case 'Incident' :
+			case 'Incident':
 				incident++;
 				break;
 			}
 		});
-		
+
 		this.sub('state_running').update('Driving</br><span>' + running + '</span>');
 		this.sub('state_idle').update('Idle</br><span>' + idle + '</span>');
 		this.sub('state_incident').update('Incident</br><span>' + incident + '</span>');
 		this.sub('vehicle_count').update('Total Running Vehicles : ' + total);
 	},
-	
+
 	refreshIncidents : function(store) {
-		if(!store)
+		if (!store)
 			store = Ext.getStore('RecentIncidentStore');
-		
+
 		this.sub('incidents').removeAll();
-		
+
 		var count = store.count() > 5 ? 5 : store.count();
-		
-		for(var i = 0;i < count;i++) {
+
+		for ( var i = 0; i < count; i++) {
 			var incident = store.getAt(i);
-			
-			this.sub('incidents').add({
-				xtype : 'button',
-				listeners : {
-					click : function(button) {
-						GreenFleet.doMenu('monitor_incident');
-						GreenFleet.getMenu('monitor_incident').setIncident(button.incident, true);
-					}
-				},
-				incident : incident,
-				html : '<a href="#">' + incident.get('vehicle_id') + ', ' + incident.get('driver_id') + '<span>' + 
-					Ext.Date.format(incident.get('datetime'), 'D Y-m-d H:i:s') + '</span></a>'
-			});
-		}
-	},
-	
-	refreshVehicleGroups : function() {
-		if(this.isHidden())
-			return;
-		
-		var countStore = Ext.getStore('VehicleCountByGroupStore');
-		this.sub('vehicle_groups').removeAll();
-		
-		countStore.load({			
-			callback : function(records, operation, success) {
-				
-				if(!success)
-					return;
-				
-				Ext.each(records, function(record) {
-					this.sub('vehicle_groups').add({
+
+			this.sub('incidents').add(
+					{
 						xtype : 'button',
 						listeners : {
-							click : this.filterByVehicleGroup, scope : this
+							click : function(button) {
+								GreenFleet.doMenu('monitor_incident');
+								GreenFleet.getMenu('monitor_incident').setIncident(button.incident, true);
+							}
+						},
+						incident : incident,
+						html : '<a href="#">'
+								+ incident.get('vehicle_id')
+								+ ', '
+								+ incident.get('driver_id')
+								+ '<span>'
+								+ Ext.Date.format(incident.get('datetime'),
+										'D Y-m-d H:i:s') + '</span></a>'
+					});
+		}
+	},
+
+	refreshVehicleGroups : function() {
+		if (this.isHidden())
+			return;
+
+		var self = this;
+		self.sub('vehicle_groups').removeAll();
+		
+		Ext.getStore('VehicleGroupStore').each(function(record) {
+			self.sub('vehicle_groups').add(
+					{
+						xtype : 'button',
+						listeners : {
+							click : self.filterByVehicleGroup,
+							scope : self
 						},
 						vehicleGroup : record,
-						html : '<a href="#">' + record.get('vehicle_group_id') + '<span>(' + record.get('vehicle_count') + ')</span></a>'
-					});
-				}, this);
-			},
-			scope : this
-		});		
-	},
-	
-	filterByVehicleGroup : function(button) {
-		GreenFleet.doMenu('monitor_map');
-
-		this.sub('search').setValue('');
-		
-		// TODO 다른 조건들도 고려, VehicleRelationFilteredStore를 Refresh하는 시점을 ....
-		var vehicleGroupId = button.vehicleGroup.get('vehicle_group_id');
-		var relStore = Ext.getStore('VehicleRelationFilteredStore');
-		relStore.clearFilter();
-		relStore.filter([{
-			property : 'vehicle_group_id',
-			value : vehicleGroupId
-		}]);
-		
-		var relCount = relStore.count();
-		var relVehicleIdArr = [];		
-		for(var i = 0 ; i < relCount ; i++)
-			relVehicleIdArr[i] = relStore.getAt(i).get('vehicle_id');
-		
-		var vehicleStore = Ext.getStore('VehicleFilteredStore');		
-		vehicleStore.filterBy(function(record) {
-			var myVehicleId = record.get('id');
-			if(Ext.Array.indexOf(relVehicleIdArr, myVehicleId) >= 0) {
-				return true;
-			}			
+						html : '<a href="#">'
+								+ record.data.id
+								+ '<span>('
+								+ record.data.vehicles.length
+								+ ')</span></a>'
+					});			
 		});
 	},
-	
+
+	filterByVehicleGroup : function(button) {
+		GreenFleet.doMenu('monitor_map');
+		this.sub('search').setValue('');
+
+		var vehicleGroupId = button.vehicleGroup.get('id');
+		var vehicleGroups = Ext.getStore('VehicleGroupStore').findRecord('id', vehicleGroupId);
+		var vehicles = vehicleGroups? vehicleGroups.get('vehicles') : [];
+		
+		var vehicleStore = Ext.getStore('VehicleFilteredStore');
+		vehicleStore.clearFilter();
+		vehicleStore.filter([ {
+			filterFn : function(record) {
+				var myVehicleId = record.get('id');
+				if (Ext.Array.indexOf(vehicles, myVehicleId) >= 0) {
+					return true;
+				}
+			}
+		} ]);
+	},
+
 	items : [ {
 		xtype : 'searchfield',
 		cls : 'searchField',
@@ -238,7 +232,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		html : 'Total Running Vehicles : 0'
 	}, {
 		xtype : 'panel',
-		title : '상황별 운행 현황',
+		title : 'Vehicle Status',
 		cls : 'statusPanel',
 		items : [ {
 			xtype : 'button',
@@ -258,8 +252,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		} ]
 	}, {
 		xtype : 'panel',
-		title : 'Group',
-		cls :'groupPanel',
+		title : 'Vehicle Group',
+		cls : 'groupPanel',
 		itemId : 'vehicle_groups'
 	}, {
 		xtype : 'panel',
