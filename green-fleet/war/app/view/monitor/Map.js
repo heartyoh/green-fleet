@@ -2,6 +2,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	extend : 'Ext.Container',
 
 	alias : 'widget.monitor_map',
+	
+	id : 'monitor_map',
 
 	title : 'Maps',
 

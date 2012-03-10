@@ -48,7 +48,7 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	items : [ {
 		title : 'Dashboard',
 		xtype : 'monitor_map',
-		itemId : 'map'
+		itemId : 'monitor_map'
 	}, {
 		title : 'Info',
 		xtype : 'monitor_information',

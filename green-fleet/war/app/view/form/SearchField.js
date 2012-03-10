@@ -42,6 +42,8 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	
 	listeners : {
 		'select' : function(combo, records, eOpts) {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			
 			store.clearFilter(true);

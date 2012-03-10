@@ -8,7 +8,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	cls : 'summaryBoard',
 	
 	width : 200,
-
+	
 	layout : {
 		type : 'vbox',
 		align : 'stretch'
@@ -20,6 +20,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		
 		this.sub('state_running').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+			
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
@@ -39,6 +41,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_idle').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
@@ -58,6 +62,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		this.sub('state_incident').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
@@ -77,6 +83,9 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 		
 		setInterval(function() {
+			if(self.isHidden())
+				return;
+
 			self.sub('time').update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
 		}, 1000);
 		
@@ -89,7 +98,17 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 	},
 	
+	toggleHide : function() {
+		if(this.isVisible())
+			this.hide();
+		else
+			this.show();
+	},
+	
 	refreshVehicleCounts : function() {
+		if(this.isHidden())
+			return;
+
 		var store = Ext.getStore('VehicleMapStore');
 
 		var total = store.count();
@@ -145,6 +164,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 	},
 	
 	refreshVehicleGroups : function() {
+		if(this.isHidden())
+			return;
 		
 		var countStore = Ext.getStore('VehicleCountByGroupStore');
 		this.sub('vehicle_groups').removeAll();
@@ -171,6 +192,8 @@ Ext.define('GreenFleet.view.viewport.East', {
 	},
 	
 	filterByVehicleGroup : function(button) {
+		GreenFleet.doMenu('monitor_map');
+
 		this.sub('search').setValue('');
 		
 		// TODO 다른 조건들도 고려, VehicleRelationFilteredStore를 Refresh하는 시점을 ....

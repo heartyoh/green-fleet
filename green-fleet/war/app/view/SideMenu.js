@@ -26,6 +26,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		type : 'setting',
 		cls : 'btnSetting',
 		handler : function() {
+			Ext.getCmp('east').toggleHide();
 		}
 	}, {
 		itemId : 'logout',
