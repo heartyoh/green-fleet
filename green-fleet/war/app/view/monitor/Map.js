@@ -5,7 +5,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	
 	id : 'monitor_map',
 
-	title : 'Maps',
+//	title : 'Maps',
 
 	layout : {
 		type : 'vbox',

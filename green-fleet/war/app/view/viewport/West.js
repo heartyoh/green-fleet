@@ -2,6 +2,9 @@ Ext.define('GreenFleet.view.viewport.West', {
 	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.viewport.west',
+	
+	id : 'west',
+		
 	cls : 'tool',
 
 	layout : {
@@ -9,13 +12,15 @@ Ext.define('GreenFleet.view.viewport.West', {
 	},
 	items : [ {
 		xtype : 'button',
+		itemId : 'monitor_map',
 		cls : 'btnDashboard',
-		html : 'D.board',
+		html : 'Map',
 		handler : function() {
 			GreenFleet.doMenu('monitor_map');
 		}
 	}, {
 		xtype : 'button',
+		itemId : 'information',
 		cls : 'btnInfo',
 		html : 'Info',
 		handler : function() {
@@ -23,6 +28,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		}		
 	}, {
 		xtype : 'button',
+		itemId : 'monitor_incident',
 		cls : 'btnIncidentInfo',
 		html : 'Incident',
 		handler : function() {
@@ -36,20 +42,20 @@ Ext.define('GreenFleet.view.viewport.West', {
 			GreenFleet.importData();
 		}
 	}, {
-		xtype : 'button',
-		cls : 'btnEvent',
-		html : 'incident log',
-		handler : function() {
-			GreenFleet.uploadIncidentLog();
-		}
-	}, {
-		xtype : 'button',
-		cls : 'btnEvent',
-		html : 'incident video',
-		handler : function() {
-			GreenFleet.uploadIncidentVideo();
-		}
-	}, {
+//		xtype : 'button',
+//		cls : 'btnEvent',
+//		html : 'incident log',
+//		handler : function() {
+//			GreenFleet.uploadIncidentLog();
+//		}
+//	}, {
+//		xtype : 'button',
+//		cls : 'btnEvent',
+//		html : 'incident video',
+//		handler : function() {
+//			GreenFleet.uploadIncidentVideo();
+//		}
+//	}, {
 		xtype : 'button',
 		cls : 'btnExport',
 		html : 'export'

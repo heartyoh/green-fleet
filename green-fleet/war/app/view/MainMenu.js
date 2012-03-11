@@ -31,14 +31,14 @@ Ext.define('GreenFleet.view.MainMenu', {
 	},
 
 	items : [ {
-		text : 'Dashboard',
-		submenus : [ {
-			title : 'File',
-			xtype : 'filemanager',
-			itemId : 'filemanager',
-			closable : true
-		} ]
-	}, {
+//		text : 'Dashboard',
+//		submenus : [ {
+//			title : 'File',
+//			xtype : 'filemanager',
+//			itemId : 'filemanager',
+//			closable : true
+//		} ]
+//	}, {
 		text : 'Company',
 		submenus : [ {
 			title : T('title.company'),

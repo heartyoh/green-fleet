@@ -51,10 +51,13 @@
 .tool .x-btn-default-small{width:50px;height:55px;padding-top:37px;font-size:10px;color:#ccc;text-transform:capitalize;text-align:center;border:0;border-bottom:1px solid #474b55}
 .tool .btnDashboard{background:url('../image/iconDashboardOff.png') 10px 9px no-repeat;}
 .tool .btnDashboard.x-btn-default-small-over{background:url('../image/iconDashboardOn.png') no-repeat;color:#fff}
+.tool .btnDashboard.active{background:url('../image/iconDashboardOn.png') no-repeat;color:#fff}
 .tool .btnInfo{background:url('../image/iconInfoOff.png') 9px 7px no-repeat;}
 .tool .btnInfo.x-btn-default-small-over{background:url('../image/iconInfoOn.png') no-repeat;color:#fff}
+.tool .btnInfo.active{background:url('../image/iconInfoOn.png') no-repeat;color:#fff}
 .tool .btnIncidentInfo{background:url('../image/iconIncidentInfoOff.png') 10px 5px no-repeat;}
 .tool .btnIncidentInfo.x-btn-default-small-over{background:url('../image/iconIncidentInfoOn.png') no-repeat;color:#fff}
+.tool .btnIncidentInfo.active{background:url('../image/iconIncidentInfoOn.png') no-repeat;color:#fff}
 
 .tool .btnEvent{background:url('../image/iconEventOff.png') 58% 10px no-repeat;padding-top:33px}
 .tool .btnEvent.x-btn-default-small-over{background:url('../image/iconEventOn.png') 58% 10px no-repeat;color:#fff}

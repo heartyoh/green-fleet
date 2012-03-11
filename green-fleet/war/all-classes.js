@@ -343,6 +343,16 @@ Ext.define('GreenFleet.view.viewport.Center', {
 		}
 	},
 
+	initComponent : function() {
+		this.callParent();
+
+		var self = this;
+
+		Ext.getCmp('menutab').getComponent('monitor_map').hide();
+		Ext.getCmp('menutab').getComponent('information').hide();
+		Ext.getCmp('menutab').getComponent('monitor_incident').hide();
+	},
+
 	defaults : {
 		listeners : {
 			activate : function(item) {
@@ -354,17 +364,62 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	},
 
 	items : [ {
-		title : 'Dashboard',
 		xtype : 'monitor_map',
-		itemId : 'map'
+		itemId : 'monitor_map',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
 	}, {
-		title : 'Info',
 		xtype : 'monitor_information',
-		itemId : 'information'
+		itemId : 'information',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+			
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
 	}, {
-		title : 'Incident Info',
 		xtype : 'monitor_incident',
-		itemId : 'monitor_incident'
+		itemId : 'monitor_incident',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+			
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
 	} ]
 });
 Ext.define('GreenFleet.view.viewport.North', {
@@ -413,6 +468,9 @@ Ext.define('GreenFleet.view.viewport.West', {
 	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.viewport.west',
+	
+	id : 'west',
+		
 	cls : 'tool',
 
 	layout : {
@@ -420,16 +478,28 @@ Ext.define('GreenFleet.view.viewport.West', {
 	},
 	items : [ {
 		xtype : 'button',
-		cls : 'btnAdd',
-		html : 'add'
+		itemId : 'monitor_map',
+		cls : 'btnDashboard',
+		html : 'Map',
+		handler : function() {
+			GreenFleet.doMenu('monitor_map');
+		}
 	}, {
 		xtype : 'button',
-		cls : 'btnRemove',
-		html : 'remove'
+		itemId : 'information',
+		cls : 'btnInfo',
+		html : 'Info',
+		handler : function() {
+			GreenFleet.doMenu('information');
+		}		
 	}, {
 		xtype : 'button',
-		cls : 'btnRefresh',
-		html : 'refresh'
+		itemId : 'monitor_incident',
+		cls : 'btnIncidentInfo',
+		html : 'Incident',
+		handler : function() {
+			GreenFleet.doMenu('monitor_incident');
+		}		
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',
@@ -438,24 +508,20 @@ Ext.define('GreenFleet.view.viewport.West', {
 			GreenFleet.importData();
 		}
 	}, {
-		xtype : 'button',
-		cls : 'btnEvent',
-		html : 'incident log',
-		handler : function() {
-			GreenFleet.uploadIncidentLog();
-		}
-	}, {
-		xtype : 'button',
-		cls : 'btnEvent',
-		html : 'incident video',
-		handler : function() {
-			GreenFleet.uploadIncidentVideo();
-		}
-	}, {
-		xtype : 'button',
-		cls : 'btnSave',
-		html : 'save'
-	}, {
+//		xtype : 'button',
+//		cls : 'btnEvent',
+//		html : 'incident log',
+//		handler : function() {
+//			GreenFleet.uploadIncidentLog();
+//		}
+//	}, {
+//		xtype : 'button',
+//		cls : 'btnEvent',
+//		html : 'incident video',
+//		handler : function() {
+//			GreenFleet.uploadIncidentVideo();
+//		}
+//	}, {
 		xtype : 'button',
 		cls : 'btnExport',
 		html : 'export'
@@ -466,11 +532,11 @@ Ext.define('GreenFleet.view.viewport.East', {
 	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.viewport.east',
-	
+
 	id : 'east',
-	
+
 	cls : 'summaryBoard',
-	
+
 	width : 200,
 
 	layout : {
@@ -480,132 +546,203 @@ Ext.define('GreenFleet.view.viewport.East', {
 
 	initComponent : function() {
 		this.callParent();
-		
+
 		var self = this;
-		
+
 		this.sub('state_running').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
-			
+
 			GreenFleet.show_running_vehicle = true;
-			if(GreenFleet.show_idle_vehicle) {
+			if (GreenFleet.show_idle_vehicle) {
 				GreenFleet.show_idle_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
-				store.filter([{
+				store.filter([ {
 					property : 'status',
 					value : 'Running'
-				}])
+				} ])
 			} else {
 				GreenFleet.show_idle_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
 			}
 		});
-		
+
 		this.sub('state_idle').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
-			
+
 			GreenFleet.show_idle_vehicle = true;
-			if(GreenFleet.show_incident_vehicle) {
+			if (GreenFleet.show_incident_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
-				store.filter([{
+				store.filter([ {
 					property : 'status',
 					value : 'Idle'
-				}])
+				} ])
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
 			}
 		});
-		
+
 		this.sub('state_incident').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			store.clearFilter();
 			self.sub('search').setValue('');
-			
+
 			GreenFleet.show_incident_vehicle = true;
-			if(GreenFleet.show_running_vehicle) {
+			if (GreenFleet.show_running_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_idle_vehicle = false;
-				store.filter([{
+				store.filter([ {
 					property : 'status',
 					value : 'Incident'
-				}])
+				} ])
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_idle_vehicle = true;
 			}
 		});
-		
+
 		setInterval(function() {
+			if (self.isHidden())
+				return;
+
 			self.sub('time').update(Ext.Date.format(new Date(), 'D Y-m-d H:i:s'));
 		}, 1000);
-		
+
 		this.on('afterrender', function() {
-			Ext.getStore('VehicleMapStore').on('load', self.refreshVehicleCounts, self);
+			Ext.getStore('VehicleMapStore').on('load',self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
 			Ext.getStore('RecentIncidentStore').load();
+			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
 		});
 	},
-	
+
+	toggleHide : function() {
+		if (this.isVisible())
+			this.hide();
+		else
+			this.show();
+	},
+
 	refreshVehicleCounts : function() {
+		if (this.isHidden())
+			return;
+
 		var store = Ext.getStore('VehicleMapStore');
 
 		var total = store.count();
-		
+
 		var running = 0;
 		var idle = 0;
 		var incident = 0;
 
 		store.each(function(record) {
-			switch(record.get('status')) {
-			case 'Running' :
+			switch (record.get('status')) {
+			case 'Running':
 				running++;
 				break;
-			case 'Idle' :
+			case 'Idle':
 				idle++;
 				break;
-			case 'Incident' :
+			case 'Incident':
 				incident++;
 				break;
 			}
 		});
-		
+
 		this.sub('state_running').update('Driving</br><span>' + running + '</span>');
 		this.sub('state_idle').update('Idle</br><span>' + idle + '</span>');
 		this.sub('state_incident').update('Incident</br><span>' + incident + '</span>');
 		this.sub('vehicle_count').update('Total Running Vehicles : ' + total);
 	},
-	
+
 	refreshIncidents : function(store) {
-		if(!store)
+		if (!store)
 			store = Ext.getStore('RecentIncidentStore');
-		
+
 		this.sub('incidents').removeAll();
-		
+
 		var count = store.count() > 5 ? 5 : store.count();
-		
-		for(var i = 0;i < count;i++) {
+
+		for ( var i = 0; i < count; i++) {
 			var incident = store.getAt(i);
-			
-			this.sub('incidents').add({
-				xtype : 'button',
-				listeners : {
-					click : function(button) {
-						GreenFleet.doMenu('monitor_incident');
-						GreenFleet.getMenu('monitor_incident').setIncident(button.incident, true);
-					}
-				},
-				incident : incident,
-				html : '<a href="#">' + incident.get('vehicle_id') + ', ' + incident.get('driver_id') + '<span>' + 
-					Ext.Date.format(incident.get('datetime'), 'D Y-m-d H:i:s') + '</span></a>'
-			});
+
+			this.sub('incidents').add(
+					{
+						xtype : 'button',
+						listeners : {
+							click : function(button) {
+								GreenFleet.doMenu('monitor_incident');
+								GreenFleet.getMenu('monitor_incident').setIncident(button.incident, true);
+							}
+						},
+						incident : incident,
+						html : '<a href="#">'
+								+ incident.get('vehicle_id')
+								+ ', '
+								+ incident.get('driver_id')
+								+ '<span>'
+								+ Ext.Date.format(incident.get('datetime'),
+										'D Y-m-d H:i:s') + '</span></a>'
+					});
 		}
 	},
-	
+
+	refreshVehicleGroups : function() {
+		if (this.isHidden())
+			return;
+
+		var self = this;
+		self.sub('vehicle_groups').removeAll();
+		
+		Ext.getStore('VehicleGroupStore').each(function(record) {
+			self.sub('vehicle_groups').add(
+					{
+						xtype : 'button',
+						listeners : {
+							click : self.filterByVehicleGroup,
+							scope : self
+						},
+						vehicleGroup : record,
+						html : '<a href="#">'
+								+ record.data.id
+								+ '<span>('
+								+ record.data.vehicles.length
+								+ ')</span></a>'
+					});			
+		});
+	},
+
+	filterByVehicleGroup : function(button) {
+		GreenFleet.doMenu('monitor_map');
+		this.sub('search').setValue('');
+
+		var vehicleGroupId = button.vehicleGroup.get('id');
+		var vehicleGroups = Ext.getStore('VehicleGroupStore').findRecord('id', vehicleGroupId);
+		var vehicles = vehicleGroups? vehicleGroups.get('vehicles') : [];
+		
+		var vehicleStore = Ext.getStore('VehicleFilteredStore');
+		vehicleStore.clearFilter();
+		vehicleStore.filter([ {
+			filterFn : function(record) {
+				var myVehicleId = record.get('id');
+				if (Ext.Array.indexOf(vehicles, myVehicleId) >= 0) {
+					return true;
+				}
+			}
+		} ]);
+	},
+
 	items : [ {
 		xtype : 'searchfield',
 		cls : 'searchField',
@@ -625,7 +762,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		html : 'Total Running Vehicles : 0'
 	}, {
 		xtype : 'panel',
-		title : '상황별 운행 현황',
+		title : 'Vehicle Status',
 		cls : 'statusPanel',
 		items : [ {
 			xtype : 'button',
@@ -645,11 +782,9 @@ Ext.define('GreenFleet.view.viewport.East', {
 		} ]
 	}, {
 		xtype : 'panel',
-		title : 'Group',
-		cls :'groupPanel',
-		items : [{
-			html : '<a href="#">강남 ~ 분당노선 1 <span>(14)</span></a><a href="#">강남 ~ 분당노선 1 <span>(14)</span></a>'
-		}]
+		title : 'Vehicle Group',
+		cls : 'groupPanel',
+		itemId : 'vehicle_groups'
 	}, {
 		xtype : 'panel',
 		title : 'Incidents Alarm',
@@ -697,17 +832,17 @@ Ext.define('GreenFleet.view.MainMenu', {
 	},
 
 	items : [ {
-		text : 'Dashboard',
-		submenus : [ {
-			title : 'File',
-			xtype : 'filemanager',
-			itemId : 'filemanager',
-			closable : true
-		} ]
-	}, {
+//		text : 'Dashboard',
+//		submenus : [ {
+//			title : 'File',
+//			xtype : 'filemanager',
+//			itemId : 'filemanager',
+//			closable : true
+//		} ]
+//	}, {
 		text : 'Company',
 		submenus : [ {
-			title : T('company'),
+			title : T('title.company'),
 			xtype : 'management_company',
 			itemId : 'company',
 			closable : true
@@ -721,21 +856,26 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_code',
 			itemId : 'code',
 			closable : true
+		}, {
+			title : 'Vehicle Group',
+			xtype : 'management_vehicle_group',
+			itemId : 'vehicle_group',
+			closable : true
 		} ]
 	}, {
 		text : 'Vehicle',
 		submenus : [ {
-			title : T('vehicle'),
+			title : T('title.vehicle'),
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',
 			closable : true
 		}, {
-			title : T('incident'),
+			title : T('title.incident'),
 			xtype : 'management_incident',
 			itemId : 'incident',
 			closable : true
 		}, {
-			title : T('track'),
+			title : T('title.track'),
 			xtype : 'management_track',
 			itemId : 'track',
 			closable : true
@@ -746,7 +886,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			closable : true
 		} ]
 	}, {
-		text : T('driver'),
+		text : T('title.driver'),
 		submenus : [ {
 			title : 'Driver',
 			xtype : 'management_driver',
@@ -754,7 +894,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			closable : true
 		} ]
 	}, {
-		text : T('terminal'),
+		text : T('title.terminal'),
 		submenus : [ {
 			title : 'Terminal',
 			xtype : 'management_terminal',
@@ -812,6 +952,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		type : 'setting',
 		cls : 'btnSetting',
 		handler : function() {
+			Ext.getCmp('east').toggleHide();
 		}
 	}, {
 		itemId : 'logout',
@@ -855,6 +996,14 @@ Ext.define('GreenFleet.view.management.Company', {
 
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
+			
+			var image = self.sub('image');
+			var value = record.raw.image_clip;
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgVehicle.png');			
 		});
 
 		this.sub('grid').on('render', function(grid) {
@@ -878,6 +1027,14 @@ Ext.define('GreenFleet.view.management.Company', {
 			self.sub('grid').store.load();
 		});
 
+		this.down('#image_clip').on('change', function(field, value) {
+			var image = self.sub('image');
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgVehicle.png');
+		})		
 	},
 
 	search : function() {
@@ -958,47 +1115,80 @@ Ext.define('GreenFleet.view.management.Company', {
 
 	buildForm : function(main) {
 		return {
-			xtype : 'form',
-			itemId : 'form',
-			autoScroll : true,
+			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : 'Company Details',
-			flex : 2,
-			defaults : {
-				xtype : 'textfield',
-				anchor : '100%'
-			},
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},			
 			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
+				xtype : 'form',
+				itemId : 'form',
+				flex : 1,
+				autoScroll : true,
+				defaults : {
+					xtype : 'textfield',
+					anchor : '100%'
+				},
+				items : [ {
+					name : 'key',
+					fieldLabel : 'Key',
+					hidden : true
+				}, {
+					name : 'id',
+					fieldLabel : 'ID'
+				}, {
+					name : 'name',
+					fieldLabel : 'Name'
+				}, {
+					name : 'desc',
+					fieldLabel : 'Description'
+				}, {
+					xtype : 'tzcombo',
+					name : 'timezone',
+					fieldLabel : 'TimeZone'
+				}, {
+					xtype : 'filefield',
+					name : 'image_file',
+					fieldLabel : 'Image Upload',
+					msgTarget : 'side',
+					allowBlank : true,
+					buttonText : 'file...'
+				}, {
+					xtype : 'datefield',
+					name : 'updated_at',
+					disabled : true,
+					fieldLabel : 'Updated At',
+					format : F('datetime')
+				}, {
+					xtype : 'datefield',
+					name : 'created_at',
+					disabled : true,
+					fieldLabel : 'Created At',
+					format : F('datetime')
+				}, {
+					xtype : 'displayfield',
+					name : 'image_clip',
+					itemId : 'image_clip',
+					hidden : true
+				}  ]
 			}, {
-				name : 'id',
-				fieldLabel : 'ID'
-			}, {
-				name : 'name',
-				fieldLabel : 'Name'
-			}, {
-				name : 'desc',
-				fieldLabel : 'Description'
-			}, {
-				xtype : 'tzcombo',
-				name : 'timezone',
-				fieldLabel : 'TimeZone'
-			}, {
-				xtype : 'datefield',
-				name : 'updated_at',
-				disabled : true,
-				fieldLabel : 'Updated At',
-				format : F('datetime')
-			}, {
-				xtype : 'datefield',
-				name : 'created_at',
-				disabled : true,
-				fieldLabel : 'Created At',
-				format : F('datetime')
-			} ],
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'	
+				},
+				cls : 'noImage paddingLeft10',
+				items : [ {
+					xtype : 'image',
+					height : '100%',
+					itemId : 'image'
+				} ]
+			} ],				
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
 				loader : {
@@ -1417,6 +1607,501 @@ Ext.define('GreenFleet.view.management.Code', {
 		}
 	}
 });
+Ext.define('GreenFleet.view.management.VehicleGroup', {
+	extend : 'Ext.container.Container',
+	
+	alias : 'widget.management_vehicle_group',
+
+	title : 'Vehicle Group',
+
+	entityUrl : 'vehicle_group',
+
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */
+	importUrl : 'vehicle_group/import',
+
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	/**
+	 * 선택한 Vehicle Group ID를 전역변수로 저장 
+	 */
+	currentVehicleGroup : '',
+		
+	initComponent : function() {
+		var self = this;
+
+		this.items = [ {
+			html : '<div class="listTitle"></div>'
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ this.buildVehicleGroupList(this), {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : {
+					align : 'stretch',
+					type : 'vbox'
+				},
+				items : [ this.buildVehicleGroupForm(this), this.buildGroupedVehicleList(this) ]
+			} ]
+		} ],
+
+		this.callParent(arguments);
+		
+		/**
+		 * Vehicle Group 그리드 선택시 선택한 데이터로 우측 폼 로드
+		 */  
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.currentVehicleGroup = record.get('id');
+			self.sub('form').getForm().reset();
+			self.sub('form').loadRecord(record);
+		});
+		
+		/**
+		 * 우측 폼의 키가 변경될 때마다 빈 값으로 변경된 것이 아니라면 
+		 * 0. 선택한 VehicleGroup 전역변수를 설정 
+		 * 1. 두 개의 Grid에 어떤 Vehicle Group이 선택되었는지 표시하기 위해 타이틀을 Refresh 
+		 * 2. Vehicle List By Group가 그룹별로 Refresh
+		 * 3. TODO : 맨 우측의 Vehicle List가 그룹별로 필터링  
+		 */ 
+		this.sub('form_vehicle_group_key').on('change', function(field, value) {
+			if(value) {
+				var record = self.sub('grid').store.findRecord('key', value);
+				if(record) {
+					self.currentVehicleGroup = record.get('id');
+					self.sub('grouped_vehicles_grid').setTitle("Vehicles By Group [" + record.get('id') + "]");
+					self.sub('form').setTitle("Group [" + record.get('id') + "] Details");
+					self.searchGroupedVehicles();
+				}
+			}
+		});
+		
+		/**
+		 * Vehicle List By Group이 호출되기 전에 vehicle group id 파라미터 설정 
+		 */
+		this.sub('grouped_vehicles_grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_group_id'] = self.currentVehicleGroup;
+		});
+		
+		/**
+		 * Vehicle 검색 
+		 */
+		this.down('#search_all_vehicles').on('click', function() {
+			self.searchAllVehicles(true);
+		});	
+		
+		/**
+		 * Reset 버튼 선택시 Vehicle 검색 조건 클리어 
+		 */
+		this.down('#search_reset_all_vehicles').on('click', function() {
+			self.sub('all_vehicles_id_filter').setValue('');
+			self.sub('all_vehicles_reg_no_filter').setValue('');
+		});
+		
+		/**
+		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		this.sub('all_vehicles_id_filter').on('change', function(field, value) {
+			self.searchAllVehicles(false);
+		});
+
+		/**
+		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('all_vehicles_reg_no_filter').on('change', function(field, value) {
+			self.searchAllVehicles(false);
+		});		
+		
+		/**
+		 * Vehicle List가 호출되기 전에 검색 조건이 파라미터에 설정 
+		 */
+		this.sub('all_vehicles_grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			var vehicle_id_filter = self.sub('all_vehicles_id_filter');
+			var reg_no_filter = self.sub('all_vehicles_reg_no_filter');			
+			operation.params['vehicle_id'] = vehicle_id_filter.getSubmitValue();
+			operation.params['registration_number'] = reg_no_filter.getSubmitValue();
+		});
+		
+		/**
+		 * 선택한 Vehicle들을 그룹에 추가 
+		 */
+		this.down('button[itemId=moveLeft]').on('click', function(button) {
+			
+			if(!self.currentVehicleGroup) {
+				Ext.MessageBox.alert("None Selected!", "Select vehicle group first!");
+				return;				
+			}
+			
+			var selections = self.sub('all_vehicles_grid').getSelectionModel().getSelection();
+			if(!selections || selections.length == 0) {
+				Ext.MessageBox.alert("None Selected!", "Select the vehicles to add vehicle group [" + self.currentVehicleGroup + "]");
+				return;
+			}
+
+			var vehicle_id_to_delete = [];
+			for(var i = 0 ; i < selections.length ; i++) {
+				vehicle_id_to_delete.push(selections[i].data.id);
+			}	
+
+			Ext.Ajax.request({
+			    url: '/vehicle_relation/save',
+			    method : 'POST',
+			    params: {
+			        vehicle_group_id: self.currentVehicleGroup,			        
+			        vehicle_id : vehicle_id_to_delete
+			    },
+			    success: function(response) {
+			        var resultObj = Ext.JSON.decode(response.responseText);
+			        if(resultObj.success) {			        	
+				        self.sub('all_vehicles_grid').getSelectionModel().deselectAll(true);
+				        self.searchGroupedVehicles();
+				        GreenFleet.msg("Success", resultObj.msg);
+				        self.changedGroupedVehicleCount();
+			        } else {
+			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+			        }
+			    },
+			    failure: function(response) {
+			    	Ext.MessageBox.alert("Failure", response.responseText);
+			    }
+			});			
+ 		});
+		
+		/**
+		 * 선택한 Vehicle들을 그룹에서 삭제 
+		 */
+		this.down('button[itemId=moveRight]').on('click', function(button) {
+			if(!self.currentVehicleGroup) {
+				Ext.Msg.alert("None Selected!", "Select vehicle group first!");
+				return;				
+			}
+			
+			var selections = self.sub('grouped_vehicles_grid').getSelectionModel().getSelection();
+			if(!selections || selections.length == 0) {
+				Ext.Msg.alert("None Selected!", "Select the vehicles to remove from vehicle group [" + self.currentVehicleGroup + "]");
+				return;
+			}
+
+			var vehicle_id_to_delete = [];
+			for(var i = 0 ; i < selections.length ; i++) {
+				vehicle_id_to_delete.push(selections[i].data.id);
+			}	
+
+			Ext.Ajax.request({
+			    url: '/vehicle_relation/delete',
+			    method : 'POST',
+			    params: {
+			        vehicle_group_id: self.currentVehicleGroup,			        
+			        vehicle_id : vehicle_id_to_delete
+			    },
+			    success: function(response) {
+			        var resultObj = Ext.JSON.decode(response.responseText);
+			        if(resultObj.success) {
+				        self.searchGroupedVehicles();
+				        GreenFleet.msg("Success", resultObj.msg);
+				        self.changedGroupedVehicleCount();
+			        } else {
+			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+			        }
+			    },
+			    failure: function(response) {
+			        Ext.MessageBox.alert("Failure", response.responseText);
+			    }
+			});			
+		});		
+	},
+	
+	searchAllVehicles : function(searchRemote) {
+		
+		if(searchRemote) {
+			this.sub('all_vehicles_grid').store.load();
+		} else {
+			this.sub('all_vehicles_grid').store.clearFilter(true);			
+			var id_value = this.sub('all_vehicles_id_filter').getValue();
+			var reg_no_value = this.sub('all_vehicles_reg_no_filter').getValue();
+			
+			if(id_value || reg_no_value) {
+				this.sub('all_vehicles_grid').store.filter([ {
+					property : 'id',
+					value : id_value
+				}, {
+					property : 'registration_number',
+					value : reg_no_value
+				} ]);
+			}			
+		}		
+	},	
+	
+	searchGroupedVehicles : function() {
+		this.sub('grouped_vehicles_pagingtoolbar').moveFirst();
+	},
+	
+	/**
+	 * Vehicle Group의 Vehicle 개수가 변경되었을 경우 
+	 * 우측 Vehicle 검색 조건 (East.js)에 Vehicle Group 정보(Vehicle Group의 Vehicle 개수)를 Refresh 하라는 이벤트를 날려준다.
+	 */
+	changedGroupedVehicleCount : function() {
+		Ext.getStore('VehicleGroupStore').load();
+	},
+	
+	buildVehicleGroupList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'grid',
+			store : 'VehicleGroupStore',
+			title : 'Vehicle Group',
+			width : 320,
+			columns : [ new Ext.grid.RowNumberer(), 
+			{
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : 'Vehicle Group',
+				width : 100
+			}, {
+				dataIndex : 'desc',
+				text : 'Description',
+				width : 220
+			}, {
+				dataIndex : 'created_at',
+				hidden : true
+			}, {
+				dataIndex : 'updated_at',
+				hidden : true
+			} ]
+		}
+	},
+
+	buildGroupedVehicleList : function(main) {
+		return {
+			xtype : 'panel',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [
+			 	{
+			 		xtype : 'gridpanel',
+			 		itemId : 'grouped_vehicles_grid',
+			 		store : 'VehicleByGroupStore',
+			 		title : 'Vehicles By Group',
+			 		flex : 15,
+			 		cls : 'hIndexbarZero',
+			 		selModel : new Ext.selection.CheckboxModel(),
+			 		columns : [ 
+			 		    {	
+			 		    	dataIndex : 'key',
+			 		    	text : 'Key',
+			 		    	hidden : true
+			 		    }, {
+			 		    	dataIndex : 'id',
+			 		    	text : 'Id'
+			 		    }, {
+			 		    	dataIndex : 'registration_number',
+			 		    	text : 'Reg. No.'
+			 		    }, {
+			 		    	dataIndex : 'manufacturer',
+			 		    	text : 'Manufacturer',
+			 		    	type : 'string'
+			 		    }, {
+			 		    	dataIndex : 'vehicle_type',
+			 		    	text : 'VehicleType',
+			 		    	type : 'string'
+			 		    }, {
+			 		    	dataIndex : 'birth_year',
+			 		    	text : 'BirthYear',
+			 		    	type : 'string'
+			 		    }, {
+							dataIndex : 'ownership_type',
+							text : 'OwnershipType',
+							type : 'string'
+						}, {
+							dataIndex : 'status',
+							text : 'Status',
+							type : 'string'
+						}, {
+							dataIndex : 'total_distance',
+							text : 'TotalDistance',
+							type : 'string'
+						}
+			 		],
+					bbar: {
+						xtype : 'pagingtoolbar',
+						itemId : 'grouped_vehicles_pagingtoolbar',
+			            store: 'VehicleByGroupStore',
+			            cls : 'pagingtoolbar',
+			            displayInfo: true,
+			            displayMsg: 'Displaying vehicles {0} - {1} of {2}',
+			            emptyMsg: "No vehicles to display"
+			        }			 		
+			 	},
+			 	{
+			 		xtype : 'panel',
+			 		flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'center',
+						pack : 'center'
+					},			 		
+			 		items : [
+			 		     {
+			 		    	 xtype : 'button',
+			 		    	 itemId : 'moveLeft',
+			 		    	 text : '<<',
+			 		     },
+			 		     {
+			 		    	 xtype : 'label',
+			 		    	 margins: '5 0 5 0'
+			 		     },
+			 		     {
+			 		    	 xtype : 'button',
+			 		    	itemId : 'moveRight',
+			 		    	 text : ">>"
+			 		     }
+			 		]
+			 	},
+			 	{
+			 		xtype : 'gridpanel',
+			 		itemId : 'all_vehicles_grid',
+			 		store : 'VehicleImageBriefStore',
+			 		title : 'Vehicle List',
+			 		flex : 10,
+			 		cls : 'hIndexbarZero',
+			 		autoScroll : true,
+			 		selModel : new Ext.selection.CheckboxModel(),
+			 		columns : [ 
+			 		    {	
+			 		    	dataIndex : 'key',
+			 		    	text : 'Key',
+			 		    	hidden : true
+			 		    }, {
+			 		    	dataIndex : 'image_clip',
+			 		    	text : 'Image',
+			 		    	renderer : function(image_clip) {			 		    		
+				 		   		var imgTag = "<img src='";
+				 				
+				 				if(image_clip) {
+				 					imgTag += "download?blob-key=" + image_clip;
+				 				} else {
+				 					imgTag += "resources/image/bgVehicle.png";
+				 				}
+				 				
+				 				imgTag += "' width='80' height='80'/>";
+				 				return imgTag;
+			 		    	}
+			 		    }, {
+			 		    	dataIndex : 'id',
+			 		    	text : 'Id'
+			 		    }, {
+			 		    	dataIndex : 'registration_number',
+			 		    	text : 'Reg. No.'
+			 		    } 
+			 		],
+					tbar : [ 'ID', {
+						xtype : 'textfield',
+						name : 'all_vehicles_id_filter',
+						itemId : 'all_vehicles_id_filter',
+						hideLabel : true,
+						width : 70
+					}, 'Reg. No.', {
+						xtype : 'textfield',
+						name : 'all_vehicles_reg_no_filter',
+						itemId : 'all_vehicles_reg_no_filter',
+						hideLabel : true,
+						width : 70
+					}, ' ', {
+						text : 'Search',
+						itemId : 'search_all_vehicles'
+					}, ' ', {
+						text : 'Reset',
+						itemId : 'search_reset_all_vehicles'
+					} ],
+					bbar: {
+						xtype : 'pagingtoolbar',
+						itemId : 'all_vehicles_pagingtoolbar',
+			            store: 'VehicleImageBriefStore',
+			            cls : 'pagingtoolbar',
+			            displayInfo: true,
+			            displayMsg: 'Displaying vehicles {0} - {1} of {2}',
+			            emptyMsg: "No vehicles to display"
+			        }
+			 	}
+			 ]
+		}
+	},
+
+	buildVehicleGroupForm : function(main) {
+		return {
+			xtype : 'form',
+			itemId : 'form',
+			bodyPadding : 10,
+			cls : 'hIndexbar',
+			title : 'Group Details',
+			height : 170,
+			defaults : {
+				xtype : 'textfield',
+				anchor : '100%'
+			},
+			items : [ {
+				name : 'key',
+				fieldLabel : 'Key',
+				hidden : true,
+				itemId : 'form_vehicle_group_key'
+			}, {
+				name : 'id',
+				fieldLabel : 'Vehicle Group'
+			}, {
+				name : 'desc',
+				fieldLabel : 'Description'
+			}, {
+				xtype : 'datefield',
+				name : 'updated_at',
+				disabled : true,
+				fieldLabel : 'Updated At',
+				format : F('datetime')
+			}, {
+				xtype : 'datefield',
+				name : 'created_at',
+				disabled : true,
+				fieldLabel : 'Created At',
+				format : F('datetime')
+			} ],
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',
+				
+				confirmMsgSave : 'Would you like to save the changed?',
+				
+				confirmMsgDelete : 'Would you like to delete selected vehicle group?',
+				
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
+			} ]
+		}
+	}
+});
 Ext.define('GreenFleet.view.management.Vehicle', {
 	extend : 'Ext.container.Container',
 
@@ -1461,20 +2146,20 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.sub('registration_number_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
-
+		
 		this.down('#search_reset').on('click', function() {
 			self.sub('id_filter').setValue('');
 			self.sub('registration_number_filter').setValue('');
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true);
 		});
 		
 		this.down('#image_clip').on('change', function(field, value) {
@@ -1488,16 +2173,25 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(searchRemote) {
+		this.sub('grid').store.clearFilter(true);
 
-		this.sub('grid').store.filter([ {
-			property : 'id',
-			value : this.sub('id_filter').getValue()
-		}, {
-			property : 'registration_number',
-			value : this.sub('registration_number_filter').getValue()
-		} ]);
+		var id_filter_value = this.sub('id_filter').getValue();
+		var registration_filter_value = this.sub('registration_number_filter').getValue();
+		
+		if(id_filter_value || registration_filter_value) {
+			this.sub('grid').store.filter([ {
+				property : 'id',
+				value : id_filter_value
+			}, {
+				property : 'registration_number',
+				value : registration_filter_value
+			} ]);
+		}
+		
+		if(searchRemote) {
+			this.sub('grid').store.load();
+		}
 	},
 	
 	buildList : function(main) {
@@ -1607,13 +2301,13 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				name : 'id_filter',
 				itemId : 'id_filter',
 				hideLabel : true,
-				width : 200
+				width : 133
 			}, 'Registeration Number', {
 				xtype : 'textfield',
 				name : 'registration_number_filter',
 				itemId : 'registration_number_filter',
 				hideLabel : true,
-				width : 200
+				width : 133
 			}, {
 				text : 'Search',
 				itemId : 'search'
@@ -2479,6 +3173,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				itemId : 'pagingtoolbar',
 	            store: 'IncidentStore',
 	            displayInfo: true,
+	            cls : 'pagingtoolbar',
 	            displayMsg: 'Displaying incidents {0} - {1} of {2}',
 	            emptyMsg: "No incidents to display"
 	        }
@@ -3088,6 +3783,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				itemId : 'pagingtoolbar',
 	            store: 'TrackStore',
 	            displayInfo: true,
+	            cls : 'pagingtoolbar',
 	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
 	            emptyMsg: "No tracks to display"
 	        }
@@ -3609,8 +4305,10 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	extend : 'Ext.Container',
 
 	alias : 'widget.monitor_map',
+	
+	id : 'monitor_map',
 
-	title : 'Maps',
+//	title : 'Maps',
 
 	layout : {
 		type : 'vbox',
@@ -5098,6 +5796,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		return {
 			xtype : 'chart',
 			itemId : 'chart',
+			cls : 'paddingPanel backgroundGray borderLeftGray',
 			flex : 1,
 			legend : true,
 			store : Ext.create('GreenFleet.store.IncidentLogChartStore'),
@@ -5284,6 +5983,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		bbar : {
 			xtype : 'pagingtoolbar',
 			itemId : 'pagingtoolbar',
+			cls : 'pagingtoolbar', // 하단 page tool bar에 대한 아이콘 버튼 class
 			store : 'IncidentViewStore',
 			displayInfo : true,
 			displayMsg : 'Displaying incidents {0} - {1} of {2}',
@@ -5519,6 +6219,8 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	
 	listeners : {
 		'select' : function(combo, records, eOpts) {
+			GreenFleet.doMenu('monitor_map');
+
 			var store = Ext.getStore('VehicleFilteredStore');
 			
 			store.clearFilter(true);
@@ -5557,61 +6259,88 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 		itemId : 'reset'
 	} ],
 	
+	confirmMsgSave : 'Would you like to save?',
+	
+	confirmMsgDelete : 'Would you like to delete?',
+	
 	initComponent : function() {
 		this.callParent();
 		
 		var self = this;
 		
 		this.down('#save').on('click', function() {
-			var client = self.up('[entityUrl]');
-			var url = client.entityUrl;
-				
-			var form = client.sub('form').getForm();
+			
+			Ext.MessageBox.show({
+				title : "Confirmation",
+				buttons : Ext.MessageBox.YESNO,
+				msg : self.confirmMsgSave,
+				modal : true,
+				fn : function(btn) {
+					
+					if(btn != 'yes') 
+						return;
+					
+					var client = self.up('[entityUrl]');
+					var url = client.entityUrl;						
+					var form = client.sub('form').getForm();
 
-			if (form.isValid()) {
-				form.submit({
-					url : url + '/save',
-					success : function(form, action) {
-						if(self.loader && typeof(self.loader.fn) === 'function') {
-							self.loader.fn.call(self.loader.scope || client, function(records) {
-								var store = client.sub('grid').store;
-								form.loadRecord(store.findRecord('key', action.result.key));
-							});
-						}
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result.msg);
-					}
-				});
-			}
+					if (form.isValid()) {
+						form.submit({
+							url : url + '/save',
+							success : function(form, action) {
+								if(self.loader && typeof(self.loader.fn) === 'function') {
+									self.loader.fn.call(self.loader.scope || client, function(records) {
+										var store = client.sub('grid').store;
+										form.loadRecord(store.findRecord('key', action.result.key));
+									});
+								}
+							},
+							failure : function(form, action) {
+								Ext.msg.alert('Failed to save!', action.result.msg);
+							}
+						});
+					}					
+				}
+			});
 		});
 
 		this.down('#delete').on('click', function() {
-			var client = self.up('[entityUrl]');
-			var url = client.entityUrl;
-				
-			var form = client.sub('form').getForm();
+			
+			Ext.MessageBox.show({
+				title : "Confirmation",
+				buttons : Ext.MessageBox.YESNO,
+				msg : self.confirmMsgDelete,
+				modal : true,
+				fn : function(btn) {
+					
+					if(btn != 'yes') 
+						return;
+					
+					var client = self.up('[entityUrl]');
+					var url = client.entityUrl;				
+					var form = client.sub('form').getForm();
 
-			if (form.isValid()) {
-				form.submit({
-					url : url + '/delete',
-					success : function(form, action) {
-//						client.sub('grid').store.load();
-						if(self.loader && typeof(self.loader.fn) === 'function') {
-							self.loader.fn.call(self.loader.scope || client, null);
-						}
-						form.reset();
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result.msg);
-					}
-				});
-			}
+					if (form.isValid()) {
+						form.submit({
+							url : url + '/delete',
+							success : function(form, action) {
+								//client.sub('grid').store.load();
+								if(self.loader && typeof(self.loader.fn) === 'function') {
+									self.loader.fn.call(self.loader.scope || client, null);
+								}
+								form.reset();
+							},
+							failure : function(form, action) {
+								Ext.msg.alert('Failed to delete!', action.result.msg);
+							}
+						});
+					}					
+				}
+			});			
 		});
 
 		this.down('#reset').on('click', function() {
 			var client = self.up('[entityUrl]');
-
 			client.sub('form').getForm().reset();
 		});
 
@@ -6381,7 +7110,8 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		reader : {
 			type : 'json',
 			root : 'items',
-			totalProperty : 'total'
+			totalProperty : 'total',
+			successProperty : 'success'
 		}
 	}
 });
@@ -7532,6 +8262,152 @@ Ext.define('GreenFleet.store.TimeZoneStore', {
 		display : "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka"
 	} ]
 });
+Ext.define('GreenFleet.store.VehicleGroupStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+	
+	pageSize : 1000,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'desc',
+		type : 'string'
+	}, {
+		name : 'vehicles',
+		type : 'auto'
+	}, {
+		name : 'created_at',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updated_at',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle_group',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
+Ext.define('GreenFleet.store.VehicleRelationStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+	
+	pageSize : 1000,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'vehicle_id',
+		type : 'string'
+	}, {
+		name : 'vehicle_group_id',
+		type : 'string'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle_relation',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total',
+			successProperty : 'success'
+		}
+	}
+});
+Ext.define('GreenFleet.store.VehicleByGroupStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+	
+	pageSize : 1000,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'registration_number',
+		type : 'string'
+	}, {
+		name : 'manufacturer',
+		type : 'string'
+	}, {
+		name : 'vehicle_type',
+		type : 'string'
+	}, {
+		name : 'birth_year',
+		type : 'int'
+	}, {
+		name : 'ownership_type',
+		type : 'string'
+	}, {
+		name : 'status',
+		type : 'string'
+	}, {
+		name : 'total_distance',
+		type : 'float'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total',
+			successProperty : 'success'
+		}
+	}
+});
+Ext.define('GreenFleet.store.VehicleImageBriefStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+
+	pageSize : 1000,
+
+	fields : [ {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'registration_number',
+		type : 'string'
+	}, {
+		name : 'image_clip',
+		type : 'string'
+	} ],
+
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle',
+		extraParams : {
+			select : [ 'id', 'registration_number', 'image_clip' ]
+		},
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
 Ext.define('GreenFleet.model.ConsumableHealth', {
 	extend : 'Ext.data.Model',
 	
@@ -7617,10 +8493,13 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'VehicleInfoStore', 'VehicleBriefStore', 'DriverStore', 'DriverBriefStore', 'ReservationStore', 'IncidentStore',
 			'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
 			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
-			'TimeZoneStore', 'ConsumableStore' ],
+			'TimeZoneStore', 'ConsumableStore', 
+			'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore', 'VehicleImageBriefStore' ],
+			
 	models : [ 'Code' ],
+	
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu', 'management.Company',
-			'management.User', 'management.Code', 'management.Vehicle', 'management.Terminal', 'management.Reservation',
+			'management.User', 'management.Code', 'management.VehicleGroup', 'management.Vehicle', 'management.Terminal', 'management.Reservation',
 			'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 'monitor.Map',
 			'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo',
 			'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth',

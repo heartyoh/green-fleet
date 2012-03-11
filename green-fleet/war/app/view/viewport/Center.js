@@ -35,6 +35,16 @@ Ext.define('GreenFleet.view.viewport.Center', {
 		}
 	},
 
+	initComponent : function() {
+		this.callParent();
+
+		var self = this;
+
+		Ext.getCmp('menutab').getComponent('monitor_map').hide();
+		Ext.getCmp('menutab').getComponent('information').hide();
+		Ext.getCmp('menutab').getComponent('monitor_incident').hide();
+	},
+
 	defaults : {
 		listeners : {
 			activate : function(item) {
@@ -46,16 +56,61 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	},
 
 	items : [ {
-		title : 'Dashboard',
 		xtype : 'monitor_map',
-		itemId : 'monitor_map'
+		itemId : 'monitor_map',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
 	}, {
-		title : 'Info',
 		xtype : 'monitor_information',
-		itemId : 'information'
+		itemId : 'information',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+			
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
 	}, {
-		title : 'Incident Info',
 		xtype : 'monitor_incident',
-		itemId : 'monitor_incident'
+		itemId : 'monitor_incident',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+			
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
 	} ]
 });
