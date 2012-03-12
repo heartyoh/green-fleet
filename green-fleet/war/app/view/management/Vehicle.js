@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 
 	alias : 'widget.management_vehicle',
 
-	title : 'Vehicle',
+	title : T('title.vehicle'),
 
 	entityUrl : 'vehicle',
 	/*
@@ -22,7 +22,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	},
 
 	items: {
-		html : '<div class="listTitle">Vehicle List</div>'
+		html : "<div class='listTitle'>" + T('title.vehicle_list') + "</div>"
 	},
 
 	initComponent : function() {
@@ -104,87 +104,87 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'Vehicle Id',
+				text : T('label.id'),
 				type : 'string'
 			}, {
 				dataIndex : 'registration_number',
-				text : 'RegistrationNumber',
+				text : T('label.reg_no'),
 				type : 'string'
 			}, {
 				dataIndex : 'manufacturer',
-				text : 'Manufacturer',
+				text : T('label.manufacturer'),
 				type : 'string'
 			}, {
 				dataIndex : 'vehicle_type',
-				text : 'VehicleType',
+				text : T('label.x_type', {x: T('label.vehicle')}),
 				type : 'string'
 			}, {
 				dataIndex : 'birth_year',
-				text : 'BirthYear',
+				text : T('label.birth_year'),
 				type : 'string'
 			}, {
 				dataIndex : 'ownership_type',
-				text : 'OwnershipType',
+				text : T('label.x_type', {x : T('label.ownership')}),
 				type : 'string'
 			}, {
 				dataIndex : 'status',
-				text : 'Status',
+				text : T('label.status'),
 				type : 'string'
 			}, {
 				dataIndex : 'total_distance',
-				text : 'TotalDistance',
+				text : T('label.total_x', {x : T('label.distance')}),
 				type : 'string'
 			}, {
 				dataIndex : 'remaining_fuel',
-				text : 'RemainingFuel',
+				text : T('label.remaining_fuel'),
 				type : 'string'
 			}, {
 				dataIndex : 'distance_since_new_oil',
-				text : 'DistanceSinceNewOil',
+				text : T('label.distance_since_new_oil'),
 				type : 'string'
 			}, {
 				dataIndex : 'engine_oil_status',
-				text : 'EngineOilStatus',
+				text : T('label.x_status', {x : T('label.engine_oil')}),
 				type : 'string'
 			}, {
 				dataIndex : 'fuel_filter_status',
-				text : 'FuelFilterStatus',
+				text : T('label.x_status', {x : T('label.fuel_filter')}),
 				type : 'string'
 			}, {
 				dataIndex : 'brake_oil_status',
-				text : 'BrakeOilStatus',
+				text : T('label.x_status', {x : T('label.brake_oil')}),
 				type : 'string'
 			}, {
 				dataIndex : 'brake_pedal_status',
-				text : 'BrakePedalStatus',
+				text : T('label.x_status', {x : T('label.brake_pedal')}),
 				type : 'string'
 			}, {
 				dataIndex : 'cooling_water_status',
-				text : 'CoolingWaterStatus',
+				text : T('label.x_status', {x : T('label.cooling_water')}),
 				type : 'string'
 			}, {
 				dataIndex : 'timing_belt_status',
-				text : 'TimingBeltStatus',
+				text : T('label.x_status', {x : T('label.timing_belt')}),
 				type : 'string'
 			}, {
 				dataIndex : 'spark_plug_status',
-				text : 'SparkPlugStatus',
+				text : T('label.x_status', {x : T('label.spark_plug')}),
 				type : 'string'
 			}, {
 				dataIndex : 'lattitude',
-				text : 'Lattitude'
+				text : T('label.lattitude')
 			}, {
 				dataIndex : 'longitude',
-				text : 'Longitude'
+				text : T('label.longitude')
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -192,23 +192,23 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			viewConfig : {
 
 			},
-			tbar : [ 'ID', {
+			tbar : [ T('label.id'), {
 				xtype : 'textfield',
 				name : 'id_filter',
 				itemId : 'id_filter',
 				hideLabel : true,
 				width : 133
-			}, 'Registeration Number', {
+			}, T('label.reg_no'), {
 				xtype : 'textfield',
 				name : 'registration_number_filter',
 				itemId : 'registration_number_filter',
 				hideLabel : true,
 				width : 133
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}
@@ -240,24 +240,24 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : 'Vehicle Id'
+					fieldLabel : T('label.id')
 				}, {
 					name : 'registration_number',
-					fieldLabel : 'Registration Number'
+					fieldLabel : T('label.reg_no')
 				}, {
 					xtype : 'codecombo',
 					name : 'manufacturer',
 					group : 'V-Maker',
-					fieldLabel : 'Manufacturer'
+					fieldLabel : T('label.manufacturer')
 				}, {
 					xtype : 'codecombo',
 					name : 'vehicle_type',
 					group : 'V-Type1',
-					fieldLabel : 'Vehicle Type'
+					fieldLabel : T('label.x_type', {x : T('label.vehicle')})
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
-					fieldLabel : 'Image Upload',
+					fieldLabel : T('label.image_upload'),
 					msgTarget : 'side',
 					allowBlank : true,
 					buttonText : 'file...'
@@ -266,7 +266,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					name : 'birth_year',
 					group : 'V-BirthYear',
 					name : 'birth_year',
-					fieldLabel : 'BirthYear'
+					fieldLabel : T('label.birth_year')
 				}, {
 					xtype : 'combo',
 					name : 'ownership_type',
@@ -274,7 +274,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					store : 'OwnershipStore',
 					displayField : 'desc',
 					valueField : 'name',
-					fieldLabel : 'Ownership Type'
+					fieldLabel : T('label.x_type', {x : T('label.ownership')})
 				}, {
 					xtype : 'combo',
 					name : 'status',
@@ -282,64 +282,64 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					store : 'VehicleStatusStore',
 					displayField : 'desc',
 					valueField : 'status',
-					fieldLabel : 'Status'
+					fieldLabel : T('label.status')
 				}, {
 					name : 'total_distance',
-					fieldLabel : 'Total Distance'
+					fieldLabel : T('label.total_x', {x : T('label.distance')})
 				}, {
 					name : 'remaining_fuel',
-					fieldLabel : 'Remaining Fuel'
+					fieldLabel : T('label.remaining_fuel')
 				}, {
 					name : 'distance_since_new_oil',
-					fieldLabel : 'Distance Since NewOil'
+					fieldLabel : T('label.distance_since_new_oil')
 				}, {
 					name : 'engine_oil_status',
-					fieldLabel : 'EngineOil Status'
+					fieldLabel : T('label.x_status', {x : T('label.engine_oil')})
 				}, {
 					name : 'fuel_filter_status',
-					fieldLabel : 'FuelFilter Status'
+					fieldLabel : T('label.x_status', {x : T('label.fuel_filter')})
 				}, {
 					name : 'brake_oil_status',
-					fieldLabel : 'BrakeOil Status'
+					fieldLabel : T('label.x_status', {x : T('label.brake_oil')})
 				}, {
 					name : 'brake_pedal_status',
-					fieldLabel : 'BrakePedal Status'
+					fieldLabel : T('label.x_status', {x : T('label.brake_pedal')})
 				}, {
 					name : 'cooling_water_status',
-					fieldLabel : 'CoolingWater Status'
+					fieldLabel : T('label.x_status', {x : T('label.cooling_water')})
 				}, {
 					name : 'timing_belt_status',
-					fieldLabel : 'TimingBeltStatus'
+					fieldLabel : T('label.x_status', {x : T('label.timing_belt')})
 				}, {
 					name : 'spark_plug_status',
-					fieldLabel : 'SparkPlugStatus'
+					fieldLabel : T('label.x_status', {x : T('label.spark_plug')})
 				}, {
 					name : 'driver_id',
-					fieldLabel : 'Driver',
+					fieldLabel : T('label.driver'),
 					disabled : true
 				}, {
 					name : 'terminal_id',
-					fieldLabel : 'Terminal',
+					fieldLabel : T('label.terminal'),
 					disabled : true
 				}, {
 					name : 'lattitude',
-					fieldLabel : 'Lattitude',
+					fieldLabel : T('label.lattitude'),
 					disabled : true
 				}, {
 					name : 'longitude',
-					fieldLabel : 'Longitude',
+					fieldLabel : T('label.longitude'),
 					disabled : true
 				}, {
 					xtype : 'datefield',
 					name : 'updated_at',
 					disabled : true,
-					fieldLabel : 'Updated At',
+					fieldLabel : T('label.updated_at'),
 					format : F('datetime')
 				}, {
 					xtype : 'datefield',
 					name : 'created_at',
 					disabled : true,
-					fieldLabel : 'Created At',
+					fieldLabel : T('label.created_at'),
 					format : F('datetime')
 				}, {
 					xtype : 'displayfield',

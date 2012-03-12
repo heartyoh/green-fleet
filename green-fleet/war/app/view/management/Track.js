@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Track', {
 
 	alias : 'widget.management_track',
 
-	title : 'Track',
+	title : T('title.track'),
 
 	entityUrl : 'track',
 	/*
@@ -22,7 +22,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	},
 
 	items : {
-		html : '<div class="listTitle">Tracking List</div>'
+		html : "<div class='listTitle'>" + T('title.tracking_list') + "</div>"
 	},
 
 	initComponent : function() {
@@ -88,43 +88,43 @@ Ext.define('GreenFleet.view.management.Track', {
 				hidden : true
 			}, {
 				dataIndex : 'terminal_id',
-				text : 'Terminal',
+				text : T('label.terminal'),
 				type : 'string'
 			}, {
 				dataIndex : 'vehicle_id',
-				text : 'Vehicle',
+				text : T('label.vehicle'),
 				type : 'string'
 			}, {
 				dataIndex : 'driver_id',
-				text : 'Driver',
+				text : T('label.driver'),
 				type : 'string'
 			}, {
 				dataIndex : 'datetime',
-				text : 'DateTime',
+				text : T('label.datetime'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'lattitude',
-				text : 'Lattitude',
+				text : T('label.lattitude'),
 				type : 'number'
 			}, {
 				dataIndex : 'longitude',
-				text : 'Longitude',
+				text : T('label.longitude'),
 				type : 'number'
 			}, {
 				dataIndex : 'velocity',
-				text : 'Velocity',
+				text : T('label.velocity'),
 				type : 'number'
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -138,7 +138,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
 				store : 'VehicleBriefStore',
-				displayField : 'id',
+				displayField : T('label.id'),
 				valueField : 'id',
 				fieldLabel : 'Vehicle',
 				width : 200
@@ -146,17 +146,17 @@ Ext.define('GreenFleet.view.management.Track', {
 				xtype : 'datefield',
 				name : 'date_filter',
 				itemId : 'date_filter',
-				fieldLabel : 'Date',
+				fieldLabel : T('label.date'),
 				format : 'Y-m-d',
 				submitFormat : 'U',
 				maxValue : new Date(), // limited to the current date or prior
 				value : new Date(),
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ],
 			bbar: {
@@ -177,7 +177,7 @@ Ext.define('GreenFleet.view.management.Track', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Tracking Details',
+			title : T('title.tracking_details'),
 			autoScroll : true,
 			flex : 1,
 			defaults : {
@@ -193,7 +193,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				name : 'terminal_id',
 				queryMode : 'local',
 				store : 'TerminalStore',
-				displayField : 'id',
+				displayField : T('label.id'),
 				valueField : 'id',
 				fieldLabel : 'Terminal'
 			}, {
@@ -203,7 +203,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : 'Vehicle'
+				fieldLabel : T('label.vehicle')
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
@@ -211,7 +211,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				store : 'DriverBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : 'Driver'
+				fieldLabel : T('label.driver')
 			}, {
 				xtype : 'datefield',
 				name : 'datetime',
@@ -219,24 +219,24 @@ Ext.define('GreenFleet.view.management.Track', {
 				format : F('datetime')
 			}, {
 				name : 'lattitude',
-				fieldLabel : 'Lattitude'
+				fieldLabel : T('label.lattitude')
 			}, {
 				name : 'longitude',
-				fieldLabel : 'Longitude'
+				fieldLabel : T('label.longitude')
 			}, {
 				name : 'velocity',
-				fieldLabel : 'Velocity'
+				fieldLabel : T('label.velocity')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
 				disabled : true,
-				fieldLabel : 'Updated At',
+				fieldLabel : T('label.updated_at'),
 				format : F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
-				fieldLabel : 'Created At',
+				fieldLabel : T('label.created_at'),
 				format : F('datetime')
 			} ],
 			dockedItems : [ {

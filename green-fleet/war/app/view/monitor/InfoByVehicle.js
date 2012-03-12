@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	
 	alias : 'widget.monitor_info_by_vehicle',
 	
-	title : 'Information By Vehicle',
+	title : T('tab.info_by_vehicle'),
 
 	store : 'VehicleInfoStore',
 
@@ -16,87 +16,87 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		hidden : true
 	}, {
 		dataIndex : 'id',
-		text : 'Vehicle Id',
+		text : T('label.id'),
 		type : 'string'
 	}, {
 		dataIndex : 'registration_number',
-		text : 'RegistrationNumber',
+		text : T('label.reg_no'),
 		type : 'string'
 	}, {
 		dataIndex : 'manufacturer',
-		text : 'Manufacturer',
+		text : T('label.manufacturer'),
 		type : 'string'
 	}, {
 		dataIndex : 'vehicle_type',
-		text : 'VehicleType',
+		text : T('label.x_type', { x : T('label.vehicle') }),
 		type : 'string'
 	}, {
 		dataIndex : 'birth_year',
-		text : 'BirthYear',
+		text : T('label.birth_year'),
 		type : 'string'
 	}, {
 		dataIndex : 'ownership_type',
-		text : 'OwnershipType',
+		text : T('label.x_type', { x : T('label.ownership') }),
 		type : 'string'
 	}, {
 		dataIndex : 'status',
-		text : 'Status',
+		text : T('label.status'),
 		type : 'string'
 	}, {
 		dataIndex : 'total_distance',
-		text : 'TotalDistance',
+		text : T('label.total_x', { x : T('label.distance')}),
 		type : 'string'
 	}, {
 		dataIndex : 'remaining_fuel',
-		text : 'RemainingFuel',
+		text : T('label.remaining_fuel'),
 		type : 'string'
 	}, {
 		dataIndex : 'distance_since_new_oil',
-		text : 'DistanceSinceNewOil',
+		text : T('label.distance_since_new_oil'),
 		type : 'string'
 	}, {
 		dataIndex : 'engine_oil_status',
-		text : 'EngineOilStatus',
+		text : T('label.x_status', {x : T('label.engine_oil')}),
 		type : 'string'
 	}, {
 		dataIndex : 'fuel_filter_status',
-		text : 'FuelFilterStatus',
+		text : T('label.x_status', {x : T('label.fuel_filter')}),
 		type : 'string'
 	}, {
 		dataIndex : 'brake_oil_status',
-		text : 'BrakeOilStatus',
+		text : T('label.x_status', {x : T('label.brake_oil')}),
 		type : 'string'
 	}, {
 		dataIndex : 'brake_pedal_status',
-		text : 'BrakePedalStatus',
+		text : T('label.x_status', {x : T('label.brake_pedal')}),
 		type : 'string'
 	}, {
 		dataIndex : 'cooling_water_status',
-		text : 'CoolingWaterStatus',
+		text : T('label.x_status', {x : T('label.cooling_water')}),
 		type : 'string'
 	}, {
 		dataIndex : 'timing_belt_status',
-		text : 'TimingBeltStatus',
+		text : T('label.x_status', {x : T('label.timing_belt')}),
 		type : 'string'
 	}, {
 		dataIndex : 'spark_plug_status',
-		text : 'SparkPlugStatus',
+		text : T('label.x_status', {x : T('label.spark_plug')}),
 		type : 'string'
 	}, {
 		dataIndex : 'lattitude',
-		text : 'Lattitude'
+		text : T('label.lattitude')
 	}, {
 		dataIndex : 'longitude',
-		text : 'Longitude'
+		text : T('label.longitude')
 	}, {
 		dataIndex : 'created_at',
-		text : 'Created At',
+		text : T('label.created_at'),
 		xtype : 'datecolumn',
 		format : F('datetime'),
 		width : 120
 	}, {
 		dataIndex : 'updated_at',
-		text : 'Updated At',
+		text : T('label.updated_at'),
 		xtype : 'datecolumn',
 		format : F('datetime'),
 		width : 120
@@ -158,14 +158,14 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		}
 	}, {
 		xtype : 'button',
-		text : 'Search',
+		text : T('button.search'),
 		tooltip : 'Find Vehicle',
 		handler : function() {
 			var grid = this.up('gridpanel');
 			grid.onSearch(grid);
 		}
 	}, {
-		text : 'Reset',
+		text : T('button.reset'),
 		handler : function() {
 			var grid = this.up('gridpanel');
 			grid.onReset(grid);

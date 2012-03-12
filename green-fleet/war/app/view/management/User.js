@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.User', {
 
 	alias : 'widget.management_user',
 
-	title : 'User',
+	title : T('title.user'),
 	
 	entityUrl : 'user',
 
@@ -16,7 +16,7 @@ Ext.define('GreenFleet.view.management.User', {
 		var self = this;
 		
 		this.items = [ {
-			html : '<div class="listTitle">User List</div>'
+			html : "<div class='listTitle'>" + T('title.user_list') + "</div>"
 		}, this.buildList(this), this.buildForm(this) ],
 
 		this.callParent(arguments);
@@ -72,34 +72,34 @@ Ext.define('GreenFleet.view.management.User', {
 				hidden : true
 			}, {
 				dataIndex : 'email',
-				text : 'email'
+				text : T('label.email')
 			}, {
 				dataIndex : 'surname',
-				text : 'Sur Name'
+				text : T('label.sur_name')
 			}, {
 				dataIndex : 'nickname',
-				text : 'Nick Name'
+				text : T('label.nick_name')
 			}, {
 				dataIndex : 'forename',
-				text : 'For Name'
+				text : T('label.for_name')
 			}, {
 				dataIndex : 'enabled',
-				text : 'Enabled'
+				text : T('label.enabled')
 			}, {
 				dataIndex : 'admin',
-				text : 'Admin'
+				text : T('label.admin')
 			}, {
 				dataIndex : 'company',
-				text : 'Company'
+				text : T('label.company')
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -107,13 +107,13 @@ Ext.define('GreenFleet.view.management.User', {
 			viewConfig : {
 
 			},
-			tbar : [ 'e-mail', {
+			tbar : [ T('label.email'), {
 				xtype : 'textfield',
 				itemId : 'email_filter',
 				name : 'email_filter',
 				hideLabel : true,
 				width : 200
-			}, 'NAME', {
+			}, T('label.name'), {
 				xtype : 'textfield',
 				itemId : 'name_filter',
 				name : 'name_filter',
@@ -122,16 +122,17 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				xtype : 'button',
 				itemId : 'search',
-				text : 'Search',
+				text : T('button.search'),
 				tooltip : 'Find User'
 			}, {
-				text : 'reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ],
 			bbar: {
 				xtype : 'pagingtoolbar',
 				itemId : 'pagingtoolbar',
 	            store: 'UserStore',
+	            cls : 'pagingtoolbar',
 	            displayInfo: true,
 	            displayMsg: 'Displaying users {0} - {1} of {2}',
 	            emptyMsg: "No users to display"
@@ -145,7 +146,7 @@ Ext.define('GreenFleet.view.management.User', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'User Details',
+			title : T('title.user_details'),
 			flex : 2,
 			autoScroll : true,
 			items : [ {
@@ -157,53 +158,53 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				xtype : 'textfield',
 				name : 'email',
-				fieldLabel : 'e-mail',
+				fieldLabel : T('label.email'),
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
 				name : 'surname',
-				fieldLabel : 'Sur Name',
+				fieldLabel : T('label.sur_name'),
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
 				name : 'nickname',
-				fieldLabel : 'Nick Name',
+				fieldLabel : T('label.nick_name'),
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
 				name : 'forename',
-				fieldLabel : 'Fore Name',
+				fieldLabel : T('label.for_name'),
 				anchor : '100%'
 			}, {
 				xtype : 'checkbox',
 				name : 'enabled',
-				fieldLabel : 'Enabled',
+				fieldLabel : T('label.enabled'),
 				uncheckedValue : 'off',
 				anchor : '100%'
 			}, {
 				xtype : 'checkbox',
 				name : 'admin',
-				fieldLabel : 'Admin',
+				fieldLabel : T('label.admin'),
 				uncheckedValue : 'off',
 				anchor : '100%'
 			}, {
 				xtype : 'textfield',
 				name : 'company',
-				fieldLabel : 'Company',
+				fieldLabel : T('label.company'),
 				disable : true,
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
 				disabled : true,
-				fieldLabel : 'Updated At',
+				fieldLabel : T('label.updated_at'),
 				format : F('datetime'),
 				anchor : '100%'
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
-				fieldLabel : 'Created At',
+				fieldLabel : T('label.created_at'),
 				format : F('datetime'),
 				anchor : '100%'
 			} ],

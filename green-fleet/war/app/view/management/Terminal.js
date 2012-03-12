@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 
 	alias : 'widget.management_terminal',
 
-	title : 'Terminal',
+	title : T('title.terminal'),
 
 	entityUrl : 'terminal',
 	/*
@@ -22,7 +22,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 	},
 	
 	items: {
-		html : '<div class="listTitle">Terminal List</div>'
+		html : "<div class='listTitle'>" + T('title.terminal_list') + "</div>"
 	},
 	
 	initComponent : function() {
@@ -95,32 +95,32 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'Terminal Id',
+				text : T('label.id'),
 				type : 'string'
 			}, {
 				dataIndex : 'serial_no',
-				text : 'Serial No.',
+				text : T('label.x_no', {x : T('label.serial')}),
 				type : 'string'
 			}, {
 				dataIndex : 'buying_date',
-				text : 'Buying Date',
+				text : T('label.x_date', {x : T('label.buying')}),
 				xtype : 'datecolumn',
 				format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'comment',
-				text : 'Comment',
+				text : T('label.comment'),
 				type : 'string',
 				width : 160
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
@@ -128,23 +128,23 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			viewConfig : {
 
 			},
-			tbar : [ 'ID', {
+			tbar : [ T('label.id'), {
 				xtype : 'textfield',
 				name : 'id_filter',
 				itemId : 'id_filter',
 				hideLabel : true,
 				width : 200
-			}, 'Serial No.', {
+			}, T('label.x_no', {x : T('label.serial')}), {
 				xtype : 'textfield',
 				name : 'serial_no_filter',
 				itemId : 'serial_no_filter',
 				hideLabel : true,
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}
@@ -156,7 +156,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			itemId : 'details',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Terminal Details',
+			title : T('title.terminal_details'),
 			layout : {
 				type : 'hbox',
 				align : 'stretch'	
@@ -177,37 +177,37 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : 'Terminal Id'
+					fieldLabel : T('label.id')
 				}, {
 					name : 'serial_no',
-					fieldLabel : 'Serial No.'
+					fieldLabel : T('label.x_no', {x : T('label.serial')})
 				}, {
 					xtype : 'datefield',
 					name : 'buying_date',
-					fieldLabel : 'Buying Date',
+					fieldLabel : T('label.x_date', {x : T('label.buying')}),
 					format : F('date')
 				}, {
 					xtype : 'textarea',
 					name : 'comment',
-					fieldLabel : 'Comment'
+					fieldLabel : T('label.comment')
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
-					fieldLabel : 'Image Upload',
+					fieldLabel : T('label.image_upload'),
 					msgTarget : 'side',
 					allowBlank : true,
-					buttonText : 'file...'
+					buttonText : T('button.file')
 				}, {
 					xtype : 'datefield',
 					name : 'updated_at',
 					disabled : true,
-					fieldLabel : 'Updated At',
+					fieldLabel : T('label.updated_at'),
 					format: F('datetime')
 				}, {
 					xtype : 'datefield',
 					name : 'created_at',
 					disabled : true,
-					fieldLabel : 'Created At',
+					fieldLabel : T('label.created_at'),
 					format: F('datetime')
 				}, {
 					xtype : 'displayfield',

@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Code', {
 
 	alias : 'widget.management_code',
 
-	title : 'Code Mgmt.',
+	title : T('title.code'),
 
 	entityUrl : 'code',
 
@@ -26,7 +26,7 @@ Ext.define('GreenFleet.view.management.Code', {
 		var self = this;
 
 		this.items = [ {
-			html : '<div class="listTitle">Code List</div>'
+			html : "<div class='listTitle'>" + T('title.code_list') + "</div>"
 		}, {
 			xtype : 'container',
 			flex : 1,
@@ -76,15 +76,15 @@ Ext.define('GreenFleet.view.management.Code', {
 			xtype : 'gridpanel',
 			itemId : 'grouplist',
 			store : 'CodeGroupStore',
-			title : 'Code Group',
+			title : T('title.code_group'),
 			width : 320,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'group',
-				text : 'Group',
+				text : T('label.group'),
 				width : 100
 			}, {
 				dataIndex : 'desc',
-				text : 'Description',
+				text : T('label.desc'),
 				width : 220
 			} ]
 		}
@@ -95,7 +95,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'CodeStore',
-			title : 'Code List',
+			title : T('title.code_list'),
 			flex : 1,
 			cls : 'hIndexbarZero',
 			columns : [ new Ext.grid.RowNumberer(), {
@@ -104,22 +104,22 @@ Ext.define('GreenFleet.view.management.Code', {
 				hidden : true
 			}, {
 				dataIndex : 'group',
-				text : 'Group'
+				text : T('label.group')
 			}, {
 				dataIndex : 'code',
-				text : 'Code'
+				text : T('label.code')
 			}, {
 				dataIndex : 'desc',
-				text : 'Description'
+				text : T('label.desc')
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -133,7 +133,7 @@ Ext.define('GreenFleet.view.management.Code', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Code Details',
+			title : T('title.code_details'),
 			height : 200,
 			defaults : {
 				xtype : 'textfield',
@@ -146,28 +146,28 @@ Ext.define('GreenFleet.view.management.Code', {
 			}, {
 				xtype : 'combo',
 				name : 'group',
-				fieldLabel : 'Group',
+				fieldLabel : T('label.group'),
 				queryMode : 'local',
 				store : 'CodeGroupStore',
 				displayField : 'group',
 				valueField : 'group'
 			}, {
 				name : 'code',
-				fieldLabel : 'Code'
+				fieldLabel : T('label.code')
 			}, {
 				name : 'desc',
-				fieldLabel : 'Description'
+				fieldLabel : T('label.desc')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
 				disabled : true,
-				fieldLabel : 'Updated At',
+				fieldLabel : T('label.updated_at'),
 				format : F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
-				fieldLabel : 'Created At',
+				fieldLabel : T('label.created_at'),
 				format : F('datetime')
 			} ],
 			dockedItems : [ {

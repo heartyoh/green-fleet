@@ -5,14 +5,14 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 
 	entityUrl : 'checkin_data',
 	
-	title : 'CheckinData',
+	title : T('menu.checkin_data'),
 
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
 	items: {
-		html : '<div class="listTitle">CheckinData List</div>'
+		html : "<div class='listTitle'>" + T('title.checkin_data_list') + "</div>"
 	},
 	
 	initComponent : function() {
@@ -89,130 +89,130 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				hidden : true
 			}, {
 				dataIndex : 'terminal_id',
-				text : 'Terminal'
+				text : T('label.terminal')
 			}, {
 				dataIndex : 'vehicle_id',
-				text : 'Vehicle'
+				text : T('label.vehicle')
 			}, {
 				dataIndex : 'driver_id',
-				text : 'Driver'
+				text : T('label.driver')
 			}, {
 				dataIndex : 'datetime',
-				text : 'Date/Time',
+				text : T('label.datetime'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'distance',
-				text : 'Distance'
+				text : T('label.x_distance', {x : T('label.running')})
 			}, {
 				dataIndex : 'running_time',
-				text : 'Running Time'
+				text : T('label.x_time', {x : T('label.running')})
 			}, {
 				dataIndex : 'less_than_10km',
-				text : 'Less Than 10Km'
+				text : T('label.lessthan_km', {km : 10})
 			}, {
 				dataIndex : 'less_than_20km',
-				text : 'Less Than 20Km'
+				text : T('label.lessthan_km', {km : 20})
 			}, {
 				dataIndex : 'less_than_30km',
-				text : 'Less Than 30Km'
+				text : T('label.lessthan_km', {km : 30})
 			}, {
 				dataIndex : 'less_than_40km',
-				text : 'Less Than 40Km'
+				text : T('label.lessthan_km', {km : 40})
 			}, {
 				dataIndex : 'less_than_50km',
-				text : 'Less Than 50Km'
+				text : T('label.lessthan_km', {km : 50})
 			}, {
 				dataIndex : 'less_than_60km',
-				text : 'Less Than 60Km'
+				text : T('label.lessthan_km', {km : 60})
 			}, {
 				dataIndex : 'less_than_70km',
-				text : 'Less Than 70Km'
+				text : T('label.lessthan_km', {km : 70})
 			}, {
 				dataIndex : 'less_than_80km',
-				text : 'Less Than 80Km'
+				text : T('label.lessthan_km', {km : 80})
 			}, {
 				dataIndex : 'less_than_90km',
-				text : 'Less Than 90Km'
+				text : T('label.lessthan_km', {km : 90})
 			}, {
 				dataIndex : 'less_than_100km',
-				text : 'Less Than 100Km'
+				text : T('label.lessthan_km', {km : 100})
 			}, {
 				dataIndex : 'less_than_110km',
-				text : 'Less Than 110Km'
+				text : T('label.lessthan_km', {km : 110})
 			}, {
 				dataIndex : 'less_than_120km',
-				text : 'Less Than 120Km'
+				text : T('label.lessthan_km', {km : 120})
 			}, {
 				dataIndex : 'less_than_130km',
-				text : 'Less Than 130Km'
+				text : T('label.lessthan_km', {km : 130})
 			}, {
 				dataIndex : 'less_than_140km',
-				text : 'Less Than 140Km'
+				text : T('label.lessthan_km', {km : 140})
 			}, {
 				dataIndex : 'less_than_150km',
-				text : 'Less Than 150Km'
+				text : T('label.lessthan_km', {km : 150})
 			}, {
 				dataIndex : 'less_than_160km',
-				text : 'Less Than 160Km'
+				text : T('label.lessthan_km', {km : 160})
 			}, {
 				dataIndex : 'engine_start_time',
-				text : 'Start Time',
+				text : T('label.x_time', {x : T('label.start')}),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'engine_end_time',
-				text : 'End Time',
+				text : T('label.x_time', {x : T('label.end')}),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'average_speed',
-				text : 'Average Speed'
+				text : T('label.average_speed')
 			}, {
 				dataIndex : 'max_speed',
-				text : 'Highest Speed'
+				text : T('label.highest_speed')
 			}, {
 				dataIndex : 'fuel_consumption',
-				text : 'Fuel Consumption'
+				text : T('label.fuel_consumption')
 			}, {
 				dataIndex : 'fuel_efficiency',
-				text : 'Fuel Efficiency'
+				text : T('label.fuel_efficiency')
 			}, {
 				dataIndex : 'sudden_accel_count',
-				text : 'Sudden Accel Count'
+				text : T('label.x_count', {x : T('label.sudden_accel')}),
 			}, {
 				dataIndex : 'sudden_brake_count',
-				text : 'Sudden Brake Count'
+				text : T('label.x_count', {x : T('label.sudden_brake')}),
 			}, {
 				dataIndex : 'idle_time',
-				text : 'Idling Time'
+				text : T('label.x_time', {x : T('label.idling')}),
 			}, {
 				dataIndex : 'eco_driving_time',
-				text : 'Econo Driving Time'
+				text : T('label.x_time', {x : T('label.eco_driving')}),
 			}, {
 				dataIndex : 'over_speed_time',
-				text : 'Over Speeding Time'
+				text : T('label.x_time', {x : T('label.over_speeding')}),
 			}, {
 				dataIndex : 'co2_emissions',
-				text : 'CO2 Emissions'
+				text : T('label.co2_emissions')
 			}, {
 				dataIndex : 'max_cooling_water_temp',
-				text : 'Max Cooling Water Temp'
+				text : T('label.max_cooling_water_temp')
 			}, {
 				dataIndex : 'avg_battery_volt',
-				text : 'Average Battery Voltage'
+				text :  T('label.average_battery_voltage')
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
@@ -227,7 +227,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				store : 'VehicleBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
-				fieldLabel : 'Vehicle',
+				fieldLabel : T('label.vehicle'),
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				width : 200
@@ -238,7 +238,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				store : 'DriverBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
-				fieldLabel : 'Driver',
+				fieldLabel : T('label.driver'),
 				name : 'driver_filter',
 				itemId : 'driver_filter',
 				width : 200
@@ -246,7 +246,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 		        xtype: 'datefield',
 				name : 'date_filter',
 				itemId : 'date_filter',
-				fieldLabel : 'Date',
+				fieldLabel : T('label.date'),
 				format: 'Y-m-d',
 				submitFormat : 'U',
 		        maxValue: new Date(),  // limited to the current date or prior
@@ -254,9 +254,9 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				width : 200
 			}, {
 				itemId : 'search',
-				text : 'Search'
+				text : T('button.search')
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}
@@ -268,7 +268,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'CheckinData Details',
+			title : T('title.checkin_data_details'),
 			autoScroll : true,
 			flex : 1,
 			defaults : {
@@ -286,7 +286,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				store : 'VehicleBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
-				fieldLabel : 'Vehicle'
+				fieldLabel : T('label.vehicle')
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
@@ -294,7 +294,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				store : 'DriverBriefStore',
 				displayField: 'id',
 			    valueField: 'id',
-				fieldLabel : 'Driver'
+				fieldLabel : T('label.driver')
 			}, {
 				xtype : 'combo',
 				name : 'terminal_id',
@@ -302,123 +302,123 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				store : 'TerminalStore',
 				displayField: 'id',
 			    valueField: 'id',
-				fieldLabel : 'Terminal'
+				fieldLabel : T('label.terminal')
 			}, {
 				xtype : 'datefield',
 				name : 'datetime',
-				fieldLabel : 'Date/Time',
+				fieldLabel : T('label.datetime'),
 				format: F('datetime')
 			}, {
 				name : 'distance',
-				fieldLabel : 'Distance'
+				fieldLabel : T('label.x_distance', {x : T('label.running')})
 			}, {
 				name : 'running_time',
-				fieldLabel : 'Running Time'
+				fieldLabel : T('label.x_time', {x : T('label.running')})
 			}, {
 				name : 'less_than_10km',
-				fieldLabel : 'Less Than 10Km'
+				fieldLabel : T('label.lessthan_km', {km : 10})
 			}, {
 				name : 'less_than_20km',
-				fieldLabel : 'Less Than 20Km'
+				fieldLabel : T('label.lessthan_km', {km : 20})
 			}, {
 				name : 'less_than_30km',
-				fieldLabel : 'Less Than 30Km'
+				fieldLabel : T('label.lessthan_km', {km : 30})
 			}, {
 				name : 'less_than_40km',
-				fieldLabel : 'Less Than 40Km'
+				fieldLabel : T('label.lessthan_km', {km : 40})
 			}, {
 				name : 'less_than_50km',
-				fieldLabel : 'Less Than 50Km'
+				fieldLabel : T('label.lessthan_km', {km : 50})
 			}, {
 				name : 'less_than_60km',
-				fieldLabel : 'Less Than 60Km'
+				fieldLabel : T('label.lessthan_km', {km : 60})
 			}, {
 				name : 'less_than_70km',
-				fieldLabel : 'Less Than 70Km'
+				fieldLabel : T('label.lessthan_km', {km : 70})
 			}, {
 				name : 'less_than_80km',
-				fieldLabel : 'Less Than 80Km'
+				fieldLabel : T('label.lessthan_km', {km : 80})
 			}, {
 				name : 'less_than_90km',
-				fieldLabel : 'Less Than 90Km'
+				fieldLabel : T('label.lessthan_km', {km : 90})
 			}, {
 				name : 'less_than_100km',
-				fieldLabel : 'Less Than 100Km'
+				fieldLabel : T('label.lessthan_km', {km : 100})
 			}, {
 				name : 'less_than_110km',
-				fieldLabel : 'Less Than 110Km'
+				fieldLabel : T('label.lessthan_km', {km : 110})
 			}, {
 				name : 'less_than_120km',
-				fieldLabel : 'Less Than 120Km'
+				fieldLabel : T('label.lessthan_km', {km : 120})
 			}, {
 				name : 'less_than_130km',
-				fieldLabel : 'Less Than 130Km'
+				fieldLabel : T('label.lessthan_km', {km : 130})
 			}, {
 				name : 'less_than_140km',
-				fieldLabel : 'Less Than 140Km'
+				fieldLabel : T('label.lessthan_km', {km : 140})
 			}, {
 				name : 'less_than_150km',
-				fieldLabel : 'Less Than 150Km'
+				fieldLabel : T('label.lessthan_km', {km : 150})
 			}, {
 				name : 'less_than_160km',
-				fieldLabel : 'Less Than 160Km'
+				fieldLabel : T('label.lessthan_km', {km : 160})
 			}, {
 				xtype : 'datefield',
 				name : 'engine_start_time',
-				fieldLabel : 'Start Time',
+				fieldLabel : T('label.x_time', {x : T('label.start')}),
 				format: F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'engine_end_time',
-				fieldLabel : 'End Time',
+				fieldLabel : T('label.x_time', {x : T('label.end')}),
 				format: F('datetime')
 			}, {
 				name : 'average_speed',
-				fieldLabel : 'Average Speed'
+				fieldLabel : T('label.average_speed')
 			}, {
 				name : 'max_speed',
-				fieldLabel : 'Highest Speed'
+				fieldLabel : T('label.highest_speed')
 			}, {
 				name : 'fuel_consumption',
-				fieldLabel : 'Fuel Consumption'
+				fieldLabel : T('label.fuel_consumption')
 			}, {
 				name : 'fuel_efficiency',
-				fieldLabel : 'Fuel Efficiency'
+				fieldLabel : T('label.fuel_efficiency')
 			}, {
 				name : 'sudden_accel_count',
-				fieldLabel : 'Sudden Accel Count'
+				fieldLabel : T('label.x_count', {x : T('label.sudden_accel')})
 			}, {
 				name : 'sudden_brake_count',
-				fieldLabel : 'Sudden Brake Count'
+				fieldLabel : T('label.x_count', {x : T('label.sudden_brake')})
 			}, {
 				name : 'idle_time',
-				fieldLabel : 'Idling Time'
+				fieldLabel : T('label.x_time', {x : T('label.idling')})
 			}, {
 				name : 'eco_driving_time',
-				fieldLabel : 'Eco-Driving Time'
+				fieldLabel : T('label.x_time', {x : T('label.eco_driving')})
 			}, {
 				name : 'over_speed_time',
-				fieldLabel : 'Over Speeding Time'
+				fieldLabel : T('label.x_time', {x : T('label.over_speeding')})
 			}, {
 				name : 'co2_emissions',
-				fieldLabel : 'CO2 Emissions'
+				fieldLabel : T('label.co2_emissions')
 			}, {
 				name : 'max_cooling_water_temp',
-				fieldLabel : 'Max Cooling Water Temp.'
+				fieldLabel : T('label.max_cooling_water_temp')
 			}, {
 				name : 'avg_battery_volt',
-				fieldLabel : 'Average Bettery Voltage'
+				fieldLabel : T('label.average_battery_voltage')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
-				fieldLabel : 'Created At',
+				fieldLabel : T('label.created_at'),
 				format: F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
 				disabled : true,
-				fieldLabel : 'Updated At',
+				fieldLabel : T('label.updated_at'),
 				format: F('datetime')
 			} ],
 			dockedItems : [ {

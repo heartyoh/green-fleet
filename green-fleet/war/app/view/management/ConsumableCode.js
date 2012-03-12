@@ -107,10 +107,10 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				hideLabel : true,
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}

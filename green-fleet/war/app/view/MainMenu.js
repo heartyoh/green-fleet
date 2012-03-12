@@ -39,84 +39,84 @@ Ext.define('GreenFleet.view.MainMenu', {
 //			closable : true
 //		} ]
 //	}, {
-		text : 'Company',
+		text : T('menu.company'),
 		submenus : [ {
-			title : T('title.company'),
+			title : T('menu.company'),
 			xtype : 'management_company',
 			itemId : 'company',
 			closable : true
 		}, {
-			title : 'Users',
+			title : T('menu.user'),
 			xtype : 'management_user',
 			itemId : 'user',
 			closable : true
 		}, {
-			title : 'Code Mgmt.',
+			title : T('menu.code'),
 			xtype : 'management_code',
 			itemId : 'code',
 			closable : true
 		}, {
-			title : 'Vehicle Group',
+			title : T('menu.vehicle_group'),
 			xtype : 'management_vehicle_group',
 			itemId : 'vehicle_group',
 			closable : true
 		} ]
 	}, {
-		text : 'Vehicle',
+		text : T('menu.vehicle'),
 		submenus : [ {
-			title : T('title.vehicle'),
+			title : T('menu.vehicle'),
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',
 			closable : true
 		}, {
-			title : T('title.incident'),
+			title : T('menu.incident'),
 			xtype : 'management_incident',
 			itemId : 'incident',
 			closable : true
 		}, {
-			title : T('title.track'),
+			title : T('menu.track'),
 			xtype : 'management_track',
 			itemId : 'track',
 			closable : true
 		}, {
-			title : 'CheckinData',
+			title : T('menu.checkin_data'),
 			xtype : 'management_checkin_data',
 			itemId : 'checkin_data',
 			closable : true
 		} ]
 	}, {
-		text : T('title.driver'),
+		text : T('menu.driver'),
 		submenus : [ {
-			title : 'Driver',
+			title : T('menu.driver'),
 			xtype : 'management_driver',
 			itemId : 'driver',
 			closable : true
 		} ]
 	}, {
-		text : T('title.terminal'),
+		text : T('menu.terminal'),
 		submenus : [ {
-			title : 'Terminal',
+			title : T('menu.terminal'),
 			xtype : 'management_terminal',
 			itemId : 'terminal',
 			closable : true
 		} ]
 	}, {
-		text : 'Reservation',
+		text : T('menu.reservation'),
 		submenus : [ {
-			title : 'Reservation',
+			title : T('menu.reservation'),
 			xtype : 'management_reservation',
 			itemId : 'reservation',
 			closable : true
 		} ]
 	}, {
-		text : 'Maintenance',
+		text : T('menu.maintenance'),
 		submenus : [ {
-			title : 'Consumables',
+			title : T('menu.consumables'),
 			xtype : 'pm_consumable',
 			itemId : 'consumable',
 			closable : true
 		}, {
-			title : 'Health',
+			title : T('menu.health'),
 			xtype : 'dashboard_health',
 			itemId : 'health',
 			closable : true

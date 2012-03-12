@@ -13,19 +13,19 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 	items : [ {
 		xtype : 'tbfill'
 	}, {
-		text : 'Save',
+		text : T('button.save'),
 		itemId : 'save'
 	}, {
-		text : 'Delete',
+		text : T('button.del'),
 		itemId : 'delete'
 	}, {
-		text : 'Reset',
+		text : T('button.reset'),
 		itemId : 'reset'
 	} ],
 	
-	confirmMsgSave : 'Would you like to save?',
+	confirmMsgSave : T('msg.confirm_save'),
 	
-	confirmMsgDelete : 'Would you like to delete?',
+	confirmMsgDelete : T('msg.confirm_delete'),
 	
 	initComponent : function() {
 		this.callParent();
@@ -35,7 +35,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 		this.down('#save').on('click', function() {
 			
 			Ext.MessageBox.show({
-				title : "Confirmation",
+				title : T('title.confirmation'),
 				buttons : Ext.MessageBox.YESNO,
 				msg : self.confirmMsgSave,
 				modal : true,
@@ -60,7 +60,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 								}
 							},
 							failure : function(form, action) {
-								Ext.msg.alert('Failed to save!', action.result.msg);
+								Ext.msg.alert(T('msg.failed_to_save'), action.result.msg);
 							}
 						});
 					}					
@@ -71,7 +71,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 		this.down('#delete').on('click', function() {
 			
 			Ext.MessageBox.show({
-				title : "Confirmation",
+				title : T('title.confirmation'),
 				buttons : Ext.MessageBox.YESNO,
 				msg : self.confirmMsgDelete,
 				modal : true,
@@ -95,7 +95,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 								form.reset();
 							},
 							failure : function(form, action) {
-								Ext.msg.alert('Failed to delete!', action.result.msg);
+								Ext.msg.alert(T('msg.failed_to_delete'), action.result.msg);
 							}
 						});
 					}					

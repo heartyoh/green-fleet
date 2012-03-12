@@ -58,7 +58,7 @@ Ext.define('GreenFleet.view.monitor.VehiclePopup', {
 		}, {
 			xtype : 'panel',
 			flex : 1, 
-			title : 'Incidents', 
+			title : T('title.incidents'), 
 			layout : 'fit',
 			items : [{
 				xtype : 'container',

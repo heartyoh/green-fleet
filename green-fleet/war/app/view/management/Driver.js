@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 
 	alias : 'widget.management_driver',
 
-	title : 'Driver',
+	title : T('title.driver'),
 	
 	entityUrl : 'driver',
 
@@ -23,7 +23,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 	},
 	
 	items: {
-		html : '<div class="listTitle">Driver List</div>'
+		html : "<div class='listTitle'>" + T('title.driver_list') + "</div>"
 	},
 	
 	initComponent : function() {
@@ -96,41 +96,41 @@ Ext.define('GreenFleet.view.management.Driver', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'Driver Id',
+				text : T('label.id'),
 				type : 'string'
 			}, {
 				dataIndex : 'name',
-				text : 'Name',
+				text : T('label.name'),
 				type : 'string'
 			}, {
 				dataIndex : 'division',
-				text : 'Division',
+				text : T('label.division'),
 				type : 'string'
 			}, {
 				dataIndex : 'title',
-				text : 'Title',
+				text : T('label.title'),
 				type : 'string'
 			}, {
 				dataIndex : 'social_id',
-				text : 'Social Id.',
+				text : T('label.x_id', {x : T('label.social')}),
 				type : 'string'
 			}, {
 				dataIndex : 'phone_no_1',
-				text : 'Phone #1',
+				text : T('label.phone_x', {x : 1}),
 				type : 'string'
 			}, {
 				dataIndex : 'phone_no_2',
-				text : 'Phone #2',
+				text : T('label.phone_x', {x : 2}),
 				type : 'string'
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype:'datecolumn',
 				format:F('datetime'),
 				width : 120
@@ -138,23 +138,23 @@ Ext.define('GreenFleet.view.management.Driver', {
 			viewConfig : {
 
 			},
-			tbar : [ 'ID', {
+			tbar : [ T('label.id'), {
 				xtype : 'textfield',
 				name : 'id_filter',
 				itemId : 'id_filter',
 				hideLabel : true,
 				width : 200
-			}, 'Name', {
+			}, T('label.name'), {
 				xtype : 'textfield',
 				name : 'name_filter',
 				itemId : 'name_filter',
 				hideLabel : true,
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}
@@ -166,7 +166,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			itemId : 'details',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Driver Details',
+			title : T('title.driver_details'),
 			layout : {
 				type : 'hbox',
 				align : 'stretch'	
@@ -187,47 +187,47 @@ Ext.define('GreenFleet.view.management.Driver', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : 'Driver Id'
+					fieldLabel : T('label.id')
 				}, {
 					name : 'name',
-					fieldLabel : 'Name'
+					fieldLabel : T('label.name')
 				}, {
 					xtype : 'codecombo',
 					name : 'division',
 					group : 'Division',
-					fieldLabel : 'Division'
+					fieldLabel : T('label.division')
 				}, {
 					xtype : 'codecombo',
 					name : 'title',
 					group : 'EmployeeTitle',
-					fieldLabel : 'Title'
+					fieldLabel : T('label.title')
 				}, {
 					name : 'social_id',
-					fieldLabel : 'Social Id.'
+					fieldLabel : T('label.x_id', {x : T('label.social')})
 				}, {
 					name : 'phone_no_1',
-					fieldLabel : 'Phone #1'
+					fieldLabel : T('label.phone_x', {x : 1}),
 				}, {
 					name : 'phone_no_2',
-					fieldLabel : 'Phone #2'
+					fieldLabel : T('label.phone_x', {x : 2}),
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
-					fieldLabel : 'Image Upload',
+					fieldLabel : T('label.image_upload'),
 					msgTarget : 'side',
 					allowBlank : true,
-					buttonText : 'file...'
+					buttonText : T('button.file')
 				}, {
 					xtype : 'datefield',
 					name : 'updated_at',
 					disabled : true,
-					fieldLabel : 'Updated At',
+					fieldLabel : T('label.updated_at'),
 					format: F('datetime')
 				}, {
 					xtype : 'datefield',
 					name : 'created_at',
 					disabled : true,
-					fieldLabel : 'Created At',
+					fieldLabel : T('label.created_at'),
 					format: F('datetime')
 				}, {
 					xtype : 'displayfield',

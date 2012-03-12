@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 	
 	alias : 'widget.management_vehicle_group',
 
-	title : 'Vehicle Group',
+	title : T('title.vehicle_group'),
 
 	entityUrl : 'vehicle_group',
 
@@ -31,7 +31,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 		var self = this;
 
 		this.items = [ {
-			html : '<div class="listTitle"></div>'
+			html : "<div class='listTitle'>" + T('title.vehicle_group_list') + "</div>"
 		}, {
 			xtype : 'container',
 			flex : 1,
@@ -256,7 +256,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'VehicleGroupStore',
-			title : 'Vehicle Group',
+			title : T('title.vehicle_group'),
 			width : 320,
 			columns : [ new Ext.grid.RowNumberer(), 
 			{
@@ -265,18 +265,12 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'Vehicle Group',
+				text : T('label.group'),
 				width : 100
 			}, {
 				dataIndex : 'desc',
-				text : 'Description',
+				text : T('label.desc'),
 				width : 220
-			}, {
-				dataIndex : 'created_at',
-				hidden : true
-			}, {
-				dataIndex : 'updated_at',
-				hidden : true
 			} ]
 		}
 	},
@@ -294,7 +288,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			 		xtype : 'gridpanel',
 			 		itemId : 'grouped_vehicles_grid',
 			 		store : 'VehicleByGroupStore',
-			 		title : 'Vehicles By Group',
+			 		title : T('title.vehicles_by_group'),
 			 		flex : 15,
 			 		cls : 'hIndexbarZero',
 			 		selModel : new Ext.selection.CheckboxModel(),
@@ -305,33 +299,33 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			 		    	hidden : true
 			 		    }, {
 			 		    	dataIndex : 'id',
-			 		    	text : 'Id'
+			 		    	text : T('label.id')
 			 		    }, {
 			 		    	dataIndex : 'registration_number',
-			 		    	text : 'Reg. No.'
+			 		    	text : T('label.reg_no')
 			 		    }, {
 			 		    	dataIndex : 'manufacturer',
-			 		    	text : 'Manufacturer',
+			 		    	text : T('label.manufacturer'),
 			 		    	type : 'string'
 			 		    }, {
 			 		    	dataIndex : 'vehicle_type',
-			 		    	text : 'VehicleType',
+			 		    	text : T('label.x_type', {x : T('label.vehicle')}),
 			 		    	type : 'string'
 			 		    }, {
 			 		    	dataIndex : 'birth_year',
-			 		    	text : 'BirthYear',
+			 		    	text : T('label.birth_year'),
 			 		    	type : 'string'
 			 		    }, {
 							dataIndex : 'ownership_type',
-							text : 'OwnershipType',
+							text : T('label.x_type', {x : T('label.ownership')}),
 							type : 'string'
 						}, {
 							dataIndex : 'status',
-							text : 'Status',
+							text : T('label.status'),
 							type : 'string'
 						}, {
 							dataIndex : 'total_distance',
-							text : 'TotalDistance',
+							text : T('label.total_x', {x : T('label.distance')}),
 							type : 'string'
 						}
 			 		],
@@ -374,7 +368,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			 		xtype : 'gridpanel',
 			 		itemId : 'all_vehicles_grid',
 			 		store : 'VehicleImageBriefStore',
-			 		title : 'Vehicle List',
+			 		title : T('title.vehicle_list'),
 			 		flex : 10,
 			 		cls : 'hIndexbarZero',
 			 		autoScroll : true,
@@ -401,29 +395,29 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			 		    	}
 			 		    }, {
 			 		    	dataIndex : 'id',
-			 		    	text : 'Id'
+			 		    	text : T('label.id')
 			 		    }, {
 			 		    	dataIndex : 'registration_number',
-			 		    	text : 'Reg. No.'
+			 		    	text : T('label.reg_no')
 			 		    } 
 			 		],
-					tbar : [ 'ID', {
+					tbar : [ T('label.id'), {
 						xtype : 'textfield',
 						name : 'all_vehicles_id_filter',
 						itemId : 'all_vehicles_id_filter',
 						hideLabel : true,
 						width : 70
-					}, 'Reg. No.', {
+					}, T('label.reg_no'), {
 						xtype : 'textfield',
 						name : 'all_vehicles_reg_no_filter',
 						itemId : 'all_vehicles_reg_no_filter',
 						hideLabel : true,
 						width : 70
 					}, ' ', {
-						text : 'Search',
+						text : T('button.search'),
 						itemId : 'search_all_vehicles'
 					}, ' ', {
-						text : 'Reset',
+						text : T('button.reset'),
 						itemId : 'search_reset_all_vehicles'
 					} ],
 					bbar: {
@@ -446,7 +440,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Group Details',
+			title : T('title.group_details'),
 			height : 170,
 			defaults : {
 				xtype : 'textfield',
@@ -459,21 +453,21 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				itemId : 'form_vehicle_group_key'
 			}, {
 				name : 'id',
-				fieldLabel : 'Vehicle Group'
+				fieldLabel : T('label.group')
 			}, {
 				name : 'desc',
-				fieldLabel : 'Description'
+				fieldLabel : T('label.desc')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
 				disabled : true,
-				fieldLabel : 'Updated At',
+				fieldLabel : T('label.updated_at'),
 				format : F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
-				fieldLabel : 'Created At',
+				fieldLabel : T('label.updated_at'),
 				format : F('datetime')
 			} ],
 			dockedItems : [ {

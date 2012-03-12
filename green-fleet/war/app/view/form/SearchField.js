@@ -32,8 +32,8 @@ Ext.define('GreenFleet.view.form.SearchField', {
 	},
 	
 	listConfig : {
-		loadingText : 'Searching...',
-		emptyText : 'No matching vehicles found.',
+		loadingText : T('msg.searching'),
+		emptyText : T('msg.no_matching_data_found'),
 		getInnerTpl : function() {
 			return '<div class="appSearchItem"><span class="id">{id}</span> <span class="registration_number">{registration_number}</span></div>';
 		},

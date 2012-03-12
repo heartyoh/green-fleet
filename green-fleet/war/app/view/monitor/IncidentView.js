@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 	alias : 'widget.monitor_incident',
 
-	title : 'Incident View',
+	title : T('title.incident_view'),
 
 	layout : {
 		type : 'vbox',
@@ -316,32 +316,32 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			xtype : 'displayfield',
 			itemId : 'incident_time',
 			width : 160,
-			fieldLabel : 'Incident Time'
+			fieldLabel : T('label.x_time', {x : T('label.incident')})
 		}, {
 			xtype : 'displayfield',
 			name : 'vehicle_id',
 			width : 100,
-			fieldLabel : 'Vehicle'
+			fieldLabel : T('label.vehicle')
 		}, {
 			xtype : 'displayfield',
 			name : 'driver_id',
 			width : 100,
-			fieldLabel : 'Driver'
+			fieldLabel : T('label.driver')
 		}, {
 			xtype : 'displayfield',
 			name : 'impulse_abs',
 			width : 100,
-			fieldLabel : 'Impulse'
+			fieldLabel : T('label.impulse')
 		}, {
 			xtype : 'displayfield',
 			name : 'engine_temp',
 			width : 100,
-			fieldLabel : 'Engine Temp.'
+			fieldLabel : T('label.engine_temp')
 		}, {
 			xtype : 'checkbox',
 			name : 'confirm',
 			itemId : 'confirm',
-			fieldLabel : 'Confirm',
+			fieldLabel : T('label.confirm'),
 			uncheckedValue : 'off',
 			labelCls : 'labelStyle1',
 			cls : 'backgroundNone'
@@ -362,7 +362,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		items : [
 				{
 					xtype : 'panel',
-					title : 'Incident Details',
+					title : T('title.incident_details'),
 					cls : 'paddingPanel incidentVOD',
 					flex : 1,
 					layout : {
@@ -384,7 +384,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 							} ]
 				}, {
 					xtype : 'panel',
-					title : 'Position of Incident',
+					title : T('title.position_of_incident'),
 					cls : 'paddingPanel backgroundGray borderLeftGray',
 					flex : 1,
 					itemId : 'map',
@@ -399,14 +399,14 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		legend : true,
 		store : 'IncidentLogStore',
 		axes : [ {
-			title : 'Acceleration',
+			title : T('title.acceleration'),
 			type : 'Numeric',
 			position : 'left',
 			fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
 //			minimum : -2,
 //			maximum : 2
 		}, {
-			title : 'Time',
+			title : T('label.time'),
 			type : 'Category',
 			position : 'bottom',
 			fields : [ 'datetime' ]
@@ -437,14 +437,14 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			legend : true,
 			store : Ext.create('GreenFleet.store.IncidentLogChartStore'),
 			axes : [ {
-				title : 'Acceleration',
+				title : T('label.acceleration'),
 				type : 'Numeric',
 				position : 'left',
 				fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
 			// minimum : -2,
 			// maximum : 2
 			}, {
-				title : 'Time',
+				title : T('label.time'),
 				type : 'Category',
 				position : 'bottom',
 				fields : [ 'datetime' ]
@@ -474,7 +474,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		xtype : 'gridpanel',
 		itemId : 'grid',
 		cls : 'hIndexbar',
-		title : 'Incident List',
+		title : T('title.incident_list'),
 		store : 'IncidentViewStore',
 		autoScroll : true,
 		flex : 1,
@@ -492,7 +492,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 20
 		}, {
 			dataIndex : 'confirm',
-			text : 'Confirm',
+			text : T('label.confirm'),
 			renderer : function(value, cell) {
 				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
 			},
@@ -500,68 +500,68 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 50
 		}, {
 			dataIndex : 'datetime',
-			text : 'Incident Time',
+			text : T('label.x_time', {x : T('label.incident')}),
 			xtype : 'datecolumn',
 			width : 120,
 			format : 'd-m-Y H:i:s'
 		}, {
 			dataIndex : 'driver_id',
-			text : 'Driver',
+			text : T('label.driver'),
 			type : 'string',
 			width : 80
 		}, {
 			dataIndex : 'vehicle_id',
-			text : 'Vehicle',
+			text : T('label.vehicle'),
 			type : 'string',
 			width : 80
 		}, {
 			dataIndex : 'terminal_id',
-			text : 'Terminal',
+			text : T('label.terminal'),
 			type : 'string',
 			width : 80
 		}, {
 			dataIndex : 'lattitude',
-			text : 'Lattitude',
+			text : T('label.lattitude'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'longitude',
-			text : 'Longitude',
+			text : T('label.longitude'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'velocity',
-			text : 'Velocity',
+			text : T('label.velocity'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_abs',
-			text : 'Impulse',
+			text : T('label.impulse'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_x',
-			text : 'Impulse X',
+			text : T('label.impulse_x', {x : 'X'}),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_y',
-			text : 'Impulse Y',
+			text : T('label.impulse_x', {x : 'Y'}),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_z',
-			text : 'Impulse Z',
+			text : T('label.impulse_x', {x : 'Z'}),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_threshold',
-			text : 'Impulse Threshold',
+			text : T('label.impulse_threshold'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'obd_connected',
-			text : 'OBD',
+			text : T('label.obd'),
 			renderer : function(value, cell) {
 				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
 			},
@@ -569,23 +569,23 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 40
 		}, {
 			dataIndex : 'engine_temp',
-			text : 'Engine Temp.',
+			text : T('label.engine_temp'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'engine_temp_threshold',
-			text : 'Engine Temp. Threshold',
+			text : T('label.engine_temp_threshold'),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'created_at',
-			text : 'Created At',
+			text : T('label.created_at'),
 			xtype : 'datecolumn',
 			format : F('datetime'),
 			width : 120
 		}, {
 			dataIndex : 'updated_at',
-			text : 'Updated At',
+			text : T('label.updated_at'),
 			xtype : 'datecolumn',
 			format : F('datetime'),
 			width : 120
@@ -597,7 +597,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			store : 'VehicleBriefStore',
 			displayField : 'id',
 			valueField : 'id',
-			fieldLabel : 'Vehicle',
+			fieldLabel : T('label.vehicle'),
 			itemId : 'vehicle_filter',
 			width : 200
 		}, {
@@ -606,15 +606,15 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			store : 'DriverBriefStore',
 			displayField : 'id',
 			valueField : 'id',
-			fieldLabel : 'Driver',
+			fieldLabel : T('label.driver'),
 			itemId : 'driver_filter',
 			width : 200
 		}, {
 			itemId : 'search',
-			text : 'Search'
+			text : T('button.search')
 		}, {
 			itemId : 'reset',
-			text : 'Reset'
+			text : T('button.reset')
 		} ],
 		bbar : {
 			xtype : 'pagingtoolbar',

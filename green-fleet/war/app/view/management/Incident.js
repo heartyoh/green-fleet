@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 
 	alias : 'widget.management_incident',
 
-	title : 'Incident',
+	title : T('title.incident'),
 
 	entityUrl : 'incident',
 
@@ -13,7 +13,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 	},
 
 	items : {
-		html : '<div class="listTitle">Incident List</div>'
+		html : "<div class='listTitle'>" + T('title.incident_list') + "</div>"
 	},
 
 	initComponent : function() {
@@ -102,78 +102,78 @@ Ext.define('GreenFleet.view.management.Incident', {
 				hidden : true
 			}, {
 				dataIndex : 'datetime',
-				text : 'Incident Time',
+				text : T('label.x_time', {x : T('label.incident')}),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'driver_id',
-				text : 'Driver',
+				text : T('label.driver'),
 				type : 'string'
 			}, {
 				dataIndex : 'vehicle_id',
-				text : 'Vehicle',
+				text : T('label.vehicle'),
 				type : 'string'
 			}, {
 				dataIndex : 'terminal_id',
-				text : 'Terminal',
+				text : T('label.terminal'),
 				type : 'string'
 			}, {
 				dataIndex : 'lattitude',
-				text : 'Lattitude',
+				text : T('label.lattitude'),
 				type : 'number'
 			}, {
 				dataIndex : 'longitude',
-				text : 'Longitude',
+				text : T('label.longitude'),
 				type : 'number'
 			}, {
 				dataIndex : 'velocity',
-				text : 'Velocity',
+				text : T('label.velocity'),
 				type : 'number'
 			}, {
 				dataIndex : 'impulse_abs',
-				text : 'Impulse',
+				text : T('label.impulse'),
 				type : 'number'
 			}, {
 				dataIndex : 'impulse_x',
-				text : 'Impulse X',
+				text : T('label.impulse_x', {x : 'X'}),
 				type : 'number'
 			}, {
 				dataIndex : 'impulse_y',
-				text : 'Impulse Y',
+				text :  T('label.impulse_x', {x : 'Y'}),
 				type : 'number'
 			}, {
 				dataIndex : 'impulse_z',
-				text : 'Impulse Z',
+				text :  T('label.impulse_x', {x : 'Z'}),
 				type : 'number'
 			}, {
 				dataIndex : 'impulse_threshold',
-				text : 'Impulse Threshold',
+				text : T('label.impulse_threshold'),
 				type : 'number'
 			}, {
 				dataIndex : 'engine_temp',
-				text : 'Engine Temp',
+				text : T('label.engine_temp'),
 				type : 'number'
 			}, {
 				dataIndex : 'engine_temp_threshold',
-				text : 'Engine Temp Threshold',
+				text : T('label.engine_temp_threshold'),
 				type : 'number'
 			}, {
 				dataIndex : 'obd_connected',
-				text : 'OBD Connected',
+				text : T('label.obd_connected'),
 				type : 'boolean'
 			}, {
 				dataIndex : 'confirm',
-				text : 'Confirm',
+				text : T('label.confirm'),
 				type : 'boolean'
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime')
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime')
 			} ],
@@ -187,7 +187,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : 'Vehicle',
+				fieldLabel : T('label.vehicle'),
 				itemId : 'vehicle_filter',
 				name : 'vehicle_filter',
 				width : 200
@@ -198,7 +198,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 				store : 'DriverBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : 'Driver',
+				fieldLabel : T('label.driver'),
 				itemId : 'driver_filter',
 				name : 'driver_filter',
 				width : 200
@@ -206,17 +206,17 @@ Ext.define('GreenFleet.view.management.Incident', {
 		        xtype: 'datefield',
 				name : 'date_filter',
 				itemId : 'date_filter',
-				fieldLabel : 'Date',
+				fieldLabel : T('label.date'),
 				format: 'Y-m-d',
 				submitFormat : 'U',
 		        maxValue: new Date(),  // limited to the current date or prior
 		        value : new Date(),
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'Reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ],
 			bbar: {
@@ -236,7 +236,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Incident Details',
+			title : T('title.incident_details'),
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -259,7 +259,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 						}, {
 							xtype : 'datefield',
 							name : 'datetime',
-							fieldLabel : 'Incident Time',
+							fieldLabel : T('label.x_time', {x : T('label.incident')}),
 							submitFormat : F('datetime')
 						}, {
 							xtype : 'combo',
@@ -268,7 +268,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 							store : 'VehicleBriefStore',
 							displayField : 'id',
 							valueField : 'id',
-							fieldLabel : 'Vehicle'
+							fieldLabel : T('label.vehicle')
 						}, {
 							xtype : 'combo',
 							name : 'driver_id',
@@ -276,7 +276,7 @@ Ext.define('GreenFleet.view.management.Incident', {
 							store : 'DriverBriefStore',
 							displayField : 'id',
 							valueField : 'id',
-							fieldLabel : 'Driver'
+							fieldLabel : T('label.driver')
 						}, {
 							xtype : 'combo',
 							name : 'terminal_id',
@@ -284,75 +284,75 @@ Ext.define('GreenFleet.view.management.Incident', {
 							store : 'TerminalStore',
 							displayField : 'id',
 							valueField : 'id',
-							fieldLabel : 'Terminal'
+							fieldLabel : T('label.terminal')
 						}, {
 							xtype : 'textfield',
 							name : 'lattitude',
-							fieldLabel : 'Lattitude'
+							fieldLabel : T('label.lattitude')
 						}, {
 							xtype : 'textfield',
 							name : 'longitude',
-							fieldLabel : 'Longitude'
+							fieldLabel : T('label.longitude')
 						}, {
 							xtype : 'textfield',
 							name : 'velocity',
-							fieldLabel : 'Velocity'
+							fieldLabel : T('label.velocity')
 						}, {
 							xtype : 'textfield',
 							name : 'impulse_abs',
-							fieldLabel : 'Impulse'
+							fieldLabel : T('label.impulse')
 						}, {
 							xtype : 'textfield',
 							name : 'impulse_x',
-							fieldLabel : 'Impulse X'
+							fieldLabel : T('label.impulse_x', {x : 'X'})
 						}, {
 							xtype : 'textfield',
 							name : 'impulse_y',
-							fieldLabel : 'Impulse Y'
+							fieldLabel : T('label.impulse_x', {x : 'Y'})
 						}, {
 							xtype : 'textfield',
 							name : 'impulse_z',
-							fieldLabel : 'Impulse Z'
+							fieldLabel : T('label.impulse_x', {x : 'Z'})
 						}, {
 							xtype : 'textfield',
 							name : 'impulse_threshold',
-							fieldLabel : 'Impulse Threshold'
+							fieldLabel : T('label.impulse_threshold')
 						}, {
 							xtype : 'textfield',
 							name : 'engine_temp',
-							fieldLabel : 'Engine Temp.'
+							fieldLabel : T('label.engine_temp')
 						}, {
 							xtype : 'textfield',
 							name : 'engine_temp_threshold',
-							fieldLabel : 'Engine Temp. Threshold'
+							fieldLabel : T('label.engine_temp_threshold')
 						}, {
 							xtype : 'checkbox',
 							name : 'obd_connected',
 							uncheckedValue : 'off',
-							fieldLabel : 'OBD Connected'
+							fieldLabel : T('label.obd_connected')
 						}, {
 							xtype : 'checkbox',
 							name : 'confirm',
 							uncheckedValue : 'off',
-							fieldLabel : 'Confirm'
+							fieldLabel : T('label.confirm')
 						}, {
 							xtype : 'filefield',
 							name : 'video_file',
-							fieldLabel : 'Video Upload',
+							fieldLabel : T('label.video_upload'),
 							msgTarget : 'side',
 							allowBlank : true,
-							buttonText : 'file...'
+							buttonText : T('button.file')
 						}, {
 							xtype : 'datefield',
 							name : 'updated_at',
 							disabled : true,
-							fieldLabel : 'Updated At',
+							fieldLabel : T('label.updated_at'),
 							format : 'd-m-Y H:i:s'
 						}, {
 							xtype : 'datefield',
 							name : 'created_at',
 							disabled : true,
-							fieldLabel : 'Created At',
+							fieldLabel : T('label.created_at'),
 							format : 'd-m-Y H:i:s'
 						}, {
 							xtype : 'displayfield',

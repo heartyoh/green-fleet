@@ -6,7 +6,7 @@ Ext.define('GreenFleet.mixin.Import', function() {
 			Ext.create('GreenFleet.view.common.ImportPopup', {
 				importUrl : view.importUrl,
 				client : view,
-				title : 'Import'
+				title : T('menu.import')
 			}).show();
 		}
 	}

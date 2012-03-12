@@ -12,7 +12,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		xtype : 'container',
 		cls :'pageTitle',
 		height: 35,
-		html : '<h1>Vehicle Health</h1>'
+		html : '<h1>' + T('title.vehicle_health') + '</h1>'
 	}],
 	
 	initComponent : function() {
@@ -73,16 +73,16 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		var store3 = Ext.create('Ext.data.JsonStore', {
 		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
 		    data: [
-		        { 'name': 'Health',   'tb': 31, 'eo': 27, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': 'Impending',   'tb': 17,  'eo': 19,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': 'Overdue', 'tb': 2,  'eo': 4,  'data3': 14, 'data4': 12, 'data5': 7  }
+		        { 'name': T('label.health'),   'tb': 31, 'eo': 27, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': T('label.impending'),   'tb': 17,  'eo': 19,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': T('label.overdue'), 'tb': 2,  'eo': 4,  'data3': 14, 'data4': 12, 'data5': 7  }
 		    ]
 		});
 
-		row1.add(this.buildHealthChart('Vehicle Age', store1, 'age'));
-		row1.add(this.buildHealthChart('Running Distance', store2, 'rd'));
-		row2.add(this.buildHealthChart('Timing Belt Health', store3, 'tb'));
-		row2.add(this.buildHealthChart('Engine Oil Health', store3, 'eo'));
+		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));
+		row1.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
+		row2.add(this.buildHealthChart(T('title.timing_belt_health'), store3, 'tb'));
+		row2.add(this.buildHealthChart(T('title.engine_oil_health'), store3, 'eo'));
 		
 	},
 	

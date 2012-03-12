@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Company', {
 
 	alias : 'widget.management_company',
 
-	title : 'Company',
+	title : T('title.company'),
 
 	entityUrl : 'company',
 	
@@ -13,7 +13,7 @@ Ext.define('GreenFleet.view.management.Company', {
 	},
 
 	items : {
-		html : '<div class="listTitle">Company List</div>'
+		html : '<div class="listTitle">' + T('title.company_list') + '</div>'
 	},
 
 	initComponent : function() {
@@ -91,25 +91,25 @@ Ext.define('GreenFleet.view.management.Company', {
 				hidden : true
 			}, {
 				dataIndex : 'id',
-				text : 'ID'
+				text : T('label.id')
 			}, {
 				dataIndex : 'name',
-				text : 'Name'
+				text : T('label.name')
 			}, {
 				dataIndex : 'desc',
-				text : 'Description'
+				text : T('label.desc')
 			}, {
 				dataIndex : 'timezone',
-				text : 'TimeZone'
+				text : T('label.timezone')
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -121,23 +121,23 @@ Ext.define('GreenFleet.view.management.Company', {
 				grid.down('textfield[name=id_filter]').setValue('');
 				grid.down('textfield[name=name_filter]').setValue('');
 			},
-			tbar : [ 'ID', {
+			tbar : [ T('label.id'), {
 				xtype : 'textfield',
 				name : 'id_filter',
 				itemId : 'id_filter',
 				hideLabel : true,
 				width : 200
-			}, 'NAME', {
+			}, T('label.name'), {
 				xtype : 'textfield',
 				name : 'name_filter',
 				itemId : 'name_filter',
 				hideLabel : true,
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}
@@ -148,7 +148,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Company Details',
+			title : T('title.company_details'),
 			flex : 1,
 			layout : {
 				type : 'hbox',
@@ -169,21 +169,21 @@ Ext.define('GreenFleet.view.management.Company', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : 'ID'
+					fieldLabel : T('label.id')
 				}, {
 					name : 'name',
-					fieldLabel : 'Name'
+					fieldLabel : T('label.name')
 				}, {
 					name : 'desc',
-					fieldLabel : 'Description'
+					fieldLabel : T('label.desc')
 				}, {
 					xtype : 'tzcombo',
 					name : 'timezone',
-					fieldLabel : 'TimeZone'
+					fieldLabel : T('label.timezone')
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
-					fieldLabel : 'Image Upload',
+					fieldLabel : T('label.image_upload'),
 					msgTarget : 'side',
 					allowBlank : true,
 					buttonText : 'file...'
@@ -191,13 +191,13 @@ Ext.define('GreenFleet.view.management.Company', {
 					xtype : 'datefield',
 					name : 'updated_at',
 					disabled : true,
-					fieldLabel : 'Updated At',
+					fieldLabel : T('label.updated_at'),
 					format : F('datetime')
 				}, {
 					xtype : 'datefield',
 					name : 'created_at',
 					disabled : true,
-					fieldLabel : 'Created At',
+					fieldLabel : T('label.created_at'),
 					format : F('datetime')
 				}, {
 					xtype : 'displayfield',

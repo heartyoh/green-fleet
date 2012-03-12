@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 
 	alias : 'widget.pm_consumable',
 
-	title : 'Consumables',
+	title : T('title.consumables'),
 
 	layout : {
 		align : 'stretch',
@@ -37,7 +37,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		});
 
 		this.items = [ {
-			html : '<div class="listTitle">Consumables Management</div>'
+			html : "<div class='listTitle'>" + T('title.consumables_management') + "</div>"
 		}, {
 			xtype : 'container',
 			flex : 1,
@@ -69,7 +69,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			xtype : 'gridpanel',
 			itemId : 'vehicle_info',
 			store : 'VehicleStore',
-			title : 'Vehicle List',
+			title : T('title.vehicle_list'),
 			width : 300,
 			tbar : [ {
 				xtype : 'combo',
@@ -116,11 +116,11 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				width : 35
 			}, {
 				dataIndex : 'id',
-				text : 'Id',
+				text : T('label.id'),
 				width : 100
 			}, {
 				dataIndex : 'registration_number',
-				text : 'Reg. Number',
+				text : T('label.reg_no'),
 				width : 160
 			} ]
 		}
@@ -142,13 +142,13 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			flex : 1,
 			defaultType : 'textfield',
 			items : [ {
-				fieldLabel : 'ID',
+				fieldLabel : T('label.id'),
 				name : 'id'
 			}, {
-				fieldLabel : 'Reg. Number',
+				fieldLabel : T('label.reg_no'),
 				name : 'registration_number'
 			}, {
-				fieldLabel : 'Manufacturer',
+				fieldLabel : T('label.manufacturer'),
 				name : 'manufacturer'
 			} ]
 		}, {
@@ -156,13 +156,13 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			flex : 1,
 			defaultType : 'textfield',
 			items : [ {
-				fieldLabel : 'Type',
+				fieldLabel : T('label.type'),
 				name : 'vehicle_type'
 			}, {
-				fieldLabel : 'Total Dist.',
+				fieldLabel : T('label.total_x', {x : T('label.dist')}),
 				name : 'total_distance'
 			}, {
-				fieldLabel : 'Birth Year',
+				fieldLabel : T('label.birth_year'),
 				name : 'birth_year'
 			} ]
 		} ]
@@ -174,26 +174,26 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		cls : 'hIndexbar',
 		flex : 1,
 		columns : [ {
-			header : 'Item',
+			header : T('label.item'),
 			dataIndex : 'item'
 		}, {
-			header : 'Recent Replacement',
+			header : T('label.recent_replacement'),
 			dataIndex : 'recent_date'
 		}, {
-			header : 'Running Dist.',
+			header : T('label.running') + ' ' + T('label.dist'),
 			dataIndex : 'running_qty'
 		}, {
-			header : 'Replacement Dist.',
+			header : T('label.replacement') + ' ' + T('label.dist'),
 			dataIndex : 'threshold'
 		}, {
-			header : 'Health Rate',
+			header : T('label.health_rate'),
 			dataIndex : 'healthy',
 			xtype : 'progresscolumn'
 		}, {
-			header : 'state',
+			header : T('label.status'),
 			dataIndex : 'status'
 		}, {
-			header : 'Description',
+			header : T('label.desc'),
 			dataIndex : 'desc',
 			flex : 1
 		} ]
@@ -202,7 +202,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	zmainthistory : {
 		xtype : 'panel',
 		autoScroll:true,
-		title : 'Maint. History',
+		title : T('title.maintenence_history'),
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',

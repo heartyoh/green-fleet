@@ -162,7 +162,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		},
 		items : [{
 			flex : 1,
-			html : '<h1>Information</h1>'
+			html : '<h1>' + T('title.information') + '</h1>'
 		}, {
 			xtype : 'checkboxgroup',
 			width : 80,
@@ -174,7 +174,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				labelSeparator : ''
 			},
 			items : [{
-				fieldLabel : 'Autofit',
+				fieldLabel : T('label.autofit'),
 				itemId : 'autofit'
 			}]
 		}]

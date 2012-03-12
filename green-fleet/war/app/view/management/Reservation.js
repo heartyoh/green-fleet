@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 
 	alias : 'widget.management_reservation',
 
-	title : 'Reservation',
+	title : T('title.reservation'),
 
 	entityUrl : 'reservation',
 
@@ -13,7 +13,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 	},
 
 	items : {
-		html : '<div class="listTitle">Reservation List</div>'
+		html : "<div class='listTitle'>" + T('title.reservation_list') + "</div>"
 	},
 
 	initComponent : function() {
@@ -74,51 +74,51 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
-				text : 'ID',
+				text : T('label.id'),
 				type : 'string'
 			}, {
 				dataIndex : 'reserved_date',
-				text : 'Reserved Date',
+				text : T('label.reserved_date'),
 				xtype : 'datecolumn',
 				format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'driver_id',
-				text : 'Driver',
+				text : T('label.driver'),
 				type : 'string'
 			}, {
 				dataIndex : 'vehicle_id',
-				text : 'Vehicle',
+				text : T('label.vehicle'),
 				type : 'string'
 			}, {
 				dataIndex : 'vehicle_type',
-				text : 'Vehicle Type',
+				text : T('label.x_type', {x : T('label.vehicle')}),
 				type : 'string'
 			}, {
 				dataIndex : 'delivery_place',
-				text : 'Delivery Place',
+				text : T('label.delivery_place'),
 				type : 'string'
 			}, {
 				dataIndex : 'destination',
-				text : 'Destination',
+				text : T('label.destination'),
 				type : 'string'
 			}, {
 				dataIndex : 'purpose',
-				text : 'Purpose',
+				text : T('label.purpose'),
 				type : 'string'
 			}, {
 				dataIndex : 'status',
-				text : 'Status',
+				text : T('label.status'),
 				type : 'string'
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -126,23 +126,23 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			viewConfig : {
 
 			},
-			tbar : [ 'Vehicle', {
+			tbar : [ T('label.vehicle'), {
 				xtype : 'textfield',
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				hideLabel : true,
 				width : 200
-			}, 'Date', {
+			}, T('label.date'), {
 				xtype : 'datefield',
 				name : 'reserved_date_filter',
 				itemId : 'reserved_date_filter',
 				hideLabel : true,
 				width : 200
 			}, {
-				text : 'Search',
+				text : T('button.search'),
 				itemId : 'search'
 			}, {
-				text : 'reset',
+				text : T('button.reset'),
 				itemId : 'search_reset'
 			} ]
 		}
@@ -163,16 +163,16 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			},
 			items : [ {
 				name : 'key',
-				fieldLabel : 'Reservation ID',
+				fieldLabel : T('label.id'),
 				disabled : true
 			}, {
 				xtype : 'datefield',
 				name : 'reserved_date',
-				fieldLabel : 'Reserved Date',
+				fieldLabel : T('label.reserved_date'),
 				format : F('date')
 			}, {
 				name : 'vehicle_type',
-				fieldLabel : 'Vehicle Type'
+				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
 			}, {
 				xtype : 'combo',
 				name : 'vehicle_id',
@@ -180,7 +180,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : 'Vehicle'
+				fieldLabel : T('label.vehicle')
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
@@ -188,30 +188,30 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				store : 'DriverBriefStore',
 				displayField : 'name',
 				valueField : 'id',
-				fieldLabel : 'Driver'
+				fieldLabel : T('label.driver')
 			}, {
 				name : 'status',
-				fieldLabel : 'Status'
+				fieldLabel : T('label.status')
 			}, {
 				name : 'delivery_place',
-				fieldLabel : 'Delivery Place'
+				fieldLabel : T('label.delivery_place')
 			}, {
 				name : 'destination',
-				fieldLabel : 'Destination'
+				fieldLabel : T('label.destination')
 			}, {
 				name : 'purpose',
-				fieldLabel : 'Purpose'
+				fieldLabel : T('label.purpose')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
 				disabled : true,
-				fieldLabel : 'Updated At',
+				fieldLabel : T('label.updated_at'),
 				format : F('datetime')
 			}, {
 				xtype : 'datefield',
 				name : 'created_at',
 				disabled : true,
-				fieldLabel : 'Created At',
+				fieldLabel : T('label.created_at'),
 				format : F('datetime')
 			} ],
 			dockedItems : [ {

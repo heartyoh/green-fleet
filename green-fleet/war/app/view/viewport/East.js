@@ -216,7 +216,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 	items : [ {
 		xtype : 'searchfield',
 		cls : 'searchField',
-		fieldLabel : 'Search',
+		fieldLabel : T('button.search'),
 		labelWidth : 50,
 		labelSeparator : '',
 		itemId : 'search'
@@ -229,10 +229,10 @@ Ext.define('GreenFleet.view.viewport.East', {
 		xtype : 'box',
 		cls : 'count',
 		itemId : 'vehicle_count',
-		html : 'Total Running Vehicles : 0'
+		html : T('label.total_running_vehicles') + ' : 0'
 	}, {
 		xtype : 'panel',
-		title : 'Vehicle Status',
+		title : T('title.vehicle_status'),
 		cls : 'statusPanel',
 		items : [ {
 			xtype : 'button',
@@ -252,12 +252,12 @@ Ext.define('GreenFleet.view.viewport.East', {
 		} ]
 	}, {
 		xtype : 'panel',
-		title : 'Vehicle Group',
+		title : T('title.vehicle_group'),
 		cls : 'groupPanel',
 		itemId : 'vehicle_groups'
 	}, {
 		xtype : 'panel',
-		title : 'Incidents Alarm',
+		title : T('title.incidents_alarm'),
 		itemId : 'incidents',
 		cls : 'incidentPanel'
 	} ]

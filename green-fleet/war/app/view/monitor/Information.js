@@ -361,7 +361,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			vehicle : 'Vehicle',
 			driver : 'Driver'
 		},
-		tpl : '<h1>Vehicle : <span class="vehicle">{vehicle}</span>, Driver : <span class="driver">{driver}</span></h1>',
+		tpl : '<h1>' + T('label.vehicle') + ' : <span class="vehicle">{vehicle}</span>, ' + T('label.driver') + ' : <span class="driver">{driver}</span></h1>',
 		height : 35
 	},
 
@@ -372,19 +372,19 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			xtype : 'monitor_info_by_vehicle'
 		}, {
 			xtype : 'monitor_control_by_vehicle',
-			title : 'Control By Vehicle'
+			title : T('tab.ctrl_by_vehicle')
 		}, {
 			xtype : 'monitor_control_by_vehicle',
-			title : 'Control By Driver'
+			title : T('tab.ctrl_by_driver')
 		}, {
 			xtype : 'monitor_control_by_vehicle',
-			title : 'Maintenance'
+			title : T('tab.maintenance')
 		} ]
 	},
 
 	zvehicleinfo : {
 		xtype : 'panel',
-		title : 'Vehicle Information',
+		title : T('title.vehicle_information'),
 		cls : 'paddingPanel',
 		layout : {
 			type : 'hbox'
@@ -409,36 +409,36 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			items : [ {
 				xtype : 'displayfield',
 				name : 'id',
-				fieldLabel : 'Vehicle',
+				fieldLabel : T('label.vehicle'),
 				cls : 'dotUnderline',
 				itemId : 'id'
 			}, {
 				xtype : 'displayfield',
 				name : 'driver_id',
-				fieldLabel : 'Driver',
+				fieldLabel : T('label.driver'),
 				cls : 'dotUnderline',
 				itemId : 'driver'
 			}, {
 				xtype : 'displayfield',
 				name : 'terminal_id',
-				fieldLabel : 'Terminal',
+				fieldLabel : T('label.terminal'),
 				cls : 'dotUnderline',
 				itemId : 'terminal'
 			}, {
 				xtype : 'displayfield',
 				name : 'location',
-				fieldLabel : 'Location',
+				fieldLabel : T('label.location'),
 				cls : 'dotUnderline',
 				itemId : 'location'
 			}, {
 				xtype : 'displayfield',
 				name : 'distance',
 				cls : 'dotUnderline',
-				fieldLabel : 'Run. Dist.'
+				fieldLabel : T('label.run_dist'),
 			}, {
 				xtype : 'displayfield',
 				name : 'running_time',
-				fieldLabel : 'Run. Time',
+				fieldLabel : T('label.run_time'),
 				cls : 'dotUnderline'
 			} ]
 		} ]
@@ -446,7 +446,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 	zincidents : {
 		xtype : 'panel',
-		title : 'Incidents',
+		title : T('title.incidents'),
 		layout : 'fit',
 		cls : 'paddingPanel',
 		height : 115,
@@ -462,7 +462,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 	zmap : {
 		xtype : 'panel',
-		title : 'Tracking Recent Driving',
+		title : T('title.tracking_recent_driving'),
 		cls : 'paddingPanel backgroundGray borderLeftGray',
 		itemId : 'map',
 		flex : 1,
