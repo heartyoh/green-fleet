@@ -2,9 +2,11 @@ Ext.define('GreenFleet.view.SideMenu', {
 	extend : 'Ext.toolbar.Toolbar',
 
 	alias : 'widget.side_menu',
+	
 	cls : 'sideMenu',
-
-	items : [ {
+	
+	items : [ '->',
+	{
 		type : 'help',
 		text : login.username,
 		handler : function() {

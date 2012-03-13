@@ -25,7 +25,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var incidentStore = Ext.getStore('RecentIncidentStore');
 			
 			vehicleFilteredStore.on('datachanged', function() {
-				self.refreshMap(vehicleFilteredStore);
+				self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
 			});
 			
 			vehicleMapStore.load();
@@ -45,12 +45,12 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 			if(self.sub('autofit').getValue())
-				self.refreshMap(Ext.getStore('VehicleFilteredStore'));
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'), true);
 		});
 		
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
-				self.refreshMap(Ext.getStore('VehicleFilteredStore'));
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
 		});
 	},
 	
@@ -58,6 +58,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		if(!this.map) {
 			this.map = new google.maps.Map(this.sub('mapbox').getEl().down('.map').dom, {
 				zoom : 10,
+				maxZoom : 19,
+				minZoom : 3,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			});
@@ -95,7 +97,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	/*
 	 * refreshMap : scope
 	 */
-	refreshMap : function(store) {
+	refreshMap : function(store, autofit) {
 		this.resetMarkers();
 		this.resetLabels();
 		
@@ -147,8 +149,10 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			this.getMap().setCenter(new google.maps.LatLng(System.props.lattitude, System.props.longitude));
 		} else if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
 			this.getMap().setCenter(bounds.getNorthEast());
-		} else {
+		} else if(autofit){ // 자동 스케일 조정 경우 
 			this.getMap().fitBounds(bounds);
+//		} else { // 자동 스케일 조정이 아니어도, 센터에 맞추기를 한다면, 이렇게.
+//			this.getMap().setCenter(bounds.getCenter());
 		}
 	},
 	

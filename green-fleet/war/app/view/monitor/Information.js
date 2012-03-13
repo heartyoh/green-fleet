@@ -35,6 +35,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.sub('map').on('afterrender', function(mapbox) {
 			var options = {
 				zoom : 10,
+				minZoom : 3,
+				maxZoom : 19,
 				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};

@@ -27,10 +27,10 @@ Ext.define('GreenFleet.view.viewport.North', {
 			},
 			items : [ {
 				xtype : 'main_menu',
-				flex : 1
+				flex : 2
 			}, {
 				xtype : 'side_menu',
-				width : 180
+				flex : 1
 			} ]
 		}, {
 			xtype : 'tabbar',
