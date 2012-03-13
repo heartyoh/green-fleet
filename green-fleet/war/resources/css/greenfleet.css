@@ -45,19 +45,22 @@
 .btnHome{background:url('../image/iconHome.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
 .btnReport{background:url('../image/iconReport.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
 .btnSetting{background:url('../image/iconSetting.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
+.btnEastHidden{background:url('../image/iconEastHidden.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
+.btnLogout:hover{background:url('../image/iconLogoutOn.png') 50% 0 no-repeat;}
+.btnHome:hover{background:url('../image/iconHomeOn.png') 50% 0 no-repeat;}
+.btnReport:hover{background:url('../image/iconReportOn.png') 50% 0 no-repeat;}
+.btnSetting:hover{background:url('../image/iconSettingOn.png') 50% 0 no-repeat;}
+.btnEastHidden:hover{background:url('../image/iconEastHiddenOn.png') 50% 0 no-repeat;}
 
 /*tool style*/
 .tool{padding:2px 0 0 0}
 .tool .x-btn-default-small{width:50px;height:55px;padding-top:37px;font-size:10px;color:#ccc;text-transform:capitalize;text-align:center;border:0;border-bottom:1px solid #474b55}
 .tool .btnDashboard{background:url('../image/iconDashboardOff.png') 10px 9px no-repeat;}
-.tool .btnDashboard.x-btn-default-small-over{background:url('../image/iconDashboardOn.png') no-repeat;color:#fff}
-.tool .btnDashboard.active{background:url('../image/iconDashboardOn.png') no-repeat;color:#fff}
+.tool .btnDashboard.x-btn-default-small-over,.tool .btnDashboard.active{background:url('../image/iconDashboardOn.png') no-repeat;color:#fff}
 .tool .btnInfo{background:url('../image/iconInfoOff.png') 9px 7px no-repeat;}
-.tool .btnInfo.x-btn-default-small-over{background:url('../image/iconInfoOn.png') no-repeat;color:#fff}
-.tool .btnInfo.active{background:url('../image/iconInfoOn.png') no-repeat;color:#fff}
+.tool .btnInfo.x-btn-default-small-over,.tool .btnInfo.active{background:url('../image/iconInfoOn.png') no-repeat;color:#fff}
 .tool .btnIncidentInfo{background:url('../image/iconIncidentInfoOff.png') 10px 5px no-repeat;}
-.tool .btnIncidentInfo.x-btn-default-small-over{background:url('../image/iconIncidentInfoOn.png') no-repeat;color:#fff}
-.tool .btnIncidentInfo.active{background:url('../image/iconIncidentInfoOn.png') no-repeat;color:#fff}
+.tool .btnIncidentInfo.x-btn-default-small-over,.tool .btnIncidentInfo.active{background:url('../image/iconIncidentInfoOn.png') no-repeat;color:#fff}
 
 .tool .btnEvent{background:url('../image/iconEventOff.png') 58% 10px no-repeat;padding-top:33px}
 .tool .btnEvent.x-btn-default-small-over{background:url('../image/iconEventOn.png') 58% 10px no-repeat;color:#fff}
@@ -97,12 +100,13 @@
 .summaryBoard .x-panel-header-text-default{color:#6493c7;font-weight:normal}
 .summaryBoard .x-panel-header-default-top{box-shadow:none;border-top:1px solid #323641}
 .summaryBoard .statusPanel,.summaryBoard .groupPanel,.summaryBoard .incidentPanel{background:url('../image/bgSummaryPanel.gif') 0 100% repeat-x;}
-.statusPanel .x-btn-default-small{background:none;background-color:transparent;border:0}
+.statusPanel .x-btn-default-small{background:none;background-color:transparent;border:0} 
 .statusPanel .btnDriving,.statusPanel .btnStop,.statusPanel .btnIncident{width:43px;height:90px;margin:5px 0 5px 18px;padding-top:50px;color:#ccc;text-align:center;font-size:12px}
 .statusPanel .btnDriving.x-btn-default-small{background:url('../image/statusDriving.png') no-repeat;}
 .statusPanel .btnStop.x-btn-default-small{background:url('../image/statusStop.png') no-repeat;}
 .statusPanel .btnIncident.x-btn-default-small{background:url('../image/statusIncident.png') no-repeat;}
 .statusPanel .x-btn-default-small span{font-size:17px;color:#fff}
+.statusPanel .x-btn-default-small-pressed{background-color:#252937;border:1px solid #4e5774}
 .groupPanel,.incidentPanel{padding-bottom:5px}
 .groupPanel a{background:url('../image/dotGray.gif') 8px 50% no-repeat;color:#ccc;padding:1px 0 4px 15px;text-decoration:none;display:block}
 .groupPanel a span,.groupPanel a:hover{color:#fff}
@@ -126,6 +130,7 @@
 .paddingBottom10{margin-bottom:10px}
 .paddingLeft5{padding-left:5px}
 .paddingleft10{margin-left:10px}
+.marginAll10{padding:10px}
 .paddingAll10{margin:10px}
 .paddingLeft5{padding-left:5px}
 .backgroundGray{background-color:#dfdfdf}
@@ -183,7 +188,7 @@ span.mapTipID{
 /*incident style*/
 .incidentSummary{background:url('../image/bgH1.gif') 0 100% repeat-x;background-color:#fdfdfd;padding:5px 0 0 5px}
 .imgDriverSmall{background:url('../image/bgPhotoSmall.gif') no-repeat;border:1px solid #9da8b2;width:35px;height:37px;margin:0 10px 5px 0}
-.backgroundGray .map{width:100%;height:95%;border:5px solid #fff}
+.backgroundGray .map{width:100%;height:95%;border-bottom:1px solid #c0c0c0}
 .summaryCell{display:inline-block;margin-right:25px}
 .summaryCell label{white-space:nowrap;font-size:11px;color:#797979}
 .summaryCell .x-form-item-body{background-color:#50545f;border:1px solid #efefef;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;}

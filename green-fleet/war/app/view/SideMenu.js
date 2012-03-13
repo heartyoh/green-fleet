@@ -24,7 +24,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 	}, {
 		itemId : 'setting',
 		type : 'setting',
-		cls : 'btnSetting',
+		cls : 'btnEastHidden',
 		handler : function() {
 			Ext.getCmp('east').toggleHide();
 		}

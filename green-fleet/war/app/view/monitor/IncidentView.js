@@ -18,7 +18,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				type : 'vbox',
 				align : 'stretch'
 			},
-			flex : 1,
+			height : 460,
 			items : [ this.zInfo, this.zVideoAndMap ]
 		}, {
 			xtype : 'container',
@@ -28,7 +28,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [ this.zList, this.buildChart() ]
+			items : [ this.zList]
 		} ];
 
 		this.callParent(arguments);
@@ -362,9 +362,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		items : [
 				{
 					xtype : 'panel',
-					title : T('title.incident_details'),
-					cls : 'paddingPanel incidentVOD',
-					flex : 1,
+				 // title : T('title.incident_details'),
+					cls : 'paddingAll10 incidentVOD',
+					width : 690,
 					layout : {
 						type : 'vbox',
 						align : 'stretch'
@@ -379,53 +379,73 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 								xtype : 'box',
 								cls : 'incidentDetail',
 								itemId : 'video',
-								tpl : [ '<video width="100%" height="95%" controls="controls">', '<source {value} type="video/mp4" />',
+								tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
 										'Your browser does not support the video tag.', '</video>' ]
 							} ]
 				}, {
 					xtype : 'panel',
-					title : T('title.position_of_incident'),
-					cls : 'paddingPanel backgroundGray borderLeftGray',
+					//title : T('title.position_of_incident'),
+					cls : 'backgroundGray borderLeftGray',
 					flex : 1,
-					itemId : 'map',
-					html : '<div class="map"></div>'
+					layout : {
+						type : 'vbox',
+						align : 'stretch'
+					},
+					items : [
+								{
+									xtype : 'box',
+									itemId : 'map',
+									html : '<div class="map"></div>',
+									flex : 3
+								},
+								{
+									xtype : 'chart',
+									itemId : 'chart',
+									flex : 1,
+									legend : {
+										position: 'bottom',
+										itemSpacing:5,
+										padding:0,
+										labelFont : "10px Helvetica, sans-serif",
+										boxStroke:"transparent",
+										boxFill : "transparent"
+									},
+									store : 'IncidentLogStore',
+									axes : [ {
+//										title : T('title.acceleration'),
+										type : 'Numeric',
+										position : 'left',
+										fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
+//										minimum : -2,
+//										maximum : 2
+									}, {
+										title : T('label.time'),
+										type : 'Category',
+										position : 'bottom',
+										fields : [ 'datetime' ]
+//										dateFormat : 'M d g:i:s',
+//										step : [Ext.Date.SECOND, 1]
+									} ],
+									series : [ {
+										type : 'line',
+										xField : 'datetime',
+										yField : 'accelate_x'
+									}, {
+										type : 'line',
+										xField : 'datetime',
+										yField : 'accelate_y'
+									}, {
+										type : 'line',
+										xField : 'datetime',
+										yField : 'accelate_z'
+									} ],
+									flex : 2
+								}]
 				} ]
 	},
 
 	zChart : {
-		xtype : 'chart',
-		itemId : 'chart',
-		flex : 1,
-		legend : true,
-		store : 'IncidentLogStore',
-		axes : [ {
-			title : T('title.acceleration'),
-			type : 'Numeric',
-			position : 'left',
-			fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
-//			minimum : -2,
-//			maximum : 2
-		}, {
-			title : T('label.time'),
-			type : 'Category',
-			position : 'bottom',
-			fields : [ 'datetime' ]
-//			dateFormat : 'M d g:i:s',
-//			step : [Ext.Date.SECOND, 1]
-		} ],
-		series : [ {
-			type : 'line',
-			xField : 'datetime',
-			yField : 'accelate_x'
-		}, {
-			type : 'line',
-			xField : 'datetime',
-			yField : 'accelate_y'
-		}, {
-			type : 'line',
-			xField : 'datetime',
-			yField : 'accelate_z'
-		} ]
+		
 	},
 
 	buildChart : function() {
@@ -434,7 +454,11 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			itemId : 'chart',
 			cls : 'paddingPanel backgroundGray borderLeftGray',
 			flex : 1,
-			legend : true,
+			legend : {
+				position: 'float',
+				x : 100,
+				y : 50
+			},
 			store : Ext.create('GreenFleet.store.IncidentLogChartStore'),
 			axes : [ {
 				title : T('label.acceleration'),
