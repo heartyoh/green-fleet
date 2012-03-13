@@ -129,3 +129,6 @@ Consumable,BrakeOil,BrakeOil
 Consumable,Tire,Tire
 Consumable,BrakePad,BrakePad
 Consumable,Battery,Battery
+ReplacementUnit,Mileage,Running Mileage
+ReplacementUnit,Time,Running Time
+ReplacementUnit,MileageTime,Running Mileage and Time

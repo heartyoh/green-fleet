@@ -73,44 +73,32 @@ public class CompanyService extends EntityService {
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
 		Map<String, Object> map = toMap(request);
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
 		}
 
+		boolean creating = false;		
 		String key = request.getParameter("key");
-
-		Key objKey = null;
-		boolean creating = false;
-
+		Key objKey = (key != null && key.trim().length() > 0) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(getEntityName(), getIdValue(map));
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 		Entity obj = null;
-
-		if (key != null && key.trim().length() > 0) {
-			objKey = KeyFactory.stringToKey(key);
-			try {
-				obj = datastore.get(objKey);
-			} catch (EntityNotFoundException e) {
-				// It's OK.(but Lost Key maybe.)
-				creating = true;
-			}
-		} else {
-			objKey = KeyFactory.createKey(getEntityName(), getIdValue(map));
-			try {
-				obj = datastore.get(objKey);
-			} catch (EntityNotFoundException e) {
-				// It's OK.
-				creating = true;
-
-			}
+		try {
+			obj = datastore.get(objKey);
+		} catch (EntityNotFoundException e) {
+			// It's OK.(but Lost Key maybe.)
+			creating = true;
+		}
+		
+		if (key == null || key.trim().isEmpty()) {
 			// It's Not OK. You try to add duplicated identifier.
 			if (obj != null)
 				throw new EntityExistsException(getEntityName() + " with id (" + getIdValue(map) + ") already Exist.");
 		}
-
-		Date now = new Date();
 		
+		Date now = new Date();
 		map.put("_now", now);
 
 		try {
@@ -127,14 +115,12 @@ public class CompanyService extends EntityService {
 			}
 
 			onSave(obj, map, datastore);
-
 			datastore.put(obj);
 		} finally {
 		}
 
 		response.setContentType("text/html");
-
-		return "{ \"success\" : true, \"key\" : \"" + KeyFactory.keyToString(obj.getKey()) + "\" }";
+		return this.getCreateResultMsg(true, obj);
 	}
 
 	@RequestMapping(value = "/company", method = RequestMethod.GET)

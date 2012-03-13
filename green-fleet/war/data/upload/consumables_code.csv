@@ -1,0 +1,12 @@
+name,repl_unit,fst_repl_mileage,fst_repl_time,repl_mileage,repl_time,desc
+AirconFilter,Time,0,0,0,6,AirconFilter
+Antifreeze,MileageTime,0,36,0,12,Antifreeze
+Battery,MileageTime,0,0,30000,36,Battery
+BrakeOil,MileageTime,0,0,40000,24,BrakeOil
+BrakePad,Mileage,0,0,35000,0,BrakePad
+EngineOil,Mileage,0,0,5000,0,EngineOil
+IgniterPlug,MileageTime,0,0,40000,24,IgniterPlug
+MissionOil,MileageTime,0,0,35000,24,MissionOil
+TimingBelt,Mileage,0,0,80000,0,TimingBelt
+Tire,MileageTime,0,0,55000,36,Tire
+WheeAlignment,Mileage,0,0,30000,0,WheeAlignment

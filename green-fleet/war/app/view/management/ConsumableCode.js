@@ -3,7 +3,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 
 	alias : 'widget.management_consumable_code',
 
-	title : 'Consumable Code',
+	title : T('titla.consumable_code'),
 
 	entityUrl : 'consumable_code',
 
@@ -23,7 +23,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 	},
 
 	items : {
-		html : '<div class="listTitle">Consumable Code List</div>'
+		html : "<div class='listTitle'>" + T('title.consumable_code_list') + "</div>"
 	},
 
 	initComponent : function() {
@@ -78,21 +78,41 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				hidden : true
 			}, {
 				dataIndex : 'name',
-				text : 'Consumable Code',
+				text : T('label.code'),
 				type : 'string'
+			}, {
+				dataIndex : 'repl_unit',
+				text : T('label.repl_unit'),
+				type : 'string'
+			}, {
+				dataIndex : 'fst_repl_mileage',
+				text : T('label.fst_repl_mileage'),
+				type : 'int'
+			}, {
+				dataIndex : 'fst_repl_time',
+				text : T('label.fst_repl_time'),
+				type : 'int'					
+			}, {
+				dataIndex : 'repl_mileage',
+				text : T('label.repl_mileage'),
+				type : 'int'
+			}, {
+				dataIndex : 'repl_time',
+				text : T('label.repl_time'),
+				type : 'int'
 			}, {
 				dataIndex : 'desc',
-				text : 'Description',
-				type : 'string'
+				text : T('label.desc'),
+				type : 'string'					
 			}, {
 				dataIndex : 'created_at',
-				text : 'Created At',
+				text : T('label.created_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'updated_at',
-				text : 'Updated At',
+				text : T('label.updated_at'),
 				xtype : 'datecolumn',
 				format : F('datetime'),
 				width : 120
@@ -100,7 +120,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 			viewConfig : {
 
 			},
-			tbar : [ 'Name', {
+			tbar : [ T('label.code'), {
 				xtype : 'textfield',
 				name : 'name_filter',
 				itemId : 'name_filter',
@@ -122,7 +142,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Consumable Code Details',
+			title : T('title.consumable_code_details'),
 			autoScroll : true,
 			flex : 1,
 			defaults : {
@@ -135,7 +155,51 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				hidden : true
 			}, {
 				name : 'name',
-				fieldLabel : 'Consumable Code'
+				fieldLabel : T('label.code')
+			}, {
+				name : 'repl_unit',
+				xtype : 'codecombo',
+				group : 'ReplacementUnit',				
+				fieldLabel : T('label.repl_unit')
+			}, {
+				name : 'fst_repl_mileage',
+				xtype : 'numberfield',
+				minValue : 0,
+				maxValue : 500000,
+				fieldLabel : T('label.fst_repl_mileage') + " (km)"
+			}, {
+				name : 'fst_repl_time',
+				xtype : 'numberfield',
+				minValue : 0,
+				maxValue : 300,
+				fieldLabel : T('label.fst_repl_time') + "(months)"				
+			}, {
+				name : 'repl_mileage',
+				xtype : 'numberfield',
+				minValue : 0,
+				maxValue : 500000,				
+				fieldLabel : T('label.repl_mileage') + " (km)"
+			}, {
+				name : 'repl_time',
+				xtype : 'numberfield',
+				minValue : 0,
+				maxValue : 300,				
+				fieldLabel : T('label.repl_time') + "(months)"
+			}, {
+				name : 'desc',
+				fieldLabel : T('label.desc')
+			}, {
+				xtype : 'datefield',
+				name : 'updated_at',
+				disabled : true,
+				fieldLabel : T('label.updated_at'),
+				format : F('datetime')
+			}, {
+				xtype : 'datefield',
+				name : 'created_at',
+				disabled : true,
+				fieldLabel : T('label.created_at'),
+				format : F('datetime')
 			} ],
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',

@@ -30,6 +30,12 @@ Ext.define('GreenFleet.store.UserStore', {
 		name : 'enabled',
 		type : 'boolean'
 	}, {
+		name : 'locale',
+		type : 'string'			
+	}, {
+		name : 'image_clip',
+		type : 'string'
+	}, {
 		name : 'created_at',
 		type : 'date',
 		dateFormat:'time'

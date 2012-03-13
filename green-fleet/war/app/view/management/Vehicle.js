@@ -219,7 +219,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Vehicle Details',
+			title : T('title.vehicle_details'),
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -260,7 +260,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 					fieldLabel : T('label.image_upload'),
 					msgTarget : 'side',
 					allowBlank : true,
-					buttonText : 'file...'
+					buttonText : T('button.file')
 				}, {
 					xtype : 'codecombo',
 					name : 'birth_year',

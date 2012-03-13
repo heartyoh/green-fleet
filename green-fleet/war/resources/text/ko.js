@@ -14,6 +14,7 @@ T({
 		checkin_data : 'CheckinData',		
 		terminal : 'Terminal',
 		consumables : 'Consumables',
+		consumable_code : 'Consumable Code',
 		health : 'Health',		
 		map : 'Map',
 		info : 'Info',
@@ -53,7 +54,9 @@ T({
 		driver_details : 'Driver Details',
 		reservation_list : 'Reservation List',
 		reservation_details : 'Reservation Details',
-		consumables_management : 'Consumables Management',
+		consumable_code_list : 'Consumable Code List',
+		consumable_code_details : 'Consumable Code Details',
+		consumables_management : 'Consumables Management',		
 		consumables_parts : 'Consumable Pars',
 		maintenence_history : 'Maintenence History',
 		vehicle_health : 'Vehicle Health',
@@ -63,8 +66,7 @@ T({
 		engine_oil_health : 'Engine Oil Health',
 		total_running_vehicles : 'Total Running Vehicles',
 		vehicle_status : 'Vehicle Status',
-		incidents_alarm : 'Incidents Alarm',
-		acceleration : 'Acceleration'
+		incidents_alarm : 'Incidents Alarm'
 	},
 	
 	tab : {
@@ -97,9 +99,11 @@ T({
 		for_name : 'For Name',
 		enabled : 'Enabled',
 		admin : 'Admin',
+		locale : 'Locale',
 		company : 'Company',
 		group : 'Group',
 		code : 'Code',
+		consumable_code : 'Consumable Code',
 		autofit : 'Autofit',
 		run_dist : 'Run. Dist.',
 		run_time : 'Run. Time.',
@@ -161,6 +165,7 @@ T({
 		destination : 'Destination',
 		purpose : 'Purpose',
 		item : 'Item',
+		acceleration : 'Acceleration',
 		recent_replacement : 'Recent Replacement',
 		replacement : 'Replacement',
 		health_rate : 'Health Rate',
@@ -172,6 +177,11 @@ T({
 		health : 'Health',
 		impending : 'Impending',
 		overdue : 'Overdue',
+		repl_unit : 'Replacement Unit',
+		fst_repl_mileage : 'First Repl. Mileage',
+		fst_repl_time : 'First Repl. Time',		
+		repl_mileage : 'Repl. Mileage',
+		repl_time : 'Repl. Time',
 		phone_x : 'Phone #{x}',
 		x_id : '{x} Id',
 		x_no : '{x} No.',
@@ -187,7 +197,7 @@ T({
 		x_distance : '{x} Distance',
 		x_speed : '{x} Speed',
 		total_x : 'Total {x}',
-		lessthan_km : 'Less Than {km}Km',
+		lessthan_km : 'Less Than {km}Km'
 	},
 	
 	format : {

@@ -46,6 +46,15 @@ Ext.define('GreenFleet.view.management.User', {
 			self.sub('grid').store.load();
 		});
 		
+		this.down('#image_clip').on('change', function(field, value) {
+			var image = self.sub('image');
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgDriver.png');
+		});	
+		
 	},
 
 	search : function() {
@@ -65,7 +74,7 @@ Ext.define('GreenFleet.view.management.User', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'UserStore',
-			flex : 3,
+			flex : 2.5,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
@@ -91,6 +100,9 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				dataIndex : 'company',
 				text : T('label.company')
+			}, {
+				dataIndex : 'locale',
+				text : T('label.locale')				
 			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
@@ -142,72 +154,106 @@ Ext.define('GreenFleet.view.management.User', {
 
 	buildForm : function(main) {
 		return {
-			xtype : 'form',
-			itemId : 'form',
+			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.user_details'),
-			flex : 2,
-			autoScroll : true,
-			items : [ {
-				xtype : 'textfield',
-				name : 'key',
-				fieldLabel : 'Key',
-				anchor : '100%',
-				hidden : true
-			}, {
-				xtype : 'textfield',
-				name : 'email',
-				fieldLabel : T('label.email'),
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'surname',
-				fieldLabel : T('label.sur_name'),
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'nickname',
-				fieldLabel : T('label.nick_name'),
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'forename',
-				fieldLabel : T('label.for_name'),
-				anchor : '100%'
-			}, {
-				xtype : 'checkbox',
-				name : 'enabled',
-				fieldLabel : T('label.enabled'),
-				uncheckedValue : 'off',
-				anchor : '100%'
-			}, {
-				xtype : 'checkbox',
-				name : 'admin',
-				fieldLabel : T('label.admin'),
-				uncheckedValue : 'off',
-				anchor : '100%'
-			}, {
-				xtype : 'textfield',
-				name : 'company',
-				fieldLabel : T('label.company'),
-				disable : true,
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'updated_at',
-				disabled : true,
-				fieldLabel : T('label.updated_at'),
-				format : F('datetime'),
-				anchor : '100%'
-			}, {
-				xtype : 'datefield',
-				name : 'created_at',
-				disabled : true,
-				fieldLabel : T('label.created_at'),
-				format : F('datetime'),
-				anchor : '100%'
-			} ],
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			flex : 1,
+			items : [ 
+				{
+					xtype : 'container',
+					flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'	
+					},
+					cls : 'noImage',
+					items : [ {
+						xtype : 'image',
+						height : '100%',
+						itemId : 'image'
+					} ]			    	
+				},
+			    {
+					xtype : 'form',
+					itemId : 'form',
+					bodyPadding : 10,
+					flex : 8,
+					autoScroll : true,
+					defaults : {
+						xtype : 'textfield',
+						anchor : '100%'
+					},					
+					items : [ 
+					    {
+							name : 'key',
+							fieldLabel : 'Key',
+							hidden : true
+						}, {
+							name : 'email',
+							fieldLabel : T('label.email')
+						}, {
+							name : 'surname',
+							fieldLabel : T('label.sur_name')
+						}, {
+							name : 'nickname',
+							fieldLabel : T('label.nick_name')
+						}, {
+							name : 'forename',
+							fieldLabel : T('label.for_name')
+						}, {
+							xtype : 'checkbox',
+							name : 'enabled',
+							fieldLabel : T('label.enabled'),
+							uncheckedValue : 'off'
+						}, {
+							xtype : 'checkbox',
+							name : 'admin',
+							fieldLabel : T('label.admin'),
+							uncheckedValue : 'off'
+						}, {
+							name : 'company',
+							fieldLabel : T('label.company'),
+							disable : true
+						}, {
+							xtype : 'combo',
+							name : 'locale',
+							store : 'LocaleStore',
+							displayField : 'name',
+							valueField : 'value',
+							fieldLabel : 'Locale'
+						}, {
+							xtype : 'filefield',
+							name : 'image_file',
+							fieldLabel : T('label.image_upload'),
+							msgTarget : 'side',
+							allowBlank : true,
+							buttonText : T('button.file')
+						}, {
+							xtype : 'datefield',
+							name : 'updated_at',
+							disabled : true,
+							fieldLabel : T('label.updated_at'),
+							format : F('datetime')
+						}, {
+							xtype : 'datefield',
+							name : 'created_at',
+							disabled : true,
+							fieldLabel : T('label.created_at'),
+							format : F('datetime')
+						}, {
+							xtype : 'displayfield',
+							name : 'image_clip',
+							itemId : 'image_clip',
+							hidden : true
+						}
+					]
+			    }
+			],
 			
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',

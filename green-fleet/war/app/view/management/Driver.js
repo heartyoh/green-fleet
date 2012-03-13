@@ -88,7 +88,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 			itemId : 'grid',
 			store : 'DriverStore',
 			autoScroll : true,
-			flex : 1,
+			flex : 2.5,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
@@ -172,83 +172,88 @@ Ext.define('GreenFleet.view.management.Driver', {
 				align : 'stretch'	
 			},
 			flex : 1,
-			items : [ {
-				xtype : 'form',
-				itemId : 'form',
-				autoScroll : true,
-				flex : 1,
-				defaults : {
-					xtype : 'textfield',
-					anchor : '100%'
-				},
-				items : [{
-					name : 'key',
-					fieldLabel : 'Key',
-					hidden : true
-				}, {
-					name : 'id',
-					fieldLabel : T('label.id')
-				}, {
-					name : 'name',
-					fieldLabel : T('label.name')
-				}, {
-					xtype : 'codecombo',
-					name : 'division',
-					group : 'Division',
-					fieldLabel : T('label.division')
-				}, {
-					xtype : 'codecombo',
-					name : 'title',
-					group : 'EmployeeTitle',
-					fieldLabel : T('label.title')
-				}, {
-					name : 'social_id',
-					fieldLabel : T('label.x_id', {x : T('label.social')})
-				}, {
-					name : 'phone_no_1',
-					fieldLabel : T('label.phone_x', {x : 1}),
-				}, {
-					name : 'phone_no_2',
-					fieldLabel : T('label.phone_x', {x : 2}),
-				}, {
-					xtype : 'filefield',
-					name : 'image_file',
-					fieldLabel : T('label.image_upload'),
-					msgTarget : 'side',
-					allowBlank : true,
-					buttonText : T('button.file')
-				}, {
-					xtype : 'datefield',
-					name : 'updated_at',
-					disabled : true,
-					fieldLabel : T('label.updated_at'),
-					format: F('datetime')
-				}, {
-					xtype : 'datefield',
-					name : 'created_at',
-					disabled : true,
-					fieldLabel : T('label.created_at'),
-					format: F('datetime')
-				}, {
-					xtype : 'displayfield',
-					name : 'image_clip',
-					itemId : 'image_clip',
-					hidden : true
-				} ]
-			}, {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'	
-				},
-				cls : 'noImage paddingLeft10',
-				items : [ {
-					xtype : 'image',
-					height : '100%',
-					itemId : 'image'
-				} ]
-			} ],
+			items : [ 
+				{
+					xtype : 'container',
+					flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'	
+					},
+					cls : 'noImage',
+					items : [ {
+						xtype : 'image',
+						height : '100%',
+						itemId : 'image'
+					} ]
+				}, 			         
+			    {
+					xtype : 'form',
+					itemId : 'form',
+					autoScroll : true,
+					bodyPadding : 10,
+					flex : 8,
+					defaults : {
+						xtype : 'textfield',
+						anchor : '100%'
+					},
+					items : [{
+						name : 'key',
+						fieldLabel : 'Key',
+						hidden : true
+					}, {
+						name : 'id',
+						fieldLabel : T('label.id')
+					}, {
+						name : 'name',
+						fieldLabel : T('label.name')
+					}, {
+						xtype : 'codecombo',
+						name : 'division',
+						group : 'Division',
+						fieldLabel : T('label.division')
+					}, {
+						xtype : 'codecombo',
+						name : 'title',
+						group : 'EmployeeTitle',
+						fieldLabel : T('label.title')
+					}, {
+						name : 'social_id',
+						fieldLabel : T('label.x_id', {x : T('label.social')})
+					}, {
+						name : 'phone_no_1',
+						fieldLabel : T('label.phone_x', {x : 1}),
+					}, {
+						name : 'phone_no_2',
+						fieldLabel : T('label.phone_x', {x : 2}),
+					}, {
+						xtype : 'filefield',
+						name : 'image_file',
+						fieldLabel : T('label.image_upload'),
+						msgTarget : 'side',
+						allowBlank : true,
+						buttonText : T('button.file')
+					}, {
+						xtype : 'datefield',
+						name : 'updated_at',
+						disabled : true,
+						fieldLabel : T('label.updated_at'),
+						format: F('datetime')
+					}, {
+						xtype : 'datefield',
+						name : 'created_at',
+						disabled : true,
+						fieldLabel : T('label.created_at'),
+						format: F('datetime')
+					}, {
+						xtype : 'displayfield',
+						name : 'image_clip',
+						itemId : 'image_clip',
+						hidden : true
+					} ]
+				}
+			],
+			
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
 				loader : {

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
@@ -38,6 +40,17 @@ public class UserService extends EntityService {
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		super.onCreate(entity, map, datastore);
 	}
+	
+	@Override
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
+			throws IOException {
+		String image_file = saveFile((MultipartFile) map.get("image_file"));
+		if(image_file != null) {
+			entity.setProperty("image_clip", image_file);
+		}
+
+		super.postMultipart(entity, map, request);
+	}	
 
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
@@ -48,6 +61,7 @@ public class UserService extends EntityService {
 		String company = (String) map.get("company");
 		String admin = (String) map.get("admin");
 		String enabled = (String) map.get("enabled");
+		String locale = (String) map.get("locale");
 
 		Set<AppRole> roles = EnumSet.of(AppRole.USER);
 
@@ -65,10 +79,12 @@ public class UserService extends EntityService {
 			entity.setProperty("surname", surname);
 		if (company != null)
 			entity.setProperty("company", company);
+		if (locale != null)
+			entity.setUnindexedProperty("locale", locale);		
 		if (enabled != null)
 			entity.setUnindexedProperty("enabled", booleanProperty(map, "enabled"));
 		if (admin != null)
-			entity.setUnindexedProperty("admin", booleanProperty(map, "admin"));
+			entity.setUnindexedProperty("admin", booleanProperty(map, "admin"));		
 
 		long binaryAuthorities = 0;
 
