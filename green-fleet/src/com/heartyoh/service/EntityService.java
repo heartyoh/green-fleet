@@ -372,7 +372,7 @@ public abstract class EntityService {
 		List<Sorter> sorters = this.parseSorters(request.getParameter("sort"));
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = this.getCompanyKey(request);		
+		Key companyKey = this.getCompanyKey(request);
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);
 		buildQuery(q, request);
