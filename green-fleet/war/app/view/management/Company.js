@@ -186,7 +186,7 @@ Ext.define('GreenFleet.view.management.Company', {
 					fieldLabel : T('label.image_upload'),
 					msgTarget : 'side',
 					allowBlank : true,
-					buttonText : 'file...'
+					buttonText : T('button.file')
 				}, {
 					xtype : 'datefield',
 					name : 'updated_at',

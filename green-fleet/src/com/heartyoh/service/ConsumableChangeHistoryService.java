@@ -1,5 +1,9 @@
+/**
+ * 
+ */
 package com.heartyoh.service;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,67 +19,74 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.heartyoh.util.SessionUtils;
 
+/**
+ * 차량 소모품 교체 이력 서비스
+ * 
+ * @author jhnam
+ */
 @Controller
-public class ConsumableCodeService extends EntityService {
-	private static final Logger logger = LoggerFactory.getLogger(ConsumableCodeService.class);
+public class ConsumableChangeHistoryService extends EntityService {
 
+	private static final Logger logger = LoggerFactory.getLogger(ConsumableChangeHistoryService.class);
+			
 	@Override
 	protected String getEntityName() {
-		return "ConsumableCode";
-	}
-
-	@Override
-	protected boolean useFilter() {
-		return false;
+		return "ConsumableChangeHistory";
 	}
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return (String) map.get("name");
+		return map.get("vehicle_id") + "@" + map.get("consumable_code") + "@" + map.get("repl_date");
 	}
-
+	
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		entity.setProperty("name", map.get("name"));
-
+		Entity company = datastore.get((Key)map.get("_company_key"));
+		entity.setProperty("vehicle_id", map.get("vehicle_id"));
+		entity.setProperty("consumable_code", map.get("consumable_code"));		
+		Date replDate = SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone")));
+		entity.setProperty("repl_date", replDate);
+		
 		super.onCreate(entity, map, datastore);
 	}
-
+	
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		entity.setProperty("repl_unit", map.get("repl_unit"));
-		entity.setProperty("fst_repl_time", map.get("fst_repl_time"));
-		entity.setProperty("fst_repl_mileage", map.get("fst_repl_mileage"));
 		entity.setProperty("repl_mileage", map.get("repl_mileage"));
-		entity.setProperty("repl_time", map.get("repl_time"));
-		entity.setProperty("desc", map.get("desc"));
-
+		entity.setProperty("next_repl_mileage", map.get("next_repl_mileage"));
+		entity.setProperty("next_repl_date", map.get("next_repl_date"));
+		entity.setProperty("price", map.get("price"));
+		entity.setProperty("component", map.get("component"));
+		
 		super.onSave(entity, map, datastore);
 	}
-
-	@RequestMapping(value = "/consumable_code/import", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/consumable_change/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports(request, response);
 	}
 
-	@RequestMapping(value = "/consumable_code/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/consumable_change/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 
-	@RequestMapping(value = "/consumable_code/delete", method = RequestMethod.POST)
+	@RequestMapping(value = "/consumable_change/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = "/consumable_code", method = RequestMethod.GET)
+	@RequestMapping(value = "/consumable_change", method = RequestMethod.GET)
 	public @ResponseBody
-	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {		
 		return super.retrieve(request, response);
-	}
+	}	
+
 }
