@@ -34,10 +34,13 @@
 .appMenu.x-toolbar{padding:0}
 .appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:14px}
 .appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:8px 5px 0 5px;margin-right:10px}
-.appMenu .x-btn-default-toolbar-small-over,.appMenu .x-btn-default-toolbar-small-active{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff}
-.appMenu .x-btn-default-toolbar-small-over .x-btn-inner,.appMenu .x-btn-default-toolbar-small-active .x-btn-inner{color:#fff}
+.appMenu .x-btn-default-toolbar-small-over,.appMenu .x-btn-default-toolbar-small-active,.appMenu .x-btn-default-toolbar-small-focus
+{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff !important;border:none;background-color:transparent}
+.appMenu .x-btn-default-toolbar-small-over .x-btn-inner,.appMenu .x-btn-default-toolbar-small-active .x-btn-inner,.appMenu .x-btn-default-toolbar-small-focus .x-btn-inner
+{color:#fff}
 .sideMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:11px}
 .sideMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff;font-size:11px}
+.sideMenu .x-btn-default-toolbar-small-over{background:none}
 .tool{background:url('../image/bgTool.gif') repeat-y}
 
 .x-panel-body-default,.x-toolbar{border:none;background:none;background-color:transparent}
