@@ -133,6 +133,7 @@ public class VehicleService extends EntityService {
 
 		Map<String, Object> relationResults = this.retrieveVehicleRelations(companyKey, vehicleGroup, jsonFilter, jsonSorter, request.getParameter("limit"), request.getParameter("start"));
 		int total = (Integer)relationResults.get("total");
+		@SuppressWarnings("unchecked")
 		List<String> relationItems = (List<String>)relationResults.get("items");
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		

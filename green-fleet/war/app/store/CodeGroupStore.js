@@ -53,5 +53,8 @@ Ext.define('GreenFleet.store.CodeGroupStore', {
 	}, {
 		group : 'Consumable',
 		desc : 'Kinds of Consumables'
+	}, {
+		group : 'ReplacementUnit',
+		desc : 'Unit of Consumables Replacement Cycle'
 	} ]
 });

@@ -185,7 +185,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 						},
 						vehicleGroup : record,
 						html : '<a href="#">'
-								+ record.data.id
+								+ record.data.desc
 								+ '<span>('
 								+ record.data.vehicles.length
 								+ ')</span></a>'

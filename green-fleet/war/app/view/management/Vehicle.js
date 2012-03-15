@@ -34,11 +34,12 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		this.add(this.buildForm(this));
 
 		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
+			self.sub('form').loadRecord(record);			
+			self.sub('edit_consumables_grid').vehicleId = record.get('id');
+			self.sub('edit_consumables_grid').store.load();
 		});
 
 		this.sub('grid').on('render', function(grid) {
-//			grid.store.load();
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
@@ -65,7 +66,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				image.setSrc('download?blob-key=' + value);
 			else
 				image.setSrc('resources/image/bgVehicle.png');
-		})
+		});
 		
 	},
 
@@ -218,149 +219,152 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		return {
 			xtype : 'panel',
 			bodyPadding : 10,
-			cls : 'hIndexbar',
-			title : 'Vehicle Details',
+			cls : 'hIndexbar',	
+			title : T('title.vehicle_details'),
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [ {
-				xtype : 'form',
-				itemId : 'form',
-				flex : 1,
-				autoScroll : true,
-				defaults : {
-					xtype : 'textfield',
-					anchor : '100%'
-				},
-				items : [ {
-					name : 'key',
-					fieldLabel : 'Key',
-					hidden : true
+			items : [
+			    {
+			    	xtype : 'form',
+			    	itemId : 'form',
+			    	flex : 4,
+			    	autoScroll : true,
+			    	defaults : {
+			    		xtype : 'textfield',
+			    		anchor : '100%'
+			    	},
+			    	items : [ 
+			    	    {
+			    	    	xtype : 'image',
+			    	    	anchor : '25%',
+			    	    	height : '150',
+			    	    	itemId : 'image',
+			    	    	cls : 'paddingBottom10'
+			    	    },			    	         
+				    	{
+				    		name : 'key',
+				    		fieldLabel : 'Key',
+				    		hidden : true
+						}, {
+							name : 'id',
+							fieldLabel : T('label.id')
+						}, {
+							name : 'registration_number',
+							fieldLabel : T('label.reg_no')
+						}, {
+							xtype : 'codecombo',
+							name : 'manufacturer',
+							group : 'V-Maker',
+							fieldLabel : T('label.manufacturer')
+						}, {
+							xtype : 'codecombo',
+							name : 'vehicle_type',
+							group : 'V-Type1',
+							fieldLabel : T('label.x_type', {x : T('label.vehicle')})
+						}, {
+							xtype : 'filefield',
+							name : 'image_file',
+							fieldLabel : T('label.image_upload'),
+							msgTarget : 'side',
+							allowBlank : true,
+							buttonText : T('button.file')
+						}, {
+							xtype : 'codecombo',
+							name : 'birth_year',
+							group : 'V-BirthYear',
+							name : 'birth_year',
+							fieldLabel : T('label.birth_year')
+						}, {
+							xtype : 'combo',
+							name : 'ownership_type',
+							queryMode : 'local',
+							store : 'OwnershipStore',
+							displayField : 'desc',
+							valueField : 'name',
+							fieldLabel : T('label.x_type', {x : T('label.ownership')})
+						}, {
+							xtype : 'combo',
+							name : 'status',
+							queryMode : 'local',
+							store : 'VehicleStatusStore',
+							displayField : 'desc',
+							valueField : 'status',
+							fieldLabel : T('label.status')
+						}, {
+							name : 'total_distance',
+							fieldLabel : T('label.total_x', {x : T('label.distance')})
+						}, {
+							name : 'remaining_fuel',
+							fieldLabel : T('label.remaining_fuel')
+						}, {
+							name : 'distance_since_new_oil',
+							fieldLabel : T('label.distance_since_new_oil')
+						}, {
+							name : 'engine_oil_status',
+							fieldLabel : T('label.x_status', {x : T('label.engine_oil')})
+						}, {
+							name : 'fuel_filter_status',
+							fieldLabel : T('label.x_status', {x : T('label.fuel_filter')})
+						}, {
+							name : 'brake_oil_status',
+							fieldLabel : T('label.x_status', {x : T('label.brake_oil')})
+						}, {
+							name : 'brake_pedal_status',
+							fieldLabel : T('label.x_status', {x : T('label.brake_pedal')})
+						}, {
+							name : 'cooling_water_status',
+							fieldLabel : T('label.x_status', {x : T('label.cooling_water')})
+						}, {
+							name : 'timing_belt_status',
+							fieldLabel : T('label.x_status', {x : T('label.timing_belt')})
+						}, {
+							name : 'spark_plug_status',
+							fieldLabel : T('label.x_status', {x : T('label.spark_plug')})
+						}, {
+							name : 'driver_id',
+							fieldLabel : T('label.driver'),
+							disabled : true
+						}, {
+							name : 'terminal_id',
+							fieldLabel : T('label.terminal'),
+							disabled : true
+						}, {
+							name : 'lattitude',
+							fieldLabel : T('label.lattitude'),
+							disabled : true
+						}, {
+							name : 'longitude',
+							fieldLabel : T('label.longitude'),
+							disabled : true
+						}, {
+							xtype : 'datefield',
+							name : 'updated_at',
+							disabled : true,
+							fieldLabel : T('label.updated_at'),
+							format : F('datetime')
+						}, {
+							xtype : 'datefield',
+							name : 'created_at',
+							disabled : true,
+							fieldLabel : T('label.created_at'),
+							format : F('datetime')
+						}, {
+							xtype : 'displayfield',
+							name : 'image_clip',
+							itemId : 'image_clip',
+							hidden : true
+						} 
+					]
 				}, {
-					name : 'id',
-					fieldLabel : T('label.id')
-				}, {
-					name : 'registration_number',
-					fieldLabel : T('label.reg_no')
-				}, {
-					xtype : 'codecombo',
-					name : 'manufacturer',
-					group : 'V-Maker',
-					fieldLabel : T('label.manufacturer')
-				}, {
-					xtype : 'codecombo',
-					name : 'vehicle_type',
-					group : 'V-Type1',
-					fieldLabel : T('label.x_type', {x : T('label.vehicle')})
-				}, {
-					xtype : 'filefield',
-					name : 'image_file',
-					fieldLabel : T('label.image_upload'),
-					msgTarget : 'side',
-					allowBlank : true,
-					buttonText : 'file...'
-				}, {
-					xtype : 'codecombo',
-					name : 'birth_year',
-					group : 'V-BirthYear',
-					name : 'birth_year',
-					fieldLabel : T('label.birth_year')
-				}, {
-					xtype : 'combo',
-					name : 'ownership_type',
-					queryMode : 'local',
-					store : 'OwnershipStore',
-					displayField : 'desc',
-					valueField : 'name',
-					fieldLabel : T('label.x_type', {x : T('label.ownership')})
-				}, {
-					xtype : 'combo',
-					name : 'status',
-					queryMode : 'local',
-					store : 'VehicleStatusStore',
-					displayField : 'desc',
-					valueField : 'status',
-					fieldLabel : T('label.status')
-				}, {
-					name : 'total_distance',
-					fieldLabel : T('label.total_x', {x : T('label.distance')})
-				}, {
-					name : 'remaining_fuel',
-					fieldLabel : T('label.remaining_fuel')
-				}, {
-					name : 'distance_since_new_oil',
-					fieldLabel : T('label.distance_since_new_oil')
-				}, {
-					name : 'engine_oil_status',
-					fieldLabel : T('label.x_status', {x : T('label.engine_oil')})
-				}, {
-					name : 'fuel_filter_status',
-					fieldLabel : T('label.x_status', {x : T('label.fuel_filter')})
-				}, {
-					name : 'brake_oil_status',
-					fieldLabel : T('label.x_status', {x : T('label.brake_oil')})
-				}, {
-					name : 'brake_pedal_status',
-					fieldLabel : T('label.x_status', {x : T('label.brake_pedal')})
-				}, {
-					name : 'cooling_water_status',
-					fieldLabel : T('label.x_status', {x : T('label.cooling_water')})
-				}, {
-					name : 'timing_belt_status',
-					fieldLabel : T('label.x_status', {x : T('label.timing_belt')})
-				}, {
-					name : 'spark_plug_status',
-					fieldLabel : T('label.x_status', {x : T('label.spark_plug')})
-				}, {
-					name : 'driver_id',
-					fieldLabel : T('label.driver'),
-					disabled : true
-				}, {
-					name : 'terminal_id',
-					fieldLabel : T('label.terminal'),
-					disabled : true
-				}, {
-					name : 'lattitude',
-					fieldLabel : T('label.lattitude'),
-					disabled : true
-				}, {
-					name : 'longitude',
-					fieldLabel : T('label.longitude'),
-					disabled : true
-				}, {
-					xtype : 'datefield',
-					name : 'updated_at',
-					disabled : true,
-					fieldLabel : T('label.updated_at'),
-					format : F('datetime')
-				}, {
-					xtype : 'datefield',
-					name : 'created_at',
-					disabled : true,
-					fieldLabel : T('label.created_at'),
-					format : F('datetime')
-				}, {
-					xtype : 'displayfield',
-					name : 'image_clip',
-					itemId : 'image_clip',
-					hidden : true
-				} ]
-			}, {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'	
-				},
-				cls : 'noImage paddingLeft10',
-				items : [ {
-					xtype : 'image',
-					height : '100%',
-					itemId : 'image'
-				} ]
-			} ],
+					xtype : 'management_vehicle_consumable_grid',
+					itemId : 'editable_grid',
+					flex : 6,
+					cls : 'paddingLeft10'
+				}
+			],
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
 				loader : {
