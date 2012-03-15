@@ -172,7 +172,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				xtype : 'numberfield',
 				minValue : 0,
 				maxValue : 300,
-				fieldLabel : T('label.fst_repl_time') + "(months)"				
+				fieldLabel : T('label.fst_repl_time') + "(month)"				
 			}, {
 				name : 'repl_mileage',
 				xtype : 'numberfield',
@@ -184,7 +184,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				xtype : 'numberfield',
 				minValue : 0,
 				maxValue : 300,				
-				fieldLabel : T('label.repl_time') + "(months)"
+				fieldLabel : T('label.repl_time') + "(month)"
 			}, {
 				name : 'desc',
 				fieldLabel : T('label.desc')

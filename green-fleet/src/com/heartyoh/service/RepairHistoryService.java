@@ -30,7 +30,7 @@ public class RepairHistoryService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {		
-		return map.get("vehicle_id") + "@" + map.get("maint_date");
+		return map.get("vehicle_id") + "@" + map.get("repair_date");
 	}
 
 	@Override

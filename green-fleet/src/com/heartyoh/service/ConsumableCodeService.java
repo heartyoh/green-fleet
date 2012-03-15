@@ -45,11 +45,16 @@ public class ConsumableCodeService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
+		// 교체 주기 단위 - 마일리지, 기간, 마일리지 and 기간 
 		entity.setProperty("repl_unit", map.get("repl_unit"));
-		entity.setProperty("fst_repl_time", map.get("fst_repl_time"));
-		entity.setProperty("fst_repl_mileage", map.get("fst_repl_mileage"));
+		//entity.setProperty("fst_repl_time", map.get("fst_repl_time"));
+		//entity.setProperty("fst_repl_mileage", map.get("fst_repl_mileage"));
+		
+		// 교체 마일리지 
 		entity.setProperty("repl_mileage", map.get("repl_mileage"));
+		// 교체 기간 
 		entity.setProperty("repl_time", map.get("repl_time"));
+		// 설명  
 		entity.setProperty("desc", map.get("desc"));
 
 		super.onSave(entity, map, datastore);

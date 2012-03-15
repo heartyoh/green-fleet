@@ -10,18 +10,6 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		this.callParent(arguments);
 		this.add(this.buildGrid(this));
 		
-		this.sub('edit_consumables_grid').store.on('beforeload', function(store, operation, opt) {
-			var vehicleId = self.sub('edit_consumables_grid').vehicleId;
-			
-			if(!vehicleId) {
-				Ext.Msg.alert('Vehicle Id Not Selected!', 'Please select vehicle from vehicle list!');
-				return false;
-			} else {				
-				operation.params = operation.params || {};
-				operation.params['vehicle_id'] = vehicleId;				
-			}
-		});
-		
 		this.sub('edit_consumables_grid').on('edit', function(editor, e) {
 			var record = editor.record.data;
 			
@@ -31,7 +19,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 			    params: {
 			    	key : record.key,
 			        vehicle_id : record.vehicle_id,
-			        consumable_code : record.consumable_code,
+			        consumable_item : record.consumable_item,
 			        repl_unit : record.repl_unit,
 			        fst_repl_mileage : record.fst_repl_mileage,
 			        fst_repl_time : record.fst_repl_time,
@@ -81,8 +69,8 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        	hidden : true,
 		        },		        
 		        {
-		            header: T('label.consumable_code'),
-		            dataIndex: 'consumable_code'	
+		            header: T('label.consumable_item'),
+		            dataIndex: 'consumable_item'	
 		        }, {
 		            header: T('label.repl_unit'),
 		            dataIndex: 'repl_unit',
@@ -93,27 +81,6 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 						name : 'repl_unit',
 						group : 'ReplacementUnit'
 					}
-		        }, {
-		        	xtype: 'numbercolumn',
-		            header: T('label.fst_repl_mileage') + " (km)",
-		            dataIndex: 'fst_repl_mileage',
-		            width: 130,
-		            editor: {
-						xtype : 'numberfield',
-						minValue : 0,
-						maxValue : 500000,
-		            }
-		        }, {
-		            xtype: 'numbercolumn',
-		            header: T('label.fst_repl_time') + " (" + T('label.month') + ")",
-		            dataIndex: 'fst_repl_time',
-		            width: 130,
-		            editor: {
-		                xtype: 'numberfield',
-		                allowBlank: false,
-		                minValue: 0,
-		                maxValue: 120
-		            }
 		        }, {
 		            xtype: 'numbercolumn',
 		            header: T('label.repl_mileage') + " (km)",
@@ -127,7 +94,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		            }	        	
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.repl_time') + " (" + T('label.month') + ")",
+		            header: T('label.repl_time') + " (month)",
 		            dataIndex: 'repl_time',
 		            width: 105,
 		            editor: {
@@ -136,44 +103,38 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		                minValue: 0,
 		                maxValue: 120
 		            }
+		        }, {
+		            header: T('label.last_repl_date'),
+		            dataIndex: 'last_repl_date',
+		            width: 100
+		        }, {
+		            xtype: 'numbercolumn',
+		            header: T('label.miles_last_repl') + " (km)",
+		            dataIndex: 'miles_last_repl',
+		            width: 115
+		        }, {
+		        	header : T('label.next_repl_mileage') + " (km)",
+		        	dataIndex : 'next_repl_mileage',
+		        	width : 130		        	
+		        }, {
+		        	header : T('label.next_repl_date'),
+		        	dataIndex : 'next_repl_date',
+		        	width : 90		        	
+		        }, {
+		        	header : T('label.accrued_cost'),
+		        	dataIndex : 'accrued_cost',
+		        	width : 90		        	
 		        }
 	        ],
 	        
 	        /*tbar: [{
-	            text: T('button.add'),
+	            text: T('button.sync'),
 	            handler : function() {
-	                rowEditing.cancelEdit();
-
-	                var r = Ext.create('VehicleConsumable', {
-	                    cosumable_code: '',
-	                    repl_unit: 'Mileage',
-	                    fst_repl_mileage: 0,
-	                    fst_repl_time: 0,
-	                    repl_mileage: 0,
-	                    repl_time: 0
-	                });
-
-	                store.insert(0, r);
-	                rowEditing.startEdit(0, 0);
 	            }
-	        }, {
-	            itemId: 'remove_cosumable',
-	            text: T('button.del'),
-	            disabled: true,
-	            
-	            handler: function() {
-	                var sm = grid.getSelectionModel();
-	                rowEditing.cancelEdit();
-	                store.remove(sm.getSelection());
-	                if (store.getCount() > 0) {
-	                    sm.select(0);
-	                }
-	            }	            
-	        }],       
+	        }],
 	        
 	        listeners: {
-	            'selectionchange': function(view, records) {
-	                grid.down('#remove_cosumable').setDisabled(!records.length);
+	            selectionchange: function(view, records) {	                
 	            }
 	        }*/
 	    });

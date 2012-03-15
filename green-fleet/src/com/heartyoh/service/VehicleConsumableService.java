@@ -3,6 +3,8 @@
  */
 package com.heartyoh.service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +23,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.SessionUtils;
 
@@ -45,13 +48,13 @@ public class VehicleConsumableService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return (String) map.get("vehicle_id") + "@" + (String) map.get("consumable_code");
+		return (String) map.get("vehicle_id") + "@" + (String) map.get("consumable_item");
 	}
 	
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("vehicle_id", map.get("vehicle_id"));
-		entity.setProperty("consumable_code", map.get("consumable_code"));
+		entity.setProperty("consumable_item", map.get("consumable_item"));
 		
 		super.onCreate(entity, map, datastore);
 	}
@@ -59,12 +62,24 @@ public class VehicleConsumableService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
+		// 소모품 교체 주기 단위 - 주행거리, 기간, 주행거리 and 기간 
 		entity.setProperty("repl_unit", map.get("repl_unit"));
-		entity.setProperty("fst_repl_time", map.get("fst_repl_time"));
-		entity.setProperty("fst_repl_mileage", map.get("fst_repl_mileage"));
+		// 교체 주기 
 		entity.setProperty("repl_mileage", map.get("repl_mileage"));
+		// 교체 mileage
 		entity.setProperty("repl_time", map.get("repl_time"));
 		
+		// 마지막(최근) 교체일
+		entity.setProperty("last_repl_date", map.get("last_repl_date"));
+		// 최근 교체시점에서의 주행거리 
+		entity.setProperty("miles_last_repl", map.get("miles_last_repl"));
+		// 다음 교체시점의 주행거리 ==> 소모품 교체 이력 입력시 자동 계산 
+		entity.setProperty("next_repl_mileage", map.get("next_repl_mileage"));
+		// 다음 교체일 ==> 소모품 교체 이력 입력시 자동 계산 
+		entity.setProperty("next_repl_date", map.get("next_repl_date"));
+		// 누적 비용 ==> 소모품 교체 이력 입력시 자동 계산 
+		entity.setProperty("accrued_cost", map.get("accrued_cost"));
+				
 		super.onSave(entity, map, datastore);
 	}
 	
@@ -91,37 +106,21 @@ public class VehicleConsumableService extends EntityService {
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		
 		Map<String, Object> vehicleConsumables = super.retrieve(request, response);
-		Map<String, Object> consumableCodes = this.retrieveConsumableCode(request, response);
-		this.adjustDefaultResults(vehicleConsumables, consumableCodes);
-		return vehicleConsumables;
+		
+		if(vehicleConsumables.get("total") != null && (Integer)vehicleConsumables.get("total") <= 0 ) {
+			this.initConsumables(request, response);			
+		} 
+
+		return super.retrieve(request, response);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void adjustDefaultResults(Map<String, Object> vehicleConsumables, Map<String, Object> consumableCodes) {
-		
-		List<Map<String, Object>> vehicleConsItems = (List<Map<String, Object>>)vehicleConsumables.get("items");
-		List<Map<String, Object>> codeItems = (List<Map<String, Object>>)consumableCodes.get("items");
-		
-		for(Map<String, Object> codeItem : codeItems) {
-			String consCode = (String)codeItem.get("consumable_code");
-			
-			boolean exist = false;
-			
-			for(Map<String, Object> vehicleConsItem : vehicleConsItems) {
-				String vehicleCons = (String)vehicleConsItem.get("consumable_code");
-				if(consCode.equals(vehicleCons)) {
-					exist = true;
-					break;
-				}
-			}
-			
-			if(!exist) {
-				vehicleConsItems.add(codeItem);
-			}
-		}		
-	}
-	
-	private Map<String, Object> retrieveConsumableCode(HttpServletRequest request, HttpServletResponse response) {
+	/**
+	 * 차량별 소모품 정보가 없을 경우 소모품 기준 정보로 부터 자동으로 생성한다.
+	 *  
+	 * @param request
+	 * @param response
+	 */
+	private void initConsumables(HttpServletRequest request, HttpServletResponse response) {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key companyKey = this.getCompanyKey(request);		
@@ -129,30 +128,46 @@ public class VehicleConsumableService extends EntityService {
 		q.setAncestor(companyKey);		
 
 		PreparedQuery pq = datastore.prepare(q);
-		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
-		
+		Date now = new Date();
+				
 		for (Entity result : pq.asIterable()) {
-			Map<String, Object> item = SessionUtils.cvtEntityToMap(result, request.getParameterValues("select"));
-			this.adjustItem(item);
+			Map<String, Object> item = SessionUtils.cvtEntityToMap(result);
+			item.put("_now", now);
+			item.put("_company_key", companyKey);			
+			item.put("consumable_item", item.remove("name"));
+			item.put("key", "");
+			item.remove("desc");
+			item.put("miles_last_repl", 0);
+			item.put("next_repl_mileage", 0);
+			item.put("accrued_cost", 0);
 			item.put("vehicle_id", request.getParameter("vehicle_id"));
 			items.add(item);
 		}
-
-		return packResultDataset(true, total, items);
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		
+		for(Map<String, Object> item : items) {
+			Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(item));		
+			Entity obj = new Entity(objKey);
+			try {
+				onCreate(obj, item, datastore);				
+				onSave(obj, item, datastore);
+				entities.add(obj);
+			} catch (Exception e) {
+				logger.error("Error at OnCreate", e);
+			}			
+		}
+			
+		Transaction txn = datastore.beginTransaction();
+		try {
+			datastore.put(entities);
+			txn.commit();
+		} catch (Exception e) {
+			txn.rollback();
+			logger.error("Error when create consumables data!", e);
+		} 	
 	}
-	
-	@Override
-	protected void adjustItem(Map<String, Object> item) {
-		
-		if(!item.containsKey("name"))
-			return;
-		
-		String consumableCodeName = (String)item.remove("name");
-		item.put("consumable_code", consumableCodeName);
-		item.put("key", "");
-		item.remove("desc");
-	}	
 
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {

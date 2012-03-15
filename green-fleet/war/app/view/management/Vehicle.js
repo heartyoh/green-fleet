@@ -34,9 +34,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 		this.add(this.buildForm(this));
 
 		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);			
-			self.sub('edit_consumables_grid').vehicleId = record.get('id');
-			self.sub('edit_consumables_grid').store.load();
+			self.sub('form').loadRecord(record);
+			var store = self.sub('edit_consumables_grid').store; 
+			store.getProxy().extraParams.vehicle_id = record.get('id');
+			store.load();
 		});
 
 		this.sub('grid').on('render', function(grid) {
@@ -71,20 +72,18 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	},
 
 	search : function(searchRemote) {
-		this.sub('grid').store.clearFilter(true);
-
+		
 		var id_filter_value = this.sub('id_filter').getValue();
 		var registration_filter_value = this.sub('registration_number_filter').getValue();
+		this.sub('grid').store.clearFilter(true);
 		
-		if(id_filter_value || registration_filter_value) {
-			this.sub('grid').store.filter([ {
-				property : 'id',
-				value : id_filter_value
-			}, {
-				property : 'registration_number',
-				value : registration_filter_value
-			} ]);
-		}
+		this.sub('grid').store.filter([ {
+			property : 'id',
+			value : id_filter_value
+		}, {
+			property : 'registration_number',
+			value : registration_filter_value
+		} ]);
 		
 		if(searchRemote) {
 			this.sub('grid').store.load();
@@ -230,7 +229,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			    {
 			    	xtype : 'form',
 			    	itemId : 'form',
-			    	flex : 4,
+			    	flex : 3.5,
 			    	autoScroll : true,
 			    	defaults : {
 			    		xtype : 'textfield',
@@ -361,7 +360,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				}, {
 					xtype : 'management_vehicle_consumable_grid',
 					itemId : 'editable_grid',
-					flex : 6,
+					flex : 6.5,
 					cls : 'paddingLeft10'
 				}
 			],
