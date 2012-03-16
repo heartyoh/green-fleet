@@ -60,10 +60,35 @@ Ext.define('GreenFleet.view.management.Consumable', {
 
 		this.sub('vehicle_info').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
-			var store = self.sub('consumable_grid').store;
-			store.getProxy().extraParams.vehicle_id = record.get('id');
-			store.load();
+			self.sub('consumable_history_grid').store.loadRecords([]);
+			var consumChangeStore = self.sub('consumable_grid').store;
+			consumChangeStore.getProxy().extraParams.vehicle_id = record.data.id;
+			consumChangeStore.load();
+			self.sub('repair_form').setVehicleId(record.data.id);
+			var repairStore = self.sub('repair_grid').store;
+			repairStore.getProxy().extraParams.vehicle_id = record.data.id;
+			repairStore.load();
 		});
+		
+		this.sub('repair_grid').store.on('load', function(store, operation, opt) {
+			var records = [];
+			store.each(function(record) {
+				records.push(record);
+			});
+			
+			self.sub('repair_view').refreshRepair(records);
+		});		
+		
+		this.sub('consumable_grid').on('itemclick', function(grid, record) {
+			self.refreshConsumableHistory(record.data.vehicle_id, record.data.consumable_item);
+		});
+	},
+	
+	refreshConsumableHistory : function(vehicleId, consumableItem) {
+		var store = this.sub('consumable_history_grid').store;		
+		store.getProxy().extraParams.vehicle_id = vehicleId;
+		store.getProxy().extraParams.consumable_item = consumableItem;
+		store.load();
 	},
 	
 	zvehiclelist : function(self) {
@@ -215,7 +240,9 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			}, {
 				header : T('label.last_repl_date') + ' (month)',
 				dataIndex : 'last_repl_date',
-				width : 130
+				xtype : 'datecolumn',
+				format : F('date'),
+				width : 130				
 			}, {
 				header : T('label.miles_last_repl') + ' (km)',
 				dataIndex : 'miles_last_repl',
@@ -227,6 +254,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			}, {
 				header : T('label.next_repl_date') + ' (month)',
 				dataIndex : 'next_repl_date',
+				xtype : 'datecolumn',
+				format : F('date'),				
 				width : 135
 			}, {
 				header : T('label.accrued_cost'),
@@ -264,7 +293,13 @@ Ext.define('GreenFleet.view.management.Consumable', {
                     	handler: function(grid, rowIndex, colIndex) {
                     		var record = grid.store.getAt(rowIndex);
                     		var consumable = this.up('management_consumable');
-                    		consumable.addConsumableChangeItem(record);
+                    		var newRecord = {
+                    			data : {
+                    				vehicle_id : record.data.vehicle_id,
+                    				consumable_item : record.data.consumable_item                    				
+                    			}
+                    		};
+                    		consumable.addConsumableChangeItem(newRecord);
                     	}                 	
                     }
                 ]		
@@ -279,7 +314,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	zconsumable_history : {
 		xtype : 'grid',
-		itemId : 'consumable_grid',
+		itemId : 'consumable_history_grid',
 		store : 'ConsumableChangeStore',
 		cls : 'hIndexbar',
 		title : T('title.consumable_change_history'),		
@@ -290,7 +325,9 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			dataIndex : 'consumable_item'
 		}, {
 			header : T('label.repl_date'),
-			dataIndex : 'repl_date'
+			dataIndex : 'repl_date',
+			xtype : 'datecolumn',
+			format : F('date')
 		}, {			
 			header : T('label.repl_mileage') + " (km)",
 			dataIndex : 'repl_mileage'
@@ -306,18 +343,97 @@ Ext.define('GreenFleet.view.management.Consumable', {
 		}, {			
 			header : T('label.comment'),
 			dataIndex : 'comment'				
-		} ]		
+		}, {
+			dataIndex : 'created_at',
+			header : T('label.created_at'),
+			xtype : 'datecolumn',
+			format : F('datetime')
+		}, {
+			dataIndex : 'updated_at',
+			header : T('label.updated_at'),
+			xtype : 'datecolumn',
+			format : F('datetime')
+		} ],
+		listeners : {
+			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
+				grid.up('management_consumable').addConsumableChangeItem(record);
+			}
+		}
 	},
 
 	zmainthistory : {
-		xtype : 'panel',
+		xtype : 'tabpanel',
 		autoScroll : true,
 		title : T('title.maintenence_history'),
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
-		html : '<div class="maintCell"><span>2011-11-16</span>Replaced Temperature Sensor</div>' 
-			+ '<div class="maintCell"><span>2011-11-28</span>Replaced Timing Belt, Engine Oil, Spark Plug, Cooling Water, Brake Oil, Fuel Filter</div>'
+		items : [
+		    {
+				xtype : 'panel',
+				itemId : 'repair_view',
+				title : 'List View',
+				autoScroll : true,
+				flex : 1,
+				layout : 'fit',
+				refreshRepair : function(records) {
+					var htmlStr = '';
+					Ext.each(records, function(record) {						
+						htmlStr += "<div class='maintCell'><span>" + Ext.util.Format.date(record.data.repair_date, 'Y-m-d') + "</span>" + record.data.content + "</div>";
+					});
+					this.update(htmlStr);
+				}
+		    },
+		    {
+				xtype : 'grid',
+				itemId : 'repair_grid',
+				title : 'Grid View',
+				store : 'RepairStore',
+				flex : 1,
+				autoScroll : true,
+				columns : [
+					{
+						header : 'Key',
+						dataIndex : 'key',
+						hidden : true
+					}, {
+						header : T('label.vehicle_id'),
+						dataIndex : 'vehicle_id',
+						hidden : true
+					}, {
+						header : T('label.repair_date'),
+						dataIndex : 'repair_date',
+						xtype : 'datecolumn',
+						format : F('date')
+					}, {
+						header : T('label.repair_mileage') + " (km)",
+						dataIndex : 'repair_mileage',
+						width : 120
+					}, {
+						header : T('label.repair_man'),
+						dataIndex : 'repair_man'
+					}, {
+						header : T('label.repair_shop'),
+						dataIndex : 'repair_shop'
+					}, {
+						header : T('label.cost'),
+						dataIndex : 'cost'
+					}, {
+						header : T('label.content'),
+						dataIndex : 'content',
+						flex : 1
+					}
+				]		    	
+		    },
+		    {
+		    	itemId : 'repair_form',
+		    	xtype : 'repair_form',
+		    	title : 'Add Repair',
+		    	flext : 1,
+		    	bodyPadding : 10,
+		    	autoScroll : true,
+		    }
+        ]
 	},
 	
 	modifyConsumableItemStatus : function(selectedRecord) {		
@@ -330,7 +446,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	consumableStatusWin : function(record) {
 		return 	new Ext.Window({
-			title : 'Consumable Item (' + record.get('consumable_item') + ') Status',
+			title : 'Consumable Item (' + record.data.consumable_item + ') Status',
 			listeners : {
 				show : function(win, opts) {
 					win.down('form').loadRecord(record);
@@ -348,50 +464,129 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						anchor : '100%'
 					},
 					items : [ 
-					    {
-							name : 'key',
-							fieldLabel : 'Key',
-							hidden : true
-						}, {
-							name : 'vehicle_id',
-							fieldLabel : T('label.vehicle_id'),
-							disabled : true,
-						}, {
-							name : 'consumable_item',
-							fieldLabel : T('label.consumable_item'),
-							disabled : true,
-						}, {
-							name : 'repl_unit',
-							fieldLabel : T('label.repl_unit')
-						}, {
-							name : 'repl_mileage',
-							fieldLabel : T('label.repl_mileage')
-						}, {
-							name : 'repl_time',
-							fieldLabel : T('label.repl_time')
-						}, {
-							name : 'last_repl_date',
-							fieldLabel : T('label.last_repl_date')
-						}, {
-							name : 'miles_last_repl',
-							fieldLabel : T('label.miles_last_repl')
-						}, {
-							name : 'next_repl_mileage',
-							fieldLabel : T('label.next_repl_mileage')
-						}, {
-							name : 'next_repl_date',
-							fieldLabel : T('label.next_repl_date')
-						}, {
-							name : 'accrued_cost',
-							fieldLabel : T('label.accrued_cost')
-						}    
+						{
+						    xtype: 'fieldset',
+						    title: 'Consumable Item',
+						    defaultType: 'textfield',
+						    layout: 'anchor',
+						    collapsible: true,
+						    padding : '10,5,5,5',
+						    defaults: {
+						        anchor: '100%'
+						    },
+						    items: [
+						        {
+									name : 'key',
+									fieldLabel : 'Key',
+									hidden : true						        	
+						        },						            
+								{
+									name : 'vehicle_id',
+									fieldLabel : T('label.vehicle_id'),
+									disabled : true,
+									value : record.data.vehicle_id
+								}, {
+									name : 'consumable_item',
+									fieldLabel : T('label.consumable_item'),
+									disabled : true,
+									value : record.data.consumable_item
+								}
+						    ]
+						},
+						{
+						    xtype: 'fieldset',
+						    title: 'Consumable Status',
+						    defaultType: 'textfield',
+						    layout: 'anchor',
+						    padding : '10,5,5,5',
+						    defaults: {
+						        anchor: '100%'
+						    },
+						    items: [
+								{
+									name : 'repl_unit',
+									fieldLabel : T('label.repl_unit'),									
+					            	xtype : 'codecombo',
+									group : 'ReplacementUnit'									
+								}, {
+									xtype : 'numberfield',
+									name : 'repl_mileage',
+									fieldLabel : T('label.repl_mileage')
+								}, {
+									name : 'repl_time',
+									fieldLabel : T('label.repl_time') + '(month)',
+									xtype : 'numberfield',
+									minValue : 0
+								}, {
+									name : 'last_repl_date',
+									fieldLabel : T('label.last_repl_date'),
+									xtype : 'datefield',
+									format : F('date'),
+									value : new Date()
+								}, {
+									xtype : 'numberfield',
+									name : 'miles_last_repl',
+									fieldLabel : T('label.miles_last_repl'),
+									minValue : 0
+								}, {
+									xtype : 'numberfield',
+									name : 'next_repl_mileage',
+									fieldLabel : T('label.next_repl_mileage'),
+									minValue : 0
+								}, {									
+									name : 'next_repl_date',
+									fieldLabel : T('label.next_repl_date'),
+									xtype : 'datefield',
+									format : F('date'),
+									value : new Date()									
+								}, {
+									xtype : 'numberfield',
+									name : 'accrued_cost',
+									fieldLabel : T('label.accrued_cost')
+								}						        
+						    ]							
+						}
 					],
 					fbar : [
 					    { 
 					    	xtype : 'button', 
 					    	text : T('button.save'),
 					    	handler : function() {
-					    		alert('save');
+					    		var win = this.up('window');
+					    		var thisForm = win.down('form');
+					    		
+					    		thisForm.getForm().submit({
+				                    url: '/vehicle_consumable/save',
+				                    submitEmptyText: false,
+				                    waitMsg: 'Saving Data...',
+				                    params: {
+				                        vehicle_id: record.data.vehicle_id,
+				                        consumable_item : record.data.consumable_item
+				                    },
+				                    success: function(form, action) {
+				                    	if(action.result.success) {		                    		
+				                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+				                    		win.close();
+				                    		var store = Ext.getStore('VehicleConsumableStore');
+				                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+				                    		store.load();
+				                    	} else {
+				                    		Ext.Msg.alert('Failure', action.result.msg);
+				                    	}
+				                     },
+				                     failure: function(form, action) {
+				                         switch (action.failureType) {
+				                             case Ext.form.action.Action.CLIENT_INVALID:
+				                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+				                                 break;
+				                             case Ext.form.action.Action.CONNECT_FAILURE:
+				                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+				                                 break;
+				                             case Ext.form.action.Action.SERVER_INVALID:
+				                                Ext.Msg.alert('Failure', action.result.msg);
+				                        }
+				                     }		                    
+				                });
 					    	}
 					    },
 					    { 
@@ -409,7 +604,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	consumableChangeWin : function(record) {
 		return new Ext.Window({
-			title : 'Record Consumable (' + record.get('consumable_item') + ') replacement!',
+			title : 'Record Consumable (' + record.data.consumable_item + ') replacement!',
+			modal : true,
 			listeners : {
 				show : function(win, opts) {
 					win.down('form').loadRecord(record);
@@ -428,38 +624,72 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					},
 					
 					items : [ 
-					    {
-							name : 'key',
-							fieldLabel : 'Key',
-							hidden : true
-						}, {
-							name : 'vehicle_id',
-							fieldLabel : T('label.vehicle_id'),
-							disabled : true,
-						}, {
-							name : 'consumable_item',
-							fieldLabel : T('label.consumable_item'),
-							disabled : true,
-						}, {
-							name : 'repl_date',
-							fieldLabel : T('label.repl_date')
-						}, {
-							name : 'repl_mileage',
-							fieldLabel : T('label.repl_mileage')
-						}, {
-							name : 'cost',
-							fieldLabel : T('label.cost')
-						}, {
-							name : 'worker',
-							fieldLabel : T('label.worker')
-						}, {
-							name : 'component',
-							fieldLabel : T('label.component')
-						}, {
-							xtype : 'textarea',
-							rows : 8,
-							name : 'comment',
-							fieldLabel : T('label.comment')
+						{
+						    xtype: 'fieldset',
+						    title: 'Consumable Item',
+						    defaultType: 'textfield',
+						    layout: 'anchor',
+						    collapsible: true,
+						    padding : '10,5,5,5',
+						    defaults: {
+						        anchor: '100%'
+						    },
+						    items: [
+								{
+									name : 'vehicle_id',
+									fieldLabel : T('label.vehicle_id'),
+									disabled : true
+								}, {
+									name : 'consumable_item',
+									fieldLabel : T('label.consumable_item'),
+									disabled : true
+								}
+						    ]
+						},
+						{
+						    xtype: 'fieldset',
+						    title: 'Consumable Change',
+						    defaultType: 'textfield',
+						    layout: 'anchor',
+						    padding : '10,5,5,5',
+						    defaults: {
+						        anchor: '100%'
+						    },
+						    items: [
+								{
+									xtype : 'datefield',
+									name : 'repl_date',
+									fieldLabel : T('label.repl_date'),
+									format : F('date'),
+									value : new Date(),
+									maxValue : new Date()
+								}, 
+								{
+									xtype : 'numberfield',
+									name : 'repl_mileage',
+									fieldLabel : T('label.repl_mileage'),
+									minValue : 0,
+									maxValue : 500000
+								}, {
+									xtype : 'numberfield',
+									name : 'cost',
+									fieldLabel : T('label.cost'),
+									minValue : 0,
+									value : 0,
+									allowBlank : false
+								}, {
+									name : 'worker',
+									fieldLabel : T('label.worker')
+								}, {
+									name : 'component',
+									fieldLabel : T('label.component')
+								}, {
+									xtype : 'textarea',
+									rows : 8,
+									name : 'comment',
+									fieldLabel : T('label.comment')
+								}						            
+						    ]
 						}    
 					]				    	
 				}
@@ -469,7 +699,42 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			    	xtype : 'button', 
 			    	text : T('button.save'),
 			    	handler : function() {
-			    		alert('save');
+			    		var win = this.up('window');
+			    		var thisForm = win.down('form');
+			    		
+			    		thisForm.getForm().submit({
+		                    url: '/consumable_change/save',
+		                    submitEmptyText: false,
+		                    waitMsg: 'Saving Data...',
+		                    params: {
+		                        vehicle_id: record.data.vehicle_id,
+		                        consumable_item : record.data.consumable_item
+		                    },
+		                    success: function(form, action) {
+		                    	if(action.result.success) {		                    		
+		                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+		                    		win.close();
+		                    		var store = Ext.getStore('ConsumableChangeStore');
+		                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+		                    		store.getProxy().extraParams.consumable_item = record.data.consumable_item;
+		                    		store.load();
+		                    	} else {
+		                    		Ext.Msg.alert('Failure', action.result.msg);
+		                    	}
+		                     },
+		                     failure: function(form, action) {
+		                         switch (action.failureType) {
+		                             case Ext.form.action.Action.CLIENT_INVALID:
+		                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+		                                 break;
+		                             case Ext.form.action.Action.CONNECT_FAILURE:
+		                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+		                                 break;
+		                             case Ext.form.action.Action.SERVER_INVALID:
+		                                Ext.Msg.alert('Failure', action.result.msg);
+		                        }
+		                     }		                    
+		                });
 			    	}
 			    },
 			    { 

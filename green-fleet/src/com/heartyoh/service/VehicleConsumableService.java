@@ -172,6 +172,8 @@ public class VehicleConsumableService extends EntityService {
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		String vehicleId = request.getParameter("vehicle_id");
-		q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
-	}	
+		
+		if(vehicleId != null && !vehicleId.isEmpty())
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+	}
 }

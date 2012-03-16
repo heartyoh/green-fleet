@@ -3,7 +3,6 @@
  */
 package com.heartyoh.service;
 
-import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +18,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -39,18 +40,27 @@ public class ConsumableChangeService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
+		this.checkReplacementDate(map);
 		return map.get("vehicle_id") + "@" + map.get("consumable_item") + "@" + map.get("repl_date");
 	}
 	
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		Entity company = datastore.get((Key)map.get("_company_key"));
+		
+		this.checkReplacementDate(map);
 		entity.setProperty("vehicle_id", map.get("vehicle_id"));
-		entity.setProperty("consumable_item", map.get("consumable_item"));		
-		Date replDate = SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone")));
-		entity.setProperty("repl_date", replDate);
+		entity.setProperty("consumable_item", map.get("consumable_item"));
+		entity.setProperty("repl_date", map.get("repl_date"));
 		
 		super.onCreate(entity, map, datastore);
+	}
+	
+	private void checkReplacementDate(Map<String, Object> map) {
+		Object replacementDate = map.get("repl_date");
+		
+		if(replacementDate instanceof String) {
+			map.put("repl_date", SessionUtils.stringToDate((String)map.get("repl_date")));
+		}
 	}
 	
 	@Override
@@ -61,7 +71,7 @@ public class ConsumableChangeService extends EntityService {
 		// 교체 비용 
 		entity.setProperty("cost", map.get("cost"));
 		// 교체 작업자 
-		entity.setProperty("worker", map.get("worker"));		
+		entity.setProperty("worker", map.get("worker"));
 		// 교체 부품 
 		entity.setProperty("component", map.get("component"));
 		// 코멘트 
@@ -92,6 +102,19 @@ public class ConsumableChangeService extends EntityService {
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {		
 		return super.retrieve(request, response);
-	}	
+	}
 
+	@Override
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		String vehicleId = request.getParameter("vehicle_id");
+		String consumableItem = request.getParameter("consumable_item");
+		
+		if(vehicleId != null && !vehicleId.isEmpty())
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+		
+		if(consumableItem != null && !consumableItem.isEmpty())
+			q.addFilter("consumable_item", FilterOperator.EQUAL, consumableItem);
+		
+		q.addSort("repl_date", SortDirection.DESCENDING);
+	}
 }

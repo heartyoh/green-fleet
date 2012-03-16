@@ -1,8 +1,8 @@
-Ext.define('GreenFleet.store.ConsumableChangeStore', {
+Ext.define('GreenFleet.store.RepairStore', {
 	extend : 'Ext.data.Store',
 
-	storeId : 'consumable_change_store',
-	
+	storeId : 'repair_store',
+		
 	fields : [ 
 		{
 			name : 'key',
@@ -10,28 +10,28 @@ Ext.define('GreenFleet.store.ConsumableChangeStore', {
 		}, {
 			name : 'vehicle_id',
 			type : 'string'
-		}, {			
-			name : 'consumable_item',
-			type : 'string'
 		}, {
-			name : 'repl_date',
+			name : 'repair_date',
 			type : 'date',
 			dateFormat:'time'
-		}, {			
-			name : 'repl_mileage',
+		}, {
+			name : 'repair_mileage',
 			type : 'int'
 		}, {
-			name : 'worker',
+			name : 'repair_man',
 			type : 'string'
 		}, {
-			name : 'component',
+			name : 'repair_shop',
 			type : 'string'
+		}, {
+			name : 'content',
+			type : 'string'				
+		}, {
+			name : 'cost',
+			type : 'int'
 		}, {
 			name : 'comment',
 			type : 'string'
-		}, {
-			name : 'cost',
-			type : 'int'				
 		}, {
 			name : 'created_at',
 			type : 'date',
@@ -47,7 +47,7 @@ Ext.define('GreenFleet.store.ConsumableChangeStore', {
 
 	proxy : {
 		type : 'ajax',
-		url : 'consumable_change',		
+		url : 'repair',		
 		reader : {
 			type : 'json',
 			root : 'items',

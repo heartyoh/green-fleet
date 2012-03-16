@@ -385,7 +385,7 @@ public abstract class EntityService {
 
 		int[] limit_offset = this.getLimitOffsetCount(request);
 		int limit = limit_offset[0];
-		int offset = limit_offset[1];		
+		int offset = limit_offset[1];
 
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		
