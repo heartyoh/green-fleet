@@ -166,7 +166,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		},
 		items : [{
 			flex : 1,
-			html : '<h1>' + T('title.information') + '</h1>'
+			html : '<h1>' + T('title.map') + '</h1>'
 		}, {
 			xtype : 'checkboxgroup',
 			width : 80,

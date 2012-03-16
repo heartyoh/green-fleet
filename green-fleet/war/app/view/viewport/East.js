@@ -130,10 +130,10 @@ Ext.define('GreenFleet.view.viewport.East', {
 			}
 		});
 
-		this.sub('state_running').update('Driving</br><span>' + running + '</span>');
-		this.sub('state_idle').update('Idle</br><span>' + idle + '</span>');
-		this.sub('state_incident').update('Incident</br><span>' + incident + '</span>');
-		this.sub('vehicle_count').update('Total Running Vehicles : ' + total);
+		this.sub('state_running').update(T('label.state_driving') + '</br><span>' + running + '</span>');
+		this.sub('state_idle').update(T('label.state_idle') + '</br><span>' + idle + '</span>');
+		this.sub('state_incident').update(T('label.state_incident') + '</br><span>' + incident + '</span>');
+		this.sub('vehicle_count').update(T('title.total_running_vehicles') + ' : ' + total);
 	},
 
 	refreshIncidents : function(store) {
@@ -229,7 +229,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		xtype : 'box',
 		cls : 'count',
 		itemId : 'vehicle_count',
-		html : T('label.total_running_vehicles') + ' : 0'
+		html : T('title.total_running_vehicles') + ' : 0'
 	}, {
 		xtype : 'panel',
 		title : T('title.vehicle_status'),

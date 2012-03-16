@@ -111,6 +111,10 @@
                 },
                 {
                     "path": "app/view/management/",
+                    "name": "ConsumableCode.js"
+                },
+                {
+                    "path": "app/view/management/",
                     "name": "Vehicle.js"
                 },
                 {
@@ -188,6 +192,18 @@
                 {
                     "path": "app/view/common/",
                     "name": "ProgressColumn.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "VehicleConsumableGrid.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Consumable.js"
+                },
+                {
+                    "path": "app/view/form/",
+                    "name": "RepairForm.js"
                 },
                 {
                     "path": "app/store/",
@@ -308,6 +324,26 @@
                 {
                     "path": "app/store/",
                     "name": "VehicleImageBriefStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "LocaleStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ConsumableCodeStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "VehicleConsumableStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ConsumableChangeStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "RepairStore.js"
                 },
                 {
                     "path": "app/model/",

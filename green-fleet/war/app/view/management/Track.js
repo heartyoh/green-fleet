@@ -140,7 +140,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				store : 'VehicleBriefStore',
 				displayField : T('label.id'),
 				valueField : 'id',
-				fieldLabel : 'Vehicle',
+				fieldLabel : T('label.vehicle'),
 				width : 200
 			}, {
 				xtype : 'datefield',
@@ -195,7 +195,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				store : 'TerminalStore',
 				displayField : T('label.id'),
 				valueField : 'id',
-				fieldLabel : 'Terminal'
+				fieldLabel : T('label.terminal')
 			}, {
 				xtype : 'combo',
 				name : 'vehicle_id',
@@ -215,7 +215,7 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				xtype : 'datefield',
 				name : 'datetime',
-				fieldLabel : 'DateTime',
+				fieldLabel : T('label.datetime'),
 				format : F('datetime')
 			}, {
 				name : 'lattitude',

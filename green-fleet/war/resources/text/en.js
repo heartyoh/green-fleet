@@ -16,13 +16,15 @@ T({
 		consumables : 'Consumables',
 		consumable_code : 'Consumable Code',
 		health : 'Health',		
-		map : 'Map',
+		map : 'Board',
 		info : 'Info',
 		incident : 'Incident',
-		import : 'Import'
+		import : 'Import',
+		export : 'Export'
 	},
 	
 	title : {
+		map : 'Information Board',
 		confirmation : 'Confirmation',
 		information : 'Information',
 		vehicle_information : 'Vehicle Information',		
@@ -221,7 +223,10 @@ T({
 		x_distance : '{x} Distance',
 		x_speed : '{x} Speed',
 		total_x : 'Total {x}',
-		lessthan_km : 'Less Than {km}Km'
+		lessthan_km : 'Less Than {km}Km',
+		state_driving : 'Driving',
+		state_idle : 'Idle',
+		state_incident : 'Incident'
 	},
 	
 	format : {

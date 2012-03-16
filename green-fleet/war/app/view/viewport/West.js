@@ -14,7 +14,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'monitor_map',
 		cls : 'btnDashboard',
-		html : 'Map',
+		html : T('menu.map'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_map');
 		}
@@ -22,7 +22,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'information',
 		cls : 'btnInfo',
-		html : 'Info',
+		html : T('menu.info'),
 		handler : function() {
 			GreenFleet.doMenu('information');
 		}		
@@ -30,14 +30,14 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'monitor_incident',
 		cls : 'btnIncidentInfo',
-		html : 'Incident',
+		html : T('menu.incident'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_incident');
 		}		
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',
-		html : 'import',
+		html : T('menu.import'),
 		handler : function() {
 			GreenFleet.importData();
 		}
@@ -58,6 +58,6 @@ Ext.define('GreenFleet.view.viewport.West', {
 //	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : 'export'
+		html : T('menu.export')
 	} ]
 });
