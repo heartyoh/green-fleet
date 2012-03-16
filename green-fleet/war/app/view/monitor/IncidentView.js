@@ -529,7 +529,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			text : T('label.x_time', {x : T('label.incident')}),
 			xtype : 'datecolumn',
 			width : 120,
-			format : 'd-m-Y H:i:s'
+			format : F('datetime')
 		}, {
 			dataIndex : 'driver_id',
 			text : T('label.driver'),
