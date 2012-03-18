@@ -10,6 +10,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		type : 'help',
 		text : login.username,
 		handler : function() {
+			Ext.create('GreenFleet.view.management.Profile').show();
 		}
 	}, {
 		itemId : 'home',

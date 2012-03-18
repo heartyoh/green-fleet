@@ -152,7 +152,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.company_details'),
-			height : 280,
+			height : 290,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'

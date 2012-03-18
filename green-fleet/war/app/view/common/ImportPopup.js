@@ -16,10 +16,14 @@ Ext.define('GreenFleet.view.common.ImportPopup', {
 			msgTarget : 'side',
 			buttonText : 'file...'
 		} ]
-	}, {
-		xtype : 'button',
+	}],
+	
+	buttons : [{
 		text : 'Import',
 		itemId : 'import'
+	}, {
+		text : 'Close',
+		itemId : 'close'
 	}],
 
 	initComponent : function() {
@@ -27,9 +31,13 @@ Ext.define('GreenFleet.view.common.ImportPopup', {
 		this.callParent(arguments);
 		
 		var self = this;
-		var xform = this.down('form');
-		this.down('button').on('click', function(button) {
-			var form = xform.getForm();
+		
+		this.down('[itemId=close]').on('click', function(button) {
+			self.close();
+		});
+		
+		this.down('[itemId=import]').on('click', function(button) {
+			var form = self.down('form').getForm();
 
 			if (form.isValid()) {
 				form.submit({
