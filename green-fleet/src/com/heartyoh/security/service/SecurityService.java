@@ -33,13 +33,14 @@ public class SecurityService {
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
 
-		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout");
+//		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout");
+		String logoutUrl = UserServiceFactory.getUserService().createLoginURL("/");
 
 		response.sendRedirect(logoutUrl);
 	}
 
-	@RequestMapping(value = "/loggedout", method = RequestMethod.GET)
-	public String loggedOut() {
-		return "loggedout";
-	}
+//	@RequestMapping(value = "/loggedout", method = RequestMethod.GET)
+//	public String loggedOut() {
+//		return "loggedout";
+//	}
 }
