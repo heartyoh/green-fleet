@@ -26,7 +26,7 @@
 		var login = {
 			username : '<sec:authentication property="principal.nickname"/>',
 			company : '<sec:authentication property="principal.company"/>',
-			locale : 'ko'
+			locale : '<sec:authentication property="principal.language"/>'
 		};
 		
 		var System = System || {};
@@ -38,8 +38,10 @@
 		initLocalization(this);
 		</script>
 		
-		<script src="resources/text/ko.js"></script>
+		<script src="resources/text/<sec:authentication property="principal.language"/>.js"></script>
+		
 		<script src="ext-all.js"></script>
+
 		<script src="app-all.js"></script> 
 
 	</head>

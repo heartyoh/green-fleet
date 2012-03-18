@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.heartyoh.security.AppRole;
 
 @Controller
@@ -61,7 +62,20 @@ public class UserService extends EntityService {
 		String company = (String) map.get("company");
 		String admin = (String) map.get("admin");
 		String enabled = (String) map.get("enabled");
-		String locale = (String) map.get("locale");
+//		String locale = (String) map.get("locale");
+		String language = (String) map.get("language");
+		
+		if(language == null) {
+			try {
+				Entity entity_company = datastore.get(entity.getParent());
+				if((String)entity_company.getProperty("language") != null)
+					language = (String)entity_company.getProperty("language");
+			} catch(EntityNotFoundException e) {
+			} finally {
+				if(language == null)
+					language = "en";
+			}
+		}
 
 		Set<AppRole> roles = EnumSet.of(AppRole.USER);
 
@@ -79,8 +93,10 @@ public class UserService extends EntityService {
 			entity.setProperty("surname", surname);
 		if (company != null)
 			entity.setProperty("company", company);
-		if (locale != null)
-			entity.setUnindexedProperty("locale", locale);		
+//		if (locale != null)
+//		entity.setUnindexedProperty("locale", locale);		
+		if (language != null)
+		entity.setUnindexedProperty("language", language);		
 		if (enabled != null)
 			entity.setUnindexedProperty("enabled", booleanProperty(map, "enabled"));
 		if (admin != null)

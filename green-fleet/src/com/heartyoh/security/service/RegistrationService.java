@@ -44,7 +44,7 @@ public class RegistrationService {
 		}
 
 		CustomUser user = new CustomUser(currentUser.getUserId(), currentUser.getNickname(), currentUser.getEmail(),
-				form.getForename(), form.getSurname(), roles, form.getCompany(), true);
+				form.getForename(), form.getSurname(), roles, form.getCompany(), "en", true);
 
 		registry.registerUser(user);
 

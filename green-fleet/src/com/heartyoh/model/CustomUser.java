@@ -16,6 +16,7 @@ public class CustomUser implements Serializable {
 	private String surname;
 	private Set<AppRole> authorities;
 	private String company;
+	private String language;
 	private boolean enabled;
 
 	/**
@@ -31,6 +32,7 @@ public class CustomUser implements Serializable {
 		this.surname = null;
 		this.email = email;
 		this.company = null;
+		this.language = "en";
 		this.enabled = true;
 	}
 
@@ -38,7 +40,7 @@ public class CustomUser implements Serializable {
 	 * Post-registration constructor
 	 */
 	public CustomUser(String userId, String nickname, String email, String forename, String surname,
-			Set<AppRole> authorities, String company, boolean enabled) {
+			Set<AppRole> authorities, String company, String language, boolean enabled) {
 		this.userId = userId;
 		this.nickname = nickname;
 		this.email = email;
@@ -46,6 +48,9 @@ public class CustomUser implements Serializable {
 		this.forename = forename;
 		this.surname = surname;
 		this.company = company;
+		if(language == null)
+			language = "en";
+		this.language = language;
 		this.enabled = enabled;
 	}
 
@@ -53,13 +58,16 @@ public class CustomUser implements Serializable {
 	 * Post-registration constructor
 	 */
 	public CustomUser(String email, String nickname, String forename, String surname,
-			Set<AppRole> authorities, String company, boolean enabled) {
+			Set<AppRole> authorities, String company, String language, boolean enabled) {
 		this.nickname = nickname;
 		this.email = email;
 		this.authorities = authorities;
 		this.forename = forename;
 		this.surname = surname;
 		this.company = company;
+		if(language == null)
+			language = "en";
+		this.language = language;
 		this.enabled = enabled;
 	}
 
@@ -87,6 +95,10 @@ public class CustomUser implements Serializable {
 		return company;
 	}
 
+	public String getLanguage() {
+		return language;
+	}
+	
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -98,6 +110,6 @@ public class CustomUser implements Serializable {
 	@Override
 	public String toString() {
 		return "GaeUser{" + "userId='" + userId + '\'' + ", nickname='" + nickname + '\'' + ", forename='" + forename
-				+ '\'' + ", surname='" + surname + '\'' + ", company='" + company + '\'' + ", authorities=" + authorities + '}';
+				+ '\'' + ", surname='" + surname + '\'' + ", company='" + company + '\'' + ", language='" + language + '\'' + ", authorities=" + authorities + '}';
 	}
 }

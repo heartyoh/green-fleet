@@ -1,4 +1,10 @@
 T({
+	language : {
+		en : '영어',
+		ko : '한국어',
+		cn : '중국어'
+	},
+	
 	menu : {
 		company : '회사',
 		vehicle : '차량',
@@ -93,6 +99,7 @@ T({
 	},
 	
 	label : {
+		language : '언어',
 		id : '아이디',
 		name : '이름',
 		desc : '설명',
@@ -196,7 +203,7 @@ T({
 		total : '총',
 		health : '건강',
 		impending : '임박',
-		overdue : 'Overdue',		
+		overdue : '기한초과',		
 		repair_date : '수리일자',
 		repair_mileage : '수리 주행거리',
 		repair_man : '수리공',

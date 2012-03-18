@@ -84,7 +84,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'CompanyStore',
-			flex : 3,
+			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
@@ -101,6 +101,9 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				dataIndex : 'timezone',
 				text : T('label.timezone')
+			}, {
+				dataIndex : 'language',
+				text : T('label.language')
 			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
@@ -149,7 +152,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.company_details'),
-			flex : 2,
+			height : 280,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -180,6 +183,14 @@ Ext.define('GreenFleet.view.management.Company', {
 					xtype : 'tzcombo',
 					name : 'timezone',
 					fieldLabel : T('label.timezone')
+				}, {
+					xtype : 'combo',
+					name : 'language',
+				    store: 'LanguageCodeStore',
+				    queryMode: 'local',
+				    displayField: 'display',
+				    valueField: 'value',
+					fieldLabel : T('label.language')
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',

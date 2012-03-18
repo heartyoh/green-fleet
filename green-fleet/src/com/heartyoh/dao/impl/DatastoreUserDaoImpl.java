@@ -30,6 +30,7 @@ public class DatastoreUserDaoImpl implements UserDao {
     private static final String USER_ENABLED = "enabled";
     private static final String USER_AUTHORITIES = "authorities";
     private static final String USER_COMPANY = "company";
+    private static final String USER_LANGUAGE = "language";
 
     public List<CustomUser> listUsers(String company) {
     	return null;
@@ -69,6 +70,7 @@ public class DatastoreUserDaoImpl implements UserDao {
                     (String)user.getProperty(USER_SURNAME),
                     roles,
                     (String)user.getProperty(USER_COMPANY),
+                    (String)user.getProperty(USER_LANGUAGE),
                     (Boolean)user.getProperty(USER_ENABLED));
 
             return gaeUser;
@@ -96,6 +98,7 @@ public class DatastoreUserDaoImpl implements UserDao {
         user.setProperty(USER_FORENAME, newUser.getForename());
         user.setProperty(USER_SURNAME, newUser.getSurname());
         user.setProperty(USER_COMPANY, newUser.getCompany());
+        user.setProperty(USER_LANGUAGE, newUser.getLanguage());
         user.setUnindexedProperty(USER_ENABLED, newUser.isEnabled());
 
         Collection<AppRole> roles = newUser.getAuthorities();

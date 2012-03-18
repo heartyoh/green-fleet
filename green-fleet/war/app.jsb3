@@ -311,6 +311,10 @@
                 },
                 {
                     "path": "app/store/",
+                    "name": "LanguageCodeStore.js"
+                },
+                {
+                    "path": "app/store/",
                     "name": "VehicleGroupStore.js"
                 },
                 {
@@ -324,10 +328,6 @@
                 {
                     "path": "app/store/",
                     "name": "VehicleImageBriefStore.js"
-                },
-                {
-                    "path": "app/store/",
-                    "name": "LocaleStore.js"
                 },
                 {
                     "path": "app/store/",

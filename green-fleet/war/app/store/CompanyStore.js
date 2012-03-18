@@ -19,6 +19,9 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'timezone',
 		type : 'int'
 	}, {
+		name : 'language',
+		type : 'string'
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	}, {

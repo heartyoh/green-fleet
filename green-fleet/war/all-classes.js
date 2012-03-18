@@ -29,18 +29,11 @@ Ext.define('GreenFleet.mixin.Msg', function(){
 }());
 
 Ext.define('GreenFleet.mixin.User', function() {
-	var current_user = login.username;
-
-	function currentUser(user) {
-		if (user !== undefined)
-			current_user = user;
-		return current_user;
-	}
-
 	return {
 		login : {
-			id : currentUser,
-			name : currentUser
+			id : login.username,
+			name : login.username,
+			language : login.language
 		}
 	};
 }());
@@ -1066,7 +1059,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'CompanyStore',
-			flex : 3,
+			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
@@ -1083,6 +1076,9 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				dataIndex : 'timezone',
 				text : T('label.timezone')
+			}, {
+				dataIndex : 'language',
+				text : T('label.language')
 			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
@@ -1131,7 +1127,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.company_details'),
-			flex : 2,
+			height : 280,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -1162,6 +1158,14 @@ Ext.define('GreenFleet.view.management.Company', {
 					xtype : 'tzcombo',
 					name : 'timezone',
 					fieldLabel : T('label.timezone')
+				}, {
+					xtype : 'combo',
+					name : 'language',
+				    store: 'LanguageCodeStore',
+				    queryMode: 'local',
+				    displayField: 'display',
+				    valueField: 'value',
+					fieldLabel : T('label.language')
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
@@ -1290,7 +1294,7 @@ Ext.define('GreenFleet.view.management.User', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'UserStore',
-			flex : 2.5,
+			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
@@ -1316,9 +1320,12 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				dataIndex : 'company',
 				text : T('label.company')
+//			}, {
+//				dataIndex : 'locale',
+//				text : T('label.locale')				
 			}, {
-				dataIndex : 'locale',
-				text : T('label.locale')				
+				dataIndex : 'language',
+				text : T('label.language')				
 			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
@@ -1378,11 +1385,11 @@ Ext.define('GreenFleet.view.management.User', {
 				type : 'hbox',
 				align : 'stretch'
 			},
-			flex : 1,
+			height : 380,
 			items : [ 
 				{
 					xtype : 'container',
-					flex : 1,
+					width : 300,
 					layout : {
 						type : 'vbox',
 						align : 'stretch'	
@@ -1398,7 +1405,7 @@ Ext.define('GreenFleet.view.management.User', {
 					xtype : 'form',
 					itemId : 'form',
 					bodyPadding : 10,
-					flex : 8,
+					flex : 1,
 					autoScroll : true,
 					defaults : {
 						xtype : 'textfield',
@@ -1435,13 +1442,21 @@ Ext.define('GreenFleet.view.management.User', {
 							name : 'company',
 							fieldLabel : T('label.company'),
 							disable : true
+//						}, {
+//							xtype : 'combo',
+//							name : 'locale',
+//							store : 'LocaleStore',
+//							displayField : 'name',
+//							valueField : 'value',
+//							fieldLabel : 'Locale'
 						}, {
 							xtype : 'combo',
-							name : 'locale',
-							store : 'LocaleStore',
-							displayField : 'name',
-							valueField : 'value',
-							fieldLabel : 'Locale'
+							name : 'language',
+						    store: 'LanguageCodeStore',
+						    queryMode: 'local',
+						    displayField: 'display',
+						    valueField: 'value',
+							fieldLabel : T('label.language')
 						}, {
 							xtype : 'filefield',
 							name : 'image_file',
@@ -8160,6 +8175,9 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'timezone',
 		type : 'int'
 	}, {
+		name : 'language',
+		type : 'string'
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	}, {
@@ -8213,8 +8231,11 @@ Ext.define('GreenFleet.store.UserStore', {
 	}, {
 		name : 'enabled',
 		type : 'boolean'
+//	}, {
+//		name : 'locale',
+//		type : 'string'			
 	}, {
-		name : 'locale',
+		name : 'language',
 		type : 'string'			
 	}, {
 		name : 'image_clip',
@@ -9612,6 +9633,28 @@ Ext.define('GreenFleet.store.TimeZoneStore', {
 		display : "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka"
 	} ]
 });
+Ext.define('GreenFleet.store.LanguageCodeStore', {
+	extend : 'Ext.data.Store',
+	
+	fields : [{
+		name : 'value',
+		type : 'string'
+	}, {
+		name : 'display',
+		type : 'string'
+	}],
+	
+	data : [{
+		value : 'en',
+		display : T('language.en')
+	}, {
+		value : 'ko',
+		display : T('language.ko')
+	}, {
+		value : 'cn',
+		display : T('language.cn')
+	}]
+});
 Ext.define('GreenFleet.store.VehicleGroupStore', {
 	extend : 'Ext.data.Store',
 
@@ -9757,184 +9800,6 @@ Ext.define('GreenFleet.store.VehicleImageBriefStore', {
 			totalProperty : 'total'
 		}
 	}
-});
-Ext.define('GreenFleet.store.LocaleStore', {
-	extend : 'Ext.data.Store',
-	
-	pageSize : 1000,
-	
-	fields : [ {
-		name : 'name',
-		type : 'string'
-	}, {
-		name : 'value',
-		type : 'string'
-	}],
-	
-	/*proxy : {
-		type : 'ajax',
-		url : 'locale',
-		reader : {
-			type : 'json',
-			root : 'items',
-			totalProperty : 'total'
-		}
-	}*/
-	
-	data : [
-		{"name":"Albanian","value":"sq"},
-		{"name":"Albanian (Albania)","value":"sq_AL"},
-		{"name":"Arabic","value":"ar"},
-		{"name":"Arabic (Algeria)","value":"ar_DZ"},
-		{"name":"Arabic (Bahrain)","value":"ar_BH"},
-		{"name":"Arabic (Egypt)","value":"ar_EG"},
-		{"name":"Arabic (Iraq)","value":"ar_IQ"},
-		{"name":"Arabic (Jordan)","value":"ar_JO"},
-		{"name":"Arabic (Kuwait)","value":"ar_KW"},
-		{"name":"Arabic (Lebanon)","value":"ar_LB"},
-		{"name":"Arabic (Libya)","value":"ar_LY"},
-		{"name":"Arabic (Morocco)","value":"ar_MA"},
-		{"name":"Arabic (Oman)","value":"ar_OM"},
-		{"name":"Arabic (Qatar)","value":"ar_QA"},
-		{"name":"Arabic (Saudi Arabia)","value":"ar_SA"},
-		{"name":"Arabic (Sudan)","value":"ar_SD"},
-		{"name":"Arabic (Syria)","value":"ar_SY"},
-		{"name":"Arabic (Tunisia)","value":"ar_TN"},
-		{"name":"Arabic (United Arab Emirates)","value":"ar_AE"},
-		{"name":"Arabic (Yemen)","value":"ar_YE"},
-		{"name":"Belarusian","value":"be"},
-		{"name":"Belarusian (Belarus)","value":"be_BY"},
-		{"name":"Bulgarian","value":"bg"},
-		{"name":"Bulgarian (Bulgaria)","value":"bg_BG"},
-		{"name":"Catalan","value":"ca"},
-		{"name":"Catalan (Spain)","value":"ca_ES"},
-		{"name":"Chinese","value":"zh"},
-		{"name":"Chinese (China)","value":"zh_CN"},
-		{"name":"Chinese (Hong Kong)","value":"zh_HK"},
-		{"name":"Chinese (Singapore)","value":"zh_SG"},
-		{"name":"Chinese (Taiwan)","value":"zh_TW"},
-		{"name":"Croatian","value":"hr"},
-		{"name":"Croatian (Croatia)","value":"hr_HR"},
-		{"name":"Czech","value":"cs"},
-		{"name":"Czech (Czech Republic)","value":"cs_CZ"},
-		{"name":"Danish","value":"da"},
-		{"name":"Danish (Denmark)","value":"da_DK"},
-		{"name":"Dutch","value":"nl"},
-		{"name":"Dutch (Belgium)","value":"nl_BE"},
-		{"name":"Dutch (Netherlands)","value":"nl_NL"},
-		{"name":"English","value":"en"},
-		{"name":"English (Australia)","value":"en_AU"},
-		{"name":"English (Canada)","value":"en_CA"},
-		{"name":"English (India)","value":"en_IN"},
-		{"name":"English (Ireland)","value":"en_IE"},
-		{"name":"English (Malta)","value":"en_MT"},
-		{"name":"English (New Zealand)","value":"en_NZ"},
-		{"name":"English (Philippines)","value":"en_PH"},
-		{"name":"English (Singapore)","value":"en_SG"},
-		{"name":"English (South Africa)","value":"en_ZA"},
-		{"name":"English (United Kingdom)","value":"en_GB"},
-		{"name":"English (United States)","value":"en_US"},
-		{"name":"Estonian","value":"et"},
-		{"name":"Estonian (Estonia)","value":"et_EE"},
-		{"name":"Finnish","value":"fi"},
-		{"name":"Finnish (Finland)","value":"fi_FI"},
-		{"name":"French","value":"fr"},
-		{"name":"French (Belgium)","value":"fr_BE"},
-		{"name":"French (Canada)","value":"fr_CA"},
-		{"name":"French (France)","value":"fr_FR"},
-		{"name":"French (Luxembourg)","value":"fr_LU"},
-		{"name":"French (Switzerland)","value":"fr_CH"},
-		{"name":"German","value":"de"},
-		{"name":"German (Austria)","value":"de_AT"},
-		{"name":"German (Germany)","value":"de_DE"},
-		{"name":"German (Luxembourg)","value":"de_LU"},
-		{"name":"German (Switzerland)","value":"de_CH"},
-		{"name":"Greek","value":"el"},
-		{"name":"Greek (Cyprus)","value":"el_CY"},
-		{"name":"Greek (Greece)","value":"el_GR"},
-		{"name":"Hebrew","value":"iw"},
-		{"name":"Hebrew (Israel)","value":"iw_IL"},
-		{"name":"Hindi (India)","value":"hi_IN"},
-		{"name":"Hungarian","value":"hu"},
-		{"name":"Hungarian (Hungary)","value":"hu_HU"},
-		{"name":"Icelandic","value":"is"},
-		{"name":"Icelandic (Iceland)","value":"is_IS"},
-		{"name":"Indonesian","value":"in"},
-		{"name":"Indonesian (Indonesia)","value":"in_ID"},
-		{"name":"Irish","value":"ga"},
-		{"name":"Irish (Ireland)","value":"ga_IE"},
-		{"name":"Italian","value":"it"},
-		{"name":"Italian (Italy)","value":"it_IT"},
-		{"name":"Italian (Switzerland)","value":"it_CH"},
-		{"name":"Japanese","value":"ja"},
-		{"name":"Japanese (Japan)","value":"ja_JP"},
-		{"name":"Japanese (Japan,JP)","value":"ja_JP_JP"},
-		{"name":"Korean","value":"ko"},
-		{"name":"Korean (South Korea)","value":"ko_KR"},
-		{"name":"Latvian","value":"lv"},
-		{"name":"Latvian (Latvia)","value":"lv_LV"},
-		{"name":"Lithuanian","value":"lt"},
-		{"name":"Lithuanian (Lithuania)","value":"lt_LT"},
-		{"name":"Macedonian","value":"mk"},
-		{"name":"Macedonian (Macedonia)","value":"mk_MK"},
-		{"name":"Malay","value":"ms"},
-		{"name":"Malay (Malaysia)","value":"ms_MY"},
-		{"name":"Maltese","value":"mt"},
-		{"name":"Maltese (Malta)","value":"mt_MT"},
-		{"name":"Norwegian","value":"no"},
-		{"name":"Norwegian (Norway)","value":"no_NO"},
-		{"name":"Norwegian (Norway,Nynorsk)","value":"no_NO_NY"},
-		{"name":"Polish","value":"pl"},
-		{"name":"Polish (Poland)","value":"pl_PL"},
-		{"name":"Portuguese","value":"pt"},
-		{"name":"Portuguese (Brazil)","value":"pt_BR"},
-		{"name":"Portuguese (Portugal)","value":"pt_PT"},
-		{"name":"Romanian","value":"ro"},
-		{"name":"Romanian (Romania)","value":"ro_RO"},
-		{"name":"Russian","value":"ru"},
-		{"name":"Russian (Russia)","value":"ru_RU"},
-		{"name":"Serbian","value":"sr"},
-		{"name":"Serbian (Bosnia and Herzegovina)","value":"sr_BA"},
-		{"name":"Serbian (Montenegro)","value":"sr_ME"},
-		{"name":"Serbian (Serbia and Montenegro)","value":"sr_CS"},
-		{"name":"Serbian (Serbia)","value":"sr_RS"},
-		{"name":"Slovak","value":"sk"},
-		{"name":"Slovak (Slovakia)","value":"sk_SK"},
-		{"name":"Slovenian","value":"sl"},
-		{"name":"Slovenian (Slovenia)","value":"sl_SI"},
-		{"name":"Spanish","value":"es"},
-		{"name":"Spanish (Argentina)","value":"es_AR"},
-		{"name":"Spanish (Bolivia)","value":"es_BO"},
-		{"name":"Spanish (Chile)","value":"es_CL"},
-		{"name":"Spanish (Colombia)","value":"es_CO"},
-		{"name":"Spanish (Costa Rica)","value":"es_CR"},
-		{"name":"Spanish (Dominican Republic)","value":"es_DO"},
-		{"name":"Spanish (Ecuador)","value":"es_EC"},
-		{"name":"Spanish (El Salvador)","value":"es_SV"},
-		{"name":"Spanish (Guatemala)","value":"es_GT"},
-		{"name":"Spanish (Honduras)","value":"es_HN"},
-		{"name":"Spanish (Mexico)","value":"es_MX"},
-		{"name":"Spanish (Nicaragua)","value":"es_NI"},
-		{"name":"Spanish (Panama)","value":"es_PA"},
-		{"name":"Spanish (Paraguay)","value":"es_PY"},
-		{"name":"Spanish (Peru)","value":"es_PE"},
-		{"name":"Spanish (Puerto Rico)","value":"es_PR"},
-		{"name":"Spanish (Spain)","value":"es_ES"},
-		{"name":"Spanish (United States)","value":"es_US"},
-		{"name":"Spanish (Uruguay)","value":"es_UY"},
-		{"name":"Spanish (Venezuela)","value":"es_VE"},
-		{"name":"Swedish","value":"sv"},
-		{"name":"Swedish (Sweden)","value":"sv_SE"},
-		{"name":"Thai","value":"th"},
-		{"name":"Thai (Thailand)","value":"th_TH"},
-		{"name":"Thai (Thailand,TH)","value":"th_TH_TH"},
-		{"name":"Turkish","value":"tr"},
-		{"name":"Turkish (Turkey)","value":"tr_TR"},
-		{"name":"Ukrainian","value":"uk"},
-		{"name":"Ukrainian (Ukraine)","value":"uk_UA"},
-		{"name":"Vietnamese","value":"vi"},
-		{"name":"Vietnamese (Vietnam)","value":"vi_VN"}
-	]
 });
 Ext.define('GreenFleet.store.ConsumableCodeStore', {
 	extend : 'Ext.data.Store',
@@ -10252,18 +10117,19 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'VehicleInfoStore', 'VehicleBriefStore', 'DriverStore', 'DriverBriefStore', 'ReservationStore', 'IncidentStore',
 			'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
 			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
-			'TimeZoneStore', 'ConsumableStore', 
-			'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore', 'VehicleImageBriefStore', 'LocaleStore', 'ConsumableCodeStore', 
-			'VehicleConsumableStore', 'ConsumableChangeStore', 'RepairStore' ],
-			
+			'TimeZoneStore', 'ConsumableStore', 'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore',
+			'VehicleImageBriefStore', /* 'LocaleStore', */'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableChangeStore',
+			'RepairStore' ],
+
 	models : [ 'Code' ],
-	
+
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu', 'management.Company',
-			'management.User', 'management.Code', 'management.VehicleGroup', 'management.ConsumableCode', 'management.Vehicle', 'management.Terminal', 'management.Reservation',
-			'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 'monitor.Map',
-			'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 'common.CodeCombo',
-			'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth',
-			'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'management.Consumable', 'form.RepairForm' ],
+			'management.User', 'management.Code', 'management.VehicleGroup', 'management.ConsumableCode', 'management.Vehicle',
+			'management.Terminal', 'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
+			'management.CheckinData', 'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information',
+			'monitor.IncidentView', 'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField',
+			'common.EntityFormButtons', 'dashboard.VehicleHealth', 'pm.Consumable', 'common.ProgressColumn',
+			'management.VehicleConsumableGrid', 'management.Consumable', 'form.RepairForm' ],
 
 	init : function() {
 		this.control({

@@ -29,8 +29,11 @@ Ext.define('GreenFleet.store.UserStore', {
 	}, {
 		name : 'enabled',
 		type : 'boolean'
+//	}, {
+//		name : 'locale',
+//		type : 'string'			
 	}, {
-		name : 'locale',
+		name : 'language',
 		type : 'string'			
 	}, {
 		name : 'image_clip',

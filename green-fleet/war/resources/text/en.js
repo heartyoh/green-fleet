@@ -1,4 +1,10 @@
 T({
+	language : {
+		en : 'English',
+		ko : 'Korean',
+		cn : 'Chinese'
+	},
+	
 	menu : {
 		company : 'Company',
 		vehicle : 'Vehicle',
@@ -93,6 +99,7 @@ T({
 	},
 	
 	label : {
+		language : 'Language',
 		id : 'ID',
 		name : 'Name',
 		desc : 'Desc',
@@ -236,8 +243,6 @@ T({
 	},
 	
 	msg : {
-		greeting : 'Hi! There',
-		greeting_s : 'Hi',
 		searching : 'Searching ...',
 		no_matching_data_found : 'No matching data found!',
 		confirm_save : 'Would you like to save?',

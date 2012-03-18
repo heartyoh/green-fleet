@@ -74,7 +74,7 @@ Ext.define('GreenFleet.view.management.User', {
 			xtype : 'gridpanel',
 			itemId : 'grid',
 			store : 'UserStore',
-			flex : 2.5,
+			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
 				dataIndex : 'key',
 				text : 'Key',
@@ -100,9 +100,12 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				dataIndex : 'company',
 				text : T('label.company')
+//			}, {
+//				dataIndex : 'locale',
+//				text : T('label.locale')				
 			}, {
-				dataIndex : 'locale',
-				text : T('label.locale')				
+				dataIndex : 'language',
+				text : T('label.language')				
 			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
@@ -162,11 +165,11 @@ Ext.define('GreenFleet.view.management.User', {
 				type : 'hbox',
 				align : 'stretch'
 			},
-			flex : 1,
+			height : 380,
 			items : [ 
 				{
 					xtype : 'container',
-					flex : 1,
+					width : 300,
 					layout : {
 						type : 'vbox',
 						align : 'stretch'	
@@ -182,7 +185,7 @@ Ext.define('GreenFleet.view.management.User', {
 					xtype : 'form',
 					itemId : 'form',
 					bodyPadding : 10,
-					flex : 8,
+					flex : 1,
 					autoScroll : true,
 					defaults : {
 						xtype : 'textfield',
@@ -219,13 +222,21 @@ Ext.define('GreenFleet.view.management.User', {
 							name : 'company',
 							fieldLabel : T('label.company'),
 							disable : true
+//						}, {
+//							xtype : 'combo',
+//							name : 'locale',
+//							store : 'LocaleStore',
+//							displayField : 'name',
+//							valueField : 'value',
+//							fieldLabel : 'Locale'
 						}, {
 							xtype : 'combo',
-							name : 'locale',
-							store : 'LocaleStore',
-							displayField : 'name',
-							valueField : 'value',
-							fieldLabel : 'Locale'
+							name : 'language',
+						    store: 'LanguageCodeStore',
+						    queryMode: 'local',
+						    displayField: 'display',
+						    valueField: 'value',
+							fieldLabel : T('label.language')
 						}, {
 							xtype : 'filefield',
 							name : 'image_file',

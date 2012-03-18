@@ -55,6 +55,7 @@ public class CompanyService extends EntityService {
 		entity.setProperty("name", map.get("name"));
 		entity.setProperty("desc", map.get("desc"));
 		entity.setProperty("timezone", map.get("timezone"));
+		entity.setProperty("language", map.get("language") != null ? map.get("language") : "en");
 		
 		super.onSave(entity, map, datastore);
 	}

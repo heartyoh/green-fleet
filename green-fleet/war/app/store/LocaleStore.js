@@ -1,3 +1,8 @@
+/*
+ * Locale은 현재 사용하지 않습니다.
+ * 우선은 사용자나 회사에서 Language 코드를 선택하는 것으로 합니다.
+ */
+
 Ext.define('GreenFleet.store.LocaleStore', {
 	extend : 'Ext.data.Store',
 	
