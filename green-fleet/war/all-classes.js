@@ -1284,7 +1284,7 @@ Ext.define('GreenFleet.view.management.User', {
 			property : 'email',
 			value : this.sub('email_filter').getValue()
 		}, {
-			property : 'surname',
+			property : 'name',
 			value : this.sub('name_filter').getValue()
 		} ]);
 	},
@@ -1303,14 +1303,8 @@ Ext.define('GreenFleet.view.management.User', {
 				dataIndex : 'email',
 				text : T('label.email')
 			}, {
-				dataIndex : 'surname',
-				text : T('label.sur_name')
-			}, {
-				dataIndex : 'nickname',
-				text : T('label.nick_name')
-			}, {
-				dataIndex : 'forename',
-				text : T('label.for_name')
+				dataIndex : 'name',
+				text : T('label.name')
 			}, {
 				dataIndex : 'enabled',
 				text : T('label.enabled')
@@ -1420,14 +1414,8 @@ Ext.define('GreenFleet.view.management.User', {
 							name : 'email',
 							fieldLabel : T('label.email')
 						}, {
-							name : 'surname',
-							fieldLabel : T('label.sur_name')
-						}, {
-							name : 'nickname',
-							fieldLabel : T('label.nick_name')
-						}, {
-							name : 'forename',
-							fieldLabel : T('label.for_name')
+							name : 'name',
+							fieldLabel : T('label.name')
 						}, {
 							xtype : 'checkbox',
 							name : 'enabled',
@@ -8217,15 +8205,18 @@ Ext.define('GreenFleet.store.UserStore', {
 		name : 'company',
 		type : 'string'
 	}, {
-		name : 'forename',
+		name : 'name',
 		type : 'string'
 	}, {
-		name : 'nickname',
-		type : 'string'
-	}, {
-		name : 'surname',
-		type : 'string'
-	}, {
+//		name : 'forename',
+//		type : 'string'
+//	}, {
+//		name : 'nickname',
+//		type : 'string'
+//	}, {
+//		name : 'surname',
+//		type : 'string'
+//	}, {
 		name : 'admin',
 		type : 'boolean'
 	}, {

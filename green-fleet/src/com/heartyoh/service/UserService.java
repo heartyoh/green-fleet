@@ -2,7 +2,6 @@ package com.heartyoh.service;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,9 +55,7 @@ public class UserService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		String email = (String) map.get("email");
-		String nickname = (String) map.get("nickname");
-		String forename = (String) map.get("forename");
-		String surname = (String) map.get("surname");
+		String name = (String) map.get("name");
 		String company = (String) map.get("company");
 		String admin = (String) map.get("admin");
 		String enabled = (String) map.get("enabled");
@@ -85,12 +82,8 @@ public class UserService extends EntityService {
 
 		if (email != null)
 			entity.setProperty("email", email);
-		if (nickname != null)
-			entity.setProperty("nickname", nickname);
-		if (forename != null)
-			entity.setProperty("forename", forename);
-		if (surname != null)
-			entity.setProperty("surname", surname);
+		if (name != null)
+			entity.setProperty("name", name);
 		if (company != null)
 			entity.setProperty("company", company);
 //		if (locale != null)

@@ -1,6 +1,7 @@
 package com.heartyoh.dao.impl;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -20,116 +21,90 @@ import com.heartyoh.model.CustomUser;
 import com.heartyoh.security.AppRole;
 
 public class DatastoreUserDaoImpl implements UserDao {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String USER_TYPE = "CustomUser";
-    private static final String USER_FORENAME = "forename";
-    private static final String USER_SURNAME = "surname";
-    private static final String USER_NICKNAME = "nickname";
-    private static final String USER_EMAIL = "email";
-    private static final String USER_ENABLED = "enabled";
-    private static final String USER_AUTHORITIES = "authorities";
-    private static final String USER_COMPANY = "company";
-    private static final String USER_LANGUAGE = "language";
+	private static final String USER_TYPE = "CustomUser";
+	private static final String USER_NAME = "name";
+	private static final String USER_EMAIL = "email";
+	private static final String USER_ENABLED = "enabled";
+	private static final String USER_AUTHORITIES = "authorities";
+	private static final String USER_COMPANY = "company";
+	private static final String USER_LANGUAGE = "language";
+	private static final String USER_CREATED_AT = "created_at";
+	private static final String USER_UPDATED_AT = "updated_at";
 
-    public List<CustomUser> listUsers(String company) {
-    	return null;
-    }
-    
-    public CustomUser findUser(String email) {
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	public List<CustomUser> listUsers(String company) {
+		return null;
+	}
 
-        Query q = new Query(USER_TYPE);
+	public CustomUser findUser(String email) {
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+		Query q = new Query(USER_TYPE);
 		q.addFilter("email", Query.FilterOperator.EQUAL, email);
-        
-        PreparedQuery pq = datastore.prepare(q);
-		
-//        Key key = KeyFactory.createKey(USER_TYPE, userId);
-//        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-        try {
-//            Entity user = datastore.get(key);
-    		Entity user = pq.asSingleEntity();
-    		if(user == null)
-    			return null;
+		PreparedQuery pq = datastore.prepare(q);
 
-            long binaryAuthorities = (Long)user.getProperty(USER_AUTHORITIES);
-            Set<AppRole> roles = EnumSet.noneOf(AppRole.class);
+		try {
+			Entity user = pq.asSingleEntity();
+			if (user == null)
+				return null;
 
-            for (AppRole r : AppRole.values()) {
-                if ((binaryAuthorities & (1 << r.getBit())) != 0) {
-                    roles.add(r);
-                }
-            }
+			long binaryAuthorities = (Long) user.getProperty(USER_AUTHORITIES);
+			Set<AppRole> roles = EnumSet.noneOf(AppRole.class);
 
-            CustomUser gaeUser = new CustomUser(
-                    user.getKey().getName(),
-                    (String)user.getProperty(USER_NICKNAME),
-                    (String)user.getProperty(USER_EMAIL),
-                    (String)user.getProperty(USER_FORENAME),
-                    (String)user.getProperty(USER_SURNAME),
-                    roles,
-                    (String)user.getProperty(USER_COMPANY),
-                    (String)user.getProperty(USER_LANGUAGE),
-                    (Boolean)user.getProperty(USER_ENABLED));
+			for (AppRole r : AppRole.values()) {
+				if ((binaryAuthorities & (1 << r.getBit())) != 0) {
+					roles.add(r);
+				}
+			}
 
-            return gaeUser;
+			CustomUser gaeUser = new CustomUser(user.getKey().getName(), (String) user.getProperty(USER_NAME),
+					(String) user.getProperty(USER_EMAIL), roles, (String) user.getProperty(USER_COMPANY),
+					(String) user.getProperty(USER_LANGUAGE), (Boolean) user.getProperty(USER_ENABLED));
 
-//        } catch (EntityNotFoundException e) {
-//            logger.debug(userId + " not found in datastore");
-        } catch (PreparedQuery.TooManyResultsException e) {
-            logger.debug("Too many items found who email is " + email + " in the datastore");
-            return null;
-        }
-    }
+			return gaeUser;
 
-    public void registerUser(CustomUser newUser) {
-        logger.debug("Attempting to create new user " + newUser);
-        
-        Key companyKey = KeyFactory.createKey("Company", newUser.getCompany());
-        Key key = KeyFactory.createKey(companyKey, USER_TYPE, newUser.getEmail());
+		} catch (PreparedQuery.TooManyResultsException e) {
+			logger.debug("Too many items found who email is " + email + " in the datastore");
+			return null;
+		}
+	}
 
-//        Key key = KeyFactory.createKey(USER_TYPE, newUser.getUserId());
-        
-        Entity user =  
-        		new Entity(key);
-        user.setProperty(USER_EMAIL, newUser.getEmail());
-        user.setProperty(USER_NICKNAME, newUser.getNickname());
-        user.setProperty(USER_FORENAME, newUser.getForename());
-        user.setProperty(USER_SURNAME, newUser.getSurname());
-        user.setProperty(USER_COMPANY, newUser.getCompany());
-        user.setProperty(USER_LANGUAGE, newUser.getLanguage());
-        user.setUnindexedProperty(USER_ENABLED, newUser.isEnabled());
+	public void registerUser(CustomUser newUser) {
+		logger.debug("Attempting to create new user " + newUser);
 
-        Collection<AppRole> roles = newUser.getAuthorities();
+		Key companyKey = KeyFactory.createKey("Company", newUser.getCompany());
+		Key key = KeyFactory.createKey(companyKey, USER_TYPE, newUser.getEmail());
 
-        long binaryAuthorities = 0;
+		Date now = new Date();
 
-        for (AppRole r : roles) {
-            binaryAuthorities |= 1 << r.getBit();
-        }
+		Entity user = new Entity(key);
+		user.setProperty(USER_EMAIL, newUser.getEmail());
+		user.setProperty(USER_NAME, newUser.getName());
+		user.setProperty(USER_COMPANY, newUser.getCompany());
+		user.setProperty(USER_LANGUAGE, newUser.getLanguage());
+		user.setUnindexedProperty(USER_ENABLED, newUser.isEnabled());
+		user.setUnindexedProperty(USER_CREATED_AT, now);
+		user.setUnindexedProperty(USER_UPDATED_AT, now);
 
-        user.setUnindexedProperty(USER_AUTHORITIES, binaryAuthorities);
+		Collection<AppRole> roles = newUser.getAuthorities();
 
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(user);
-    }
+		long binaryAuthorities = 0;
 
-    public void removeUser(String key) {
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		for (AppRole r : roles) {
+			binaryAuthorities |= 1 << r.getBit();
+		}
+
+		user.setUnindexedProperty(USER_AUTHORITIES, binaryAuthorities);
+
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		datastore.put(user);
+	}
+
+	public void removeUser(String key) {
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 		datastore.delete(KeyFactory.stringToKey(key));
-
-//      Key key = KeyFactory.createKey(USER_TYPE, userId);
-
-//      datastore.delete(key);
-
-//        Query q = new Query(USER_TYPE);
-//		q.addFilter("email", Query.FilterOperator.EQUAL, email);
-//        
-//        PreparedQuery pq = datastore.prepare(q);
-//		Entity user = pq.asSingleEntity();
-//
-//        datastore.delete(user.getKey());
-    }
+	}
 }

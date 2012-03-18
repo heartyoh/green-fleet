@@ -15,15 +15,18 @@ Ext.define('GreenFleet.store.UserStore', {
 		name : 'company',
 		type : 'string'
 	}, {
-		name : 'forename',
+		name : 'name',
 		type : 'string'
 	}, {
-		name : 'nickname',
-		type : 'string'
-	}, {
-		name : 'surname',
-		type : 'string'
-	}, {
+//		name : 'forename',
+//		type : 'string'
+//	}, {
+//		name : 'nickname',
+//		type : 'string'
+//	}, {
+//		name : 'surname',
+//		type : 'string'
+//	}, {
 		name : 'admin',
 		type : 'boolean'
 	}, {

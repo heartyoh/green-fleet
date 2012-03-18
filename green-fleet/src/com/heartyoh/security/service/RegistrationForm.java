@@ -2,26 +2,24 @@ package com.heartyoh.security.service;
 
 public class RegistrationForm {
 
-    private String forename;
-
-    private String surname;
-    
+    private String name;
     private String company;
+    private String language;
 
-    public String getForename() {
-        return forename;
+    public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	public String getName() {
+        return name;
     }
 
-    public void setForename(String forename) {
-        this.forename = forename;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCompany() {

@@ -24,7 +24,7 @@
 		
 		<script>
 		var login = {
-			username : '<sec:authentication property="principal.nickname"/>',
+			username : '<sec:authentication property="principal.email"/>',
 			company : '<sec:authentication property="principal.company"/>',
 			locale : '<sec:authentication property="principal.language"/>'
 		};

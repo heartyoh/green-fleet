@@ -43,8 +43,8 @@ public class RegistrationService {
 			roles.add(AppRole.ADMIN);
 		}
 
-		CustomUser user = new CustomUser(currentUser.getUserId(), currentUser.getNickname(), currentUser.getEmail(),
-				form.getForename(), form.getSurname(), roles, form.getCompany(), "en", true);
+		CustomUser user = new CustomUser(currentUser.getUserId(), form.getName(), currentUser.getEmail(),
+				roles, form.getCompany(), form.getLanguage(), true);
 
 		registry.registerUser(user);
 

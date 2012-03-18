@@ -11,9 +11,7 @@ import com.heartyoh.security.AppRole;
 public class CustomUser implements Serializable {
 	private String userId;
 	private String email;
-	private String nickname;
-	private String forename;
-	private String surname;
+	private String name;
 	private Set<AppRole> authorities;
 	private String company;
 	private String language;
@@ -24,12 +22,10 @@ public class CustomUser implements Serializable {
 	 * 
 	 * Assigns the user the "NEW_USER" role only.
 	 */
-	public CustomUser(String userId, String nickname, String email) {
+	public CustomUser(String userId, String name, String email) {
 		this.userId = userId;
-		this.nickname = nickname;
+		this.name = name;
 		this.authorities = EnumSet.of(AppRole.NEW_USER);
-		this.forename = null;
-		this.surname = null;
 		this.email = email;
 		this.company = null;
 		this.language = "en";
@@ -39,16 +35,13 @@ public class CustomUser implements Serializable {
 	/**
 	 * Post-registration constructor
 	 */
-	public CustomUser(String userId, String nickname, String email, String forename, String surname,
-			Set<AppRole> authorities, String company, String language, boolean enabled) {
+	public CustomUser(String userId, String name, String email, Set<AppRole> authorities, String company, String language, boolean enabled) {
 		this.userId = userId;
-		this.nickname = nickname;
+		this.name = name;
 		this.email = email;
 		this.authorities = authorities;
-		this.forename = forename;
-		this.surname = surname;
 		this.company = company;
-		if(language == null)
+		if (language == null)
 			language = "en";
 		this.language = language;
 		this.enabled = enabled;
@@ -57,15 +50,12 @@ public class CustomUser implements Serializable {
 	/**
 	 * Post-registration constructor
 	 */
-	public CustomUser(String email, String nickname, String forename, String surname,
-			Set<AppRole> authorities, String company, String language, boolean enabled) {
-		this.nickname = nickname;
+	public CustomUser(String email, String name, Set<AppRole> authorities, String company, String language, boolean enabled) {
+		this.name = name;
 		this.email = email;
 		this.authorities = authorities;
-		this.forename = forename;
-		this.surname = surname;
 		this.company = company;
-		if(language == null)
+		if (language == null)
 			language = "en";
 		this.language = language;
 		this.enabled = enabled;
@@ -75,20 +65,12 @@ public class CustomUser implements Serializable {
 		return userId;
 	}
 
-	public String getNickname() {
-		return nickname;
+	public String getName() {
+		return name;
 	}
 
 	public String getEmail() {
 		return email;
-	}
-
-	public String getForename() {
-		return forename;
-	}
-
-	public String getSurname() {
-		return surname;
 	}
 
 	public String getCompany() {
@@ -98,7 +80,7 @@ public class CustomUser implements Serializable {
 	public String getLanguage() {
 		return language;
 	}
-	
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -109,7 +91,7 @@ public class CustomUser implements Serializable {
 
 	@Override
 	public String toString() {
-		return "GaeUser{" + "userId='" + userId + '\'' + ", nickname='" + nickname + '\'' + ", forename='" + forename
-				+ '\'' + ", surname='" + surname + '\'' + ", company='" + company + '\'' + ", language='" + language + '\'' + ", authorities=" + authorities + '}';
+		return "GaeUser{" + "userId='" + userId + '\'' + ", name='" + name + '\'' + ", company='" + company + '\'' + ", language='"
+				+ language + '\'' + ", authorities=" + authorities + '}';
 	}
 }

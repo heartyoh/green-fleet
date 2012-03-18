@@ -21,8 +21,8 @@ import com.heartyoh.util.PMF;
 @Component
 public class JdoEntityDaoImpl implements EntityDao {
 	private static final Logger logger = LoggerFactory.getLogger(JdoEntityDaoImpl.class);
-	private static final PersistenceManager pm = PMF.get().getPersistenceManager(); 
-	
+	private static final PersistenceManager pm = PMF.get().getPersistenceManager();
+
 	private static String buildSelectClause(String[] selects) {
 		if (selects == null || selects.length == 0)
 			return "SELECT * ";
@@ -84,26 +84,9 @@ public class JdoEntityDaoImpl implements EntityDao {
 				params.put(filter.getProperty(), filter.getValue() + "%");
 			}
 		}
-		
+
 		Query query = pm.newQuery(sql);
-//		query.setFilter("lastName == lastNameParam");
-//	    query.setOrdering("hireDate desc");
-//	    query.declareParameters("String lastNameParam");
-//
-//	    try {
-//	        List<Employee> results = (List<Employee>) query.execute("Smith");
-//	        if (!results.isEmpty()) {
-//	            for (Employee e : results) {
-//	                // ...
-//	            }
-//	        } else {
-//	            // ... no results ...
-//	        }
-//	    } finally {
-//	        query.closeAll();
-//	    }
-//
-//		return query.execute(sql, params);
+
 		return null;
 	}
 
@@ -111,7 +94,7 @@ public class JdoEntityDaoImpl implements EntityDao {
 		String whereClause = buildWhereClause(filters);
 
 		String sql = "SELECT COUNT(*) FROM " + table + whereClause;
-		
+
 		logger.info(sql);
 
 		Map<String, Object> params = new HashMap<String, Object>();
