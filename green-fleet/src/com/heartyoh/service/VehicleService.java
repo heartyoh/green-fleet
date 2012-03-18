@@ -83,13 +83,6 @@ public class VehicleService extends EntityService {
 		entity.setProperty("registration_number", map.get("registration_number"));
 		entity.setProperty("remaining_fuel", doubleProperty(map, "remaining_fuel"));
 		entity.setProperty("distance_since_new_oil", doubleProperty(map, "distance_since_new_oil"));
-		entity.setProperty("engine_oil_status", map.get("engine_oil_status"));
-		entity.setProperty("fuel_filter_status", map.get("fuel_filter_status"));
-		entity.setProperty("brake_oil_status", map.get("brake_oil_status"));
-		entity.setProperty("brake_pedal_status", map.get("brake_pedal_status"));
-		entity.setProperty("cooling_water_status", map.get("cooling_water_status"));
-		entity.setProperty("timing_belt_status", map.get("timing_belt_status"));
-		entity.setProperty("spark_plug_status", map.get("spark_plug_status"));
 
 		super.onSave(entity, map, datastore);
 	}

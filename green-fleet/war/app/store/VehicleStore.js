@@ -42,27 +42,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'distance_since_new_oil',
 		type : 'float'
 	}, {
-		name : 'engine_oil_status',
-		type : 'string'
-	}, {
-		name : 'fuel_filter_status',
-		type : 'string'
-	}, {
-		name : 'brake_oil_status',
-		type : 'string'
-	}, {
-		name : 'brake_pedal_status',
-		type : 'string'
-	}, {
-		name : 'cooling_water_status',
-		type : 'string'
-	}, {
-		name : 'timing_belt_status',
-		type : 'string'
-	}, {
-		name : 'spark_plug_status',
-		type : 'string'
-	}, {
 		name : 'lattitude',
 		type : 'float'
 	}, {
