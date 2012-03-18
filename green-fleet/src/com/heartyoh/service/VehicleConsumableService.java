@@ -79,7 +79,12 @@ public class VehicleConsumableService extends EntityService {
 		entity.setProperty("next_repl_date", map.get("next_repl_date"));
 		// 누적 비용 ==> 소모품 교체 이력 입력시 자동 계산 
 		entity.setProperty("accrued_cost", map.get("accrued_cost"));
-				
+		
+		// 건강율 ==> 하루 한 번씩 업데이트 
+		entity.setProperty("health_rate", map.get("health_rate"));
+		// 건강상태 ==> 하루 한 번씩 업데이트 
+		entity.setProperty("status", map.get("status"));
+		
 		super.onSave(entity, map, datastore);
 	}
 	

@@ -36,7 +36,13 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			type : 'date'
 		}, {
 			name : 'accrued_cost',
-			type : 'int'				
+			type : 'float'
+		}, {
+			name : 'health_rate',
+			type : 'float'
+		}, {
+			name : 'status',
+			type : 'string'
 		}, {
 			name : 'created_at',
 			type : 'date',

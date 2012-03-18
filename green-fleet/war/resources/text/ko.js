@@ -184,7 +184,7 @@ T({
 		cost : '비용',
 		worker : '작업자',
 		component : '컴포넌트',
-		accrued_cost : '비용',		
+		accrued_cost : '누적비용',		
 		replacement : '교체',
 		health_rate : '건강율',
 		time : '시간',

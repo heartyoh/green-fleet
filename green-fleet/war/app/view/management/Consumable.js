@@ -262,7 +262,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'accrued_cost'				
 			}, {
 				header : T('label.health_rate'),
-				dataIndex : 'healthy',
+				dataIndex : 'health_rate',
 				xtype : 'progresscolumn'
 			}, {
 				header : T('label.status'),
@@ -543,7 +543,15 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									xtype : 'numberfield',
 									name : 'accrued_cost',
 									fieldLabel : T('label.accrued_cost')
-								}						        
+								}, {
+									xtype : 'numberfield',
+									name : 'health_rate',
+									fieldLabel : T('label.health_rate')
+								}, {
+									name : 'status',
+									xtype : 'textfield',
+									fieldLabel : T('label.status')
+								}
 						    ]							
 						}
 					],

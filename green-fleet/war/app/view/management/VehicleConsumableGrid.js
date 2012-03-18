@@ -106,7 +106,9 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        }, {
 		            header: T('label.last_repl_date'),
 		            dataIndex: 'last_repl_date',
-		            width: 100
+		            width: 100,
+					xtype : 'datecolumn',
+					format : F('date')
 		        }, {
 		            xtype: 'numbercolumn',
 		            header: T('label.miles_last_repl') + " (km)",
