@@ -2519,34 +2519,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.distance_since_new_oil'),
 				type : 'string'
 			}, {
-				dataIndex : 'engine_oil_status',
-				text : T('label.x_status', {x : T('label.engine_oil')}),
-				type : 'string'
-			}, {
-				dataIndex : 'fuel_filter_status',
-				text : T('label.x_status', {x : T('label.fuel_filter')}),
-				type : 'string'
-			}, {
-				dataIndex : 'brake_oil_status',
-				text : T('label.x_status', {x : T('label.brake_oil')}),
-				type : 'string'
-			}, {
-				dataIndex : 'brake_pedal_status',
-				text : T('label.x_status', {x : T('label.brake_pedal')}),
-				type : 'string'
-			}, {
-				dataIndex : 'cooling_water_status',
-				text : T('label.x_status', {x : T('label.cooling_water')}),
-				type : 'string'
-			}, {
-				dataIndex : 'timing_belt_status',
-				text : T('label.x_status', {x : T('label.timing_belt')}),
-				type : 'string'
-			}, {
-				dataIndex : 'spark_plug_status',
-				text : T('label.x_status', {x : T('label.spark_plug')}),
-				type : 'string'
-			}, {
 				dataIndex : 'lattitude',
 				text : T('label.lattitude')
 			}, {
@@ -2677,27 +2649,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 						}, {
 							name : 'distance_since_new_oil',
 							fieldLabel : T('label.distance_since_new_oil')
-						}, {
-							name : 'engine_oil_status',
-							fieldLabel : T('label.x_status', {x : T('label.engine_oil')})
-						}, {
-							name : 'fuel_filter_status',
-							fieldLabel : T('label.x_status', {x : T('label.fuel_filter')})
-						}, {
-							name : 'brake_oil_status',
-							fieldLabel : T('label.x_status', {x : T('label.brake_oil')})
-						}, {
-							name : 'brake_pedal_status',
-							fieldLabel : T('label.x_status', {x : T('label.brake_pedal')})
-						}, {
-							name : 'cooling_water_status',
-							fieldLabel : T('label.x_status', {x : T('label.cooling_water')})
-						}, {
-							name : 'timing_belt_status',
-							fieldLabel : T('label.x_status', {x : T('label.timing_belt')})
-						}, {
-							name : 'spark_plug_status',
-							fieldLabel : T('label.x_status', {x : T('label.spark_plug')})
 						}, {
 							name : 'driver_id',
 							fieldLabel : T('label.driver'),
@@ -7221,7 +7172,9 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        }, {
 		            header: T('label.last_repl_date'),
 		            dataIndex: 'last_repl_date',
-		            width: 100
+		            width: 100,
+					xtype : 'datecolumn',
+					format : F('date')
 		        }, {
 		            xtype: 'numbercolumn',
 		            header: T('label.miles_last_repl') + " (km)",
@@ -7521,7 +7474,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'accrued_cost'				
 			}, {
 				header : T('label.health_rate'),
-				dataIndex : 'healthy',
+				dataIndex : 'health_rate',
 				xtype : 'progresscolumn'
 			}, {
 				header : T('label.status'),
@@ -7802,7 +7755,15 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									xtype : 'numberfield',
 									name : 'accrued_cost',
 									fieldLabel : T('label.accrued_cost')
-								}						        
+								}, {
+									xtype : 'numberfield',
+									name : 'health_rate',
+									fieldLabel : T('label.health_rate')
+								}, {
+									name : 'status',
+									xtype : 'textfield',
+									fieldLabel : T('label.status')
+								}
 						    ]							
 						}
 					],
@@ -8420,27 +8381,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 	}, {
 		name : 'distance_since_new_oil',
 		type : 'float'
-	}, {
-		name : 'engine_oil_status',
-		type : 'string'
-	}, {
-		name : 'fuel_filter_status',
-		type : 'string'
-	}, {
-		name : 'brake_oil_status',
-		type : 'string'
-	}, {
-		name : 'brake_pedal_status',
-		type : 'string'
-	}, {
-		name : 'cooling_water_status',
-		type : 'string'
-	}, {
-		name : 'timing_belt_status',
-		type : 'string'
-	}, {
-		name : 'spark_plug_status',
-		type : 'string'
 	}, {
 		name : 'lattitude',
 		type : 'float'
@@ -9885,7 +9825,13 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			type : 'date'
 		}, {
 			name : 'accrued_cost',
-			type : 'int'				
+			type : 'float'
+		}, {
+			name : 'health_rate',
+			type : 'float'
+		}, {
+			name : 'status',
+			type : 'string'
 		}, {
 			name : 'created_at',
 			type : 'date',
