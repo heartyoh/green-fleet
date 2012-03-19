@@ -27,8 +27,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -88,6 +88,141 @@ public class VehicleConsumableService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/vehicle_consumable/summary", method = RequestMethod.GET)
+	public @ResponseBody
+	String summary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		
+		// 0. 모든 company list를 가져옴
+		CompanyService cs = new CompanyService();
+		Map<String, Object> companyResults = cs.retrieve(request, response);
+		List<Map<String, Object>> companies = (List<Map<String, Object>>)companyResults.get("items");
+		
+		for(Map<String, Object> company : companies) {
+						
+			// 1. 모든 vehicle list를 가져옴			
+			String companyId = (String)company.get("id");
+			Key companyKey = KeyFactory.createKey("Company", companyId);
+			List<String> vehicles = this.retrieveVehicles(datastore, companyKey);
+			
+			// 2. 차량별로 소모품에 대한 상태 처리
+			for(String vehicleId : vehicles) {
+				try {
+					this.summaryVehicleConsumables(datastore, companyKey, vehicleId);
+				} catch (Exception e) {
+					logger.error("Failed to summary consumable status - vehicle id (" + vehicleId + ")!", e);
+				}
+			}
+		}
+				
+		return this.getResultMsg(true, "Summary tasks have been processed successfully!");
+	}
+	
+	/**
+	 * 차량별 소모품 summary
+	 * 
+	 * @param datastore
+	 * @param companyKey
+	 * @param vehicleId
+	 * @throws Exception
+	 */
+	private void summaryVehicleConsumables(DatastoreService datastore, Key companyKey, String vehicleId) throws Exception {
+		
+		List<Entity> consumables = this.retrieveConsumables(datastore, companyKey, vehicleId);
+		
+		if(consumables.isEmpty()) 
+			return;
+		
+		// 3. 차량별로 각각의 consumable 정보를 가져옴
+		for(Entity consumable : consumables) {
+			// 4. consumable 별로 health rate와 status를 계산하여 업데이트
+			this.updateHealthRate(consumable);
+			
+			// 5. 변경 되었다면 저장
+			datastore.put(consumable);
+		}
+	}
+	
+	/**
+	 * company별 모든 차량 조회
+	 * TODO Util로 이동 
+	 * 
+	 * @param datastore
+	 * @param companyKey
+	 * @return
+	 */
+	private List<String> retrieveVehicles(DatastoreService datastore, Key companyKey) {
+		
+		Query q = new Query("Vehicle");
+		q.setAncestor(companyKey);
+
+		PreparedQuery pq = datastore.prepare(q);
+		List<String> items = new LinkedList<String>();
+		
+		for (Entity result : pq.asIterable()) {
+			items.add((String)result.getProperty("id"));
+		}
+		
+		return items;
+	}
+	
+	/**
+	 * 차량별 소모품 목록 조회 
+	 * 
+	 * @param datastore
+	 * @param companyKey
+	 * @param vehicleId
+	 * @return
+	 */
+	private List<Entity> retrieveConsumables(DatastoreService datastore, Key companyKey, String vehicleId) {
+		
+		Query q = new Query("VehicleConsumable");
+		q.setAncestor(companyKey);
+
+		PreparedQuery pq = datastore.prepare(q);
+		List<Entity> items = new LinkedList<Entity>();
+		
+		for (Entity result : pq.asIterable()) {
+			items.add(result);
+		}
+		
+		return items;		
+	}
+	
+	/**
+	 * 차량별 소모품별 health rate, status 재계산
+	 * FIXME 계산로직 추가 
+	 * 
+	 * @param consumable
+	 */
+	private void updateHealthRate(Entity consumable) {
+		
+		if(consumable.getProperty("health_rate") == null) {
+			consumable.setProperty("health_rate", 0f);
+		} else {
+			Object healthRateObj = consumable.getProperty("health_rate");
+			
+			if(healthRateObj instanceof Float) {
+				float healthRate = (Float)consumable.getProperty("health_rate");
+				if(healthRate <= (float)0) {
+					consumable.setProperty("health_rate", 0.13f);
+				}
+			} else {
+				consumable.setProperty("health_rate", Float.parseFloat(healthRateObj.toString()));
+			}
+		}
+		
+		if(consumable.getProperty("status") == null) {
+			consumable.setProperty("status", "Healthy");
+		} else {
+			if(consumable.getProperty("status").equals("healthy")) {
+				consumable.setProperty("status", "Healthy");
+			}
+		}
+	}
+		
 	@RequestMapping(value = "/vehicle_consumable/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {

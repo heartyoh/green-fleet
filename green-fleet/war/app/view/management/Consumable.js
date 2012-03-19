@@ -132,7 +132,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				xtype : 'textfield',
 				itemId : 'vehicles_id_filter',
 				hideLabel : true,
-				width : 60, 
+				width : 55, 
 				listeners: {
 					'change': function(textField, newValue, oldValue, option) {
 						var regNoValue = this.sub('vehicles_reg_no_filter').getValue();
@@ -145,7 +145,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				xtype : 'textfield',
 				itemId : 'vehicles_reg_no_filter',
 				hideLabel : true,
-				width : 65, 
+				width : 60, 
 				listeners: {
 					'change': function(textField, newValue, oldValue, option) {
 						var idValue = this.sub('vehicles_id_filter').getValue();
@@ -385,7 +385,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	        		nextRepairDate.setMilliseconds(nextRepairDate.getMilliseconds() + (1000 * 60 * 60 * 24 * 30 * 3));
 	        		
 	        		var win = new Ext.Window({
-	        			title : 'Add Repair',
+	        			title : T('title.add_repair'),
+	        			modal : true,
 	        			items : [ 
 	        			    {
 	        					xtype : 'form',
@@ -400,7 +401,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	        					items : [
         					 		{
         							    xtype: 'fieldset',
-        							    title: 'Vehicle',
+        							    title: T('label.vehicle'),
         							    defaultType: 'textfield',
         							    layout: 'anchor',
         							    collapsible: true,
@@ -424,7 +425,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
         							},
         							{
         							    xtype: 'fieldset',
-        							    title: 'Repair',
+        							    title: T('label.repair'),
         							    defaultType: 'textfield',
         							    layout: 'anchor',
         							    padding : '10,5,5,5',
@@ -483,28 +484,28 @@ Ext.define('GreenFleet.view.management.Consumable', {
         				    		thisForm.getForm().submit({
         			                    url: '/repair/save',
         			                    submitEmptyText: false,
-        			                    waitMsg: 'Saving Data...',
+        			                    waitMsg: T('msg.saving'),
         			                    success: function(form, action) {
         			                    	if(action.result.success) {		                    		
-        			                    		GreenFleet.msg('Success', 'Saved successfully!');
+        			                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
         			                			var repairStore = thisView.sub('repair_grid').store;
         			                			repairStore.getProxy().extraParams.vehicle_id = selVehicleId;
         			                			repairStore.load();        			                    		
         			                    		thisWin.close();
         			                    	} else {
-        			                    		Ext.Msg.alert('Failure', action.result.msg);
+        			                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
         			                    	}
         			                     },
         			                     failure: function(form, action) {
         			                         switch (action.failureType) {
         			                             case Ext.form.action.Action.CLIENT_INVALID:
-        			                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+        			                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
         			                                 break;
         			                             case Ext.form.action.Action.CONNECT_FAILURE:
-        			                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+        			                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
         			                                 break;
         			                             case Ext.form.action.Action.SERVER_INVALID:
-        			                                Ext.Msg.alert('Failure', action.result.msg);
+        			                                Ext.Msg.alert(T('label.failure'), action.result.msg);
         			                        }
         			                     }		                    
         			                });        			        		
@@ -602,7 +603,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	consumableStatusWin : function(record) {
 		return 	new Ext.Window({
-			title : 'Consumable Item (' + record.data.consumable_item + ') Status',
+			title : record.data.consumable_item + ' ' + T('label.status'),
+			modal : true,
 			listeners : {
 				show : function(win, opts) {
 					win.down('form').loadRecord(record);
@@ -622,7 +624,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					items : [ 
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Item',
+						    title: T('label.consumable_item'),
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    collapsible: true,
@@ -651,7 +653,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						},
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Status',
+						    title: record.data.consumable_item,
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    padding : '10,5,5,5',
@@ -702,7 +704,10 @@ Ext.define('GreenFleet.view.management.Consumable', {
 								}, {
 									xtype : 'numberfield',
 									name : 'health_rate',
-									fieldLabel : T('label.health_rate')
+									fieldLabel : T('label.health_rate'),
+									minValue : 0,
+									maxValue : 1.0,
+									step : 0.1
 								}, {
 									name : 'status',
 									xtype : 'textfield',
@@ -722,32 +727,32 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					    		thisForm.getForm().submit({
 				                    url: '/vehicle_consumable/save',
 				                    submitEmptyText: false,
-				                    waitMsg: 'Saving Data...',
+				                    waitMsg: T('msg.saving'),
 				                    params: {
 				                        vehicle_id: record.data.vehicle_id,
 				                        consumable_item : record.data.consumable_item
 				                    },
 				                    success: function(form, action) {
 				                    	if(action.result.success) {		                    		
-				                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+				                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
 				                    		win.close();
 				                    		var store = Ext.getStore('VehicleConsumableStore');
 				                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 				                    		store.load();
 				                    	} else {
-				                    		Ext.Msg.alert('Failure', action.result.msg);
+				                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
 				                    	}
 				                     },
 				                     failure: function(form, action) {
 				                         switch (action.failureType) {
 				                             case Ext.form.action.Action.CLIENT_INVALID:
-				                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+				                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
 				                                 break;
 				                             case Ext.form.action.Action.CONNECT_FAILURE:
-				                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+				                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
 				                                 break;
 				                             case Ext.form.action.Action.SERVER_INVALID:
-				                                Ext.Msg.alert('Failure', action.result.msg);
+				                                Ext.Msg.alert(T('label.failure'), action.result.msg);
 				                        }
 				                     }		                    
 				                });
@@ -768,7 +773,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	consumableChangeWin : function(record) {
 		return new Ext.Window({
-			title : 'Record Consumable (' + record.data.consumable_item + ') replacement!',
+			title : record.data.consumable_item + ' ' + T('label.replacement'),
 			modal : true,
 			listeners : {
 				show : function(win, opts) {
@@ -790,7 +795,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					items : [ 
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Item',
+						    title: T('label.consumable_item'),
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    collapsible: true,
@@ -812,7 +817,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						},
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Change',
+						    title: T('label.replacement'),
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    padding : '10,5,5,5',
@@ -869,33 +874,33 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			    		thisForm.getForm().submit({
 		                    url: '/consumable_change/save',
 		                    submitEmptyText: false,
-		                    waitMsg: 'Saving Data...',
+		                    waitMsg: T('msg.saving'),
 		                    params: {
 		                        vehicle_id: record.data.vehicle_id,
 		                        consumable_item : record.data.consumable_item
 		                    },
 		                    success: function(form, action) {
 		                    	if(action.result.success) {		                    		
-		                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+		                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
 		                    		win.close();
 		                    		var store = Ext.getStore('ConsumableChangeStore');
 		                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 		                    		store.getProxy().extraParams.consumable_item = record.data.consumable_item;
 		                    		store.load();
 		                    	} else {
-		                    		Ext.Msg.alert('Failure', action.result.msg);
+		                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
 		                    	}
 		                     },
 		                     failure: function(form, action) {
 		                         switch (action.failureType) {
 		                             case Ext.form.action.Action.CLIENT_INVALID:
-		                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+		                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
 		                                 break;
 		                             case Ext.form.action.Action.CONNECT_FAILURE:
-		                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+		                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
 		                                 break;
 		                             case Ext.form.action.Action.SERVER_INVALID:
-		                                Ext.Msg.alert('Failure', action.result.msg);
+		                                Ext.Msg.alert(T('label.failure'), action.result.msg);
 		                        }
 		                     }		                    
 		                });

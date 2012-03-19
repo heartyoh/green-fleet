@@ -77,7 +77,8 @@ T({
 		engine_oil_health : '엔진 오일 건강',
 		total_running_vehicles : '총 주행 차량',
 		vehicle_status : '차량 상태',
-		incidents_alarm : '이상상황 알림'
+		incidents_alarm : '이상상황 알림',
+		add_repair : '정비내역 추가'
 	},
 	
 	tab : {
@@ -102,6 +103,8 @@ T({
 	
 	label : {
 		language : '언어',
+		success : '성공',
+		failure : '실패',
 		id : '아이디',
 		name : '이름',
 		desc : '설명',
@@ -205,7 +208,8 @@ T({
 		total : '총',
 		health : '건강',
 		impending : '임박',
-		overdue : '기한초과',		
+		overdue : '기한초과',	
+		repair : '수리',
 		repair_date : '수리일자',
 		next_repair_date : '다음 수리일자',
 		repair_mileage : '수리 주행거리',
@@ -247,12 +251,16 @@ T({
 	
 	msg : {
 		searching : '검색중 ...',
+		saving : '저장중...',
 		no_matching_data_found : '해당되는 데이타가 없습니다!',
 		confirm_save : '저장하시겠습니까?',
 		confirm_delete : '삭제하시겠습니까?',
 		confirm_do : '정말 {do}하시겠습니까?',
+		processed_successfully : '정상적으로 처리되었습니다.',
 		failed_to_save : '저장 실패했습니다!',
 		failed_to_delete : '삭제 실패했습니다!',
-		failed_to_do : '{do} 실패했습니다!'
+		failed_to_do : '{do} 실패했습니다!',
+		failed_to_ajax : 'Ajax 통신에 실패했습니다!',
+		invalid_form_values : '폼 필드에 유효하지 않은 값이 있습니다'	
 	}
 });

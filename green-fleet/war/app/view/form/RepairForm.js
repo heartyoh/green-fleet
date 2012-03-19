@@ -96,24 +96,24 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 	    		thisForm.getForm().submit({
                     url: '/repair/save',
                     submitEmptyText: false,
-                    waitMsg: 'Saving Data...',
+                    waitMsg: T('msg.saving'),
                     success: function(form, action) {
                     	if(action.result.success) {		                    		
-                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
                     	} else {
-                    		Ext.Msg.alert('Failure', action.result.msg);
+                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
                     	}
                      },
                      failure: function(form, action) {
                          switch (action.failureType) {
                              case Ext.form.action.Action.CLIENT_INVALID:
-                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
                                  break;
                              case Ext.form.action.Action.CONNECT_FAILURE:
-                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
                                  break;
                              case Ext.form.action.Action.SERVER_INVALID:
-                                Ext.Msg.alert('Failure', action.result.msg);
+                                Ext.Msg.alert(T('label.failure'), action.result.msg);
                         }
                      }		                    
                 });	    		
