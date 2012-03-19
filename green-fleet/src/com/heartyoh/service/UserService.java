@@ -1,6 +1,7 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.security.AppRole;
 
 @Controller
@@ -106,6 +109,16 @@ public class UserService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		String email = request.getParameter("email");
+		if(email != null)
+			q.addFilter("email", FilterOperator.EQUAL, email);
+		
+		String key = request.getParameter("key");
+		if(key != null)
+			q.addFilter("key", FilterOperator.EQUAL, key);
+	}
+
 	@RequestMapping(value = "/user/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -122,6 +135,12 @@ public class UserService extends EntityService {
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
+	}
+	
+	@RequestMapping(value = "/user/find", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) {
+		return super.find(request, response);
 	}
 
 }

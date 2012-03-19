@@ -59,9 +59,10 @@ public class DatastoreUserDaoImpl implements UserDao {
 				}
 			}
 
-			CustomUser gaeUser = new CustomUser(user.getKey().getName(), (String) user.getProperty(USER_NAME),
-					(String) user.getProperty(USER_EMAIL), roles, (String) user.getProperty(USER_COMPANY),
-					(String) user.getProperty(USER_LANGUAGE), (Boolean) user.getProperty(USER_ENABLED));
+			CustomUser gaeUser = new CustomUser(KeyFactory.keyToString(user.getKey()), user.getKey().getName(),
+					(String) user.getProperty(USER_NAME), (String) user.getProperty(USER_EMAIL), roles,
+					(String) user.getProperty(USER_COMPANY), (String) user.getProperty(USER_LANGUAGE),
+					(Boolean) user.getProperty(USER_ENABLED));
 
 			return gaeUser;
 
@@ -80,6 +81,7 @@ public class DatastoreUserDaoImpl implements UserDao {
 		Date now = new Date();
 
 		Entity user = new Entity(key);
+
 		user.setProperty(USER_EMAIL, newUser.getEmail());
 		user.setProperty(USER_NAME, newUser.getName());
 		user.setProperty(USER_COMPANY, newUser.getCompany());

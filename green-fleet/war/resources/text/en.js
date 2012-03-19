@@ -26,7 +26,8 @@ T({
 		info : 'Info',
 		incident : 'Incident',
 		import : 'Import',
-		export : 'Export'
+		export : 'Export',
+		profile : 'User Profile'
 	},
 	
 	title : {
@@ -98,7 +99,8 @@ T({
 		del : 'Delete',
 		cancel : 'Cancel',
 		sync : 'Sync',
-		file : 'file...'
+		file : 'file...',
+		close : 'Close'
 	},
 	
 	label : {

@@ -44,6 +44,7 @@ import com.heartyoh.util.SessionUtils;
 
 public abstract class EntityService {
 	private static final Logger logger = LoggerFactory.getLogger(EntityService.class);
+	private static final Map<String, Object> emptyMap = new HashMap<String, Object>();
 
 	abstract protected String getEntityName();
 
@@ -71,6 +72,13 @@ public abstract class EntityService {
 		result.put("success", success);
 		result.put("total", totalCount);
 		result.put("items", items);		
+		return result;
+	}
+	
+	protected Map<String, Object> packResultData(boolean success, Object item) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("success", success);
+		result.put("data", item);
 		return result;
 	}
 	
@@ -346,7 +354,6 @@ public abstract class EntityService {
 	}
 
 	protected void buildQuery(Query q, HttpServletRequest request) {
-
 		return;
 	}
 
@@ -366,6 +373,29 @@ public abstract class EntityService {
 		return;
 	}	
 
+	public Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) {
+		
+		List<Filter> filters = this.parseFilters(request.getParameter("filter"));
+
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Key companyKey = this.getCompanyKey(request);
+		Query q = new Query(getEntityName());
+		q.setAncestor(companyKey);
+		buildQuery(q, request);
+		
+		if (useFilter())
+			buildQuery(q, filters, null);
+
+		PreparedQuery pq = datastore.prepare(q);
+		
+		Entity entity = pq.asSingleEntity();
+		
+		if(entity != null)
+			return packResultData(true, entity.getProperties());
+		
+		return packResultData(false, emptyMap);
+	}
+	
 	public Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		
 		List<Filter> filters = this.parseFilters(request.getParameter("filter"));

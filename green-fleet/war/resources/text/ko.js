@@ -26,7 +26,8 @@ T({
 		info : '정보',
 		incident : '이상상황',
 		import : '가져오기',
-		export : '내보내기'
+		export : '내보내기',
+		profile : '사용자 프로파일'
 	},
 	
 	title : {
@@ -98,7 +99,8 @@ T({
 		del : '삭제',
 		cancel : '취소',
 		sync : '동기화',
-		file : '파일...'
+		file : '파일...',
+		close : '닫기'
 	},
 	
 	label : {

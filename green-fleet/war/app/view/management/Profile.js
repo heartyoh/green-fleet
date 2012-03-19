@@ -8,6 +8,55 @@ Ext.define('GreenFleet.view.management.Profile', {
 	width : 560,
 	height : 360,
 
+
+	initComponent : function() {
+
+		this.callParent(arguments);
+
+		var self = this;
+
+		this.down('[itemId=close]').on('click', function(button) {
+			self.close();
+		});
+
+		this.down('[itemId=save]').on('click', function(button) {
+			var form = self.down('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : '/user/save',
+					success : function(form, action) {
+						self.reload();
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result);
+					}
+				});
+			}
+		});
+		
+		this.down('#image_clip').on('change', function(field, value) {
+			var image = self.sub('image');
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgDriver.png');
+		});	
+
+		this.reload();
+	},
+	
+	reload : function() {
+		this.down('form').load({
+			url : '/user/find',
+			method : 'GET',
+			params : {
+				key : GreenFleet.login.key
+			}
+		});
+	},
+
 	items : [ {
 		xtype : 'form',
 		itemId : 'form',
@@ -24,7 +73,9 @@ Ext.define('GreenFleet.view.management.Profile', {
 		},
 		items : [ {
 			xtype : 'container',
-			rowspan : 8,
+			rowspan : 11,
+			width : 260,
+			height : 260,
 			layout : {
 				type : 'vbox',
 				align : 'stretch'	
@@ -95,37 +146,11 @@ Ext.define('GreenFleet.view.management.Profile', {
 	} ],
 
 	buttons : [ {
-		text : 'Save',
+		text : T('button.save'),
 		itemId : 'save'
 	}, {
-		text : 'Close',
+		text : T('button.close'),
 		itemId : 'close'
-	} ],
-
-	initComponent : function() {
-
-		this.callParent(arguments);
-
-		var self = this;
-
-		this.down('[itemId=close]').on('click', function(button) {
-			self.close();
-		});
-
-		this.down('[itemId=save]').on('click', function(button) {
-			var form = self.down('form').getForm();
-
-			if (form.isValid()) {
-				form.submit({
-					url : '/user/save',
-					success : function(form, action) {
-					},
-					failure : function(form, action) {
-						GreenFleet.msg('Failed', action.result);
-					}
-				});
-			}
-		});
-	}
+	} ]
 
 });
