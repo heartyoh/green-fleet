@@ -5,8 +5,6 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	
 	id : 'monitor_map',
 
-//	title : 'Maps',
-
 	layout : {
 		type : 'vbox',
 		align : 'stretch'
@@ -19,10 +17,14 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		var self = this;
 		
+		var interval = null;
+		var vehicleMapStore = null;
+		var incidentStore = null;
+		
 		this.on('afterrender', function() {
-			var vehicleMapStore = Ext.getStore('VehicleMapStore');
+			vehicleMapStore = Ext.getStore('VehicleMapStore');
+			incidentStore = Ext.getStore('RecentIncidentStore');
 			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
-			var incidentStore = Ext.getStore('RecentIncidentStore');
 			
 			vehicleFilteredStore.on('datachanged', function() {
 				self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
@@ -31,15 +33,12 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			vehicleMapStore.load();
 			
 			/*
-			 * TODO 1분에 한번씩 리프레쉬하도록 함.
+			 * TODO 디폴트로 1분에 한번씩 리프레쉬하도록 함.
 			 */
-			setInterval(function() {
+			interval = setInterval(function() {
 				vehicleMapStore.load();
 				incidentStore.load();
 			}, 10000);
-			
-//			var vehicleStore = Ext.getStore('VehicleInfoStore');
-//			vehicleStore.load();
 		});
 		
 		this.on('activate', function() {
@@ -51,6 +50,16 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
+		});
+
+		this.sub('refreshterm').on('change', function(combo, newValue) {
+			if(newValue) {
+				clearInterval(interval);
+				interval = setInterval(function() {
+					vehicleMapStore.load();
+					incidentStore.load();
+				}, newValue * 1000);
+			}
 		});
 	},
 	
@@ -168,13 +177,50 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			flex : 1,
 			html : '<h1>' + T('title.map') + '</h1>'
 		}, {
+			xtype : 'combo',
+			valueField : 'value',
+			displayField : 'display',
+			value : 10,
+			width : 180,
+			labelWidth : 110,
+			labelAlign : 'right',
+			labelSeparator : '',
+			store : Ext.create('Ext.data.Store', {
+				data : [{
+					value : 3,
+					display : '3' + T('label.second_s')
+				}, {
+					value : 5,
+					display : '5' + T('label.second_s')
+				}, {
+					value : 10,
+					display : '10' + T('label.second_s')
+				}, {
+					value : 30,
+					display : '30' + T('label.second_s')
+				}, {
+					value : 60,
+					display : '1' + T('label.minute_s')
+				}, {
+					value : 300,
+					display : '5' + T('label.minute_s')
+				}],
+				fields : [
+					'value', 'display'
+				]
+			}),
+			queryMode : 'local',
+			fieldLabel : T('label.refreshterm'),
+			itemId : 'refreshterm'
+		}, {
 			xtype : 'checkboxgroup',
 			width : 80,
 			defaults : {
 				boxLabelAlign : 'before',
 				width : 80,
 				checked : true,
-				labelWidth : 50,
+				labelWidth : 60,
+				labelAlign : 'right',
 				labelSeparator : ''
 			},
 			items : [{

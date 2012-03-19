@@ -123,6 +123,7 @@ T({
 		consumable_code : 'Consumable Code',
 		consumable_item : 'Consumable Item',
 		autofit : 'Autofit',
+		refreshterm : 'Refresh Every',
 		run_dist : 'Run. Dist.',
 		run_time : 'Run. Time.',
 		location : 'Location',		
@@ -236,7 +237,9 @@ T({
 		lessthan_km : 'Less Than {km}Km',
 		state_driving : 'Driving',
 		state_idle : 'Idle',
-		state_incident : 'Incident'
+		state_incident : 'Incident',
+		second_s : 'sec.',
+		minute_s : 'min.'
 	},
 	
 	format : {

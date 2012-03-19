@@ -123,6 +123,7 @@ T({
 		consumable_code : '소모품 코드',
 		consumable_item : '소모품 항목',
 		autofit : '자동맞춤',
+		refreshterm : '갱신주기',
 		run_dist : '주행거리',
 		run_time : '주행시간',
 		location : '위치',		
@@ -236,7 +237,9 @@ T({
 		lessthan_km : '{km}Km 이하',
 		state_driving : '운행중',
 		state_idle : '정차',
-		state_incident : '이상상황'
+		state_incident : '이상상황',
+		second_s : '초',
+		minute_s : '분'
 	},
 	
 	format : {
