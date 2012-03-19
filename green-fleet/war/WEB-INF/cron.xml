@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/vehicle_consumable/summary</url>
+    <description>Resummary the consumable status every day 12:00</description>
+    <schedule>every day 12:00</schedule>
+  </cron>
+</cronentries>

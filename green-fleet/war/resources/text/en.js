@@ -77,7 +77,8 @@ T({
 		engine_oil_health : 'Engine Oil Health',
 		total_running_vehicles : 'Total Running Vehicles',
 		vehicle_status : 'Vehicle Status',
-		incidents_alarm : 'Incidents Alarm'
+		incidents_alarm : 'Incidents Alarm',
+		add_repair : 'Add Repair'
 	},
 	
 	tab : {
@@ -102,6 +103,8 @@ T({
 	
 	label : {
 		language : 'Language',
+		success : 'Success',
+		failure : 'Failure',
 		id : 'ID',
 		name : 'Name',
 		desc : 'Desc',
@@ -206,7 +209,8 @@ T({
 		total : 'Total',
 		health : 'Health',
 		impending : 'Impending',
-		overdue : 'Overdue',		
+		overdue : 'Overdue',
+		repair : 'Repair',
 		repair_date : 'Repair Date',
 		next_repair_date : 'Next Repair Date',
 		repair_mileage : 'Repair Mileage',
@@ -250,12 +254,16 @@ T({
 	
 	msg : {
 		searching : 'Searching ...',
+		saving : 'Saving Data...',
 		no_matching_data_found : 'No matching data found!',
 		confirm_save : 'Would you like to save?',
 		confirm_delete : 'Would you like to delete?',
 		confirm_do : 'Would you like to {do}?',
+		processed_successfully : 'Have been processed successfully.',
 		failed_to_save : 'Failed to save!',
 		failed_to_delete : 'Failed to delete!',
-		failed_to_do : 'Failed to {do}!'
+		failed_to_do : 'Failed to {do}!',
+		failed_to_ajax : 'Ajax communication failed!',
+		invalid_form_values : 'Form fields may not be submitted with invalid values!'		
 	}
 });
