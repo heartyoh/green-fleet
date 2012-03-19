@@ -51,15 +51,22 @@ public class RepairService extends EntityService {
 	
 	private void checkRepairDate(Map<String, Object> map) {
 		Object repairDateObj = map.get("repair_date");
+		Object nextRepairDateObj = map.get("next_repair_date");
 		
 		if(repairDateObj instanceof String) {
 			map.put("repair_date", SessionUtils.stringToDate((String)map.get("repair_date")));
 		}
+		
+		if(nextRepairDateObj != null && nextRepairDateObj instanceof String) {
+			map.put("next_repair_date", SessionUtils.stringToDate((String)map.get("next_repair_date")));
+		}		
 	}
 	
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
+		// 다음 정비일 
+		entity.setProperty("next_repair_date", map.get("next_repair_date"));
 		// 수리시 주행거리 
 		entity.setProperty("repair_mileage", map.get("repair_mileage"));
 		// 자동차 정비소  

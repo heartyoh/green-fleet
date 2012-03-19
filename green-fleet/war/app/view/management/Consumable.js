@@ -64,7 +64,6 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			var consumChangeStore = self.sub('consumable_grid').store;
 			consumChangeStore.getProxy().extraParams.vehicle_id = record.data.id;
 			consumChangeStore.load();
-			self.sub('repair_form').setVehicleId(record.data.id);
 			var repairStore = self.sub('repair_grid').store;
 			repairStore.getProxy().extraParams.vehicle_id = record.data.id;
 			repairStore.load();
@@ -368,26 +367,186 @@ Ext.define('GreenFleet.view.management.Consumable', {
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
+	    bbar : [
+	        { xtype: 'tbfill'}, 
+	        { 
+	        	xtype: 'button', 
+	        	text: T('button.add'), 
+	        	handler : function(btn, event) {
+	        		
+	        		var thisView = btn.up('management_consumable');
+	        		var selModel = thisView.sub('vehicle_info').getSelectionModel();
+	        		var selVehicleId = '';
+	        		if(selModel.lastSelected) {
+	        			selVehicleId = selModel.lastSelected.data.id;
+	        		}
+	        		
+	        		var nextRepairDate = new Date();
+	        		nextRepairDate.setMilliseconds(nextRepairDate.getMilliseconds() + (1000 * 60 * 60 * 24 * 30 * 3));
+	        		
+	        		var win = new Ext.Window({
+	        			title : 'Add Repair',
+	        			items : [ 
+	        			    {
+	        					xtype : 'form',
+	        					itemId : 'repair_win',
+	        					bodyPadding : 10,
+	        					cls : 'hIndexbar',
+	        					width : 500,
+	        					defaults : {
+	        						xtype : 'textfield',
+	        						anchor : '100%'
+	        					},
+	        					items : [
+        					 		{
+        							    xtype: 'fieldset',
+        							    title: 'Vehicle',
+        							    defaultType: 'textfield',
+        							    layout: 'anchor',
+        							    collapsible: true,
+        							    padding : '10,5,5,5',
+        							    defaults: {
+        							        anchor: '100%'
+        							    },
+        							    items: [
+        							        {
+        										name : 'key',
+        										fieldLabel : 'Key',
+        										hidden : true
+        							        },						            
+        									{
+        							        	itemId : 'vehicle_id',
+        										name : 'vehicle_id',
+        										fieldLabel : T('label.vehicle_id'),
+        										value : selVehicleId
+        									}
+        							    ]
+        							},
+        							{
+        							    xtype: 'fieldset',
+        							    title: 'Repair',
+        							    defaultType: 'textfield',
+        							    layout: 'anchor',
+        							    padding : '10,5,5,5',
+        							    defaults: {
+        							        anchor: '100%'
+        							    },				
+        							    items: [
+        									{
+        										name : 'repair_date',
+        										fieldLabel : T('label.repair_date'),
+        										xtype : 'datefield',
+        										format : F('date'),
+        										value : new Date()
+        									}, {
+        										name : 'next_repair_date',
+        										fieldLabel : T('label.next_repair_date'),
+        										xtype : 'datefield',
+        										format : F('date'),
+        										value : nextRepairDate
+        									}, {
+        										xtype : 'numberfield',
+        										name : 'repair_mileage',
+        										fieldLabel : T('label.repair_mileage') + ' (km)'
+        									}, {
+        										name : 'repair_man',
+        										fieldLabel : T('label.repair_man')
+        									}, {
+        										name : 'repair_shop',
+        										fieldLabel : T('label.repair_shop')
+        									}, {
+        										xtype : 'numberfield',
+        										name : 'cost',
+        										fieldLabel : T('label.cost'),
+        										minValue : 0					
+        									}, {
+        										xtype : 'textarea',
+        										name : 'content',
+        										fieldLabel : T('label.content')
+        									}, {				
+        										name : 'comment',
+        										xtype : 'textarea',
+        										fieldLabel : T('label.comment')
+        									}						        
+        							    ]							
+        							}
+	        					]
+	        				}
+	        			],
+	        			buttons: [
+        			  	    {
+        			  	    	text: T('button.save'),
+        			        	handler : function() {
+        			        		var thisWin = this.up('window');
+        			        		var thisForm = thisWin.down('form');
+        			        		
+        				    		thisForm.getForm().submit({
+        			                    url: '/repair/save',
+        			                    submitEmptyText: false,
+        			                    waitMsg: 'Saving Data...',
+        			                    success: function(form, action) {
+        			                    	if(action.result.success) {		                    		
+        			                    		GreenFleet.msg('Success', 'Saved successfully!');
+        			                			var repairStore = thisView.sub('repair_grid').store;
+        			                			repairStore.getProxy().extraParams.vehicle_id = selVehicleId;
+        			                			repairStore.load();        			                    		
+        			                    		thisWin.close();
+        			                    	} else {
+        			                    		Ext.Msg.alert('Failure', action.result.msg);
+        			                    	}
+        			                     },
+        			                     failure: function(form, action) {
+        			                         switch (action.failureType) {
+        			                             case Ext.form.action.Action.CLIENT_INVALID:
+        			                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+        			                                 break;
+        			                             case Ext.form.action.Action.CONNECT_FAILURE:
+        			                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+        			                                 break;
+        			                             case Ext.form.action.Action.SERVER_INVALID:
+        			                                Ext.Msg.alert('Failure', action.result.msg);
+        			                        }
+        			                     }		                    
+        			                });        			        		
+        			          	}        			  	    	
+        			        }, {
+        			        	text: T('button.cancel'),
+        			        	handler : function() {
+        			        		this.up('window').close();
+        			          	}
+        			        }
+	        			]	        			
+	        		});
+	        		
+	        		win.show();
+	        	} 
+	        }     
+	    ],		
 		items : [
 		    {
 				xtype : 'panel',
 				itemId : 'repair_view',
-				title : 'List View',
+				title : T('tab.list_view'),
 				autoScroll : true,
 				flex : 1,
 				layout : 'fit',
+				html : "<div class='maintCell'><span>No Data</span>...</div>",
 				refreshRepair : function(records) {
 					var htmlStr = '';
 					Ext.each(records, function(record) {						
 						htmlStr += "<div class='maintCell'><span>" + Ext.util.Format.date(record.data.repair_date, 'Y-m-d') + "</span>" + record.data.content + "</div>";
 					});
-					this.update(htmlStr);
+					
+					if(htmlStr)
+						this.update(htmlStr);
+					else
+						this.update("<div class='maintCell'><span>No Data</span>...</div>");
 				}
 		    },
 		    {
 				xtype : 'grid',
 				itemId : 'repair_grid',
-				title : 'Grid View',
+				title : T('tab.grid_view'),
 				store : 'RepairStore',
 				flex : 1,
 				autoScroll : true,
@@ -406,6 +565,11 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						xtype : 'datecolumn',
 						format : F('date')
 					}, {
+						header : T('label.next_repair_date'),
+						dataIndex : 'next_repair_date',
+						xtype : 'datecolumn',
+						format : F('date')						
+					}, {
 						header : T('label.repair_mileage') + " (km)",
 						dataIndex : 'repair_mileage',
 						width : 120
@@ -423,15 +587,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						dataIndex : 'content',
 						flex : 1
 					}
-				]		    	
-		    },
-		    {
-		    	itemId : 'repair_form',
-		    	xtype : 'repair_form',
-		    	title : 'Add Repair',
-		    	flext : 1,
-		    	bodyPadding : 10,
-		    	autoScroll : true,
+				]
 		    }
         ]
 	},

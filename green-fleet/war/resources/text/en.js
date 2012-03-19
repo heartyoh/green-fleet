@@ -84,7 +84,9 @@ T({
 		info_by_vehicle : 'Information By Vehicle',
 		ctrl_by_vehicle : 'Control By Vehicle',
 		ctrl_by_driver : 'Control By Driver',
-		maintenance : 'Maintenance'
+		maintenance : 'Maintenance',
+		grid_view : 'Grid View',
+		list_view : 'List View'		
 	},
 	
 	button : {
@@ -205,6 +207,7 @@ T({
 		impending : 'Impending',
 		overdue : 'Overdue',		
 		repair_date : 'Repair Date',
+		next_repair_date : 'Next Repair Date',
 		repair_mileage : 'Repair Mileage',
 		repair_man : 'Repair Man',
 		repair_shop : 'Repair Shop',

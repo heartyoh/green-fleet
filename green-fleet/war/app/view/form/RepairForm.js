@@ -87,12 +87,10 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 		}        
 	],
 	
-    bbar : [
-        { xtype: 'tbfill'}, 
-        { 
-        	xtype: 'button', 
-        	text: T('button.save'), 
-        	handler : function(a, b, c, d, e, f) {
+	buttons: [
+	    {
+	    	text: T('button.save'),
+	    	handler : function() {
         		var thisForm = this.up('form');
         		
 	    		thisForm.getForm().submit({
@@ -118,16 +116,13 @@ Ext.define('GreenFleet.view.form.RepairForm', {
                                 Ext.Msg.alert('Failure', action.result.msg);
                         }
                      }		                    
-                });        		
-        	} 
-        },
-        { 
-        	xtype: 'button', 
-        	text: T('button.reset'), 
+                });	    		
+	    	}
+        }, {
+        	text: T('button.cancel'),
         	handler : function() {
-        		this.up('form').getForm().reset();
-        	} 
-        }        
-    ]	
+        	}
+        }
+    ]
 	
 });

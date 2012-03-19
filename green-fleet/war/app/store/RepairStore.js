@@ -15,6 +15,10 @@ Ext.define('GreenFleet.store.RepairStore', {
 			type : 'date',
 			dateFormat:'time'
 		}, {
+			name : 'next_repair_date',
+			type : 'date',
+			dateFormat:'time'
+		}, {
 			name : 'repair_mileage',
 			type : 'int'
 		}, {

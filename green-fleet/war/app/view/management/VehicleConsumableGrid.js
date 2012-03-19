@@ -126,6 +126,15 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        	header : T('label.accrued_cost'),
 		        	dataIndex : 'accrued_cost',
 		        	width : 90		        	
+		        }, {
+		        	header : T('label.health_rate'),
+		        	dataIndex : 'health_rate',
+		        	xtype : 'progresscolumn',
+		        	width : 120	
+		        }, {
+		        	header : T('label.status'),
+		        	dataIndex : 'status',
+		        	width : 80
 		        }
 	        ],
 	        

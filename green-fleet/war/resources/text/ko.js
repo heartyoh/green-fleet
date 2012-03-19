@@ -84,7 +84,9 @@ T({
 		info_by_vehicle : '차량별 정보',
 		ctrl_by_vehicle : '차량별 체크인정보',
 		ctrl_by_driver : '운전자별 체크인정보',
-		maintenance : '유지보수'
+		maintenance : '유지보수',
+		grid_view : '그리드 보기',
+		list_view : '리스트 보기'
 	},
 	
 	button : {
@@ -205,6 +207,7 @@ T({
 		impending : '임박',
 		overdue : '기한초과',		
 		repair_date : '수리일자',
+		next_repair_date : '다음 수리일자',
 		repair_mileage : '수리 주행거리',
 		repair_man : '수리공',
 		repair_shop : '수리점',
