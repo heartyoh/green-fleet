@@ -109,7 +109,7 @@ Ext.define('GreenFleet.view.management.Profile', {
 		}, {
 			name : 'company',
 			fieldLabel : T('label.company'),
-			disable : true
+			disabled : true
 		}, {
 			xtype : 'combo',
 			name : 'language',

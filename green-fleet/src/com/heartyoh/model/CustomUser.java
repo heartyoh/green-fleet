@@ -9,6 +9,10 @@ import com.heartyoh.security.AppRole;
 
 @SuppressWarnings("serial")
 public class CustomUser implements Serializable {
+	
+	/**
+	 * 
+	 */
 	private String key;
 	private String userId;
 	private String email;
