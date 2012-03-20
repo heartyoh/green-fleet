@@ -24,7 +24,8 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			type : 'int'
 		}, {
 			name : 'last_repl_date',
-			type : 'date'
+			type : 'date',
+			dateFormat : 'time'
 		}, {
 			name : 'miles_last_repl',
 			type : 'int'
@@ -33,7 +34,8 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			type : 'int'
 		}, {
 			name : 'next_repl_date',
-			type : 'date'
+			type : 'date',
+			dateFormat : 'time'
 		}, {
 			name : 'accrued_cost',
 			type : 'float'

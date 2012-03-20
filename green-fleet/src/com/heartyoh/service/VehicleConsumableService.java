@@ -29,6 +29,8 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
+import com.heartyoh.util.CalculatorUtils;
+import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -62,31 +64,78 @@ public class VehicleConsumableService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		// 소모품 교체 주기 단위 - 주행거리, 기간, 주행거리 and 기간 
-		entity.setProperty("repl_unit", map.get("repl_unit"));
-		// 교체 주기 
-		entity.setProperty("repl_mileage", map.get("repl_mileage"));
-		// 교체 mileage
-		entity.setProperty("repl_time", map.get("repl_time"));
+		this.checkDate(map);
 		
-		// 마지막(최근) 교체일
-		entity.setProperty("last_repl_date", map.get("last_repl_date"));
-		// 최근 교체시점에서의 주행거리 
-		entity.setProperty("miles_last_repl", map.get("miles_last_repl"));
-		// 다음 교체시점의 주행거리 ==> 소모품 교체 이력 입력시 자동 계산 
-		entity.setProperty("next_repl_mileage", map.get("next_repl_mileage"));
-		// 다음 교체일 ==> 소모품 교체 이력 입력시 자동 계산 
-		entity.setProperty("next_repl_date", map.get("next_repl_date"));
-		// 누적 비용 ==> 소모품 교체 이력 입력시 자동 계산 
-		entity.setProperty("accrued_cost", map.get("accrued_cost"));
+		if(!DataUtils.isEmpty(map.get("repl_unit"))) {
+			// 소모품 교체 주기 단위 - 주행거리, 기간, 주행거리 and 기간 
+			entity.setProperty("repl_unit", map.get("repl_unit"));
+		}
 		
-		// 건강율 ==> 하루 한 번씩 업데이트 
-		entity.setProperty("health_rate", map.get("health_rate"));
-		// 건강상태 ==> 하루 한 번씩 업데이트 
-		entity.setProperty("status", map.get("status"));
+		if(!DataUtils.isEmpty(map.get("repl_mileage"))) {
+			// 교체 주기 
+			entity.setProperty("repl_mileage", map.get("repl_mileage"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("repl_time"))) {
+			// 교체 mileage
+			entity.setProperty("repl_time", map.get("repl_time"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("last_repl_date"))) {
+			// 마지막(최근) 교체일
+			entity.setProperty("last_repl_date", map.get("last_repl_date"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("miles_last_repl"))) {
+			// 최근 교체시점에서의 주행거리 
+			entity.setProperty("miles_last_repl", map.get("miles_last_repl"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("next_repl_mileage"))) {
+			// 다음 교체시점의 주행거리 ==> 소모품 교체 이력 입력시 자동 계산 
+			entity.setProperty("next_repl_mileage", map.get("next_repl_mileage"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("next_repl_date"))) {
+			// 다음 교체일 ==> 소모품 교체 이력 입력시 자동 계산 
+			entity.setProperty("next_repl_date", map.get("next_repl_date"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("accrued_cost"))) {
+			// 누적 비용 ==> 소모품 교체 이력 입력시 자동 계산 
+			entity.setProperty("accrued_cost", map.get("accrued_cost"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("health_rate"))) {
+			// 건강율 ==> 하루 한 번씩 업데이트 
+			entity.setProperty("health_rate", map.get("health_rate"));
+		}
+		
+		if(!DataUtils.isEmpty(map.get("status"))) {
+			// 건강상태 ==> 하루 한 번씩 업데이트 
+			entity.setProperty("status", map.get("status"));
+		}
 		
 		super.onSave(entity, map, datastore);
 	}
+	
+	/**
+	 * String 타입의 데이터를 date 타입의 데이터로 변환하여 map에 추가  
+	 * 
+	 * @param map
+	 */
+	private void checkDate(Map<String, Object> map) {
+		
+		if(!DataUtils.isEmpty(map.get("last_repl_date"))) {
+			Date lastReplDate = DataUtils.toDate(map.get("last_repl_date"));
+			map.put("last_repl_date", lastReplDate);
+		}
+		
+		if(!DataUtils.isEmpty(map.get("next_repl_date"))) {
+			Date nextReplDate = DataUtils.toDate(map.get("next_repl_date"));		
+			map.put("next_repl_date", nextReplDate);
+		}
+	}	
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/vehicle_consumable/summary", method = RequestMethod.GET)
@@ -105,12 +154,15 @@ public class VehicleConsumableService extends EntityService {
 			// 1. 모든 vehicle list를 가져옴			
 			String companyId = (String)company.get("id");
 			Key companyKey = KeyFactory.createKey("Company", companyId);
-			List<String> vehicles = this.retrieveVehicles(datastore, companyKey);
+			List<Object[]> vehicles = this.retrieveVehicles(datastore, companyKey);
 			
 			// 2. 차량별로 소모품에 대한 상태 처리
-			for(String vehicleId : vehicles) {
+			for(Object[] vehicleInfo : vehicles) {
+				String vehicleId = (String)vehicleInfo[0];
+				double totalMileage = (vehicleInfo[1] != null) ? ((vehicleInfo[1] instanceof Double) ? ((Double)vehicleInfo[1]).doubleValue() : Double.parseDouble(vehicleInfo[1].toString())) : 0d; 
+				
 				try {
-					this.summaryVehicleConsumables(datastore, companyKey, vehicleId);
+					this.summaryVehicleConsumables(datastore, companyKey, vehicleId, totalMileage);
 				} catch (Exception e) {
 					logger.error("Failed to summary consumable status - vehicle id (" + vehicleId + ")!", e);
 				}
@@ -126,9 +178,13 @@ public class VehicleConsumableService extends EntityService {
 	 * @param datastore
 	 * @param companyKey
 	 * @param vehicleId
+	 * @param totalMileage
 	 * @throws Exception
 	 */
-	private void summaryVehicleConsumables(DatastoreService datastore, Key companyKey, String vehicleId) throws Exception {
+	private void summaryVehicleConsumables(DatastoreService datastore, Key companyKey, String vehicleId, double totalMileage) throws Exception {
+		
+		if(totalMileage < 1)
+			return;
 		
 		List<Entity> consumables = this.retrieveConsumables(datastore, companyKey, vehicleId);
 		
@@ -138,8 +194,7 @@ public class VehicleConsumableService extends EntityService {
 		// 3. 차량별로 각각의 consumable 정보를 가져옴
 		for(Entity consumable : consumables) {
 			// 4. consumable 별로 health rate와 status를 계산하여 업데이트
-			this.updateHealthRate(consumable);
-			
+			CalculatorUtils.recalcConsumableHealthRate(totalMileage, consumable);			
 			// 5. 변경 되었다면 저장
 			datastore.put(consumable);
 		}
@@ -153,16 +208,17 @@ public class VehicleConsumableService extends EntityService {
 	 * @param companyKey
 	 * @return
 	 */
-	private List<String> retrieveVehicles(DatastoreService datastore, Key companyKey) {
+	private List<Object[]> retrieveVehicles(DatastoreService datastore, Key companyKey) {
 		
 		Query q = new Query("Vehicle");
 		q.setAncestor(companyKey);
 
 		PreparedQuery pq = datastore.prepare(q);
-		List<String> items = new LinkedList<String>();
+		List<Object[]> items = new LinkedList<Object[]>();
 		
 		for (Entity result : pq.asIterable()) {
-			items.add((String)result.getProperty("id"));
+			Object[] vehicleInfo = new Object[]{ result.getProperty("id"), result.getProperty("total_distance") };
+			items.add(vehicleInfo);
 		}
 		
 		return items;
@@ -190,38 +246,6 @@ public class VehicleConsumableService extends EntityService {
 		
 		return items;		
 	}
-	
-	/**
-	 * 차량별 소모품별 health rate, status 재계산
-	 * FIXME 계산로직 추가 
-	 * 
-	 * @param consumable
-	 */
-	private void updateHealthRate(Entity consumable) {
-		
-		if(consumable.getProperty("health_rate") == null) {
-			consumable.setProperty("health_rate", 0f);
-		} else {
-			Object healthRateObj = consumable.getProperty("health_rate");
-			
-			if(healthRateObj instanceof Float) {
-				float healthRate = (Float)consumable.getProperty("health_rate");
-				if(healthRate <= (float)0) {
-					consumable.setProperty("health_rate", 0.13f);
-				}
-			} else {
-				consumable.setProperty("health_rate", Float.parseFloat(healthRateObj.toString()));
-			}
-		}
-		
-		if(consumable.getProperty("status") == null) {
-			consumable.setProperty("status", "Healthy");
-		} else {
-			if(consumable.getProperty("status").equals("healthy")) {
-				consumable.setProperty("status", "Healthy");
-			}
-		}
-	}
 		
 	@RequestMapping(value = "/vehicle_consumable/import", method = RequestMethod.POST)
 	public @ResponseBody
@@ -247,7 +271,7 @@ public class VehicleConsumableService extends EntityService {
 		
 		Map<String, Object> vehicleConsumables = super.retrieve(request, response);
 		
-		if(vehicleConsumables.get("total") != null && (Integer)vehicleConsumables.get("total") <= 0 ) {
+		if(DataUtils.toInt(vehicleConsumables.get("total")) <= 0 ) {
 			this.initConsumables(request, response);			
 		} 
 
@@ -313,7 +337,7 @@ public class VehicleConsumableService extends EntityService {
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		String vehicleId = request.getParameter("vehicle_id");
 		
-		if(vehicleId != null && !vehicleId.isEmpty())
+		if(!DataUtils.isEmpty(vehicleId))
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 	}
 }

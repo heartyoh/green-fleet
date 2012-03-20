@@ -21,21 +21,24 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 			        vehicle_id : record.vehicle_id,
 			        consumable_item : record.consumable_item,
 			        repl_unit : record.repl_unit,
-			        fst_repl_mileage : record.fst_repl_mileage,
-			        fst_repl_time : record.fst_repl_time,
 			        repl_mileage : record.repl_mileage,
-			        repl_time : record.repl_time
+			        repl_time : record.repl_time,
+			        last_repl_date : record.last_repl_date,
+			        miles_last_repl : record.miles_last_repl,
+			        next_repl_mileage : record.next_repl_mileage,
+			        next_repl_date : record.next_repl_date,			        	
+			        mode : 'updateMaster'
 			    },
 			    success: function(response) {
 			        var resultObj = Ext.JSON.decode(response.responseText);
 			        if(resultObj.success) {
-				        GreenFleet.msg("Success", resultObj.key);
+				        GreenFleet.msg(T('label.success'), resultObj.key);
 			        } else {
-			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
 			        }
 			    },
 			    failure: function(response) {
-			    	Ext.MessageBox.alert("Failure", response.responseText);
+			    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
 			    }
 			});			
 		});		
@@ -113,7 +116,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		            xtype: 'numbercolumn',
 		            header: T('label.miles_last_repl') + " (km)",
 		            dataIndex: 'miles_last_repl',
-		            width: 115
+		            width: 125
 		        }, {
 		        	header : T('label.next_repl_mileage') + " (km)",
 		        	dataIndex : 'next_repl_mileage',
@@ -121,7 +124,9 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        }, {
 		        	header : T('label.next_repl_date'),
 		        	dataIndex : 'next_repl_date',
-		        	width : 90		        	
+		        	width : 90,
+					xtype : 'datecolumn',
+					format : F('date')		        	
 		        }, {
 		        	header : T('label.accrued_cost'),
 		        	dataIndex : 'accrued_cost',

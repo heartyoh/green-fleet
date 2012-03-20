@@ -237,7 +237,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'repl_time',
 				width : 120
 			}, {
-				header : T('label.last_repl_date') + ' (month)',
+				header : T('label.last_repl_date'),
 				dataIndex : 'last_repl_date',
 				xtype : 'datecolumn',
 				format : F('date'),
@@ -251,11 +251,11 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'next_repl_mileage',
 				width : 130
 			}, {
-				header : T('label.next_repl_date') + ' (month)',
+				header : T('label.next_repl_date'),
 				dataIndex : 'next_repl_date',
 				xtype : 'datecolumn',
 				format : F('date'),				
-				width : 135
+				width : 120				
 			}, {
 				header : T('label.accrued_cost'),
 				dataIndex : 'accrued_cost'				
@@ -273,7 +273,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	            items: [
                     {
                     	icon : '/resources/image/iconInfoOff.png',
-                    	tooltip: 'Modify consumable status!',
+                    	tooltip: 'Consumable status details!',
                     	handler: function(grid, rowIndex, colIndex) {
                     		var record = grid.store.getAt(rowIndex);
                     		var consumable = this.up('management_consumable');
@@ -288,7 +288,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	            items: [
                     {
                     	icon : '/resources/image/iconAddOn.png',
-                    	tooltip: 'Record consumables replacement information!',
+                    	tooltip: 'Consumables replacement',
                     	handler: function(grid, rowIndex, colIndex) {
                     		var record = grid.store.getAt(rowIndex);
                     		var consumable = this.up('management_consumable');
@@ -642,12 +642,24 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									name : 'vehicle_id',
 									fieldLabel : T('label.vehicle_id'),
 									disabled : true,
-									value : record.data.vehicle_id
+									//value : record.data.vehicle_id
 								}, {
 									name : 'consumable_item',
 									fieldLabel : T('label.consumable_item'),
 									disabled : true,
-									value : record.data.consumable_item
+									//value : record.data.consumable_item
+								}, {
+									name : 'repl_unit',
+									fieldLabel : T('label.repl_unit'),									
+									disabled : true,
+								}, {
+									name : 'repl_mileage',
+									fieldLabel : T('label.repl_mileage'),
+									disabled : true,
+								}, {
+									name : 'repl_time',
+									fieldLabel : T('label.repl_time') + '(month)',
+									disabled : true
 								}
 						    ]
 						},
@@ -661,21 +673,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						        anchor: '100%'
 						    },
 						    items: [
-								{
-									name : 'repl_unit',
-									fieldLabel : T('label.repl_unit'),									
-					            	xtype : 'codecombo',
-									group : 'ReplacementUnit'									
-								}, {
-									xtype : 'numberfield',
-									name : 'repl_mileage',
-									fieldLabel : T('label.repl_mileage')
-								}, {
-									name : 'repl_time',
-									fieldLabel : T('label.repl_time') + '(month)',
-									xtype : 'numberfield',
-									minValue : 0
-								}, {
+						        {
 									name : 'last_repl_date',
 									fieldLabel : T('label.last_repl_date'),
 									xtype : 'datefield',
@@ -706,7 +704,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									name : 'health_rate',
 									fieldLabel : T('label.health_rate'),
 									minValue : 0,
-									maxValue : 1.0,
+									maxValue : 5.0,
 									step : 0.1
 								}, {
 									name : 'status',
@@ -730,7 +728,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				                    waitMsg: T('msg.saving'),
 				                    params: {
 				                        vehicle_id: record.data.vehicle_id,
-				                        consumable_item : record.data.consumable_item
+				                        consumable_item : record.data.consumable_item				                        
 				                    },
 				                    success: function(form, action) {
 				                    	if(action.result.success) {		                    		
