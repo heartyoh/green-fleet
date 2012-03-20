@@ -33,7 +33,7 @@ public class SecurityService {
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
 
-		String logoutUrl = UserServiceFactory.getUserService().createLoginURL("/");
+		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/");
 
 		response.sendRedirect(logoutUrl);
 	}
