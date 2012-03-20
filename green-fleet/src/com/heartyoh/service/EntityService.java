@@ -153,12 +153,13 @@ public abstract class EntityService {
 			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType());// ,
 																							// imageFile.getOriginalFilename());
 
-			boolean lock = true;
+			boolean lock = false;
 			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, lock);
 
 			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
 
-			writeChannel.closeFinally();
+//			writeChannel.closeFinally();
+			writeChannel.close();
 
 			return fileService.getBlobKey(appfile).getKeyString();
 		}
