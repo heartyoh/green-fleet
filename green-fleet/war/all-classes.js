@@ -31,6 +31,8 @@ Ext.define('GreenFleet.mixin.Msg', function(){
 Ext.define('GreenFleet.mixin.User', function() {
 	return {
 		login : {
+			key : login.key,
+			email : login.email,
 			id : login.username,
 			name : login.username,
 			language : login.language
@@ -213,6 +215,220 @@ Ext.define('GreenFleet.store.IncidentLogChartStore', {
 	
 	data : []
 });
+Ext.define('GreenFleet.view.management.Profile', {
+	extend : 'Ext.window.Window',
+
+	title : T('menu.profile'),
+	
+	modal : true,
+
+	width : 560,
+	height : 360,
+
+
+	initComponent : function() {
+
+		this.callParent(arguments);
+
+		var self = this;
+
+		this.down('[itemId=close]').on('click', function(button) {
+			self.close();
+		});
+
+		this.down('[itemId=save]').on('click', function(button) {
+			var form = self.down('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : '/user/save',
+					success : function(form, action) {
+						self.reload();
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result);
+					}
+				});
+			}
+		});
+		
+		this.down('#image_clip').on('change', function(field, value) {
+			var image = self.sub('image');
+			
+			if(value != null && value.length > 0)
+				image.setSrc('download?blob-key=' + value);
+			else
+				image.setSrc('resources/image/bgDriver.png');
+		});	
+
+		this.reload();
+	},
+	
+	reload : function() {
+		this.down('form').load({
+			url : '/user/find',
+			method : 'GET',
+			params : {
+				key : GreenFleet.login.key
+			}
+		});
+	},
+
+	items : [ {
+		xtype : 'form',
+		itemId : 'form',
+		bodyPadding : 10,
+		flex : 1,
+		autoScroll : true,
+		layout : {
+			type : 'table',
+			columns : 2
+		},
+		defaults : {
+			xtype : 'textfield',
+			anchor : '100%'
+		},
+		items : [ {
+			xtype : 'container',
+			rowspan : 11,
+			width : 260,
+			height : 260,
+			layout : {
+				type : 'vbox',
+				align : 'stretch'	
+			},
+			cls : 'noImage',
+			items : [ {
+				xtype : 'image',
+				height : '100%',
+				itemId : 'image'
+			} ]			    	
+		}, {
+			name : 'key',
+			fieldLabel : 'Key',
+			hidden : true
+		}, {
+			name : 'name',
+			fieldLabel : T('label.name')
+		}, {
+			name : 'email',
+			fieldLabel : T('label.email')
+		}, {
+			xtype : 'checkbox',
+			name : 'enabled',
+			fieldLabel : T('label.enabled'),
+			uncheckedValue : 'off'
+		}, {
+			xtype : 'checkbox',
+			name : 'admin',
+			fieldLabel : T('label.admin'),
+			uncheckedValue : 'off'
+		}, {
+			name : 'company',
+			fieldLabel : T('label.company'),
+			disable : true
+		}, {
+			xtype : 'combo',
+			name : 'language',
+			store : 'LanguageCodeStore',
+			queryMode : 'local',
+			displayField : 'display',
+			valueField : 'value',
+			fieldLabel : T('label.language')
+		}, {
+			xtype : 'datefield',
+			name : 'updated_at',
+			disabled : true,
+			fieldLabel : T('label.updated_at'),
+			format : F('datetime')
+		}, {
+			xtype : 'datefield',
+			name : 'created_at',
+			disabled : true,
+			fieldLabel : T('label.created_at'),
+			format : F('datetime')
+		}, {
+			xtype : 'displayfield',
+			name : 'image_clip',
+			itemId : 'image_clip',
+			hidden : true
+		}, {
+			xtype : 'filefield',
+			name : 'image_file',
+			fieldLabel : T('label.image_upload'),
+			msgTarget : 'side',
+			allowBlank : true,
+			buttonText : T('button.file')
+		} ]
+	} ],
+
+	buttons : [ {
+		text : T('button.save'),
+		itemId : 'save'
+	}, {
+		text : T('button.close'),
+		itemId : 'close'
+	} ]
+
+});
+Ext.define('GreenFleet.view.common.ImportPopup', {
+	extend : 'Ext.window.Window',
+	
+	modal : true,
+	
+	width : 350,
+	height : 150,
+	
+	items : [{
+		xtype : 'form',
+		cls : 'paddingAll10',
+		items : [ {
+			xtype : 'filefield',
+			name : 'file',
+			fieldLabel : 'Import(CSV)',
+			msgTarget : 'side',
+			buttonText : 'file...'
+		} ]
+	}],
+	
+	buttons : [{
+		text : 'Import',
+		itemId : 'import'
+	}, {
+		text : 'Close',
+		itemId : 'close'
+	}],
+
+	initComponent : function() {
+
+		this.callParent(arguments);
+		
+		var self = this;
+		
+		this.down('[itemId=close]').on('click', function(button) {
+			self.close();
+		});
+		
+		this.down('[itemId=import]').on('click', function(button) {
+			var form = self.down('form').getForm();
+
+			if (form.isValid()) {
+				form.submit({
+					url : self.importUrl,
+					success : function(form, action) {
+						if (self.client && self.client.afterImport instanceof Function)
+							self.client.afterImport();
+						self.close();
+					},
+					failure : function(form, action) {
+						GreenFleet.msg('Failed', action.result);
+					}
+				});
+			}
+		});
+	}
+});
+
 Ext.define('GreenFleet.model.File', {
     extend: 'Ext.data.Model',
     
@@ -939,6 +1155,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		type : 'help',
 		text : login.username,
 		handler : function() {
+			Ext.create('GreenFleet.view.management.Profile').show();
 		}
 	}, {
 		itemId : 'home',
@@ -1127,7 +1344,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.company_details'),
-			height : 280,
+			height : 290,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -4539,8 +4756,6 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	
 	id : 'monitor_map',
 
-//	title : 'Maps',
-
 	layout : {
 		type : 'vbox',
 		align : 'stretch'
@@ -4553,10 +4768,14 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		var self = this;
 		
+		var interval = null;
+		var vehicleMapStore = null;
+		var incidentStore = null;
+		
 		this.on('afterrender', function() {
-			var vehicleMapStore = Ext.getStore('VehicleMapStore');
+			vehicleMapStore = Ext.getStore('VehicleMapStore');
+			incidentStore = Ext.getStore('RecentIncidentStore');
 			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
-			var incidentStore = Ext.getStore('RecentIncidentStore');
 			
 			vehicleFilteredStore.on('datachanged', function() {
 				self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
@@ -4565,15 +4784,12 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			vehicleMapStore.load();
 			
 			/*
-			 * TODO 1분에 한번씩 리프레쉬하도록 함.
+			 * TODO 디폴트로 1분에 한번씩 리프레쉬하도록 함.
 			 */
-			setInterval(function() {
+			interval = setInterval(function() {
 				vehicleMapStore.load();
 				incidentStore.load();
 			}, 10000);
-			
-//			var vehicleStore = Ext.getStore('VehicleInfoStore');
-//			vehicleStore.load();
 		});
 		
 		this.on('activate', function() {
@@ -4585,6 +4801,16 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		this.sub('autofit').on('change', function(check, newValue) {
 			if(newValue)
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
+		});
+
+		this.sub('refreshterm').on('change', function(combo, newValue) {
+			if(newValue) {
+				clearInterval(interval);
+				interval = setInterval(function() {
+					vehicleMapStore.load();
+					incidentStore.load();
+				}, newValue * 1000);
+			}
 		});
 	},
 	
@@ -4702,13 +4928,50 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			flex : 1,
 			html : '<h1>' + T('title.map') + '</h1>'
 		}, {
+			xtype : 'combo',
+			valueField : 'value',
+			displayField : 'display',
+			value : 10,
+			width : 180,
+			labelWidth : 110,
+			labelAlign : 'right',
+			labelSeparator : '',
+			store : Ext.create('Ext.data.Store', {
+				data : [{
+					value : 3,
+					display : '3' + T('label.second_s')
+				}, {
+					value : 5,
+					display : '5' + T('label.second_s')
+				}, {
+					value : 10,
+					display : '10' + T('label.second_s')
+				}, {
+					value : 30,
+					display : '30' + T('label.second_s')
+				}, {
+					value : 60,
+					display : '1' + T('label.minute_s')
+				}, {
+					value : 300,
+					display : '5' + T('label.minute_s')
+				}],
+				fields : [
+					'value', 'display'
+				]
+			}),
+			queryMode : 'local',
+			fieldLabel : T('label.refreshterm'),
+			itemId : 'refreshterm'
+		}, {
 			xtype : 'checkboxgroup',
 			width : 80,
 			defaults : {
 				boxLabelAlign : 'before',
 				width : 80,
 				checked : true,
-				labelWidth : 50,
+				labelWidth : 60,
+				labelAlign : 'right',
 				labelSeparator : ''
 			},
 			items : [{
@@ -7192,6 +7455,15 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        	header : T('label.accrued_cost'),
 		        	dataIndex : 'accrued_cost',
 		        	width : 90		        	
+		        }, {
+		        	header : T('label.health_rate'),
+		        	dataIndex : 'health_rate',
+		        	xtype : 'progresscolumn',
+		        	width : 120	
+		        }, {
+		        	header : T('label.status'),
+		        	dataIndex : 'status',
+		        	width : 80
 		        }
 	        ],
 	        
@@ -7276,7 +7548,6 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			var consumChangeStore = self.sub('consumable_grid').store;
 			consumChangeStore.getProxy().extraParams.vehicle_id = record.data.id;
 			consumChangeStore.load();
-			self.sub('repair_form').setVehicleId(record.data.id);
 			var repairStore = self.sub('repair_grid').store;
 			repairStore.getProxy().extraParams.vehicle_id = record.data.id;
 			repairStore.load();
@@ -7345,7 +7616,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				xtype : 'textfield',
 				itemId : 'vehicles_id_filter',
 				hideLabel : true,
-				width : 60, 
+				width : 55, 
 				listeners: {
 					'change': function(textField, newValue, oldValue, option) {
 						var regNoValue = this.sub('vehicles_reg_no_filter').getValue();
@@ -7358,7 +7629,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				xtype : 'textfield',
 				itemId : 'vehicles_reg_no_filter',
 				hideLabel : true,
-				width : 65, 
+				width : 60, 
 				listeners: {
 					'change': function(textField, newValue, oldValue, option) {
 						var idValue = this.sub('vehicles_id_filter').getValue();
@@ -7580,26 +7851,187 @@ Ext.define('GreenFleet.view.management.Consumable', {
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',
+	    bbar : [
+	        { xtype: 'tbfill'}, 
+	        { 
+	        	xtype: 'button', 
+	        	text: T('button.add'), 
+	        	handler : function(btn, event) {
+	        		
+	        		var thisView = btn.up('management_consumable');
+	        		var selModel = thisView.sub('vehicle_info').getSelectionModel();
+	        		var selVehicleId = '';
+	        		if(selModel.lastSelected) {
+	        			selVehicleId = selModel.lastSelected.data.id;
+	        		}
+	        		
+	        		var nextRepairDate = new Date();
+	        		nextRepairDate.setMilliseconds(nextRepairDate.getMilliseconds() + (1000 * 60 * 60 * 24 * 30 * 3));
+	        		
+	        		var win = new Ext.Window({
+	        			title : T('title.add_repair'),
+	        			modal : true,
+	        			items : [ 
+	        			    {
+	        					xtype : 'form',
+	        					itemId : 'repair_win',
+	        					bodyPadding : 10,
+	        					cls : 'hIndexbar',
+	        					width : 500,
+	        					defaults : {
+	        						xtype : 'textfield',
+	        						anchor : '100%'
+	        					},
+	        					items : [
+        					 		{
+        							    xtype: 'fieldset',
+        							    title: T('label.vehicle'),
+        							    defaultType: 'textfield',
+        							    layout: 'anchor',
+        							    collapsible: true,
+        							    padding : '10,5,5,5',
+        							    defaults: {
+        							        anchor: '100%'
+        							    },
+        							    items: [
+        							        {
+        										name : 'key',
+        										fieldLabel : 'Key',
+        										hidden : true
+        							        },						            
+        									{
+        							        	itemId : 'vehicle_id',
+        										name : 'vehicle_id',
+        										fieldLabel : T('label.vehicle_id'),
+        										value : selVehicleId
+        									}
+        							    ]
+        							},
+        							{
+        							    xtype: 'fieldset',
+        							    title: T('label.repair'),
+        							    defaultType: 'textfield',
+        							    layout: 'anchor',
+        							    padding : '10,5,5,5',
+        							    defaults: {
+        							        anchor: '100%'
+        							    },				
+        							    items: [
+        									{
+        										name : 'repair_date',
+        										fieldLabel : T('label.repair_date'),
+        										xtype : 'datefield',
+        										format : F('date'),
+        										value : new Date()
+        									}, {
+        										name : 'next_repair_date',
+        										fieldLabel : T('label.next_repair_date'),
+        										xtype : 'datefield',
+        										format : F('date'),
+        										value : nextRepairDate
+        									}, {
+        										xtype : 'numberfield',
+        										name : 'repair_mileage',
+        										fieldLabel : T('label.repair_mileage') + ' (km)'
+        									}, {
+        										name : 'repair_man',
+        										fieldLabel : T('label.repair_man')
+        									}, {
+        										name : 'repair_shop',
+        										fieldLabel : T('label.repair_shop')
+        									}, {
+        										xtype : 'numberfield',
+        										name : 'cost',
+        										fieldLabel : T('label.cost'),
+        										minValue : 0					
+        									}, {
+        										xtype : 'textarea',
+        										name : 'content',
+        										fieldLabel : T('label.content')
+        									}, {				
+        										name : 'comment',
+        										xtype : 'textarea',
+        										fieldLabel : T('label.comment')
+        									}						        
+        							    ]							
+        							}
+	        					]
+	        				}
+	        			],
+	        			buttons: [
+        			  	    {
+        			  	    	text: T('button.save'),
+        			        	handler : function() {
+        			        		var thisWin = this.up('window');
+        			        		var thisForm = thisWin.down('form');
+        			        		
+        				    		thisForm.getForm().submit({
+        			                    url: '/repair/save',
+        			                    submitEmptyText: false,
+        			                    waitMsg: T('msg.saving'),
+        			                    success: function(form, action) {
+        			                    	if(action.result.success) {		                    		
+        			                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+        			                			var repairStore = thisView.sub('repair_grid').store;
+        			                			repairStore.getProxy().extraParams.vehicle_id = selVehicleId;
+        			                			repairStore.load();        			                    		
+        			                    		thisWin.close();
+        			                    	} else {
+        			                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
+        			                    	}
+        			                     },
+        			                     failure: function(form, action) {
+        			                         switch (action.failureType) {
+        			                             case Ext.form.action.Action.CLIENT_INVALID:
+        			                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
+        			                                 break;
+        			                             case Ext.form.action.Action.CONNECT_FAILURE:
+        			                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
+        			                                 break;
+        			                             case Ext.form.action.Action.SERVER_INVALID:
+        			                                Ext.Msg.alert(T('label.failure'), action.result.msg);
+        			                        }
+        			                     }		                    
+        			                });        			        		
+        			          	}        			  	    	
+        			        }, {
+        			        	text: T('button.cancel'),
+        			        	handler : function() {
+        			        		this.up('window').close();
+        			          	}
+        			        }
+	        			]	        			
+	        		});
+	        		
+	        		win.show();
+	        	} 
+	        }     
+	    ],		
 		items : [
 		    {
 				xtype : 'panel',
 				itemId : 'repair_view',
-				title : 'List View',
+				title : T('tab.list_view'),
 				autoScroll : true,
 				flex : 1,
 				layout : 'fit',
+				html : "<div class='maintCell'><span>No Data</span>...</div>",
 				refreshRepair : function(records) {
 					var htmlStr = '';
 					Ext.each(records, function(record) {						
 						htmlStr += "<div class='maintCell'><span>" + Ext.util.Format.date(record.data.repair_date, 'Y-m-d') + "</span>" + record.data.content + "</div>";
 					});
-					this.update(htmlStr);
+					
+					if(htmlStr)
+						this.update(htmlStr);
+					else
+						this.update("<div class='maintCell'><span>No Data</span>...</div>");
 				}
 		    },
 		    {
 				xtype : 'grid',
 				itemId : 'repair_grid',
-				title : 'Grid View',
+				title : T('tab.grid_view'),
 				store : 'RepairStore',
 				flex : 1,
 				autoScroll : true,
@@ -7618,6 +8050,11 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						xtype : 'datecolumn',
 						format : F('date')
 					}, {
+						header : T('label.next_repair_date'),
+						dataIndex : 'next_repair_date',
+						xtype : 'datecolumn',
+						format : F('date')						
+					}, {
 						header : T('label.repair_mileage') + " (km)",
 						dataIndex : 'repair_mileage',
 						width : 120
@@ -7635,15 +8072,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						dataIndex : 'content',
 						flex : 1
 					}
-				]		    	
-		    },
-		    {
-		    	itemId : 'repair_form',
-		    	xtype : 'repair_form',
-		    	title : 'Add Repair',
-		    	flext : 1,
-		    	bodyPadding : 10,
-		    	autoScroll : true,
+				]
 		    }
         ]
 	},
@@ -7658,7 +8087,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	consumableStatusWin : function(record) {
 		return 	new Ext.Window({
-			title : 'Consumable Item (' + record.data.consumable_item + ') Status',
+			title : record.data.consumable_item + ' ' + T('label.status'),
+			modal : true,
 			listeners : {
 				show : function(win, opts) {
 					win.down('form').loadRecord(record);
@@ -7678,7 +8108,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					items : [ 
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Item',
+						    title: T('label.consumable_item'),
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    collapsible: true,
@@ -7707,7 +8137,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						},
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Status',
+						    title: record.data.consumable_item,
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    padding : '10,5,5,5',
@@ -7758,7 +8188,10 @@ Ext.define('GreenFleet.view.management.Consumable', {
 								}, {
 									xtype : 'numberfield',
 									name : 'health_rate',
-									fieldLabel : T('label.health_rate')
+									fieldLabel : T('label.health_rate'),
+									minValue : 0,
+									maxValue : 1.0,
+									step : 0.1
 								}, {
 									name : 'status',
 									xtype : 'textfield',
@@ -7778,32 +8211,32 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					    		thisForm.getForm().submit({
 				                    url: '/vehicle_consumable/save',
 				                    submitEmptyText: false,
-				                    waitMsg: 'Saving Data...',
+				                    waitMsg: T('msg.saving'),
 				                    params: {
 				                        vehicle_id: record.data.vehicle_id,
 				                        consumable_item : record.data.consumable_item
 				                    },
 				                    success: function(form, action) {
 				                    	if(action.result.success) {		                    		
-				                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+				                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
 				                    		win.close();
 				                    		var store = Ext.getStore('VehicleConsumableStore');
 				                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 				                    		store.load();
 				                    	} else {
-				                    		Ext.Msg.alert('Failure', action.result.msg);
+				                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
 				                    	}
 				                     },
 				                     failure: function(form, action) {
 				                         switch (action.failureType) {
 				                             case Ext.form.action.Action.CLIENT_INVALID:
-				                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+				                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
 				                                 break;
 				                             case Ext.form.action.Action.CONNECT_FAILURE:
-				                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+				                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
 				                                 break;
 				                             case Ext.form.action.Action.SERVER_INVALID:
-				                                Ext.Msg.alert('Failure', action.result.msg);
+				                                Ext.Msg.alert(T('label.failure'), action.result.msg);
 				                        }
 				                     }		                    
 				                });
@@ -7824,7 +8257,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	
 	consumableChangeWin : function(record) {
 		return new Ext.Window({
-			title : 'Record Consumable (' + record.data.consumable_item + ') replacement!',
+			title : record.data.consumable_item + ' ' + T('label.replacement'),
 			modal : true,
 			listeners : {
 				show : function(win, opts) {
@@ -7846,7 +8279,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 					items : [ 
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Item',
+						    title: T('label.consumable_item'),
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    collapsible: true,
@@ -7868,7 +8301,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						},
 						{
 						    xtype: 'fieldset',
-						    title: 'Consumable Change',
+						    title: T('label.replacement'),
 						    defaultType: 'textfield',
 						    layout: 'anchor',
 						    padding : '10,5,5,5',
@@ -7925,33 +8358,33 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			    		thisForm.getForm().submit({
 		                    url: '/consumable_change/save',
 		                    submitEmptyText: false,
-		                    waitMsg: 'Saving Data...',
+		                    waitMsg: T('msg.saving'),
 		                    params: {
 		                        vehicle_id: record.data.vehicle_id,
 		                        consumable_item : record.data.consumable_item
 		                    },
 		                    success: function(form, action) {
 		                    	if(action.result.success) {		                    		
-		                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+		                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
 		                    		win.close();
 		                    		var store = Ext.getStore('ConsumableChangeStore');
 		                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 		                    		store.getProxy().extraParams.consumable_item = record.data.consumable_item;
 		                    		store.load();
 		                    	} else {
-		                    		Ext.Msg.alert('Failure', action.result.msg);
+		                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
 		                    	}
 		                     },
 		                     failure: function(form, action) {
 		                         switch (action.failureType) {
 		                             case Ext.form.action.Action.CLIENT_INVALID:
-		                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+		                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
 		                                 break;
 		                             case Ext.form.action.Action.CONNECT_FAILURE:
-		                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+		                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
 		                                 break;
 		                             case Ext.form.action.Action.SERVER_INVALID:
-		                                Ext.Msg.alert('Failure', action.result.msg);
+		                                Ext.Msg.alert(T('label.failure'), action.result.msg);
 		                        }
 		                     }		                    
 		                });
@@ -8058,48 +8491,43 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 		}        
 	],
 	
-    bbar : [
-        { xtype: 'tbfill'}, 
-        { 
-        	xtype: 'button', 
-        	text: T('button.save'), 
-        	handler : function(a, b, c, d, e, f) {
+	buttons: [
+	    {
+	    	text: T('button.save'),
+	    	handler : function() {
         		var thisForm = this.up('form');
         		
 	    		thisForm.getForm().submit({
                     url: '/repair/save',
                     submitEmptyText: false,
-                    waitMsg: 'Saving Data...',
+                    waitMsg: T('msg.saving'),
                     success: function(form, action) {
                     	if(action.result.success) {		                    		
-                    		GreenFleet.msg('Success', 'Saved successfully!');		                    				                    		
+                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
                     	} else {
-                    		Ext.Msg.alert('Failure', action.result.msg);
+                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
                     	}
                      },
                      failure: function(form, action) {
                          switch (action.failureType) {
                              case Ext.form.action.Action.CLIENT_INVALID:
-                                 Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
                                  break;
                              case Ext.form.action.Action.CONNECT_FAILURE:
-                                 Ext.Msg.alert('Failure', 'Ajax communication failed');
+                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
                                  break;
                              case Ext.form.action.Action.SERVER_INVALID:
-                                Ext.Msg.alert('Failure', action.result.msg);
+                                Ext.Msg.alert(T('label.failure'), action.result.msg);
                         }
                      }		                    
-                });        		
-        	} 
-        },
-        { 
-        	xtype: 'button', 
-        	text: T('button.reset'), 
+                });	    		
+	    	}
+        }, {
+        	text: T('button.cancel'),
         	handler : function() {
-        		this.up('form').getForm().reset();
-        	} 
-        }        
-    ]	
+        	}
+        }
+    ]
 	
 });
 
@@ -9929,6 +10357,10 @@ Ext.define('GreenFleet.store.RepairStore', {
 			type : 'date',
 			dateFormat:'time'
 		}, {
+			name : 'next_repair_date',
+			type : 'date',
+			dateFormat:'time'
+		}, {
 			name : 'repair_mileage',
 			type : 'int'
 		}, {
@@ -10048,7 +10480,7 @@ Ext.define('GreenFleet.store.ConsumableStore', {
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
-	requires : [ 'GreenFleet.store.IncidentLogChartStore' ],
+	requires : [ 'GreenFleet.store.IncidentLogChartStore', 'GreenFleet.view.management.Profile', 'GreenFleet.view.common.ImportPopup' ],
 
 	stores : [ 'CompanyStore', 'UserStore', 'CodeGroupStore', 'CodeStore', 'VehicleStore', 'VehicleMapStore', 'VehicleFilteredStore',
 			'VehicleInfoStore', 'VehicleBriefStore', 'DriverStore', 'DriverBriefStore', 'ReservationStore', 'IncidentStore',

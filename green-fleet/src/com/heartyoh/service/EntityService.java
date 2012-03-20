@@ -374,24 +374,39 @@ public abstract class EntityService {
 	}	
 
 	public Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) {
-		
-		List<Filter> filters = this.parseFilters(request.getParameter("filter"));
-
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = this.getCompanyKey(request);
-		Query q = new Query(getEntityName());
-		q.setAncestor(companyKey);
-		buildQuery(q, request);
+		Entity entity = null;
 		
-		if (useFilter())
-			buildQuery(q, filters, null);
+		String key = request.getParameter("key");
+		if(key != null) {
+			try {
+				entity = datastore.get(KeyFactory.stringToKey(key));
+			} catch (EntityNotFoundException e) {
+			}
+		} else {
+			List<Filter> filters = this.parseFilters(request.getParameter("filter"));
 
-		PreparedQuery pq = datastore.prepare(q);
+			Key companyKey = this.getCompanyKey(request);
+			Query q = new Query(getEntityName());
+			q.setAncestor(companyKey);
+			buildQuery(q, request);
+			
+			if (useFilter())
+				buildQuery(q, filters, null);
+
+			PreparedQuery pq = datastore.prepare(q);
+			
+			entity = pq.asSingleEntity();
+		}
 		
-		Entity entity = pq.asSingleEntity();
-		
-		if(entity != null)
-			return packResultData(true, entity.getProperties());
+		if(entity != null) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			map.putAll(entity.getProperties());
+			map.put("key", KeyFactory.keyToString(entity.getKey()));
+			
+			return packResultData(true, map);
+		}
 		
 		return packResultData(false, emptyMap);
 	}

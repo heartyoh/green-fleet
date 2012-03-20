@@ -46,6 +46,14 @@
                     "name": "IncidentLogChartStore.js"
                 },
                 {
+                    "path": "app/view/management/",
+                    "name": "Profile.js"
+                },
+                {
+                    "path": "app/view/common/",
+                    "name": "ImportPopup.js"
+                },
+                {
                     "path": "app/model/",
                     "name": "File.js"
                 },
