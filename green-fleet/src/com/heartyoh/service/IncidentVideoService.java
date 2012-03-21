@@ -1,6 +1,7 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.apphosting.api.DeadlineExceededException;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -67,7 +69,13 @@ public class IncidentVideoService extends EntityService {
 	@RequestMapping(value = "/incident/upload_video", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		return super.save(request, response);
+		long time = System.currentTimeMillis();
+		try {
+			return super.save(request, response);
+		} catch(DeadlineExceededException e) {
+			time = System.currentTimeMillis() - time;
+			return getResultMsg(false, "It takes too long time (" + time + " millis) to save file.");
+		}
 	}
 
 }

@@ -2724,16 +2724,16 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.status'),
 				type : 'string'
 			}, {
+				dataIndex : 'health_status',
+				text : T('label.health'),
+				type : 'string'
+			}, {
 				dataIndex : 'total_distance',
 				text : T('label.total_x', {x : T('label.distance')}),
 				type : 'string'
 			}, {
 				dataIndex : 'remaining_fuel',
 				text : T('label.remaining_fuel'),
-				type : 'string'
-			}, {
-				dataIndex : 'distance_since_new_oil',
-				text : T('label.distance_since_new_oil'),
 				type : 'string'
 			}, {
 				dataIndex : 'lattitude',
@@ -2858,14 +2858,14 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							valueField : 'status',
 							fieldLabel : T('label.status')
 						}, {
+							name : 'health_status',
+							fieldLabel : T('label.health')							
+						}, {
 							name : 'total_distance',
 							fieldLabel : T('label.total_x', {x : T('label.distance')})
 						}, {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
-						}, {
-							name : 'distance_since_new_oil',
-							fieldLabel : T('label.distance_since_new_oil')
 						}, {
 							name : 'driver_id',
 							fieldLabel : T('label.driver'),
@@ -5258,44 +5258,16 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.status'),
 		type : 'string'
 	}, {
+		dataIndex : 'health_status',
+		text : T('label.health'),
+		type : 'string'
+	}, {
 		dataIndex : 'total_distance',
 		text : T('label.total_x', { x : T('label.distance')}),
 		type : 'string'
 	}, {
 		dataIndex : 'remaining_fuel',
 		text : T('label.remaining_fuel'),
-		type : 'string'
-	}, {
-		dataIndex : 'distance_since_new_oil',
-		text : T('label.distance_since_new_oil'),
-		type : 'string'
-	}, {
-		dataIndex : 'engine_oil_status',
-		text : T('label.x_status', {x : T('label.engine_oil')}),
-		type : 'string'
-	}, {
-		dataIndex : 'fuel_filter_status',
-		text : T('label.x_status', {x : T('label.fuel_filter')}),
-		type : 'string'
-	}, {
-		dataIndex : 'brake_oil_status',
-		text : T('label.x_status', {x : T('label.brake_oil')}),
-		type : 'string'
-	}, {
-		dataIndex : 'brake_pedal_status',
-		text : T('label.x_status', {x : T('label.brake_pedal')}),
-		type : 'string'
-	}, {
-		dataIndex : 'cooling_water_status',
-		text : T('label.x_status', {x : T('label.cooling_water')}),
-		type : 'string'
-	}, {
-		dataIndex : 'timing_belt_status',
-		text : T('label.x_status', {x : T('label.timing_belt')}),
-		type : 'string'
-	}, {
-		dataIndex : 'spark_plug_status',
-		text : T('label.x_status', {x : T('label.spark_plug')}),
 		type : 'string'
 	}, {
 		dataIndex : 'lattitude',
@@ -6820,9 +6792,14 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 										form.loadRecord(store.findRecord('key', action.result.key));
 									});
 								}
+								
+								if(action.result.success)
+									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+								else
+									Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
 							},
 							failure : function(form, action) {
-								Ext.msg.alert(T('msg.failed_to_save'), action.result.msg);
+								Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
 							}
 						});
 					}					
@@ -6857,7 +6834,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 								form.reset();
 							},
 							failure : function(form, action) {
-								Ext.msg.alert(T('msg.failed_to_delete'), action.result.msg);
+								Ext.Msg.alert(T('msg.failed_to_delete'), action.result.msg);
 							}
 						});
 					}					
@@ -7679,8 +7656,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				fieldLabel : T('label.reg_no'),
 				name : 'registration_number'
 			}, {
-				fieldLabel : T('label.manufacturer'),
-				name : 'manufacturer'
+				fieldLabel : T('label.health'),
+				name : 'health_status'
 			} ]
 		}, {
 			xtype : 'panel',
@@ -7730,21 +7707,25 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'last_repl_date',
 				xtype : 'datecolumn',
 				format : F('date'),
-				width : 130				
+				width : 90				
 			}, {
 				header : T('label.miles_last_repl') + ' (km)',
 				dataIndex : 'miles_last_repl',
-				width : 130
+				width : 140
 			}, {
-				header : T('label.next_repl_mileage') + ' (km)',
-				dataIndex : 'next_repl_mileage',
-				width : 130
+				header : T('label.miles_since_last_repl') + ' (km)',
+				dataIndex : 'miles_since_last_repl',
+				width : 145
 			}, {
 				header : T('label.next_repl_date'),
 				dataIndex : 'next_repl_date',
 				xtype : 'datecolumn',
 				format : F('date'),				
-				width : 120				
+				width : 90				
+			}, {
+				header : T('label.next_repl_mileage') + ' (km)',
+				dataIndex : 'next_repl_mileage',
+				width : 130				
 			}, {
 				header : T('label.accrued_cost'),
 				dataIndex : 'accrued_cost'				
@@ -7784,10 +7765,45 @@ Ext.define('GreenFleet.view.management.Consumable', {
                     		var newRecord = {
                     			data : {
                     				vehicle_id : record.data.vehicle_id,
-                    				consumable_item : record.data.consumable_item                    				
+                    				consumable_item : record.data.consumable_item
                     			}
                     		};
                     		consumable.addConsumableChangeItem(newRecord);
+                    	}                 	
+                    }
+                ]		
+			}, {
+				xtype:'actioncolumn',
+				width : 50,
+				align : 'center',
+	            items: [
+                    {
+                    	icon : '/resources/image/iconRefreshOn.png',
+                    	tooltip: 'Reset',
+                    	handler: function(grid, rowIndex, colIndex) {
+                    		var record = grid.store.getAt(rowIndex);
+                			Ext.Ajax.request({
+                			    url: '/vehicle_consumable/reset',
+                			    method : 'POST',
+                			    params: {
+                    				vehicle_id : record.data.vehicle_id,
+                    				consumable_item : record.data.consumable_item
+                			    },
+                			    success: function(response) {
+                			        var resultObj = Ext.JSON.decode(response.responseText);
+                			        if(resultObj.success) {
+                				        GreenFleet.msg("Success", resultObj.msg);
+			                    		var store = Ext.getStore('VehicleConsumableStore');
+			                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+			                    		store.load();                				        
+                			        } else {
+                			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+                			        }
+                			    },
+                			    failure: function(response) {
+                			        Ext.MessageBox.alert("Failure", response.responseText);
+                			    }
+                			});                    		
                     	}                 	
                     }
                 ]		
@@ -8130,13 +8146,11 @@ Ext.define('GreenFleet.view.management.Consumable', {
 								{
 									name : 'vehicle_id',
 									fieldLabel : T('label.vehicle_id'),
-									disabled : true,
-									//value : record.data.vehicle_id
+									disabled : true
 								}, {
 									name : 'consumable_item',
 									fieldLabel : T('label.consumable_item'),
-									disabled : true,
-									//value : record.data.consumable_item
+									disabled : true
 								}, {
 									name : 'repl_unit',
 									fieldLabel : T('label.repl_unit'),									
@@ -8174,16 +8188,16 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									fieldLabel : T('label.miles_last_repl'),
 									minValue : 0
 								}, {
-									xtype : 'numberfield',
-									name : 'next_repl_mileage',
-									fieldLabel : T('label.next_repl_mileage'),
-									minValue : 0
-								}, {									
 									name : 'next_repl_date',
 									fieldLabel : T('label.next_repl_date'),
 									xtype : 'datefield',
 									format : F('date'),
-									value : new Date()									
+									value : new Date()
+								}, {
+									xtype : 'numberfield',
+									name : 'next_repl_mileage',
+									fieldLabel : T('label.next_repl_mileage'),
+									minValue : 0
 								}, {
 									xtype : 'numberfield',
 									name : 'accrued_cost',
@@ -8801,6 +8815,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'status',
 		type : 'string'
 	}, {
+		name : 'health_status',
+		type : 'string'
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	}, {
@@ -8808,9 +8825,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'float'
 	}, {
 		name : 'remaining_fuel',
-		type : 'float'
-	}, {
-		name : 'distance_since_new_oil',
 		type : 'float'
 	}, {
 		name : 'lattitude',
@@ -10123,7 +10137,7 @@ Ext.define('GreenFleet.store.VehicleByGroupStore', {
 	
 	proxy : {
 		type : 'ajax',
-		url : 'vehicle',
+		url : 'vehicle_group/vehicles',
 		reader : {
 			type : 'json',
 			root : 'items',
@@ -10238,7 +10252,7 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			type : 'string'
 		}, {			
 			name : 'repl_mileage',
-			type : 'int'
+			type : 'float'
 		}, {
 			name : 'repl_time',
 			type : 'int'
@@ -10248,10 +10262,13 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			dateFormat : 'time'
 		}, {
 			name : 'miles_last_repl',
-			type : 'int'
+			type : 'float'
+		}, {
+			name : 'miles_since_last_repl',
+			type : 'float'				
 		}, {
 			name : 'next_repl_mileage',
-			type : 'int'
+			type : 'float'
 		}, {
 			name : 'next_repl_date',
 			type : 'date',

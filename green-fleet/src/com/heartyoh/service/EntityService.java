@@ -158,16 +158,15 @@ public abstract class EntityService {
 	protected static String saveFile(MultipartFile file) throws IOException {
 		if (file != null && file.getSize() > 0) {
 			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType());// ,
-																							// imageFile.getOriginalFilename());
+			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType());
 
-			boolean lock = true;
-			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, lock);
+			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, false);
 
 			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
+			writeChannel.close();
 
+			writeChannel = fileService.openWriteChannel(appfile, true);
 			writeChannel.closeFinally();
-//			writeChannel.close();
 
 			return fileService.getBlobKey(appfile).getKeyString();
 		}

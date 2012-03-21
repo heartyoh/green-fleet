@@ -11,359 +11,448 @@
             "files": [
                 {
                     "path": "app/mixin/",
-                    "name": "Msg.js"
+                    "name": "Msg.js",
+                    "clsName": "GreenFleet.mixin.Msg"
                 },
                 {
                     "path": "app/mixin/",
-                    "name": "User.js"
+                    "name": "User.js",
+                    "clsName": "GreenFleet.mixin.User"
                 },
                 {
                     "path": "app/mixin/",
-                    "name": "Mixin.js"
+                    "name": "Mixin.js",
+                    "clsName": "GreenFleet.mixin.Mixin"
                 },
                 {
                     "path": "app/mixin/",
-                    "name": "UI.js"
+                    "name": "UI.js",
+                    "clsName": "GreenFleet.mixin.UI"
                 },
                 {
                     "path": "app/mixin/",
-                    "name": "State.js"
+                    "name": "State.js",
+                    "clsName": "GreenFleet.mixin.State"
                 },
                 {
                     "path": "app/mixin/",
-                    "name": "SubItem.js"
+                    "name": "SubItem.js",
+                    "clsName": "GreenFleet.mixin.SubItem"
                 },
                 {
                     "path": "app/mixin/",
-                    "name": "Import.js"
+                    "name": "Import.js",
+                    "clsName": "GreenFleet.mixin.Import"
                 },
                 {
                     "path": "app/view/",
-                    "name": "Viewport.js"
+                    "name": "Viewport.js",
+                    "clsName": "GreenFleet.view.Viewport"
                 },
                 {
                     "path": "app/store/",
-                    "name": "IncidentLogChartStore.js"
+                    "name": "IncidentLogChartStore.js",
+                    "clsName": "GreenFleet.store.IncidentLogChartStore"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Profile.js"
+                    "name": "Profile.js",
+                    "clsName": "GreenFleet.view.management.Profile"
                 },
                 {
                     "path": "app/view/common/",
-                    "name": "ImportPopup.js"
+                    "name": "ImportPopup.js",
+                    "clsName": "GreenFleet.view.common.ImportPopup"
                 },
                 {
                     "path": "app/model/",
-                    "name": "File.js"
+                    "name": "File.js",
+                    "clsName": "GreenFleet.model.File"
                 },
                 {
                     "path": "app/view/file/",
-                    "name": "FileManager.js"
+                    "name": "FileManager.js",
+                    "clsName": "GreenFleet.view.file.FileManager"
                 },
                 {
                     "path": "app/store/",
-                    "name": "FileStore.js"
+                    "name": "FileStore.js",
+                    "clsName": "GreenFleet.store.FileStore"
                 },
                 {
                     "path": "app/controller/",
-                    "name": "FileController.js"
+                    "name": "FileController.js",
+                    "clsName": "GreenFleet.controller.FileController"
                 },
                 {
                     "path": "app/model/",
-                    "name": "Code.js"
+                    "name": "Code.js",
+                    "clsName": "GreenFleet.model.Code"
                 },
                 {
                     "path": "app/view/viewport/",
-                    "name": "Center.js"
+                    "name": "Center.js",
+                    "clsName": "GreenFleet.view.viewport.Center"
                 },
                 {
                     "path": "app/view/viewport/",
-                    "name": "North.js"
+                    "name": "North.js",
+                    "clsName": "GreenFleet.view.viewport.North"
                 },
                 {
                     "path": "app/view/viewport/",
-                    "name": "West.js"
+                    "name": "West.js",
+                    "clsName": "GreenFleet.view.viewport.West"
                 },
                 {
                     "path": "app/view/viewport/",
-                    "name": "East.js"
+                    "name": "East.js",
+                    "clsName": "GreenFleet.view.viewport.East"
                 },
                 {
                     "path": "app/view/",
-                    "name": "Brand.js"
+                    "name": "Brand.js",
+                    "clsName": "GreenFleet.view.Brand"
                 },
                 {
                     "path": "app/view/",
-                    "name": "MainMenu.js"
+                    "name": "MainMenu.js",
+                    "clsName": "GreenFleet.view.MainMenu"
                 },
                 {
                     "path": "app/view/",
-                    "name": "SideMenu.js"
+                    "name": "SideMenu.js",
+                    "clsName": "GreenFleet.view.SideMenu"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Company.js"
+                    "name": "Company.js",
+                    "clsName": "GreenFleet.view.management.Company"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "User.js"
+                    "name": "User.js",
+                    "clsName": "GreenFleet.view.management.User"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Code.js"
+                    "name": "Code.js",
+                    "clsName": "GreenFleet.view.management.Code"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "VehicleGroup.js"
+                    "name": "VehicleGroup.js",
+                    "clsName": "GreenFleet.view.management.VehicleGroup"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "ConsumableCode.js"
+                    "name": "ConsumableCode.js",
+                    "clsName": "GreenFleet.view.management.ConsumableCode"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Vehicle.js"
+                    "name": "Vehicle.js",
+                    "clsName": "GreenFleet.view.management.Vehicle"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Terminal.js"
+                    "name": "Terminal.js",
+                    "clsName": "GreenFleet.view.management.Terminal"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Reservation.js"
+                    "name": "Reservation.js",
+                    "clsName": "GreenFleet.view.management.Reservation"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Incident.js"
+                    "name": "Incident.js",
+                    "clsName": "GreenFleet.view.management.Incident"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Driver.js"
+                    "name": "Driver.js",
+                    "clsName": "GreenFleet.view.management.Driver"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Track.js"
+                    "name": "Track.js",
+                    "clsName": "GreenFleet.view.management.Track"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "CheckinData.js"
+                    "name": "CheckinData.js",
+                    "clsName": "GreenFleet.view.management.CheckinData"
                 },
                 {
                     "path": "app/view/monitor/",
-                    "name": "Map.js"
+                    "name": "Map.js",
+                    "clsName": "GreenFleet.view.monitor.Map"
                 },
                 {
                     "path": "app/view/monitor/",
-                    "name": "CheckinByVehicle.js"
+                    "name": "CheckinByVehicle.js",
+                    "clsName": "GreenFleet.view.monitor.CheckinByVehicle"
                 },
                 {
                     "path": "app/view/monitor/",
-                    "name": "InfoByVehicle.js"
+                    "name": "InfoByVehicle.js",
+                    "clsName": "GreenFleet.view.monitor.InfoByVehicle"
                 },
                 {
                     "path": "app/view/monitor/",
-                    "name": "Information.js"
+                    "name": "Information.js",
+                    "clsName": "GreenFleet.view.monitor.Information"
                 },
                 {
                     "path": "app/view/monitor/",
-                    "name": "IncidentView.js"
+                    "name": "IncidentView.js",
+                    "clsName": "GreenFleet.view.monitor.IncidentView"
                 },
                 {
                     "path": "app/view/common/",
-                    "name": "CodeCombo.js"
+                    "name": "CodeCombo.js",
+                    "clsName": "GreenFleet.view.common.CodeCombo"
                 },
                 {
                     "path": "app/view/form/",
-                    "name": "TimeZoneCombo.js"
+                    "name": "TimeZoneCombo.js",
+                    "clsName": "GreenFleet.view.form.TimeZoneCombo"
                 },
                 {
                     "path": "app/view/form/",
-                    "name": "DateTimeField.js"
+                    "name": "DateTimeField.js",
+                    "clsName": "GreenFleet.view.form.DateTimeField"
                 },
                 {
                     "path": "app/view/form/",
-                    "name": "SearchField.js"
+                    "name": "SearchField.js",
+                    "clsName": "GreenFleet.view.form.SearchField"
                 },
                 {
                     "path": "app/view/common/",
-                    "name": "EntityFormButtons.js"
+                    "name": "EntityFormButtons.js",
+                    "clsName": "GreenFleet.view.common.EntityFormButtons"
                 },
                 {
                     "path": "app/view/dashboard/",
-                    "name": "VehicleHealth.js"
+                    "name": "VehicleHealth.js",
+                    "clsName": "GreenFleet.view.dashboard.VehicleHealth"
                 },
                 {
                     "path": "app/view/pm/",
-                    "name": "Consumable.js"
+                    "name": "Consumable.js",
+                    "clsName": "GreenFleet.view.pm.Consumable"
                 },
                 {
                     "path": "app/view/common/",
-                    "name": "ProgressColumn.js"
+                    "name": "ProgressColumn.js",
+                    "clsName": "GreenFleet.view.common.ProgressColumn"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "VehicleConsumableGrid.js"
+                    "name": "VehicleConsumableGrid.js",
+                    "clsName": "GreenFleet.view.management.VehicleConsumableGrid"
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "Consumable.js"
+                    "name": "Consumable.js",
+                    "clsName": "GreenFleet.view.management.Consumable"
                 },
                 {
                     "path": "app/view/form/",
-                    "name": "RepairForm.js"
+                    "name": "RepairForm.js",
+                    "clsName": "GreenFleet.view.form.RepairForm"
                 },
                 {
                     "path": "app/store/",
-                    "name": "CompanyStore.js"
+                    "name": "CompanyStore.js",
+                    "clsName": "GreenFleet.store.CompanyStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "UserStore.js"
+                    "name": "UserStore.js",
+                    "clsName": "GreenFleet.store.UserStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "CodeGroupStore.js"
+                    "name": "CodeGroupStore.js",
+                    "clsName": "GreenFleet.store.CodeGroupStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "CodeStore.js"
+                    "name": "CodeStore.js",
+                    "clsName": "GreenFleet.store.CodeStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleStore.js"
+                    "name": "VehicleStore.js",
+                    "clsName": "GreenFleet.store.VehicleStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleMapStore.js"
+                    "name": "VehicleMapStore.js",
+                    "clsName": "GreenFleet.store.VehicleMapStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleFilteredStore.js"
+                    "name": "VehicleFilteredStore.js",
+                    "clsName": "GreenFleet.store.VehicleFilteredStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleInfoStore.js"
+                    "name": "VehicleInfoStore.js",
+                    "clsName": "GreenFleet.store.VehicleInfoStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleBriefStore.js"
+                    "name": "VehicleBriefStore.js",
+                    "clsName": "GreenFleet.store.VehicleBriefStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "DriverStore.js"
+                    "name": "DriverStore.js",
+                    "clsName": "GreenFleet.store.DriverStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "DriverBriefStore.js"
+                    "name": "DriverBriefStore.js",
+                    "clsName": "GreenFleet.store.DriverBriefStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "ReservationStore.js"
+                    "name": "ReservationStore.js",
+                    "clsName": "GreenFleet.store.ReservationStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "IncidentStore.js"
+                    "name": "IncidentStore.js",
+                    "clsName": "GreenFleet.store.IncidentStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "IncidentByVehicleStore.js"
+                    "name": "IncidentByVehicleStore.js",
+                    "clsName": "GreenFleet.store.IncidentByVehicleStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "IncidentViewStore.js"
+                    "name": "IncidentViewStore.js",
+                    "clsName": "GreenFleet.store.IncidentViewStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "IncidentLogStore.js"
+                    "name": "IncidentLogStore.js",
+                    "clsName": "GreenFleet.store.IncidentLogStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "TrackStore.js"
+                    "name": "TrackStore.js",
+                    "clsName": "GreenFleet.store.TrackStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleTypeStore.js"
+                    "name": "VehicleTypeStore.js",
+                    "clsName": "GreenFleet.store.VehicleTypeStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "OwnershipStore.js"
+                    "name": "OwnershipStore.js",
+                    "clsName": "GreenFleet.store.OwnershipStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleStatusStore.js"
+                    "name": "VehicleStatusStore.js",
+                    "clsName": "GreenFleet.store.VehicleStatusStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "CheckinDataStore.js"
+                    "name": "CheckinDataStore.js",
+                    "clsName": "GreenFleet.store.CheckinDataStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "TrackByVehicleStore.js"
+                    "name": "TrackByVehicleStore.js",
+                    "clsName": "GreenFleet.store.TrackByVehicleStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "RecentIncidentStore.js"
+                    "name": "RecentIncidentStore.js",
+                    "clsName": "GreenFleet.store.RecentIncidentStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "TerminalStore.js"
+                    "name": "TerminalStore.js",
+                    "clsName": "GreenFleet.store.TerminalStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "TerminalBriefStore.js"
+                    "name": "TerminalBriefStore.js",
+                    "clsName": "GreenFleet.store.TerminalBriefStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "TimeZoneStore.js"
+                    "name": "TimeZoneStore.js",
+                    "clsName": "GreenFleet.store.TimeZoneStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "LanguageCodeStore.js"
+                    "name": "LanguageCodeStore.js",
+                    "clsName": "GreenFleet.store.LanguageCodeStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleGroupStore.js"
+                    "name": "VehicleGroupStore.js",
+                    "clsName": "GreenFleet.store.VehicleGroupStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleRelationStore.js"
+                    "name": "VehicleRelationStore.js",
+                    "clsName": "GreenFleet.store.VehicleRelationStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleByGroupStore.js"
+                    "name": "VehicleByGroupStore.js",
+                    "clsName": "GreenFleet.store.VehicleByGroupStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleImageBriefStore.js"
+                    "name": "VehicleImageBriefStore.js",
+                    "clsName": "GreenFleet.store.VehicleImageBriefStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "ConsumableCodeStore.js"
+                    "name": "ConsumableCodeStore.js",
+                    "clsName": "GreenFleet.store.ConsumableCodeStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleConsumableStore.js"
+                    "name": "VehicleConsumableStore.js",
+                    "clsName": "GreenFleet.store.VehicleConsumableStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "ConsumableChangeStore.js"
+                    "name": "ConsumableChangeStore.js",
+                    "clsName": "GreenFleet.store.ConsumableChangeStore"
                 },
                 {
                     "path": "app/store/",
-                    "name": "RepairStore.js"
+                    "name": "RepairStore.js",
+                    "clsName": "GreenFleet.store.RepairStore"
                 },
                 {
                     "path": "app/model/",
-                    "name": "ConsumableHealth.js"
+                    "name": "ConsumableHealth.js",
+                    "clsName": "GreenFleet.model.ConsumableHealth"
                 },
                 {
                     "path": "app/store/",
-                    "name": "ConsumableStore.js"
+                    "name": "ConsumableStore.js",
+                    "clsName": "GreenFleet.store.ConsumableStore"
                 },
                 {
                     "path": "app/controller/",
-                    "name": "ApplicationController.js"
+                    "name": "ApplicationController.js",
+                    "clsName": "GreenFleet.controller.ApplicationController"
                 }
             ]
         },

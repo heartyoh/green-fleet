@@ -1,8 +1,8 @@
 #!/bin/bash
 lat=$1
 lng=$2
-#host="http://green-fleets.appspot.com"
-host="http://localhost:8888"
+host="http://green-fleets.appspot.com"
+#host="http://localhost:8888"
 tid=$3
 did=$4
 vid=$5
