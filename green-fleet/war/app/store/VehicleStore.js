@@ -30,6 +30,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'status',
 		type : 'string'
 	}, {
+		name : 'health_status',
+		type : 'string'
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	}, {

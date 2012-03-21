@@ -28,10 +28,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
@@ -129,7 +126,7 @@ public class VehicleGroupService extends EntityService {
 			return this.getResultMsg(false, "Not allowed empty vehicle group id!");
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = this.getCompanyKey(request);		
+		Key companyKey = this.getCompanyKey(request);
 		String key = (String)map.get("key");
 		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		

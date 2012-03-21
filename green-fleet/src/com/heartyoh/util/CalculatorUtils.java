@@ -107,7 +107,7 @@ public class CalculatorUtils {
 				consumable.setProperty("status", status);
 			}
 		}
-	}	
+	}
 
 	/**
 	 * 소모품 교체 단위가 Mileage일 경우 health rate 계산, 현재 차량 주행거리에서 마지막 교체 주행거리를 빼서 그 값과 교체 주행거리와의 비율을 계산

@@ -145,10 +145,11 @@ public class VehicleConsumableService extends EntityService {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		
-		// 0. 모든 company list를 가져옴		
-		List<Map<String, Object>> companies = (List<Map<String, Object>>)new CompanyService().retrieve(request, response).get("items");
+		// 0. 모든 company list를 가져옴
+		CompanyService cs = new CompanyService();
+		List<Map<String, Object>> companies = (List<Map<String, Object>>)cs.retrieve(request, response).get("items");
 		
-		for(Map<String, Object> company : companies) {						
+		for(Map<String, Object> company : companies) {
 			// 1. 모든 vehicle list 조회 
 			Key companyKey = KeyFactory.createKey("Company", (String)company.get("id"));
 			Iterator<Entity> vehicles = DatastoreUtils.findEntities(companyKey, "Vehicle", null);
@@ -156,7 +157,7 @@ public class VehicleConsumableService extends EntityService {
 			// 2. 차량별로 소모품에 대한 상태 처리
 			while(vehicles.hasNext()) {
 				Entity vehicle = vehicles.next();
-				String vehicleId = DataUtils.toString(vehicle.getProperty("vehicle_id"));
+				String vehicleId = DataUtils.toString(vehicle.getProperty("id"));
 				double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
 				
 				try {
@@ -184,14 +185,15 @@ public class VehicleConsumableService extends EntityService {
 		if(totalMileage < 1)
 			return;
 		
-		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", null);
+		Map<String, Object> filters = DataUtils.newMap("vehicle_id", vehicleId);
+		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", filters);
 		int count = 0;
 		
 		// 차량별로 각각의 consumable 정보를 가져옴
 		while(consumables.hasNext()) {
 			Entity consumable = consumables.next();
 			// consumable 별로 health rate와 status를 계산하여 업데이트
-			CalculatorUtils.recalcConsumableHealthRate(totalMileage, consumable);			
+			CalculatorUtils.recalcConsumableHealthRate(totalMileage, consumable);
 			// 변경되었다면 저장 TODO 변경된 것에 대해서만 저장
 			datastore.put(consumable);
 			count++;
@@ -279,7 +281,7 @@ public class VehicleConsumableService extends EntityService {
 		if(nextReplDate != null)
 			consumable.setProperty("next_repl_date", nextReplDate);
 		
-		if(nextReplMileage < 0f)
+		if(nextReplMileage >= 0f)
 			consumable.setProperty("next_repl_mileage", nextReplMileage);		
 	}
 	

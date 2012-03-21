@@ -69,6 +69,7 @@ public class VehicleService extends EntityService {
 		entity.setProperty("total_distance", doubleProperty(map, "total_distance"));
 		entity.setProperty("registration_number", map.get("registration_number"));
 		entity.setProperty("remaining_fuel", doubleProperty(map, "remaining_fuel"));
+		entity.setProperty("health_status", map.get("health_status"));
 
 		super.onSave(entity, map, datastore);
 	}

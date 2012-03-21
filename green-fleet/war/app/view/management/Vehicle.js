@@ -131,6 +131,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.status'),
 				type : 'string'
 			}, {
+				dataIndex : 'health_status',
+				text : T('label.health'),
+				type : 'string'
+			}, {
 				dataIndex : 'total_distance',
 				text : T('label.total_x', {x : T('label.distance')}),
 				type : 'string'
@@ -260,6 +264,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							displayField : 'desc',
 							valueField : 'status',
 							fieldLabel : T('label.status')
+						}, {
+							name : 'health_status',
+							fieldLabel : T('label.health')							
 						}, {
 							name : 'total_distance',
 							fieldLabel : T('label.total_x', {x : T('label.distance')})

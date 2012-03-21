@@ -43,6 +43,10 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.status'),
 		type : 'string'
 	}, {
+		dataIndex : 'health_status',
+		text : T('label.health'),
+		type : 'string'
+	}, {
 		dataIndex : 'total_distance',
 		text : T('label.total_x', { x : T('label.distance')}),
 		type : 'string'
