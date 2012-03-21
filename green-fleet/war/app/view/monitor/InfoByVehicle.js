@@ -51,38 +51,6 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.remaining_fuel'),
 		type : 'string'
 	}, {
-		dataIndex : 'distance_since_new_oil',
-		text : T('label.distance_since_new_oil'),
-		type : 'string'
-	}, {
-		dataIndex : 'engine_oil_status',
-		text : T('label.x_status', {x : T('label.engine_oil')}),
-		type : 'string'
-	}, {
-		dataIndex : 'fuel_filter_status',
-		text : T('label.x_status', {x : T('label.fuel_filter')}),
-		type : 'string'
-	}, {
-		dataIndex : 'brake_oil_status',
-		text : T('label.x_status', {x : T('label.brake_oil')}),
-		type : 'string'
-	}, {
-		dataIndex : 'brake_pedal_status',
-		text : T('label.x_status', {x : T('label.brake_pedal')}),
-		type : 'string'
-	}, {
-		dataIndex : 'cooling_water_status',
-		text : T('label.x_status', {x : T('label.cooling_water')}),
-		type : 'string'
-	}, {
-		dataIndex : 'timing_belt_status',
-		text : T('label.x_status', {x : T('label.timing_belt')}),
-		type : 'string'
-	}, {
-		dataIndex : 'spark_plug_status',
-		text : T('label.x_status', {x : T('label.spark_plug')}),
-		type : 'string'
-	}, {
 		dataIndex : 'lattitude',
 		text : T('label.lattitude')
 	}, {

@@ -19,6 +19,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -111,7 +112,7 @@ public class RepairService extends EntityService {
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		String vehicleId = request.getParameter("vehicle_id");
 		
-		if(vehicleId != null && !vehicleId.isEmpty())
+		if(!DataUtils.isEmpty(vehicleId))
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 		
 		q.addSort("repair_date", SortDirection.DESCENDING);

@@ -36,7 +36,7 @@ Ext.define('GreenFleet.store.VehicleByGroupStore', {
 	
 	proxy : {
 		type : 'ajax',
-		url : 'vehicle',
+		url : 'vehicle_group/vehicles',
 		reader : {
 			type : 'json',
 			root : 'items',

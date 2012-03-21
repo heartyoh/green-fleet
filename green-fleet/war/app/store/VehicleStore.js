@@ -39,9 +39,6 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'remaining_fuel',
 		type : 'float'
 	}, {
-		name : 'distance_since_new_oil',
-		type : 'float'
-	}, {
 		name : 'lattitude',
 		type : 'float'
 	}, {

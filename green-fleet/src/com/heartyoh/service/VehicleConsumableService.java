@@ -5,7 +5,7 @@ package com.heartyoh.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,12 +25,13 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.util.CalculatorUtils;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
+import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -144,31 +145,28 @@ public class VehicleConsumableService extends EntityService {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		
-		// 0. 모든 company list를 가져옴
-		CompanyService cs = new CompanyService();
-		Map<String, Object> companyResults = cs.retrieve(request, response);
-		List<Map<String, Object>> companies = (List<Map<String, Object>>)companyResults.get("items");
+		// 0. 모든 company list를 가져옴		
+		List<Map<String, Object>> companies = (List<Map<String, Object>>)new CompanyService().retrieve(request, response).get("items");
 		
-		for(Map<String, Object> company : companies) {
-						
-			// 1. 모든 vehicle list를 가져옴			
-			String companyId = (String)company.get("id");
-			Key companyKey = KeyFactory.createKey("Company", companyId);
-			List<Object[]> vehicles = this.retrieveVehicles(datastore, companyKey);
+		for(Map<String, Object> company : companies) {						
+			// 1. 모든 vehicle list 조회 
+			Key companyKey = KeyFactory.createKey("Company", (String)company.get("id"));
+			Iterator<Entity> vehicles = DatastoreUtils.findEntities(companyKey, "Vehicle", null);
 			
 			// 2. 차량별로 소모품에 대한 상태 처리
-			for(Object[] vehicleInfo : vehicles) {
-				String vehicleId = (String)vehicleInfo[0];
-				double totalMileage = (vehicleInfo[1] != null) ? ((vehicleInfo[1] instanceof Double) ? ((Double)vehicleInfo[1]).doubleValue() : Double.parseDouble(vehicleInfo[1].toString())) : 0d; 
+			while(vehicles.hasNext()) {
+				Entity vehicle = vehicles.next();
+				String vehicleId = DataUtils.toString(vehicle.getProperty("vehicle_id"));
+				double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
 				
 				try {
 					this.summaryVehicleConsumables(datastore, companyKey, vehicleId, totalMileage);
 				} catch (Exception e) {
 					logger.error("Failed to summary consumable status - vehicle id (" + vehicleId + ")!", e);
 				}
-			}
+			}		
 		}
-				
+			
 		return this.getResultMsg(true, "Summary tasks have been processed successfully!");
 	}
 	
@@ -186,65 +184,20 @@ public class VehicleConsumableService extends EntityService {
 		if(totalMileage < 1)
 			return;
 		
-		List<Entity> consumables = this.retrieveConsumables(datastore, companyKey, vehicleId);
+		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", null);
+		int count = 0;
 		
-		if(consumables.isEmpty()) 
-			return;
-		
-		// 3. 차량별로 각각의 consumable 정보를 가져옴
-		for(Entity consumable : consumables) {
-			// 4. consumable 별로 health rate와 status를 계산하여 업데이트
+		// 차량별로 각각의 consumable 정보를 가져옴
+		while(consumables.hasNext()) {
+			Entity consumable = consumables.next();
+			// consumable 별로 health rate와 status를 계산하여 업데이트
 			CalculatorUtils.recalcConsumableHealthRate(totalMileage, consumable);			
-			// 5. 변경 되었다면 저장
+			// 변경되었다면 저장 TODO 변경된 것에 대해서만 저장
 			datastore.put(consumable);
-		}
-	}
-	
-	/**
-	 * company별 모든 차량 조회
-	 * TODO Util로 이동 
-	 * 
-	 * @param datastore
-	 * @param companyKey
-	 * @return
-	 */
-	private List<Object[]> retrieveVehicles(DatastoreService datastore, Key companyKey) {
-		
-		Query q = new Query("Vehicle");
-		q.setAncestor(companyKey);
-
-		PreparedQuery pq = datastore.prepare(q);
-		List<Object[]> items = new LinkedList<Object[]>();
-		
-		for (Entity result : pq.asIterable()) {
-			Object[] vehicleInfo = new Object[]{ result.getProperty("id"), result.getProperty("total_distance") };
-			items.add(vehicleInfo);
+			count++;
 		}
 		
-		return items;
-	}
-	
-	/**
-	 * 차량별 소모품 목록 조회 
-	 * 
-	 * @param datastore
-	 * @param companyKey
-	 * @param vehicleId
-	 * @return
-	 */
-	private List<Entity> retrieveConsumables(DatastoreService datastore, Key companyKey, String vehicleId) {
-		
-		Query q = new Query("VehicleConsumable");
-		q.setAncestor(companyKey);
-
-		PreparedQuery pq = datastore.prepare(q);
-		List<Entity> items = new LinkedList<Entity>();
-		
-		for (Entity result : pq.asIterable()) {
-			items.add(result);
-		}
-		
-		return items;		
+		logger.info("Updated vehicle (id :" + vehicleId + ") consumable health status - (" + count + ") count!");
 	}
 		
 	@RequestMapping(value = "/vehicle_consumable/import", method = RequestMethod.POST)
@@ -264,18 +217,108 @@ public class VehicleConsumableService extends EntityService {
 	String delete(HttpServletRequest request, HttpServletResponse response) {
 		return super.delete(request, response);
 	}
+	
+	@RequestMapping(value = "/vehicle_consumable/reset", method = RequestMethod.POST)
+	public @ResponseBody
+	String reset(HttpServletRequest request, HttpServletResponse response) {
+		
+		String vehicleId = request.getParameter("vehicle_id");
+		String consumableItem = request.getParameter("consumable_item");
+		
+		if(DataUtils.isEmpty(vehicleId))
+			return this.getResultMsg(false, "Vehicle id is required!");
+		
+		if(DataUtils.isEmpty(consumableItem))
+			return this.getResultMsg(false, "Consumable item is required!");		
+		
+		Key companyKey = this.getCompanyKey(request);
+		Map<String, Object> filters = DataUtils.newMap(new String[] {"vehicle_id", "consumable_item"}, new Object[] {vehicleId, consumableItem});		
+		Entity consumable = DatastoreUtils.findEntity(companyKey, "VehicleConsumable", filters);
+		Entity vehicle = DatastoreUtils.findVehicle(companyKey, vehicleId);
+		this.resetConsumable(vehicle, consumable);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		datastore.put(consumable);
+		return this.getResultMsg(true, "Consumable Reset Have been processed successfully.");
+	}
 
+	/**
+	 * 소모품의 최근 교체일, 최근 교체 주행거리, 다음 교체일, 다음 교체 주행거리, 건강율, 상태 등의 정보를 업데이트한다. 
+	 * 
+	 * @param vehicle
+	 * @param consumable
+	 */
+	private void resetConsumable(Entity vehicle, Entity consumable) {
+		
+		double currentMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
+		String replUnit = DataUtils.toNotNull(consumable.getProperty("repl_unit"));
+		Date nextReplDate = null;
+		float nextReplMileage = -1f;
+		
+		// 다음 교체일 계산
+		if(GreenFleetConstant.REPL_UNIT_TIME.equals(replUnit) || GreenFleetConstant.REPL_UNIT_MILEAGE.equals(replUnit)) {			
+			int replMonth = DataUtils.toInt(consumable.getProperty("repl_time"));
+			if(replMonth > 0) {
+				int amount = replMonth * 30;
+				nextReplDate = DataUtils.add(new Date(), amount);
+			}
+		} 
+		
+		// 다음 교체 주행거리 계산 
+		if(GreenFleetConstant.REPL_UNIT_MILEAGE_TIME.equals(replUnit) || GreenFleetConstant.REPL_UNIT_MILEAGE.equals(replUnit)) {
+			float replMiles = DataUtils.toFloat(consumable.getProperty("repl_mileage"));
+			if(replMiles > 1f) {
+				nextReplMileage = (float)currentMileage + replMiles;
+			}
+		}
+		
+		consumable.setProperty("last_repl_date", new Date());
+		consumable.setProperty("miles_last_repl", currentMileage);
+		consumable.setProperty("health_rate", 0f);
+		consumable.setProperty("status", "Healthy");
+		
+		if(nextReplDate != null)
+			consumable.setProperty("next_repl_date", nextReplDate);
+		
+		if(nextReplMileage < 0f)
+			consumable.setProperty("next_repl_mileage", nextReplMileage);		
+	}
+	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/vehicle_consumable", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		
-		Map<String, Object> vehicleConsumables = super.retrieve(request, response);
+		Map<String, Object> consumables = super.retrieve(request, response);
 		
-		if(DataUtils.toInt(vehicleConsumables.get("total")) <= 0 ) {
+		if(DataUtils.toInt(consumables.get("total")) <= 0) {
 			this.initConsumables(request, response);			
 		} 
 
-		return super.retrieve(request, response);
+		consumables = super.retrieve(request, response);
+		this.adjustMileage(request, (List<Map<String, Object>>)consumables.get("items"));
+		return consumables;
+	}
+	
+	/**
+	 * 차량의 소모품 리스트 조회시 소모품 리스트 별로 소모품 교체 후 주행거리를 계산하여 세팅해준다.
+	 * 소모품 교체 후 주행거리는 상태 정보로 가지고 있지 않으므로 조회시 마다 계산해준다. 
+	 * 
+	 * @param request
+	 * @param consumables
+	 */
+	private void adjustMileage(HttpServletRequest request, List<Map<String, Object>> consumables) {
+		
+		if(DataUtils.isEmpty(request.getParameter("vehicle_id")))
+			return;
+		
+		Key companyKey = this.getCompanyKey(request);
+		Entity vehicle = DatastoreUtils.findVehicle(companyKey, request.getParameter("vehicle_id"));
+		double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
+		
+		for(Map<String, Object> consumable : consumables) {
+			float milesLastRepl = DataUtils.toFloat(consumable.get("miles_last_repl"));
+			consumable.put("miles_since_last_repl", totalMileage - milesLastRepl);
+		}
 	}
 	
 	/**
@@ -287,42 +330,40 @@ public class VehicleConsumableService extends EntityService {
 	private void initConsumables(HttpServletRequest request, HttpServletResponse response) {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key companyKey = this.getCompanyKey(request);		
-		Query q = new Query("ConsumableCode");
-		q.setAncestor(companyKey);		
-
-		PreparedQuery pq = datastore.prepare(q);
-		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
+		List<Entity> entities = new ArrayList<Entity>();		
+		Key companyKey = this.getCompanyKey(request);
 		Date now = new Date();
-				
-		for (Entity result : pq.asIterable()) {
-			Map<String, Object> item = SessionUtils.cvtEntityToMap(result);
+		Iterator<Entity> consumableCodes = DatastoreUtils.findEntities(companyKey, "ConsumableCode", null);
+		
+		// 소모품 기준 정보로 부터 데이터를 모두 가져와서 차량에 대한 기준정보로 추가 
+		while (consumableCodes.hasNext()) {
+			Entity consumableCode = consumableCodes.next();
+			Map<String, Object> item = SessionUtils.cvtEntityToMap(consumableCode);
 			item.put("_now", now);
-			item.put("_company_key", companyKey);			
+			item.put("_company_key", companyKey);		
 			item.put("consumable_item", item.remove("name"));
 			item.put("key", "");
 			item.remove("desc");
 			item.put("miles_last_repl", 0);
+			item.put("last_repl_date", null);
 			item.put("next_repl_mileage", 0);
+			item.put("next_repl_date", null);
 			item.put("accrued_cost", 0);
+			item.put("health_rate", 0f);
+			item.put("status", "Healthy");
 			item.put("vehicle_id", request.getParameter("vehicle_id"));
-			items.add(item);
-		}
-		
-		List<Entity> entities = new ArrayList<Entity>();
-		
-		for(Map<String, Object> item : items) {
+			
 			Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(item));		
 			Entity obj = new Entity(objKey);
 			try {
-				onCreate(obj, item, datastore);				
-				onSave(obj, item, datastore);
+				onCreate(obj, item, datastore);
+				onSave(obj, item, datastore);				
 				entities.add(obj);
 			} catch (Exception e) {
 				logger.error("Error at OnCreate", e);
-			}			
+			}
 		}
-			
+		
 		Transaction txn = datastore.beginTransaction();
 		try {
 			datastore.put(entities);
@@ -340,4 +381,5 @@ public class VehicleConsumableService extends EntityService {
 		if(!DataUtils.isEmpty(vehicleId))
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 	}
+	
 }

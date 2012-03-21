@@ -194,6 +194,7 @@ T({
 		recent_replacement : 'Recent Replacement',		
 		last_repl_date : 'Last Repl. Date',
 		miles_last_repl : 'Miles Last Repl.',
+		miles_since_last_repl : 'Miles Since Last Repl.',
 		next_repl_mileage : 'Next Repl. Mileage',
 		next_repl_date : 'Next Repl. Date',
 		cost : 'Cost',

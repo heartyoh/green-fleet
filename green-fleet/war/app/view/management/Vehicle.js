@@ -139,10 +139,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.remaining_fuel'),
 				type : 'string'
 			}, {
-				dataIndex : 'distance_since_new_oil',
-				text : T('label.distance_since_new_oil'),
-				type : 'string'
-			}, {
 				dataIndex : 'lattitude',
 				text : T('label.lattitude')
 			}, {
@@ -270,9 +266,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 						}, {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
-						}, {
-							name : 'distance_since_new_oil',
-							fieldLabel : T('label.distance_since_new_oil')
 						}, {
 							name : 'driver_id',
 							fieldLabel : T('label.driver'),

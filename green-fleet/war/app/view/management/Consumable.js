@@ -241,11 +241,15 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'last_repl_date',
 				xtype : 'datecolumn',
 				format : F('date'),
-				width : 130				
+				width : 90				
 			}, {
 				header : T('label.miles_last_repl') + ' (km)',
 				dataIndex : 'miles_last_repl',
-				width : 130
+				width : 140
+			}, {
+				header : T('label.miles_since_last_repl') + ' (km)',
+				dataIndex : 'miles_since_last_repl',
+				width : 145
 			}, {
 				header : T('label.next_repl_mileage') + ' (km)',
 				dataIndex : 'next_repl_mileage',
@@ -255,7 +259,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 				dataIndex : 'next_repl_date',
 				xtype : 'datecolumn',
 				format : F('date'),				
-				width : 120				
+				width : 90				
 			}, {
 				header : T('label.accrued_cost'),
 				dataIndex : 'accrued_cost'				
@@ -295,10 +299,42 @@ Ext.define('GreenFleet.view.management.Consumable', {
                     		var newRecord = {
                     			data : {
                     				vehicle_id : record.data.vehicle_id,
-                    				consumable_item : record.data.consumable_item                    				
+                    				consumable_item : record.data.consumable_item
                     			}
                     		};
                     		consumable.addConsumableChangeItem(newRecord);
+                    	}                 	
+                    }
+                ]		
+			}, {
+				xtype:'actioncolumn',
+				width : 50,
+				align : 'center',
+	            items: [
+                    {
+                    	icon : '/resources/image/iconRefreshOn.png',
+                    	tooltip: 'Reset',
+                    	handler: function(grid, rowIndex, colIndex) {
+                    		var record = grid.store.getAt(rowIndex);
+                			Ext.Ajax.request({
+                			    url: '/vehicle_consumable/reset',
+                			    method : 'POST',
+                			    params: {
+                    				vehicle_id : record.data.vehicle_id,
+                    				consumable_item : record.data.consumable_item
+                			    },
+                			    success: function(response) {
+                			        var resultObj = Ext.JSON.decode(response.responseText);
+                			        if(resultObj.success) {
+                				        GreenFleet.msg("Success", resultObj.msg);
+                			        } else {
+                			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+                			        }
+                			    },
+                			    failure: function(response) {
+                			        Ext.MessageBox.alert("Failure", response.responseText);
+                			    }
+                			});                    		
                     	}                 	
                     }
                 ]		

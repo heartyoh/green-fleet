@@ -58,9 +58,14 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 										form.loadRecord(store.findRecord('key', action.result.key));
 									});
 								}
+								
+								if(action.result.success)
+									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+								else
+									Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
 							},
 							failure : function(form, action) {
-								Ext.msg.alert(T('msg.failed_to_save'), action.result.msg);
+								Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
 							}
 						});
 					}					
@@ -95,7 +100,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 								form.reset();
 							},
 							failure : function(form, action) {
-								Ext.msg.alert(T('msg.failed_to_delete'), action.result.msg);
+								Ext.Msg.alert(T('msg.failed_to_delete'), action.result.msg);
 							}
 						});
 					}					

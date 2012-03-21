@@ -40,9 +40,17 @@ import com.google.appengine.api.files.FileWriteChannel;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
+import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
+/**
+ * 각 엔티티의 콘트롤러 클래스의 부모 클래스 
+ * 
+ * @author heartyoh
+ */
 public abstract class EntityService {
+	
 	private static final Logger logger = LoggerFactory.getLogger(EntityService.class);
 	private static final Map<String, Object> emptyMap = new HashMap<String, Object>();
 
@@ -262,6 +270,17 @@ public abstract class EntityService {
 		response.setContentType("text/html");
 		return this.getResultMsg(true, "Imported " + successCount + " count successfully!");
 	}
+	
+	/**
+	 * Entity save
+	 * Entity save시 구현 서비스에서 다른 작업 (예를 들면 Transaction 처리 등...)을 할 수 있도록 ...  
+	 * 
+	 * @param datastore
+	 * @param obj
+	 */
+	protected void saveEntity(DatastoreService datastore, Entity obj) {
+		datastore.put(obj);
+	}
 
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -273,7 +292,7 @@ public abstract class EntityService {
 		String key = request.getParameter("key");
 		Key companyKey = this.getCompanyKey(request);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
-		Key objKey = (key != null && key.trim().length() > 0) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
+		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		
 		boolean creating = false;
 		Entity obj = null;
@@ -302,8 +321,8 @@ public abstract class EntityService {
 			}
 
 			onSave(obj, map, datastore);
-
-			datastore.put(obj);
+			this.saveEntity(datastore, obj);
+			
 		} finally {
 		}
 
@@ -380,10 +399,8 @@ public abstract class EntityService {
 		
 		String key = request.getParameter("key");
 		if(key != null) {
-			try {
-				entity = datastore.get(KeyFactory.stringToKey(key));
-			} catch (EntityNotFoundException e) {
-			}
+			entity = DatastoreUtils.findByKey(key);
+			
 		} else {
 			List<Filter> filters = this.parseFilters(request.getParameter("filter"));
 

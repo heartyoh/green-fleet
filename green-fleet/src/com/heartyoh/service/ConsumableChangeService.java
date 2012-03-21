@@ -18,15 +18,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.util.CalculatorUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
@@ -87,6 +84,40 @@ public class ConsumableChangeService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 	
+	@RequestMapping(value = "/consumable_change/import", method = RequestMethod.POST)
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
+		return super.imports(request, response);
+	}
+
+	@RequestMapping(value = "/consumable_change/save", method = RequestMethod.POST)
+	public @ResponseBody
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return super.save(request, response);
+	}
+	
+	/**
+	 * Entity save
+	 * Entity save시 구현 서비스에서 다른 작업 (예를 들면 Transaction 처리 등...)을 할 수 있도록 ...  
+	 * 
+	 * @param datastore
+	 * @param obj
+	 */
+	protected void saveEntity(DatastoreService datastore, Entity obj) {
+		
+		Transaction txn = datastore.beginTransaction();
+		try {
+			Entity consumable = this.recalcConsumable(obj.getKey().getParent(), obj);
+			datastore.put(obj);
+			datastore.put(consumable);
+			txn.commit();
+			
+		} catch (Exception e) {
+			logger.error("Failed to save consumable change!", e);
+			txn.rollback();
+		} 
+	}
+	
 	/**
 	 * 소모품 기준 정보 혹은 소모품 교체 이력 추가에 따른 다음 교체일, 다음 교체시점의 주행거리 등의 정보 업데이트  
 	 * 
@@ -98,70 +129,10 @@ public class ConsumableChangeService extends EntityService {
 		// vehicle, consumable 정보를 모두 찾아서 업데이트 ...
 		Entity vehicle = DatastoreUtils.findVehicle(companyKey, (String)consumableChange.getProperty("vehicle_id"));
 		Entity consumable = DatastoreUtils.findConsumable(companyKey, (String)consumableChange.getProperty("vehicle_id"), (String)consumableChange.getProperty("consumable_item"));
-		double totalMileage = DataUtils.toFloat(vehicle.getProperty("total_distance"));
+		double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
 		CalculatorUtils.recalcConsumableInfo(totalMileage, consumable, consumableChange);
 		return consumable;
-	}
-	
-	@RequestMapping(value = "/consumable_change/import", method = RequestMethod.POST)
-	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		return super.imports(request, response);
-	}
-
-	@RequestMapping(value = "/consumable_change/save", method = RequestMethod.POST)
-	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		Map<String, Object> map = toMap(request);
-		if (request instanceof MultipartHttpServletRequest) {
-			preMultipart(map, (MultipartHttpServletRequest) request);
-		}
-
-		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
-		Key objKey = (key != null && key.trim().length() > 0) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
-		
-		boolean creating = false;
-		Entity obj = null;
-
-		try {
-			obj = datastore.get(objKey);
-		} catch (EntityNotFoundException e) {
-			creating = true;
-		}		
-
-		Date now = new Date();
-		map.put("_now", now);
-		map.put("_company_key", companyKey);
-
-		if (creating) {
-			obj = new Entity(objKey);
-			onCreate(obj, map, datastore);
-		}
-
-		if (request instanceof MultipartHttpServletRequest) {
-			postMultipart(obj, map, (MultipartHttpServletRequest) request);
-		}
-
-		onSave(obj, map, datastore);
-		Transaction txn = datastore.beginTransaction();
-		
-		try {
-			Entity consumable = this.recalcConsumable(companyKey, obj);
-			datastore.put(obj);
-			datastore.put(consumable);
-			txn.commit();
-			
-		} catch (Exception e) {
-			logger.error("Failed to save consumable change!", e);
-			txn.rollback();
-		} 
-
-		response.setContentType("text/html");
-		return this.getCreateResultMsg(true, obj);		
-	}
+	}	
 
 	@RequestMapping(value = "/consumable_change/delete", method = RequestMethod.POST)
 	public @ResponseBody
@@ -180,10 +151,10 @@ public class ConsumableChangeService extends EntityService {
 		String vehicleId = request.getParameter("vehicle_id");
 		String consumableItem = request.getParameter("consumable_item");
 		
-		if(vehicleId != null && !vehicleId.isEmpty())
+		if(!DataUtils.isEmpty(vehicleId))
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 		
-		if(consumableItem != null && !consumableItem.isEmpty())
+		if(!DataUtils.isEmpty(consumableItem))
 			q.addFilter("consumable_item", FilterOperator.EQUAL, consumableItem);
 		
 		q.addSort("repl_date", SortDirection.DESCENDING);
