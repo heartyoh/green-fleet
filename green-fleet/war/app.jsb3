@@ -431,8 +431,8 @@
                 },
                 {
                     "path": "app/store/",
-                    "name": "ConsumableChangeStore.js",
-                    "clsName": "GreenFleet.store.ConsumableChangeStore"
+                    "name": "ConsumableHistoryStore.js",
+                    "clsName": "GreenFleet.store.ConsumableHistoryStore"
                 },
                 {
                     "path": "app/store/",

@@ -23,7 +23,9 @@ FORM_VIDEO="video_clip=@/Users/shnam/Desktop/v.mp4;type=video/mp4"
 	
 echo $FORM_COMPANY $FORM_TERMINAL $FORM_DT $FORM_VIDEO
 	
-curl=`curl --max-time 60 --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO $host/incident/upload_video`
+#curl=`curl --max-time 120 --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO $host/incident/upload_video`
+curl=`curl --form $FORM_COMPANY --form $FORM_TERMINAL --form "$FORM_DT" --form $FORM_VIDEO $host/incident/upload_video`
+echo $curl
 	
 FORM_LOG="file=@/Users/shnam/Desktop/IncidentLog.csv"
 	
