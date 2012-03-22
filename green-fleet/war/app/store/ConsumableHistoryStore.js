@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.store.ConsumableChangeStore', {
+Ext.define('GreenFleet.store.ConsumableHistoryStore', {
 	extend : 'Ext.data.Store',
 
-	storeId : 'consumable_change_store',
+	storeId : 'consumable_history_store',
 	
 	fields : [ 
 		{
@@ -14,12 +14,12 @@ Ext.define('GreenFleet.store.ConsumableChangeStore', {
 			name : 'consumable_item',
 			type : 'string'
 		}, {
-			name : 'repl_date',
+			name : 'last_repl_date',
 			type : 'date',
 			dateFormat:'time'
 		}, {			
-			name : 'repl_mileage',
-			type : 'int'
+			name : 'miles_last_repl',
+			type : 'float'
 		}, {
 			name : 'worker',
 			type : 'string'
@@ -27,11 +27,11 @@ Ext.define('GreenFleet.store.ConsumableChangeStore', {
 			name : 'component',
 			type : 'string'
 		}, {
-			name : 'comment',
-			type : 'string'
-		}, {
 			name : 'cost',
 			type : 'int'				
+		}, {
+			name : 'comment',
+			type : 'string'				
 		}, {
 			name : 'created_at',
 			type : 'date',
@@ -47,7 +47,7 @@ Ext.define('GreenFleet.store.ConsumableChangeStore', {
 
 	proxy : {
 		type : 'ajax',
-		url : 'consumable_change',		
+		url : 'vehicle_consumable/history',		
 		reader : {
 			type : 'json',
 			root : 'items',

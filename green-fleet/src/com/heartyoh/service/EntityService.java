@@ -252,6 +252,7 @@ public abstract class EntityService {
 				Key key = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 				Entity entity = null;
 
+				// TODO Transaction 처리 ?
 				try {
 					entity = datastore.get(key);
 				} catch (EntityNotFoundException e) {
@@ -260,7 +261,7 @@ public abstract class EntityService {
 				}
 
 				onSave(entity, map, datastore);
-				datastore.put(entity);
+				this.saveEntity(entity, map, datastore);
 				successCount++;
 			}
 		} finally {
@@ -272,12 +273,13 @@ public abstract class EntityService {
 	
 	/**
 	 * Entity save
-	 * Entity save시 구현 서비스에서 다른 작업 (예를 들면 Transaction 처리 등...)을 할 수 있도록 ...  
+	 * Entity save시 구현 서비스에서 다른 작업 (예를 들면 Transaction 처리, 이력 관리 등...)을 할 수 있도록 ...  
 	 * 
+	 * @param entity
+	 * @param map
 	 * @param datastore
-	 * @param obj
 	 */
-	protected void saveEntity(DatastoreService datastore, Entity obj) {
+	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) {
 		datastore.put(obj);
 	}
 
@@ -320,7 +322,7 @@ public abstract class EntityService {
 			}
 
 			onSave(obj, map, datastore);
-			this.saveEntity(datastore, obj);
+			this.saveEntity(obj, map, datastore);
 			
 		} finally {
 		}

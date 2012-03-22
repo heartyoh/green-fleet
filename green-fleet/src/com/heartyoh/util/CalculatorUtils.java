@@ -18,13 +18,54 @@ import com.google.appengine.api.datastore.Entity;
 public class CalculatorUtils {
 	
 	/**
+	 * 소모품의 최근 교체일, 최근 교체 주행거리, 다음 교체일, 다음 교체 주행거리, 건강율, 상태 등의 정보를 업데이트한다. 
+	 * 
+	 * @param currentVehicleMileage
+	 * @param consumable
+	 */
+	public static void resetConsumable(double currentVehicleMileage, Entity consumable) {
+		
+		String replUnit = DataUtils.toNotNull(consumable.getProperty("repl_unit"));
+		Date nextReplDate = null;
+		float nextReplMileage = -1f;
+		
+		// 다음 교체일 계산
+		if(GreenFleetConstant.REPL_UNIT_TIME.equals(replUnit) || GreenFleetConstant.REPL_UNIT_MILEAGE_TIME.equals(replUnit)) {			
+			int replMonth = DataUtils.toInt(consumable.getProperty("repl_time"));
+			if(replMonth > 0) {
+				int amount = replMonth * 30;
+				nextReplDate = DataUtils.add(new Date(), amount);
+			}
+		} 
+		
+		// 다음 교체 주행거리 계산 
+		if(GreenFleetConstant.REPL_UNIT_MILEAGE.equals(replUnit) || GreenFleetConstant.REPL_UNIT_MILEAGE_TIME.equals(replUnit)) {
+			float replMiles = DataUtils.toFloat(consumable.getProperty("repl_mileage"));
+			if(replMiles > 1f) {
+				nextReplMileage = (float)currentVehicleMileage + replMiles;
+			}
+		}
+		
+		consumable.setProperty("last_repl_date", new Date());
+		consumable.setProperty("miles_last_repl", (float)currentVehicleMileage);
+		consumable.setProperty("health_rate", 0f);
+		consumable.setProperty("status", "Healthy");
+		
+		if(nextReplDate != null)
+			consumable.setProperty("next_repl_date", nextReplDate);
+		
+		if(nextReplMileage >= 0f)
+			consumable.setProperty("next_repl_mileage", nextReplMileage);		
+	}	
+	
+	/**
 	 * consumableChange로 부터 consumable 정보를 모두 재계산하여 업데이트한다.  
 	 * 
 	 * @param totalMileage
 	 * @param consumable
 	 * @param consumableChange
 	 */
-	public static void recalcConsumableInfo(double totalMileage, Entity consumable, Entity consumableChange) {
+	public static void calcConsumableInfo(double totalMileage, Entity consumable, Entity consumableChange) {
 		
 		// 교체 단위 
 		String replUnit = DataUtils.toNotNull(consumable.getProperty("repl_unit"));
@@ -68,7 +109,7 @@ public class CalculatorUtils {
 		}
 		
 		// 건강율, 상태 
-		recalcConsumableHealthRate(totalMileage, consumable);
+		calcConsumableHealth(totalMileage, consumable);
 	}
 	
 	/**
@@ -76,8 +117,9 @@ public class CalculatorUtils {
 	 * 
 	 * @param totalMileage
 	 * @param consumable
+	 * @return 변경된 내용이 있으면 true, 변경된 내용이 없으면 false 
 	 */
-	public static void recalcConsumableHealthRate(double totalMileage, Entity consumable) {
+	public static boolean calcConsumableHealth(double totalMileage, Entity consumable) {
 		
 		// 계산 로직 
 		String replUnit = DataUtils.toNotNull(consumable.getProperty("repl_unit"));
@@ -97,7 +139,7 @@ public class CalculatorUtils {
 			
 		// 4. 그 외 계산 하지 않음
 		} else {
-			return;
+			return false;
 		}
 		
 		if(newHealthRate >= 0f) {
@@ -106,6 +148,10 @@ public class CalculatorUtils {
 			if(status != null) {
 				consumable.setProperty("status", status);
 			}
+			
+			return true;
+		} else {
+			return false;
 		}
 	}
 

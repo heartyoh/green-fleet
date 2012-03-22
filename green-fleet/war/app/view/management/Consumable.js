@@ -353,7 +353,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 	zconsumable_history : {
 		xtype : 'grid',
 		itemId : 'consumable_history_grid',
-		store : 'ConsumableChangeStore',
+		store : 'ConsumableHistoryStore',
 		cls : 'hIndexbar',
 		title : T('title.consumable_change_history'),		
 		flex : 1,
@@ -363,12 +363,12 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			dataIndex : 'consumable_item'
 		}, {
 			header : T('label.repl_date'),
-			dataIndex : 'repl_date',
+			dataIndex : 'last_repl_date',
 			xtype : 'datecolumn',
 			format : F('date')
 		}, {			
 			header : T('label.repl_mileage') + " (km)",
-			dataIndex : 'repl_mileage'
+			dataIndex : 'miles_last_repl'
 		}, {
 			header : T('label.worker'),
 			dataIndex : 'worker'
@@ -378,7 +378,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 		}, {
 			header : T('label.cost'),
 			dataIndex : 'cost'
-		}, {			
+		}, {
 			header : T('label.comment'),
 			dataIndex : 'comment'				
 		}, {
@@ -741,7 +741,6 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									name : 'health_rate',
 									fieldLabel : T('label.health_rate'),
 									minValue : 0,
-									maxValue : 5.0,
 									step : 0.1
 								}, {
 									name : 'status',
@@ -907,7 +906,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 			    		var thisForm = win.down('form');
 			    		
 			    		thisForm.getForm().submit({
-		                    url: '/consumable_change/save',
+		                    url: '/vehicle_consumable/replace',
 		                    submitEmptyText: false,
 		                    waitMsg: T('msg.saving'),
 		                    params: {
@@ -918,7 +917,7 @@ Ext.define('GreenFleet.view.management.Consumable', {
 		                    	if(action.result.success) {		                    		
 		                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
 		                    		win.close();
-		                    		var store = Ext.getStore('ConsumableChangeStore');
+		                    		var store = Ext.getStore('ConsumableHistoryStore');
 		                    		store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 		                    		store.getProxy().extraParams.consumable_item = record.data.consumable_item;
 		                    		store.load();
