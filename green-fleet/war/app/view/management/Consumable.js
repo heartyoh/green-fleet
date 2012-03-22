@@ -299,9 +299,11 @@ Ext.define('GreenFleet.view.management.Consumable', {
                     		var newRecord = {
                     			data : {
                     				vehicle_id : record.data.vehicle_id,
-                    				consumable_item : record.data.consumable_item
+                    				consumable_item : record.data.consumable_item,
+                    				last_repl_date : new Date()
                     			}
                     		};
+        					
                     		consumable.addConsumableChangeItem(newRecord);
                     	}                 	
                     }
@@ -487,7 +489,9 @@ Ext.define('GreenFleet.view.management.Consumable', {
         									}, {
         										xtype : 'numberfield',
         										name : 'repair_mileage',
-        										fieldLabel : T('label.repair_mileage') + ' (km)'
+        										fieldLabel : T('label.repair_mileage') + ' (km)',
+        										minValue : 0,
+        										step : 1000
         									}, {
         										name : 'repair_man',
         										fieldLabel : T('label.repair_man')
@@ -498,7 +502,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
         										xtype : 'numberfield',
         										name : 'cost',
         										fieldLabel : T('label.cost'),
-        										minValue : 0					
+        										minValue : 0,
+        										step : 1000
         									}, {
         										xtype : 'textarea',
         										name : 'content',
@@ -688,11 +693,11 @@ Ext.define('GreenFleet.view.management.Consumable', {
 								}, {
 									name : 'repl_unit',
 									fieldLabel : T('label.repl_unit'),									
-									disabled : true,
+									disabled : true
 								}, {
 									name : 'repl_mileage',
 									fieldLabel : T('label.repl_mileage'),
-									disabled : true,
+									disabled : true
 								}, {
 									name : 'repl_time',
 									fieldLabel : T('label.repl_time') + '(month)',
@@ -720,7 +725,8 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									xtype : 'numberfield',
 									name : 'miles_last_repl',
 									fieldLabel : T('label.miles_last_repl'),
-									minValue : 0
+									minValue : 0,
+									step : 1000
 								}, {
 									name : 'next_repl_date',
 									fieldLabel : T('label.next_repl_date'),
@@ -731,11 +737,14 @@ Ext.define('GreenFleet.view.management.Consumable', {
 									xtype : 'numberfield',
 									name : 'next_repl_mileage',
 									fieldLabel : T('label.next_repl_mileage'),
-									minValue : 0
+									minValue : 0,
+									step : 1000
 								}, {
 									xtype : 'numberfield',
 									name : 'accrued_cost',
-									fieldLabel : T('label.accrued_cost')
+									fieldLabel : T('label.accrued_cost'),
+									minValue : 0,
+									step : 1000
 								}, {
 									xtype : 'numberfield',
 									name : 'health_rate',
@@ -861,23 +870,25 @@ Ext.define('GreenFleet.view.management.Consumable', {
 						    items: [
 								{
 									xtype : 'datefield',
-									name : 'repl_date',
+									name : 'last_repl_date',
 									fieldLabel : T('label.repl_date'),
 									format : F('date'),
-									value : new Date(),
+									//value : new Date(),
 									maxValue : new Date()
 								}, 
 								{
 									xtype : 'numberfield',
-									name : 'repl_mileage',
+									name : 'miles_last_repl',
 									fieldLabel : T('label.repl_mileage'),
 									minValue : 0,
+									step : 1000,
 									maxValue : 500000
 								}, {
 									xtype : 'numberfield',
 									name : 'cost',
 									fieldLabel : T('label.cost'),
 									minValue : 0,
+									step : 1000,
 									value : 0,
 									allowBlank : false
 								}, {

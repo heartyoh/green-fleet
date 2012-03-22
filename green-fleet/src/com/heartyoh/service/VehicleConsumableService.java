@@ -32,7 +32,6 @@ import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.util.CalculatorUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
-import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -168,37 +167,32 @@ public class VehicleConsumableService extends HistoricEntityService {
 		}
 	}	
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/vehicle_consumable/summary", method = RequestMethod.GET)
 	public @ResponseBody
 	String summary(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		if(DataUtils.isEmpty(request.getParameter("company")))
+			throw new Exception("Request parameter [company] is required!");
+		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();				
+		Key companyKey = KeyFactory.createKey("Company", request.getParameter("company"));
+		// 1. Request에 지정된 회사에 대한 것만 처리 
+		Iterator<Entity> vehicles = DatastoreUtils.findEntities(companyKey, "Vehicle", null);
 		int count = 0;
 		
-		// 0. 모든 company list를 가져옴
-		CompanyService cs = new CompanyService();
-		List<Map<String, Object>> companies = (List<Map<String, Object>>)cs.retrieve(request, response).get("items");
-		
-		for(Map<String, Object> company : companies) {
-			// 1. 모든 vehicle list 조회 
-			Key companyKey = KeyFactory.createKey("Company", (String)company.get("id"));
-			Iterator<Entity> vehicles = DatastoreUtils.findEntities(companyKey, "Vehicle", null);
+		// 2. 차량별로 소모품에 대한 상태 처리
+		while(vehicles.hasNext()) {
+			Entity vehicle = vehicles.next();
+			String vehicleId = DataUtils.toString(vehicle.getProperty("id"));
+			double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
 			
-			// 2. 차량별로 소모품에 대한 상태 처리
-			while(vehicles.hasNext()) {
-				Entity vehicle = vehicles.next();
-				String vehicleId = DataUtils.toString(vehicle.getProperty("id"));
-				double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
-				
-				try {
-					count += this.summaryConsumableStatus(datastore, companyKey, vehicleId, totalMileage);
-				} catch (Exception e) {
-					logger.error("Failed to summary consumable status - vehicle id (" + vehicleId + ")!", e);
-				}
-			}		
+			try {
+				count += this.summaryConsumableStatus(datastore, companyKey, vehicleId, totalMileage);
+			} catch (Exception e) {
+				logger.error("Failed to summary consumable status - vehicle id (" + vehicleId + ")!", e);
+			}
 		}
-			
+		
 		return this.getResultMsg(true, "Summary tasks (" + count + " count) have been processed successfully!");
 	}
 	
