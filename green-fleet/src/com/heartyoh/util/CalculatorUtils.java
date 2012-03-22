@@ -5,9 +5,11 @@ package com.heartyoh.util;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 
 /**
  * 각종 계산 함수를 제공하는 유틸리티 클래스 
@@ -16,6 +18,37 @@ import com.google.appengine.api.datastore.Entity;
  *
  */
 public class CalculatorUtils {
+	
+	/**
+	 * vehicle의 소모품 건강 상태로 vehicle의 건강상태를 설정한다. 
+	 * 
+	 * @param companyKey
+	 * @param vehicleId
+	 * @return 건강상태
+	 */
+	public static String calcVehicleHealth(Key companyKey, String vehicleId) {
+		
+		Map<String, Object> filters = DataUtils.newMap("vehicle_id", vehicleId);
+		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", filters);
+		String vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_H;
+		
+		// 차량별로 각각의 consumable 정보를 가져옴
+		while(consumables.hasNext()) {
+			Entity consumable = consumables.next();						
+			String healthStatus = (String)consumable.getProperty("status");
+			
+			if(GreenFleetConstant.VEHICLE_HEALTH_I.equalsIgnoreCase(healthStatus)) {
+				if(GreenFleetConstant.VEHICLE_HEALTH_H.equalsIgnoreCase(vehicleHealthStatus)) {
+					vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_I;
+				}
+			} else if(GreenFleetConstant.VEHICLE_HEALTH_O.equalsIgnoreCase(healthStatus)) {
+				vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_O;
+				break;
+			}
+		}
+		
+		return vehicleHealthStatus;
+	}
 	
 	/**
 	 * 소모품의 최근 교체일, 최근 교체 주행거리, 다음 교체일, 다음 교체 주행거리, 건강율, 상태 등의 정보를 업데이트한다. 
@@ -49,7 +82,7 @@ public class CalculatorUtils {
 		consumable.setProperty("last_repl_date", new Date());
 		consumable.setProperty("miles_last_repl", (float)currentVehicleMileage);
 		consumable.setProperty("health_rate", 0f);
-		consumable.setProperty("status", "Healthy");
+		consumable.setProperty("status", GreenFleetConstant.VEHICLE_HEALTH_H);
 		
 		if(nextReplDate != null)
 			consumable.setProperty("next_repl_date", nextReplDate);
@@ -251,7 +284,7 @@ public class CalculatorUtils {
 	 */
 	public static String getConsumableHealthStatus(float healthRate) {		
 		if(healthRate >= 0f) {
-			return (healthRate < 0.9f) ? "Healthy" : "Impending";	
+			return (healthRate > 1f) ? GreenFleetConstant.VEHICLE_HEALTH_O : ((healthRate < 0.9f) ? GreenFleetConstant.VEHICLE_HEALTH_H : GreenFleetConstant.VEHICLE_HEALTH_I);	
 		} else {
 			return null;
 		}

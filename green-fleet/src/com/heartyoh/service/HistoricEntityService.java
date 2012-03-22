@@ -36,9 +36,9 @@ public abstract class HistoricEntityService extends EntityService {
 	protected abstract String getHistoryIdValue(Entity mainEntity);
 	
 	@Override
-	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) {
+	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		// 이력 처리 && Transaction 처리 ...		
+		// 이력 처리 && Transaction 처리 ...
 		Transaction txn = datastore.beginTransaction();
 		
 		try {
@@ -46,8 +46,9 @@ public abstract class HistoricEntityService extends EntityService {
 			this.saveHistoryEntity(obj, map, datastore);
 			txn.commit();
 			
-		} catch (Throwable t) {
+		} catch (Exception e) {
 			txn.rollback();
+			throw e;
 		}
 	}
 	

@@ -2,7 +2,6 @@ package com.heartyoh.service;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,12 +18,16 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class CheckinDataService extends EntityService {
+	
 	private static final Logger logger = LoggerFactory.getLogger(CheckinDataService.class);
 
 	@Override
@@ -121,6 +124,25 @@ public class CheckinDataService extends EntityService {
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
+	
+	@Override
+	protected void saveEntity(Entity checkinObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		
+		Key vehicleKey = KeyFactory.createKey(checkinObj.getParent(), "Vehicle", (String)checkinObj.getProperty("vehicle_id"));
+		Entity vehicle = DatastoreUtils.findVehicle(vehicleKey);
+
+		if(vehicle != null) {
+			// 체크인 시점에 driver, terminal, total distance 정보를 업데이트한다.
+			double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
+			double distance = DataUtils.toDouble(checkinObj.getProperty("distance"));
+			vehicle.setProperty("driver_id", checkinObj.getProperty("driver_id"));
+			vehicle.setProperty("terminal_id", checkinObj.getProperty("terminal_id"));
+			vehicle.setProperty("total_distance", totalMileage + distance);
+			super.saveEntity(vehicle, map, datastore);
+		}
+		
+		super.saveEntity(checkinObj, map, datastore);
+	}	
 
 	@Override
 	protected void addFilter(Query q, String property, String value) {

@@ -4,8 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,15 +19,17 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class TrackService extends EntityService {
+	
 	private static final Logger logger = LoggerFactory.getLogger(TrackService.class);
 
 	@Override
@@ -77,29 +77,17 @@ public class TrackService extends EntityService {
 		String longitude = (String) map.get("longitude");
 		String velocity = (String) map.get("velocity");
 
-		Key keyVehicle = KeyFactory.createKey(entity.getParent(), "Vehicle", vehicle_id);
-		Entity objVehicle = null;
-
-		try {
-			objVehicle = datastore.get(keyVehicle);
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
-		}
-
 		double dblLattitude = 0;
 		double dblLongitude = 0;
 		
-		if (lattitude != null) {
+		if (!DataUtils.isEmpty(lattitude)) {
 			dblLattitude = Double.parseDouble(lattitude);
 			entity.setProperty("lattitude", dblLattitude);
-			if (objVehicle != null)
-				objVehicle.setProperty("lattitude", dblLattitude);
 		}
-		if (longitude != null) {
+		
+		if (!DataUtils.isEmpty(longitude)) {
 			dblLongitude = Double.parseDouble(longitude);
 			entity.setProperty("longitude", dblLongitude);
-			if (objVehicle != null)
-				objVehicle.setProperty("longitude", dblLongitude);
 		}
 		
 		if(dblLattitude == 0 && dblLongitude == 0)
@@ -110,14 +98,24 @@ public class TrackService extends EntityService {
 		entity.setProperty("driver_id", driver_id);
 		entity.setProperty("velocity", velocity);
 
-		if (objVehicle != null) {
-			objVehicle.setProperty("driver_id", driver_id);
-			objVehicle.setProperty("terminal_id", terminal_id);
-		}
-
-		datastore.put(objVehicle);
-		
 		super.onSave(entity, map, datastore);
+	}
+	
+	@Override
+	protected void saveEntity(Entity trackObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		
+		Key vehicleKey = KeyFactory.createKey(trackObj.getParent(), "Vehicle", (String)trackObj.getProperty("vehicle_id"));
+		Entity vehicle = DatastoreUtils.findVehicle(vehicleKey);
+
+		if(vehicle != null) {			
+			vehicle.setProperty("lattitude", trackObj.getProperty("lattitude"));
+			vehicle.setProperty("longitude", trackObj.getProperty("longitude"));
+			vehicle.setProperty("driver_id", trackObj.getProperty("driver_id"));
+			vehicle.setProperty("terminal_id", trackObj.getProperty("terminal_id"));			
+			super.saveEntity(vehicle, map, datastore);
+		}
+		
+		super.saveEntity(trackObj, map, datastore);
 	}
 
 	@RequestMapping(value = "/track/import", method = RequestMethod.POST)
@@ -146,8 +144,11 @@ public class TrackService extends EntityService {
 
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
+		
 		String date = request.getParameter("date");
-		if(date != null) {
+		String vehicleId = request.getParameter("vehicle_id");
+		
+		if(!DataUtils.isEmpty(date)) {
 			long fromMillis = Long.parseLong(date);
 			Calendar c = Calendar.getInstance();
 			c.setTimeInMillis(fromMillis * 1000);
@@ -157,10 +158,9 @@ public class TrackService extends EntityService {
 			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
 		}
-		
-		String vehicle_id = request.getParameter("vehicle_id");
-		if(vehicle_id != null && !vehicle_id.isEmpty()) {
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle_id);
+				
+		if(!DataUtils.isEmpty(vehicleId)) {
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 		}
 	}
 }

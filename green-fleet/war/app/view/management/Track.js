@@ -138,7 +138,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
 				store : 'VehicleBriefStore',
-				displayField : T('label.id'),
+				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : T('label.vehicle'),
 				width : 200

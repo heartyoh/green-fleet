@@ -6,6 +6,13 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 	entityUrl : 'checkin_data',
 	
 	title : T('menu.checkin_data'),
+	
+	importUrl : 'checkin_data/import',
+	
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},	
 
 	layout : {
 		align : 'stretch',
@@ -46,7 +53,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 
 		this.down('#search').on('click', function() {
 //			self.sub('grid').store.load();
-			self.sub('grid').search();
+			self.search();
 		});
 		
 	},

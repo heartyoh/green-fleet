@@ -279,7 +279,7 @@ public abstract class EntityService {
 	 * @param map
 	 * @param datastore
 	 */
-	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) {
+	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		datastore.put(obj);
 	}
 

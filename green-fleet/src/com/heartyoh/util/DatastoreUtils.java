@@ -69,8 +69,7 @@ public class DatastoreUtils {
 	 * @param key
 	 * @return
 	 */
-	public static Entity findByKey(String keyStr) {
-		
+	public static Entity findByKey(String keyStr) {		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		
 		try {
@@ -187,6 +186,26 @@ public class DatastoreUtils {
 		q.addFilter("id", FilterOperator.EQUAL, vehicleId);
 		return findSingleEntity(q);
 	}
+	
+	/**
+	 * key로 vehicle을 찾아 리턴 
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static Entity findVehicle(String key) {
+		return findByKey(key);
+	}
+	
+	/**
+	 * vehicleKey로 vehicle을 찾아 리턴 
+	 * 
+	 * @param vehicleKey
+	 * @return
+	 */
+	public static Entity findVehicle(Key vehicleKey) {
+		return findByKey(vehicleKey);
+	}	
 	
 	/**
 	 * companyKey, vehicleId, consumableItem으로 Consumable을 찾아 리턴 
