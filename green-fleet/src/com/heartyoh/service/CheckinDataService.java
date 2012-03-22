@@ -20,6 +20,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
@@ -138,11 +139,22 @@ public class CheckinDataService extends EntityService {
 			vehicle.setProperty("driver_id", checkinObj.getProperty("driver_id"));
 			vehicle.setProperty("terminal_id", checkinObj.getProperty("terminal_id"));
 			vehicle.setProperty("total_distance", totalMileage + distance);
-			super.saveEntity(vehicle, map, datastore);
+
+			// Vehicle 정보 업데이트와 Checkin 정보 업데이트 ...
+			Transaction txn = datastore.beginTransaction();
+			try {
+				super.saveEntity(checkinObj, map, datastore);
+				super.saveEntity(vehicle, map, datastore);
+				txn.commit();
+				
+			} catch (Exception e) {
+				txn.rollback();
+				throw e;
+			}
+		} else {
+			super.saveEntity(checkinObj, map, datastore);
 		}
-		
-		super.saveEntity(checkinObj, map, datastore);
-	}	
+	}
 
 	@Override
 	protected void addFilter(Query q, String property, String value) {

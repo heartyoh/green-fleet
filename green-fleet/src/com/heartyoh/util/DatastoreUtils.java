@@ -161,17 +161,17 @@ public class DatastoreUtils {
 		if(!DataUtils.isEmpty(filters)) {
 			Iterator<String> filterKeyIter = filters.keySet().iterator();
 			while(filterKeyIter.hasNext()) {
-				String filterKey = filterKeyIter.next();				
+				String filterKey = filterKeyIter.next();
 				Object filterValue = filters.get(filterKey);
 				
 				if(filterValue instanceof Collection)
 					q.addFilter(filterKey, FilterOperator.IN, filterValue);
 				else
-					q.addFilter(filterKey, FilterOperator.EQUAL, filterValue);				
+					q.addFilter(filterKey, FilterOperator.EQUAL, filterValue);
 			}
  		}
 
-		return findSingleEntity(q);		
+		return findSingleEntity(q);
 	}
 	
 	/**

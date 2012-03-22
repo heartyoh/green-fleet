@@ -2,7 +2,13 @@
 <cronentries>
   <cron>
     <url>/vehicle_consumable/summary?company=vitizen</url>
-    <description>Resummary the consumable status every day 12:00 For Vitizen Company</description>
+    <description>Resummary the consumable status every day 21:00 (Korean Time) For Vitizen Company</description>
     <schedule>every day 12:00</schedule>
   </cron>
+  
+  <cron>
+    <url>/repair/alarm?company=vitizen</url>
+    <description>Notification(first email) in accordance with maintenance schedule every 2 hours for test</description>
+    <schedule>every 2 hours</schedule>
+  </cron>  
 </cronentries>

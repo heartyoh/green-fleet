@@ -3,6 +3,11 @@
  */
 package com.heartyoh.service;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,11 +20,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.MailUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -84,6 +93,47 @@ public class RepairService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 	
+	@RequestMapping(value = "/repair/alarm", method = RequestMethod.GET)
+	public @ResponseBody
+	String alarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
+		Key companyKey = this.getCompanyKey(request);
+		Iterator<Entity> repairs = this.findTodayRepairs(companyKey);	
+		
+		/*String receiver = request.getParameter("receiver");		
+		if(DataUtils.isEmpty(receiver))
+			throw new Exception("Receiver parameter is required!");
+		
+		Map<String, Object> filters = DataUtils.newMap("email", receiver);
+		Key userKey = KeyFactory.createKey(companyKey, "CompanyUser", receiver);
+		Entity receiverUser = DatastoreUtils.findByKey(userKey);
+		
+		if(receiverUser == null)
+			throw new Exception("Receiver [" + receiver + "] not found!");*/
+
+		// 1. receiver 추출
+		String receiver = "maparam419@gmail.com";		
+		String msgBody = "A maintenance schedule for the following vehicles at the moment! " + File.separator;		
+		int count = 0;
+		
+		while(repairs.hasNext()) {
+			Entity repair = repairs.next();
+			msgBody += (String)repair.getProperty("vehicle_id") + " : ";
+			msgBody += repair.getProperty("next_repair_date");
+			msgBody += File.separator;
+			count++;
+		}
+		
+		if(count > 0) {
+			// 특정 (설정된) 사용자에게 이메일 전송
+			String subject = "Notification(first email) in accordance with maintenance schedule";
+			MailUtils.sendMail("Admin", "heartyoh@gmail.com", "Name JongHo", receiver, subject, msgBody);
+		}
+		
+		return this.getResultMsg(true, "Maintenance alarms notified (" + count + " count) successfully!");
+	}
+	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -116,5 +166,35 @@ public class RepairService extends EntityService {
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 		
 		q.addSort("repair_date", SortDirection.DESCENDING);
-	}	
+	}
+	
+	/**
+	 * 검색조건 filters를 반영한 Entity 조회 
+	 * 
+	 * @param companyKey
+	 * @return
+	 */
+	private Iterator<Entity> findTodayRepairs(Key companyKey) {
+		
+		Query q = new Query(this.getEntityName());
+		q.setAncestor(companyKey);
+		
+		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd");
+		String todayStr = formatter.format (new Date());
+		Date today = SessionUtils.stringToDate(todayStr);
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(today);
+		c.add(Calendar.DATE, -2);
+		Date fromDate = c.getTime();
+		
+		c.add(Calendar.DATE, 3);
+		Date toDate = c.getTime();
+		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		PreparedQuery pq = datastore.prepare(q);
+		return pq.asIterable().iterator();
+	}
 }

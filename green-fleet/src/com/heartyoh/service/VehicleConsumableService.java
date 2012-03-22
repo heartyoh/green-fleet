@@ -463,7 +463,7 @@ public class VehicleConsumableService extends HistoricEntityService {
 		} catch (Exception e) {
 			txn.rollback();
 			logger.error("Error when create consumables data!", e);
-		} 	
+		}
 	}
 
 	@Override
