@@ -21,6 +21,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.model.Sorter;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 
@@ -118,7 +119,8 @@ public class VehicleService extends EntityService {
 			List<Object> vehicleIds = DatastoreUtils.findEntityProperties(companyKey, "VehicleConsumable", filters, "vehicle_id");
 			
 			if(!vehicleIds.isEmpty()) {
-				List<Map<String, Object>> items = DatastoreUtils.findEntityPropMap(companyKey, this.getEntityName(), DataUtils.newMap("id", vehicleIds), request.getParameterValues("select"));
+				List<Sorter> sorters = this.parseSorters(request.getParameter("sort"));
+				List<Map<String, Object>> items = DatastoreUtils.findEntityPropMap(companyKey, this.getEntityName(), DataUtils.newMap("id", vehicleIds), sorters, request.getParameterValues("select"));
 				return packResultDataset(true, items.size(), items);
 			} else {
 				return packResultDataset(true, 0, null);

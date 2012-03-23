@@ -26,6 +26,11 @@ Ext.define('GreenFleet.store.VehicleByHealthStore', {
 		   type : 'string'
 	   }
 	],
+	
+	sorters : [ {
+		property : 'id',
+		direction : 'ASC'
+	} ],	
 
 	proxy : {
 		type : 'ajax',
