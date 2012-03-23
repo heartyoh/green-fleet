@@ -41,9 +41,9 @@ import com.heartyoh.util.SessionUtils;
  * @author jhnam
  */
 @Controller
-public class VehicleConsumableService extends HistoricEntityService {
+public class ConsumableService extends HistoricEntityService {
 
-	private static final Logger logger = LoggerFactory.getLogger(VehicleConsumableService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConsumableService.class);
 
 	@Override
 	protected String getEntityName() {
@@ -313,9 +313,9 @@ public class VehicleConsumableService extends HistoricEntityService {
 			Entity consumable = results[1];
 			
 			Map<String, Object> map = toMap(request);
-			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();		
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 			this.onReplace(consumable, map, datastore);
-			CalculatorUtils.calcConsumableInfo(DataUtils.toDouble(vehicle.getProperty("total_distance")), consumable, consumable);
+			CalculatorUtils.calcConsumableInfo(DataUtils.toDouble(vehicle.getProperty("total_distance")), consumable, map);
 			// 이력 저장을 위해 호출 
 			this.saveEntity(consumable, map, datastore);
 			return this.getResultMsg(true, "Consumable Replacement have been processed successfully.");
@@ -409,7 +409,8 @@ public class VehicleConsumableService extends HistoricEntityService {
 		
 		for(Map<String, Object> consumable : consumables) {
 			float milesLastRepl = DataUtils.toFloat(consumable.get("miles_last_repl"));
-			consumable.put("miles_since_last_repl", totalMileage - milesLastRepl);
+			float maileSinceLastRepl = (float)totalMileage - milesLastRepl;
+			consumable.put("miles_since_last_repl", (maileSinceLastRepl > 0f) ? maileSinceLastRepl : 0f);
 		}
 	}
 	

@@ -88,11 +88,6 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_checkin_data',
 			itemId : 'checkin_data',
 			closable : true
-		}, {
-			title : T('menu.consumables'),
-			xtype : 'management_consumable',
-			itemId : 'consumable',
-			closable : true
 		} ]
 	}, {
 		text : T('menu.driver'),

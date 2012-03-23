@@ -18,7 +18,7 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			type : 'string'
 		}, {			
 			name : 'repl_mileage',
-			type : 'float'
+			type : 'int'
 		}, {
 			name : 'repl_time',
 			type : 'int'
@@ -28,13 +28,13 @@ Ext.define('GreenFleet.store.VehicleConsumableStore', {
 			dateFormat : 'time'
 		}, {
 			name : 'miles_last_repl',
-			type : 'float'
+			type : 'int'
 		}, {
 			name : 'miles_since_last_repl',
-			type : 'float'				
+			type : 'int'				
 		}, {
 			name : 'next_repl_mileage',
-			type : 'float'
+			type : 'int'
 		}, {
 			name : 'next_repl_date',
 			type : 'date',

@@ -19,7 +19,7 @@ Ext.define('GreenFleet.store.ConsumableHistoryStore', {
 			dateFormat:'time'
 		}, {			
 			name : 'miles_last_repl',
-			type : 'float'
+			type : 'int'
 		}, {
 			name : 'worker',
 			type : 'string'

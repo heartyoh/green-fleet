@@ -4,10 +4,12 @@
 package com.heartyoh.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,6 +47,24 @@ public class DataUtils {
 		
 		return filters;
 	}	
+
+	/**
+	 * array를 List로 변환 
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public static List<Object> toList(Object[] values) {
+		List<Object> list = new ArrayList<Object>();
+		
+		if(values != null && values.length > 0) {
+			for(int i = 0 ; i < values.length ; i++) {
+				list.add(values[i]);
+			}
+		}
+		
+		return list;
+	}
 	
 	/**
 	 * value에 대한 boolean 평가 

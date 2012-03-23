@@ -3,6 +3,7 @@
  */
 package com.heartyoh.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -127,6 +128,7 @@ public class DatastoreUtils {
 	 * @param filters
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public static Iterator<Entity> findEntities(Key companyKey, String entityName, Map<String, Object> filters) {
 		
 		Query q = createDefaultQuery(companyKey, entityName);
@@ -137,7 +139,7 @@ public class DatastoreUtils {
 				String filterKey = filterKeyIter.next();
 				Object filterValue = filters.get(filterKey);
 				
-				if(filterValue instanceof Collection)
+				if(filterValue instanceof Collection && !((Collection)filterValue).isEmpty())
 					q.addFilter(filterKey, FilterOperator.IN, filterValue);
 				else
 					q.addFilter(filterKey, FilterOperator.EQUAL, filterValue);
@@ -148,6 +150,50 @@ public class DatastoreUtils {
 	}
 	
 	/**
+	 * companyKey, entityName, filters 로 entity 리스트를 조회해서 그 중에 selectPropName 프로퍼티 정보만 추출해서 리턴  
+	 * 
+	 * @param companyKey
+	 * @param entityName
+	 * @param filters
+	 * @param selectPropName
+	 * @return
+	 */
+	public static List<Object> findEntityProperties(Key companyKey, String entityName, Map<String, Object> filters, String selectPropName) {
+		
+		List<Object> list = new ArrayList<Object>();
+		Iterator<Entity> entities = findEntities(companyKey, entityName, filters);
+		while(entities.hasNext()) {
+			Entity entity = entities.next();
+			list.add(entity.getProperty(selectPropName));
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * companyKey, entityName, filters 로 entity 리스트를 조회해서 그 중에 selectPropName 프로퍼티 정보만 추출해서 Map으로 리턴  
+	 * 
+	 * @param companyKey
+	 * @param entityName
+	 * @param filters
+	 * @param selectPropName
+	 * @return
+	 */
+	public static List<Map<String, Object>> findEntityPropMap(Key companyKey, String entityName, Map<String, Object> filters, String[] selectPropName) {
+		
+		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+		Iterator<Entity> entities = findEntities(companyKey, entityName, filters);
+		
+		while(entities.hasNext()) {
+			Entity entity = entities.next();
+			Map<String, Object> item = SessionUtils.cvtEntityToMap(entity, selectPropName);
+			items.add(item);
+		}
+		
+		return items;
+	}
+	
+	/**
 	 * 검색 조건 filters를 반영한 하나의 Entity 조회
 	 *  
 	 * @param companyKey
@@ -155,6 +201,7 @@ public class DatastoreUtils {
 	 * @param filters
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public static Entity findEntity(Key companyKey, String entityName, Map<String, Object> filters) {
 		Query q = createDefaultQuery(companyKey, entityName);
 		
@@ -164,7 +211,7 @@ public class DatastoreUtils {
 				String filterKey = filterKeyIter.next();
 				Object filterValue = filters.get(filterKey);
 				
-				if(filterValue instanceof Collection)
+				if(filterValue instanceof Collection && !((Collection)filterValue).isEmpty())
 					q.addFilter(filterKey, FilterOperator.IN, filterValue);
 				else
 					q.addFilter(filterKey, FilterOperator.EQUAL, filterValue);

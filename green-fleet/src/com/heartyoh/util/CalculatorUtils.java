@@ -92,36 +92,35 @@ public class CalculatorUtils {
 	}	
 	
 	/**
-	 * consumableChange로 부터 consumable 정보를 모두 재계산하여 업데이트한다.  
+	 * 파라미터로 넘어온 교체 정보 replacementInfo로 부터 consumable 정보를 모두 재계산하여 업데이트한다.  
 	 * 
 	 * @param totalMileage
 	 * @param consumable
-	 * @param consumableChange
+	 * @param replacementInfo
 	 */
-	public static void calcConsumableInfo(double totalMileage, Entity consumable, Entity consumableChange) {
+	public static void calcConsumableInfo(double totalMileage, Entity consumable, Map<String, Object> replacementInfo) {
 		
 		// 교체 단위 
 		String replUnit = DataUtils.toNotNull(consumable.getProperty("repl_unit"));
 		
-		// 교체시 넘어온 마지막 교체일 
-		Date lastReplDate = DataUtils.toDate(consumableChange.getProperty("repl_date"));
+		// 교체시 넘어온 마지막 교체일
+		Date lastReplDate = DataUtils.toDate(replacementInfo.get("last_repl_date"));
 		if(lastReplDate != null) {
 			consumable.setProperty("last_repl_date", lastReplDate);
 		}
 		
-		// 교체시 넘어온 마지막 교체시 주행거리 TODO double 타입 정도로 변경 
-		float milesLastRepl = DataUtils.toFloat(consumableChange.getProperty("repl_mileage"));
+		// 교체시 넘어온 마지막 교체시 주행거리
+		float milesLastRepl = DataUtils.toFloat(replacementInfo.get("miles_last_repl"));
 		if(milesLastRepl > 0) {
 			float oldMilesLastRepl = DataUtils.toFloat(consumable.getProperty("miles_last_repl"));
 			if(milesLastRepl > oldMilesLastRepl)
 				consumable.setProperty("miles_last_repl", milesLastRepl);
 		}
 
-		// 누적 비용 
-		if(DataUtils.toInt(consumableChange.getProperty("cost")) > 0) {
-			int accruedCost = DataUtils.toInt(consumable.getProperty("accrued_cost"));
-			accruedCost += DataUtils.toInt(consumableChange.getProperty("cost"));
-			consumable.setProperty("accrued_cost", accruedCost);
+		// 누적 비용
+		int cost = DataUtils.toInt(replacementInfo.get("cost"));
+		if(cost > 0) {
+			consumable.setProperty("accrued_cost", DataUtils.toInt(consumable.getProperty("accrued_cost")) + cost);
 		}
 		
 		// 다음 교체 마일리지 
@@ -134,10 +133,8 @@ public class CalculatorUtils {
 		// 다음 교체일자
 		if(replUnit.equalsIgnoreCase(GreenFleetConstant.REPL_UNIT_TIME) || replUnit.equalsIgnoreCase(GreenFleetConstant.REPL_UNIT_MILEAGE_TIME)) {
 			int replTime = DataUtils.toInt(consumable.getProperty("repl_time"));
-			Calendar c = Calendar.getInstance();
-			c.setTime(lastReplDate != null ? lastReplDate : new Date());
-			c.add(Calendar.DATE, 30 * replTime);
-			Date nextReplDate = c.getTime();
+			Date standardDate = (lastReplDate != null) ? lastReplDate : DataUtils.getToday();
+			Date nextReplDate = DataUtils.addDate(standardDate, 30 * replTime);
 			consumable.setProperty("next_repl_date", nextReplDate);
 		}
 		
@@ -208,15 +205,16 @@ public class CalculatorUtils {
 		// 최근 교체 후 주행거리 
 		float milesAfterRepl = (float)totalMileage - milesLastRepl;
 		
+		// 다음 교체 주행거리가 비었다면 채운다.
 		if(DataUtils.toFloat(consumable.getProperty("next_repl_mileage")) <= 0f) {
 			float nextReplMileage = milesLastRepl + replMileage;
 			consumable.setProperty("next_repl_mileage", nextReplMileage);
 		}
 		
-		if(replMileage < 0 || milesAfterRepl < 0) {
+		if(replMileage < 0) {
 			return -1f;
 		} else {
-			return (milesAfterRepl / replMileage);
+			return (milesAfterRepl <= 0) ? 0 : (milesAfterRepl / replMileage);
 		}
 	}
 	
@@ -242,25 +240,14 @@ public class CalculatorUtils {
 				
 		// 다음 교체일이 없다면 계산해 줌 
 		if(nextReplDate == null) {
-			Calendar c = Calendar.getInstance();
-			c.setTime(lastReplDate);
-			c.add(Calendar.DATE, 30 * replTime);
-			nextReplDate = c.getTime();
-			consumable.setProperty("next_repl_date", nextReplDate);
+			consumable.setProperty("next_repl_date", DataUtils.addDate(lastReplDate, 30 * replTime));
 		}
 		
-		// 1. 다음 교체일에서 최근 교체일을 빼줌
+		// 1. 교체 주기를 날수로 계산 
 		float totalDays = replTime * 30;
-		// 2. 다음 교체일에서 오늘날짜를 빼줌 
-		float fastDays = (new Date().getTime() - lastReplDate.getTime()) / (1000 * 60 * 60 * 24);
-		// 3. 차이 
-		float gap = totalDays - fastDays;
-		
-		// 이 경우는 설정이 잘 못된 경우 
-		if(gap < 0)
-			return -1f;
-
-		return fastDays / totalDays; 
+		// 2. 오늘 날짜에서 최근 교체일을 뻰 날 수  
+		float fastDays = (new Date().getTime() - lastReplDate.getTime()) / (1000 * 60 * 60 * 24);		
+		return (totalDays - fastDays >= 0) ? (fastDays / totalDays) : -1f;
 	}
 	
 	/**
@@ -321,10 +308,7 @@ public class CalculatorUtils {
 		// FIXME 최근 교체일이 없다면 아직 한 번도 교체하지 않았다는 의미이므로 차량을 최초 구입한 날짜로 해야하지만 그 정보가 차량에 없다. ==> vehicle에 추가 필요 
 		if(lastReplDate == null || replTime == 0)
 			return null;
-				
-		Calendar c = Calendar.getInstance();
-		c.setTime(lastReplDate);
-		c.add(Calendar.DATE, 30 * replTime);
-		return c.getTime();
+		
+		return DataUtils.addDate(lastReplDate, 30 * replTime);
 	}	
 }

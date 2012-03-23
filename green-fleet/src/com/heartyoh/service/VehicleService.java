@@ -1,6 +1,7 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,9 +18,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 
 @Controller
 public class VehicleService extends EntityService {
@@ -98,16 +101,47 @@ public class VehicleService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
+	@RequestMapping(value = "/vehicle/byhealth", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> retrieveByHealth(HttpServletRequest request, HttpServletResponse response) {
+		
+		String consumableItem = request.getParameter("consumable_item");
+		
+		// 1. health_status와 consumable_item이 동시에 : consumable이 health_status인 모든 vehicle을 조회 		
+		if(DataUtils.isEmpty(consumableItem))
+			return this.retrieve(request, response);
+		// 2. consumable_item은 없고 health_status만 있는 경우 : vehicle의 상태가 health_status인 모든 차량 조회, 하지만 health_status가 세 개인 경우는 모든 vehicle 조회 		
+		else {
+			Key companyKey = this.getCompanyKey(request);
+			List<Object> statusList = DataUtils.toList(request.getParameterValues("health_status"));
+			Map<String, Object> filters = DataUtils.newMap(new String[] { "consumable_item", "status" }, new Object[] { consumableItem, statusList });
+			List<Object> vehicleIds = DatastoreUtils.findEntityProperties(companyKey, "VehicleConsumable", filters, "vehicle_id");
+			
+			if(!vehicleIds.isEmpty()) {
+				List<Map<String, Object>> items = DatastoreUtils.findEntityPropMap(companyKey, this.getEntityName(), DataUtils.newMap("id", vehicleIds), request.getParameterValues("select"));
+				return packResultDataset(true, items.size(), items);
+			} else {
+				return packResultDataset(true, 0, null);
+			}						
+		}
+	}	
+	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {		
-		String vehicle_id = request.getParameter("vehicle_id");
-		if(!DataUtils.isEmpty(vehicle_id)) {
-			q.addFilter("id", FilterOperator.EQUAL, vehicle_id);
+		String vehicleId = request.getParameter("vehicle_id");
+		if(!DataUtils.isEmpty(vehicleId)) {
+			q.addFilter("id", FilterOperator.EQUAL, vehicleId);
 		}
 		
-		String registration_number = request.getParameter("registration_number");
-		if(!DataUtils.isEmpty(registration_number)) {
-			q.addFilter("registration_number", FilterOperator.EQUAL, registration_number);
-		}		
+		String regNo = request.getParameter("registration_number");
+		if(!DataUtils.isEmpty(regNo)) {
+			q.addFilter("registration_number", FilterOperator.EQUAL, regNo);
+		}
+		
+		String[] healthStatus = request.getParameterValues("health_status");
+		if(!DataUtils.isEmpty(healthStatus)) {
+			List<Object> statusList = DataUtils.toList(healthStatus);
+			q.addFilter("health_status", FilterOperator.IN, statusList);
+		}
 	}
 }

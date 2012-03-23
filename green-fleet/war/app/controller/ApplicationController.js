@@ -7,9 +7,9 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'VehicleInfoStore', 'VehicleBriefStore', 'DriverStore', 'DriverBriefStore', 'ReservationStore', 'IncidentStore',
 			'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 'TrackStore', 'VehicleTypeStore', 'OwnershipStore',
 			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
-			'TimeZoneStore', 'ConsumableStore', 'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore',
-			'VehicleImageBriefStore', /* 'LocaleStore', */'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore',
-			'RepairStore' ],
+			'TimeZoneStore', 'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore',
+			'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore',
+			'RepairStore', 'VehicleByHealthStore' ],
 
 	models : [ 'Code' ],
 
@@ -19,7 +19,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'management.CheckinData', 'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information',
 			'monitor.IncidentView', 'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField',
 			'common.EntityFormButtons', 'dashboard.VehicleHealth', 'pm.Consumable', 'common.ProgressColumn',
-			'management.VehicleConsumableGrid', 'management.Consumable', 'form.RepairForm' ],
+			'management.VehicleConsumableGrid', 'form.RepairForm' ],
 
 	init : function() {
 		this.control({
