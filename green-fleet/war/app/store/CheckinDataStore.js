@@ -127,6 +127,11 @@ Ext.define('GreenFleet.store.CheckinDataStore', {
 		dateFormat:'time'
 	} ],
 	
+	sorters : [ {
+		property : 'datetime',
+		direction : 'DESC'
+	} ],	
+	
 	proxy : {
 		type : 'ajax',
 		url : 'checkin_data',

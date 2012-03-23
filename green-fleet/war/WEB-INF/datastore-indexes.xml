@@ -32,4 +32,22 @@
         <property name="incident" direction="asc"/>
         <property name="datetime" direction="asc"/>
     </datastore-index>
+    
+    <datastore-index kind="CheckinData" ancestor="true" source="manual">
+        <property name="vehicle_id" direction="asc"/>
+        <property name="datetime" direction="desc"/>
+    </datastore-index>
+        
+	<datastore-index kind="CheckinData" ancestor="true" source="manual">
+        <property name="datetime" direction="desc"/>
+    </datastore-index>
+    
+    <datastore-index kind="Repair" ancestor="true" source="auto">
+        <property name="vehicle_id" direction="asc"/>
+        <property name="repair_date" direction="desc"/>
+    </datastore-index>
+        
+	<datastore-index kind="Repair" ancestor="true" source="manual">
+        <property name="next_repair_date" direction="desc"/>
+    </datastore-index>    
 </datastore-indexes>

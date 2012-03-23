@@ -67,7 +67,7 @@ public class CalculatorUtils {
 			int replMonth = DataUtils.toInt(consumable.getProperty("repl_time"));
 			if(replMonth > 0) {
 				int amount = replMonth * 30;
-				nextReplDate = DataUtils.add(new Date(), amount);
+				nextReplDate = DataUtils.addDate(new Date(), amount);
 			}
 		} 
 		

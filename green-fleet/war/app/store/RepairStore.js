@@ -48,6 +48,11 @@ Ext.define('GreenFleet.store.RepairStore', {
 	],
 
 	pageSize : 1000,
+	
+	sorters : [ {
+		property : 'repair_date',
+		direction : 'DESC'
+	} ],	
 
 	proxy : {
 		type : 'ajax',

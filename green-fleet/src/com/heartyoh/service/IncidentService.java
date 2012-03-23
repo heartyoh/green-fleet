@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +26,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -171,31 +171,30 @@ public class IncidentService extends EntityService {
 
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
+		
 		String date = request.getParameter("date");
-		if(date != null) {
-			long fromMillis = Long.parseLong(date);
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(fromMillis * 1000);
-			Date fromDate = c.getTime();
-			c.setTimeInMillis((fromMillis + (60 * 60 * 24)) * 1000);
-			Date toDate = c.getTime();
-			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		if(!DataUtils.isEmpty(date)) {
+			long dateMillis = DataUtils.toLong(date);
+			if(dateMillis > 1) {
+				Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
+				q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+				q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+			}
 		}
 		
-		String vehicle_id = request.getParameter("vehicle_id");
-		if(vehicle_id != null && !vehicle_id.isEmpty()) {
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle_id);
+		String vehicleId = request.getParameter("vehicle_id");
+		if(!DataUtils.isEmpty(vehicleId)) {
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 		}
 
 		String driver_id = request.getParameter("driver_id");
-		if(driver_id != null && !driver_id.isEmpty()) {
+		if(!DataUtils.isEmpty(driver_id)) {
 			q.addFilter("driver_id", FilterOperator.EQUAL, driver_id);
 		}
 
 		String confirm = request.getParameter("confirm");
-		if(confirm != null && !confirm.isEmpty()) {
-			q.addFilter("confirm", FilterOperator.EQUAL, confirm.equals("true") || confirm.equals("on"));
+		if(!DataUtils.isEmpty(confirm)) {
+			q.addFilter("confirm", FilterOperator.EQUAL, confirm.equalsIgnoreCase("true") || confirm.equalsIgnoreCase("on"));
 		}
 	}
 

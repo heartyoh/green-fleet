@@ -2,7 +2,6 @@ package com.heartyoh.service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -149,14 +148,13 @@ public class TrackService extends EntityService {
 		String vehicleId = request.getParameter("vehicle_id");
 		
 		if(!DataUtils.isEmpty(date)) {
-			long fromMillis = Long.parseLong(date);
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(fromMillis * 1000);
-			Date fromDate = c.getTime();
-			c.setTimeInMillis((fromMillis + (60 * 60 * 24)) * 1000);
-			Date toDate = c.getTime();
-			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+			
+			long dateMillis = DataUtils.toLong(date);
+			if(dateMillis > 1) {
+				Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
+				q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+				q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+			}
 		}
 				
 		if(!DataUtils.isEmpty(vehicleId)) {

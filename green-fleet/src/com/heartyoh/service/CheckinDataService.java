@@ -1,6 +1,5 @@
 package com.heartyoh.service;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -20,8 +19,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
@@ -159,14 +158,12 @@ public class CheckinDataService extends EntityService {
 	@Override
 	protected void addFilter(Query q, String property, String value) {
 		if("date".equals(property)) {
-			long fromMillis = Long.parseLong(value);
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(fromMillis * 1000);
-			Date fromDate = c.getTime();
-			c.setTimeInMillis((fromMillis + (60 * 60 * 24)) * 1000);
-			Date toDate = c.getTime();
-			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+			long dateMillis = DataUtils.toLong(value);
+			if(dateMillis > 1) {
+				Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
+				q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+				q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+			}
 		} else {			
 			q.addFilter(property, FilterOperator.EQUAL, value);
 		}

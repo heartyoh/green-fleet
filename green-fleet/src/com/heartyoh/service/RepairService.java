@@ -4,8 +4,6 @@
 package com.heartyoh.service;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,7 +24,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.MailUtils;
 import com.heartyoh.util.SessionUtils;
@@ -99,7 +96,7 @@ public class RepairService extends EntityService {
 		
 		// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
 		Key companyKey = this.getCompanyKey(request);
-		Iterator<Entity> repairs = this.findTodayRepairs(companyKey);	
+		Iterator<Entity> repairs = this.findUptoRepairs(companyKey);	
 		
 		/*String receiver = request.getParameter("receiver");		
 		if(DataUtils.isEmpty(receiver))
@@ -163,9 +160,7 @@ public class RepairService extends EntityService {
 		String vehicleId = request.getParameter("vehicle_id");
 		
 		if(!DataUtils.isEmpty(vehicleId))
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
-		
-		q.addSort("repair_date", SortDirection.DESCENDING);
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);		
 	}
 	
 	/**
@@ -174,24 +169,15 @@ public class RepairService extends EntityService {
 	 * @param companyKey
 	 * @return
 	 */
-	private Iterator<Entity> findTodayRepairs(Key companyKey) {
+	private Iterator<Entity> findUptoRepairs(Key companyKey) {
 		
 		Query q = new Query(this.getEntityName());
 		q.setAncestor(companyKey);
 		
-		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd");
-		String todayStr = formatter.format (new Date());
-		Date today = SessionUtils.stringToDate(todayStr);
-		
-		Calendar c = Calendar.getInstance();
-		c.setTime(today);
-		c.add(Calendar.DATE, -2);
-		Date fromDate = c.getTime();
-		
-		c.add(Calendar.DATE, 3);
-		Date toDate = c.getTime();
-		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		long dateMillis = DataUtils.getTodayMillis();
+		Date[] fromToDate = DataUtils.getFromToDate(dateMillis, 1, 3);
+		q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+		q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);

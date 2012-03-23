@@ -1,6 +1,5 @@
 package com.heartyoh.service;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +35,7 @@ public class IncidentLogService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> commons = (Map<String, Object>) map.get("_commons");
 
 		return commons.get("terminal_id") + "@" + map.get("datetime");
@@ -44,6 +44,7 @@ public class IncidentLogService extends EntityService {
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		Entity company = datastore.get((Key)map.get("_company_key"));
+		@SuppressWarnings("unchecked")
 		Map<String, Object> commons = (Map<String, Object>) map.get("_commons");
 
 		entity.setProperty("terminal_id", commons.get("terminal_id"));
