@@ -173,9 +173,9 @@
 .noImage{background:url('../image/noImage.gif') 50% 50% no-repeat;}
 .x-boundlist-item-over,.x-boundlist-selected{border-color:#9ebfe4;background-color:#e2ebf7}
 
-.iconHealthH{background:url('../image/iconHealthH.png') 50% 3px no-repeat;}
-.iconHealthI{background:url('../image/iconHealthI.png') 50% 3px no-repeat;}
-.iconHealthO{background:url('../image/iconHealthO.png') 50% 3px no-repeat;}
+.iconHealthHealthy{background:url('../image/iconHealthH.png') 50% 3px no-repeat;}
+.iconHealthImpending{background:url('../image/iconHealthI.png') 50% 3px no-repeat;}
+.iconHealthOverdue{background:url('../image/iconHealthO.png') 50% 3px no-repeat;}
 
 /*map style*/
 span.mapTipID{
