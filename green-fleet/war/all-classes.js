@@ -7120,6 +7120,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					proxy.extraParams.consumable_item = consumable;
 					proxy.extraParams.health_status = healthStatus;
 					vehicleStore.load();
+					
 				} else {
 					grid.store.loadRecords([]);
 				}
@@ -7127,8 +7128,10 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	 		
 	 		columns : [
 	 		    {
-	 		    	width : 10
-	 		    },	 		           
+	 		    	xtype : 'templatecolumn',
+	 		    	tpl : '<div class="iconHealth{health_status}" style="width:20px;height:20px;background-position:5px 3px"></div>',
+	 		    	width : 35
+ 	 		    },
 	 		    {
 	 		    	dataIndex : 'id',
 	 		    	text : T('label.id'),
