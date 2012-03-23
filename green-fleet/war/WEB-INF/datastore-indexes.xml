@@ -42,7 +42,7 @@
         <property name="datetime" direction="desc"/>
     </datastore-index>
     
-    <datastore-index kind="Repair" ancestor="true" source="auto">
+    <datastore-index kind="Repair" ancestor="true" source="manual">
         <property name="vehicle_id" direction="asc"/>
         <property name="repair_date" direction="desc"/>
     </datastore-index>
