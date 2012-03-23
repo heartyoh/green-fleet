@@ -91,8 +91,8 @@
 }
 .searchField .x-form-item-body{top:5px}
 .searchField .x-form-trigger{background:url('../image/btnSearchIcon.gif') no-repeat;border:none;margin-left:-9px;width:27px}
-.x-boundlist-floating{background:url('../image/bgH1.gif') repeat-x;background-color:#c5c5c5;opacity:0.95;filter:alpha(opacity=95);-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;border:1px solid #999;padding:5px 4px}
-.x-boundlist-floating .x-boundlist-item{background:url('../image/dotGray.gif') 4px 10px no-repeat;border:none;border-bottom:1px solid #b4b4b4;padding:4px 2px 1px 11px}
+.x-boundlist-floating{background-color:#f0f0f0;opacity:0.95;filter:alpha(opacity=95);-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;padding:5px 4px}
+.x-boundlist-floating .x-boundlist-item{background:url('../image/dotGray.gif') 4px 10px no-repeat;border:none;border-bottom:1px solid #dfdfdf;padding:5px 2px 3px 11px}
 .appSearchItem{color:#333}
 .appSearchItem .id{color:#1b304e}
 .x-boundlist-selected.x-boundlist-item,.x-boundlist-item-over.x-boundlist-item{background-color:#fff;}
@@ -104,11 +104,12 @@
 .summaryBoard .x-panel-header-default-top{box-shadow:none;border-top:1px solid #323641}
 .summaryBoard .statusPanel,.summaryBoard .groupPanel,.summaryBoard .incidentPanel{background:url('../image/bgSummaryPanel.gif') 0 100% repeat-x;}
 .statusPanel .x-btn-default-small{background:none;background-color:transparent;border:0} 
-.statusPanel .btnDriving,.statusPanel .btnStop,.statusPanel .btnIncident{width:43px;height:90px;margin:5px 0 5px 18px;padding-top:50px;color:#ccc;text-align:center;font-size:12px}
-.statusPanel .btnDriving.x-btn-default-small{background:url('../image/statusDriving.png') no-repeat;}
-.statusPanel .btnStop.x-btn-default-small{background:url('../image/statusStop.png') no-repeat;}
-.statusPanel .btnIncident.x-btn-default-small{background:url('../image/statusIncident.png') no-repeat;}
-.statusPanel .x-btn-default-small span{font-size:17px;color:#fff}
+.statusPanel .btnDriving,.statusPanel .btnStop,.statusPanel .btnIncident,.statusPanel .btnRepair{width:43px;height:85px;margin:0 0 5px 6px;padding-top:50px;color:#ccc;text-align:center;font-size:11px}
+.statusPanel .btnDriving.x-btn-default-small{background:url('../image/statusDriving.png') 50% 5px no-repeat;}
+.statusPanel .btnStop.x-btn-default-small{background:url('../image/statusStop.png') 50% 5px no-repeat;}
+.statusPanel .btnIncident.x-btn-default-small{background:url('../image/statusIncident.png') 50% 5px no-repeat;}
+.statusPanel .btnRepair.x-btn-default-small{background:url('../image/statusRepair.png') 50% 5px no-repeat;}
+.statusPanel .x-btn-default-small span{font-size:18px;color:#fff}
 .statusPanel .x-btn-default-small-pressed{background-color:#252937;border:1px solid #4e5774}
 .groupPanel,.incidentPanel{padding-bottom:5px}
 .groupPanel a{background:url('../image/dotGray.gif') 8px 50% no-repeat;color:#ccc;padding:1px 0 4px 15px;text-decoration:none;display:block}

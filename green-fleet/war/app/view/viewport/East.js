@@ -249,6 +249,11 @@ Ext.define('GreenFleet.view.viewport.East', {
 			itemId : 'state_incident',
 			flex : 1,
 			cls : 'btnIncident'
+		}, {
+			xtype : 'button',
+			itemId : 'state_Repair',
+			flex : 1,
+			cls : 'btnRepair'
 		} ]
 	}, {
 		xtype : 'panel',
