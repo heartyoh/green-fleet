@@ -179,7 +179,7 @@
 
 /*map style*/
 span.mapTipID{
-	position:relative;left:-50%;top:-65px;white-space:nowrap;border:1px solid #7499b5;padding:2px 5px;font-size:11px;
+	position:relative;left:-50%;top:-58px;white-space:nowrap;border:1px solid #7499b5;padding:2px 5px;font-size:11px;
 	background:url('../image/bgMapTip.gif') repeat-x;
 	-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
 }
