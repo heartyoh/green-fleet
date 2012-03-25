@@ -362,6 +362,10 @@
                     "name": "DashboardConsumableStore.js"
                 },
                 {
+                    "path": "app/store/",
+                    "name": "DashboardVehicleStore.js"
+                },
+                {
                     "path": "app/controller/",
                     "name": "ApplicationController.js"
                 }

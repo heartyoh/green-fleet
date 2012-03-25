@@ -6953,24 +6953,62 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		        { 'name': '200K ~',  'rd': 6, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
 		    ]
 		});
-
-		var store3 = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
-		    data: [
-		        { 'name': T('label.healthy'),   'vh': 31, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': T('label.impending'),   'vh': 17,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': T('label.overdue'), 'vh': 2,  'data3': 14, 'data4': 12, 'data5': 7  }
-		    ]
+		
+		var row1 = this.createRow(content);
+		var row2 = this.createRow(content);		
+		var dashboardStore = Ext.getStore('DashboardVehicleStore');
+		
+		dashboardStore.load({
+			scope : this,
+			callback: function(records, operation, success) {				
+				var healthRecord = this.findRecord(records, "health");
+				var ageRecord = this.findRecord(records, "age");
+				var mileageRecord = this.findRecord(records, "mileage");
+				
+				this.addHealthChartToRow(row1, T('title.vehicle_health'), healthRecord);
+				this.addChartToRow(row1, T('title.running_distance'), mileageRecord);
+				this.addChartToRow(row2, T('title.vehicle_age'), ageRecord);
+				row2.add(this.buildEmptyChart());
+			}
 		});		
-
-		row1 = this.addRow(content);
-		row2 = this.addRow(content);
-		row1.add(this.buildHealthChart(T('title.vehicle_health'), store3, 'vh'));
-		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));				
-		row2.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
 	},
 	
-	addRow : function(content) {
+	addHealthChartToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: [
+		        {
+		        	name : 'name',
+		        	type : 'string',
+		        	convert : function(value, record) {
+		        		return T('label.' + value);
+		        	}
+				},  'count'],
+		    data: record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'count'));		
+	},
+	
+	addChartToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'count'],
+		    data: record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'count'));		
+	},
+	
+	findRecord : function(records, healthName) {
+		for(var i = 0 ; i < records.length ; i++) {
+			if(records[i].data.name == healthName) {
+				return records[i];
+			}
+		}
+		
+		return null;
+	},
+	
+	createRow : function(content) {
 		return content.add({
 			xtype : 'container',
 			flex : 1,
@@ -6980,6 +7018,15 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 			}
 		});		
 	},
+	
+	buildEmptyChart : function() {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280
+		}
+	},	
 	
 	buildHealthChart : function(title, store, idx) {
 		return {
@@ -7073,17 +7120,15 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 			scope : this,
 			callback : function(records, operation, success) {
 
-				console.log(records);
-
 				var columnCount = 0;
-				var consumableDashboardRow = null;
+				var row = null;
 
 				for ( var i = 0; i < records.length; i++) {
 					var record = records[i];
 					var consumableItem = record.data.consumable;
 
 					if (columnCount == 0) {
-						consumableDashboardRow = this.addRow(content);
+						row = this.createRow(content);
 						columnCount++;
 					} else if (columnCount == 1) {
 						columnCount++;
@@ -7091,30 +7136,34 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 						columnCount = 0;
 					}
 
-					var store = Ext.create('Ext.data.JsonStore', {
-						fields : [ {
-							name : 'name',
-							type : 'string',
-							convert : function(value, record) {
-								return T('label.' + value);
-							}
-						}, 'count' ],
-						data : record.data.summary
-					});
-
-					consumableDashboardRow.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'count'));
+					this.addToRow(row, consumableItem + ' ' + T('menu.health'), record);
 				}
 
 				var addCount = 3 - columnCount;
 				if (addCount < 3) {
 					for ( var j = 0; j < addCount; j++)
-						consumableDashboardRow.add(this.buildEmptyChart());
+						row.add(this.buildEmptyChart());
 				}
 			}
 		});
 	},
+	
+	addToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+			fields : [ {
+				name : 'name',
+				type : 'string',
+				convert : function(value, record) {
+					return T('label.' + value);
+				}
+			}, 'count' ],
+			data : record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'count'));		
+	},	
 
-	addRow : function(content) {
+	createRow : function(content) {
 		return content.add({
 			xtype : 'container',
 			flex : 1,
@@ -7146,7 +7195,7 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 				animate : true,
 				store : store,
 				width : 290,
-				height : 160,
+				height : 150,
 				shadow : true,
 				legend : {
 					position : 'right',
@@ -7288,13 +7337,13 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				var healthStatus = [];
 
 				if (healthHvalue)
-					healthStatus.push('healthy');
+					healthStatus.push('Healthy');
 
 				if (healthIvalue)
-					healthStatus.push('impending');
+					healthStatus.push('Impending');
 
 				if (healthOvalue)
-					healthStatus.push('overdue');
+					healthStatus.push('Overdue');
 
 				if (healthStatus.length > 0) {
 					var vehicleStore = grid.store;
@@ -7538,16 +7587,16 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						success : function(response) {
 							var resultObj = Ext.JSON.decode(response.responseText);
 							if (resultObj.success) {
-								GreenFleet.msg("Success", resultObj.msg);
+								GreenFleet.msg(T('label.success'), resultObj.msg);
 								var store = Ext.getStore('VehicleConsumableStore');
 								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 								store.load();
 							} else {
-								Ext.MessageBox.alert("Failure", resultObj.msg);
+								Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
 							}
 						},
 						failure : function(response) {
-							Ext.MessageBox.alert("Failure", response.responseText);
+							Ext.MessageBox.alert(T('label.failure'), response.responseText);
 						}
 					});
 				}
@@ -10465,7 +10514,35 @@ Ext.define('GreenFleet.store.DashboardConsumableStore', {
 
 	proxy : {
 		type : 'ajax',
-		url : 'dashboard/consumable/health',
+		url : 'dashboard/health/consumable',
+		extraParams : {
+		},
+		reader : {
+			type : 'json',
+			root : 'items'
+		}
+	}
+});
+Ext.define('GreenFleet.store.DashboardVehicleStore', {
+	extend : 'Ext.data.Store',
+
+	storeId : 'dashboard_vehicle_store',
+
+	fields : [
+		{
+			name : 'name',
+			type : 'string'
+		}, {
+			name : 'summary',
+			type : 'auto'
+		}	
+	],
+
+	pageSize : 1000,
+
+	proxy : {
+		type : 'ajax',
+		url : 'dashboard/health/vehicle',
 		extraParams : {
 		},
 		reader : {
@@ -10485,7 +10562,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
 			'TimeZoneStore', 'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore',
 			'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore',
-			'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore' ],
+			'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore' ],
 
 	models : [ 'Code' ],
 
