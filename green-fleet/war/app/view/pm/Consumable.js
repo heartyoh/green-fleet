@@ -95,13 +95,13 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				var healthStatus = [];
 
 				if (healthHvalue)
-					healthStatus.push('healthy');
+					healthStatus.push('Healthy');
 
 				if (healthIvalue)
-					healthStatus.push('impending');
+					healthStatus.push('Impending');
 
 				if (healthOvalue)
-					healthStatus.push('overdue');
+					healthStatus.push('Overdue');
 
 				if (healthStatus.length > 0) {
 					var vehicleStore = grid.store;
@@ -345,16 +345,16 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						success : function(response) {
 							var resultObj = Ext.JSON.decode(response.responseText);
 							if (resultObj.success) {
-								GreenFleet.msg("Success", resultObj.msg);
+								GreenFleet.msg(T('label.success'), resultObj.msg);
 								var store = Ext.getStore('VehicleConsumableStore');
 								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
 								store.load();
 							} else {
-								Ext.MessageBox.alert("Failure", resultObj.msg);
+								Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
 							}
 						},
 						failure : function(response) {
-							Ext.MessageBox.alert("Failure", response.responseText);
+							Ext.MessageBox.alert(T('label.failure'), response.responseText);
 						}
 					});
 				}

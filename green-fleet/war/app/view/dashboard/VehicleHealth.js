@@ -51,24 +51,62 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		        { 'name': '200K ~',  'rd': 6, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
 		    ]
 		});
-
-		var store3 = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
-		    data: [
-		        { 'name': T('label.healthy'),   'vh': 31, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': T('label.impending'),   'vh': 17,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': T('label.overdue'), 'vh': 2,  'data3': 14, 'data4': 12, 'data5': 7  }
-		    ]
+		
+		var row1 = this.createRow(content);
+		var row2 = this.createRow(content);		
+		var dashboardStore = Ext.getStore('DashboardVehicleStore');
+		
+		dashboardStore.load({
+			scope : this,
+			callback: function(records, operation, success) {				
+				var healthRecord = this.findRecord(records, "health");
+				var ageRecord = this.findRecord(records, "age");
+				var mileageRecord = this.findRecord(records, "mileage");
+				
+				this.addHealthChartToRow(row1, T('title.vehicle_health'), healthRecord);
+				this.addChartToRow(row1, T('title.running_distance'), mileageRecord);
+				this.addChartToRow(row2, T('title.vehicle_age'), ageRecord);
+				row2.add(this.buildEmptyChart());
+			}
 		});		
-
-		row1 = this.addRow(content);
-		row2 = this.addRow(content);
-		row1.add(this.buildHealthChart(T('title.vehicle_health'), store3, 'vh'));
-		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));				
-		row2.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
 	},
 	
-	addRow : function(content) {
+	addHealthChartToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: [
+		        {
+		        	name : 'name',
+		        	type : 'string',
+		        	convert : function(value, record) {
+		        		return T('label.' + value);
+		        	}
+				},  'count'],
+		    data: record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'count'));		
+	},
+	
+	addChartToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'count'],
+		    data: record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'count'));		
+	},
+	
+	findRecord : function(records, healthName) {
+		for(var i = 0 ; i < records.length ; i++) {
+			if(records[i].data.name == healthName) {
+				return records[i];
+			}
+		}
+		
+		return null;
+	},
+	
+	createRow : function(content) {
 		return content.add({
 			xtype : 'container',
 			flex : 1,
@@ -78,6 +116,15 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 			}
 		});		
 	},
+	
+	buildEmptyChart : function() {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280
+		}
+	},	
 	
 	buildHealthChart : function(title, store, idx) {
 		return {
