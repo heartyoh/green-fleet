@@ -79,8 +79,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 
 		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
 			var url = '';
-			if (value != null && value.length > 1)
-				url = 'src="download?blob-key=' + value + '"'
+			if (value != null && value.length > 1) {
+				if(value.indexOf('http') == 0)
+					url = 'src=' + value;
+				else
+					url = 'src="download?blob-key=' + value + '"';
+			}
 
 			self.sub('video').update({
 				value : url

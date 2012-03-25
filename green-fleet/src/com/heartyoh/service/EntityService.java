@@ -37,6 +37,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.api.files.GSFileOptions.GSFileOptionsBuilder;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
@@ -155,20 +156,46 @@ public abstract class EntityService {
 		entity.setProperty("updated_at", map.get("_now"));
 	}
 
-	protected static String saveFile(MultipartFile file) throws IOException {
+	protected static String saveFile(MultipartHttpServletRequest request, MultipartFile file) throws IOException {
 		if (file != null && file.getSize() > 0) {
+			CustomUser user = SessionUtils.currentUser();
+			String company = (user != null) ? user.getCompany() : request.getParameter("company");
+			
 			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
 			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType(), file.getOriginalFilename());
-
-			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, false);
+			
+			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, true);
 
 			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
-			writeChannel.close();
-
-			writeChannel = fileService.openWriteChannel(appfile, true);
 			writeChannel.closeFinally();
-
+			
 			return fileService.getBlobKey(appfile).getKeyString();
+		}
+		return null;
+	}
+
+	protected static String saveFileToGS(MultipartHttpServletRequest request, MultipartFile file) throws IOException {
+		if (file != null && file.getSize() > 0) {
+			CustomUser user = SessionUtils.currentUser();
+			String company = (user != null) ? user.getCompany() : request.getParameter("company");
+			
+			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+			
+			GSFileOptionsBuilder optionsBuilder = new GSFileOptionsBuilder()
+		       .setBucket("green-fleets")
+		       .setKey(company + "/incident/" + file.getOriginalFilename())
+		       .setMimeType(file.getContentType())
+		       .setAcl("public_read");
+//		       .addUserMetadata("company", "vitizen");
+		    AppEngineFile appfile =
+		         fileService.createNewGSFile(optionsBuilder.build());			
+			
+			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, true);
+
+			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
+			writeChannel.closeFinally();
+			
+			return "http://commondatastorage.googleapis.com/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
 		}
 		return null;
 	}

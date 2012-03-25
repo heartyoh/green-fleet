@@ -63,7 +63,7 @@ public class CompanyService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		String image_file = saveFile((MultipartFile) map.get("image_file"));
+		String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
 		if(image_file != null) {
 			entity.setProperty("image_clip", image_file);
 		}

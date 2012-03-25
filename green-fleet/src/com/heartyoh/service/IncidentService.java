@@ -61,7 +61,7 @@ public class IncidentService extends EntityService {
 
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
-		String video_file = saveFile((MultipartFile) map.get("video_file"));
+		String video_file = saveFile(request, (MultipartFile) map.get("video_file"));
 		if(video_file != null) {
 			entity.setProperty("video_clip", video_file);
 		}

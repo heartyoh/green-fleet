@@ -51,7 +51,7 @@ public class IncidentVideoService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		String video_file = saveFile((MultipartFile) map.get("video_clip"));
+		String video_file = saveFileToGS(request, (MultipartFile) map.get("video_clip"));
 		if(video_file != null) {
 			entity.setProperty("video_clip", video_file);
 		}
@@ -72,7 +72,9 @@ public class IncidentVideoService extends EntityService {
 			return super.save(request, response);
 		} catch(Throwable e) {
 			time = System.currentTimeMillis() - time;
-			return getResultMsg(false, "It takes " + time + " millis to save file. [" + e.toString() +"]");
+			logger.error("It took " + time + " millis to save file.", e);
+			return getResultMsg(false, "It took " + time + " millis to save file. [" + e.toString() + "]");
+			
 		}
 	}
 
