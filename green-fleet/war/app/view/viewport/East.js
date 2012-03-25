@@ -30,6 +30,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 			if (GreenFleet.show_idle_vehicle) {
 				GreenFleet.show_idle_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
+				GreenFleet.show_maint_vehicle = false;
 				store.filter([ {
 					property : 'status',
 					value : 'Running'
@@ -37,6 +38,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 			} else {
 				GreenFleet.show_idle_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
+				GreenFleet.show_maint_vehicle = true;
 			}
 		});
 
@@ -51,6 +53,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 			if (GreenFleet.show_incident_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_incident_vehicle = false;
+				GreenFleet.show_maint_vehicle = false;
 				store.filter([ {
 					property : 'status',
 					value : 'Idle'
@@ -58,6 +61,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_incident_vehicle = true;
+				GreenFleet.show_maint_vehicle = true;
 			}
 		});
 
@@ -72,6 +76,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 			if (GreenFleet.show_running_vehicle) {
 				GreenFleet.show_running_vehicle = false;
 				GreenFleet.show_idle_vehicle = false;
+				GreenFleet.show_maint_vehicle = false;
 				store.filter([ {
 					property : 'status',
 					value : 'Incident'
@@ -79,6 +84,30 @@ Ext.define('GreenFleet.view.viewport.East', {
 			} else {
 				GreenFleet.show_running_vehicle = true;
 				GreenFleet.show_idle_vehicle = true;
+				GreenFleet.show_maint_vehicle = true;
+			}
+		});
+
+		this.sub('state_maint').on('click', function() {
+			GreenFleet.doMenu('monitor_map');
+
+			var store = Ext.getStore('VehicleFilteredStore');
+			store.clearFilter();
+			self.sub('search').setValue('');
+
+			GreenFleet.show_maint_vehicle = true;
+			if (GreenFleet.show_running_vehicle) {
+				GreenFleet.show_running_vehicle = false;
+				GreenFleet.show_idle_vehicle = false;
+				GreenFleet.show_incident_vehicle = false;
+				store.filter([ {
+					property : 'status',
+					value : 'Maint'
+				} ])
+			} else {
+				GreenFleet.show_running_vehicle = true;
+				GreenFleet.show_idle_vehicle = true;
+				GreenFleet.show_incident_vehicle = true;
 			}
 		});
 
@@ -115,6 +144,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var running = 0;
 		var idle = 0;
 		var incident = 0;
+		var maint = 0;
 
 		store.each(function(record) {
 			switch (record.get('status')) {
@@ -127,12 +157,16 @@ Ext.define('GreenFleet.view.viewport.East', {
 			case 'Incident':
 				incident++;
 				break;
+			case 'Maint':
+				maint++;
+				break;
 			}
 		});
 
 		this.sub('state_running').update(T('label.state_driving') + '</br><span>' + running + '</span>');
 		this.sub('state_idle').update(T('label.state_idle') + '</br><span>' + idle + '</span>');
 		this.sub('state_incident').update(T('label.state_incident') + '</br><span>' + incident + '</span>');
+		this.sub('state_maint').update(T('label.state_maint') + '</br><span>' + maint + '</span>');
 		this.sub('vehicle_count').update(T('title.total_running_vehicles') + ' : ' + total);
 	},
 
@@ -251,9 +285,9 @@ Ext.define('GreenFleet.view.viewport.East', {
 			cls : 'btnIncident'
 		}, {
 			xtype : 'button',
-			itemId : 'state_Repair',
+			itemId : 'state_maint',
 			flex : 1,
-			cls : 'btnRepair'
+			cls : 'btnMaint'
 		} ]
 	}, {
 		xtype : 'panel',

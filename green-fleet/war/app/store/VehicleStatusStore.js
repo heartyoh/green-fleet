@@ -14,5 +14,8 @@ Ext.define('GreenFleet.store.VehicleStatusStore', {
 	}, {
 		"status" : "Idle",
 		"desc" : "Idle"
+	}, {
+		"status" : "Maint",
+		"desc" : "Maintenance"
 	} ]
 });

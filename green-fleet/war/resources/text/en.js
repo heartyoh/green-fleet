@@ -248,6 +248,7 @@ T({
 		state_driving : 'Driving',
 		state_idle : 'Idle',
 		state_incident : 'Incident',
+		state_maint : 'Maint.',
 		second_s : 'sec.',
 		minute_s : 'min.'
 	},

@@ -248,6 +248,7 @@ T({
 		state_driving : '운행중',
 		state_idle : '정차',
 		state_incident : '이상상황',
+		state_maint : '정비중',
 		second_s : '초',
 		minute_s : '분'
 	},

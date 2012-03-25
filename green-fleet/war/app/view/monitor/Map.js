@@ -113,7 +113,8 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		var images = {
 			'Running' : 'resources/image/statusDriving.png',
 			'Idle' : 'resources/image/statusStop.png',
-			'Incident' : 'resources/image/statusIncident.png'
+			'Incident' : 'resources/image/statusIncident.png',
+			'Maint' : 'resources/image/statusMaint.png'
 		};
 
 		var bounds;
