@@ -34,17 +34,15 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 			scope : this,
 			callback : function(records, operation, success) {
 
-				console.log(records);
-
 				var columnCount = 0;
-				var consumableDashboardRow = null;
+				var row = null;
 
 				for ( var i = 0; i < records.length; i++) {
 					var record = records[i];
 					var consumableItem = record.data.consumable;
 
 					if (columnCount == 0) {
-						consumableDashboardRow = this.addRow(content);
+						row = this.createRow(content);
 						columnCount++;
 					} else if (columnCount == 1) {
 						columnCount++;
@@ -52,30 +50,34 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 						columnCount = 0;
 					}
 
-					var store = Ext.create('Ext.data.JsonStore', {
-						fields : [ {
-							name : 'name',
-							type : 'string',
-							convert : function(value, record) {
-								return T('label.' + value);
-							}
-						}, 'count' ],
-						data : record.data.summary
-					});
-
-					consumableDashboardRow.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'count'));
+					this.addToRow(row, consumableItem + ' ' + T('menu.health'), record);
 				}
 
 				var addCount = 3 - columnCount;
 				if (addCount < 3) {
 					for ( var j = 0; j < addCount; j++)
-						consumableDashboardRow.add(this.buildEmptyChart());
+						row.add(this.buildEmptyChart());
 				}
 			}
 		});
 	},
+	
+	addToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+			fields : [ {
+				name : 'name',
+				type : 'string',
+				convert : function(value, record) {
+					return T('label.' + value);
+				}
+			}, 'count' ],
+			data : record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'count'));		
+	},	
 
-	addRow : function(content) {
+	createRow : function(content) {
 		return content.add({
 			xtype : 'container',
 			flex : 1,
@@ -107,7 +109,7 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 				animate : true,
 				store : store,
 				width : 290,
-				height : 160,
+				height : 150,
 				shadow : true,
 				legend : {
 					position : 'right',

@@ -184,6 +184,22 @@ public class DataUtils {
 	}
 	
 	/**
+	 * 성공여부, 총 개수, 결과 셋 리스트를 결과 셋 Map으로 리턴  
+	 * 
+	 * @param success
+	 * @param totalCount
+	 * @param items
+	 * @return
+	 */
+	public static Map<String, Object> packResultDataset(boolean success, int totalCount, Object items) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("success", success);
+		result.put("total", totalCount);
+		result.put("items", items);		
+		return result;
+	}	
+	
+	/**
 	 * 오늘 날짜의 00:00:00 시간을 Date형으로 반환한다.
 	 * 
 	 * @return
@@ -192,6 +208,17 @@ public class DataUtils {
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd");
 		String todayStr = formatter.format (new Date());
 		return SessionUtils.stringToDate(todayStr);		
+	}
+	
+	/**
+	 * 올해 값을 리턴한다.
+	 * 
+	 * @return
+	 */
+	public static int getThisYear() {
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		return c.get(Calendar.YEAR);		
 	}
 	
 	/**

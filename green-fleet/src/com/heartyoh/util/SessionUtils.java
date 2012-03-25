@@ -6,20 +6,28 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.CustomUser;
 
 public class SessionUtils {
+	
+	public static Key getCompanyKey(HttpServletRequest request) {
+		CustomUser user = SessionUtils.currentUser();
+		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		return KeyFactory.createKey("Company", company);
+	}
+	
 	public static CustomUser currentUser(){
 	    SecurityContext securityContext = SecurityContextHolder.getContext();
 	    Authentication authentication = securityContext.getAuthentication();

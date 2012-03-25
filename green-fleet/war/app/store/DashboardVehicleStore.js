@@ -1,11 +1,11 @@
-Ext.define('GreenFleet.store.DashboardConsumableStore', {
+Ext.define('GreenFleet.store.DashboardVehicleStore', {
 	extend : 'Ext.data.Store',
 
-	storeId : 'dashboard_consumable_store',
+	storeId : 'dashboard_vehicle_store',
 
-	fields : [ 
+	fields : [
 		{
-			name : 'consumable',
+			name : 'name',
 			type : 'string'
 		}, {
 			name : 'summary',
@@ -17,7 +17,7 @@ Ext.define('GreenFleet.store.DashboardConsumableStore', {
 
 	proxy : {
 		type : 'ajax',
-		url : 'dashboard/health/consumable',
+		url : 'dashboard/health/vehicle',
 		extraParams : {
 		},
 		reader : {
