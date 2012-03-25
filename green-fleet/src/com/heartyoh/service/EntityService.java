@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceConfig;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
@@ -292,12 +291,8 @@ public abstract class EntityService {
 		}
 
 		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);
-		
-		// Set the call deadline.
-		DatastoreServiceConfig deadlineConfig = DatastoreServiceConfig.Builder.withDeadline(10);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService(deadlineConfig);		
-
+		Key companyKey = this.getCompanyKey(request);		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		
 		boolean creating = false;

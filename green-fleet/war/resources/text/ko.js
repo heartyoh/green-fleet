@@ -21,7 +21,9 @@ T({
 		terminal : '단말기',
 		consumables : '소모비품',
 		consumable_code : '소모품코드',
-		health : '건강상태',		
+		health : '건강상태',
+		vehicle_health : '차량 건강상태',
+		consumable_health : '소모품 건강상태',
 		map : '현황판',
 		info : '정보',
 		incident : '이상상황',
@@ -79,7 +81,8 @@ T({
 		total_running_vehicles : '총 주행 차량',
 		vehicle_status : '차량 상태',
 		incidents_alarm : '이상상황 알림',
-		add_repair : '정비내역 추가'
+		add_repair : '정비내역 추가',
+		consumable_health : '소모품 건강상태'
 	},
 	
 	tab : {

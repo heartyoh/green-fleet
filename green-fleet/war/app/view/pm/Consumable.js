@@ -169,7 +169,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					defaultType : 'checkboxfield',
 					cls :'paddingLeft5',
 					items : [ {
-						cls : 'iconHealthH floatLeft',
+						cls : 'iconHealthHealthy floatLeft',
 						name : 'healthy',
 						inputValue : '1',
 						itemId : 'check_healthy',
@@ -179,7 +179,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 							grid.filterVehicleList(grid);							
 						}
 					}, {
-						cls : 'iconHealthI floatLeft',
+						cls : 'iconHealthImpending floatLeft',
 						name : 'impending',
 						inputValue : '1',
 						itemId : 'check_impending',
@@ -189,7 +189,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 							grid.filterVehicleList(grid);							
 						}						
 					}, {
-						cls : 'iconHealthO floatLeft',
+						cls : 'iconHealthOverdue floatLeft',
 						name : 'overdue',
 						inputValue : '1',
 						itemId : 'check_overdue',
@@ -422,11 +422,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		}, {
 			dataIndex : 'created_at',
 			header : T('label.created_at'),
-			xtype : 'datecolumn',
-			format : F('datetime')
-		}, {
-			dataIndex : 'updated_at',
-			header : T('label.updated_at'),
 			xtype : 'datecolumn',
 			format : F('datetime')
 		} ],

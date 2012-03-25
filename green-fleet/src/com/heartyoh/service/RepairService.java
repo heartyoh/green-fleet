@@ -24,6 +24,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.MailUtils;
 import com.heartyoh.util.SessionUtils;
@@ -110,8 +111,8 @@ public class RepairService extends EntityService {
 			throw new Exception("Receiver [" + receiver + "] not found!");*/
 
 		// 1. receiver 추출
-		String receiver = "maparam419@gmail.com";		
-		String msgBody = "A maintenance schedule for the following vehicles at the moment! " + File.separator;		
+		String receiver = "maparam419@gmail.com";
+		String msgBody = "A maintenance schedule for the following vehicles at the moment! " + File.separator;
 		int count = 0;
 		
 		while(repairs.hasNext()) {
@@ -176,9 +177,9 @@ public class RepairService extends EntityService {
 		
 		long dateMillis = DataUtils.getTodayMillis();
 		Date[] fromToDate = DataUtils.getFromToDate(dateMillis, 1, 3);
-		q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
-		q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
-		
+		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+		q.addSort("next_repair_date", SortDirection.DESCENDING);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		return pq.asIterable().iterator();

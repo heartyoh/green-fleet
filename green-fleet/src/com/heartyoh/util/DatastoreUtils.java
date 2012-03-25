@@ -13,6 +13,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -234,7 +235,7 @@ public class DatastoreUtils {
 		adjustFilters(q, filters);
 		adjustSorters(q, sorters);		
 		return findMultiEntity(q);
-	}	
+	}
 	
 	/**
 	 * companyKey, entityName, filters 로 entity 리스트를 조회해서 그 중에 selectPropName 프로퍼티 정보만 추출해서 리턴  
@@ -280,6 +281,29 @@ public class DatastoreUtils {
 		
 		return items;
 	}
+	
+	/**
+	 * companyKey, entityName, filters 로 entity 리스트를 조회해서 그 중에 selectPropName 프로퍼티 정보만 추출해서 Map으로 리턴  
+	 * 
+	 * @param companyKey
+	 * @param entityName
+	 * @param filters
+	 * @param selectPropName
+	 * @return
+	 */
+	public static List<Map<String, Object>> findEntityPropMap(Key companyKey, String entityName, Map<String, Object> filters, String[] selectPropName) {
+		
+		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+		Iterator<Entity> entities = findEntities(companyKey, entityName, filters);
+		
+		while(entities.hasNext()) {
+			Entity entity = entities.next();
+			Map<String, Object> item = SessionUtils.cvtEntityToMap(entity, selectPropName);
+			items.add(item);
+		}
+		
+		return items;
+	}	
 	
 	/**
 	 * 검색 조건 filters를 반영한 하나의 Entity 조회
@@ -346,6 +370,21 @@ public class DatastoreUtils {
 		return findSingleEntity(q);
 	}
 	
+	/**
+	 * companyKey, entityName, filters로 총 개수를 리턴
+	 * 
+	 * @param companyKey
+	 * @param entityName
+	 * @param filters
+	 * @return
+	 */
+	public static int totalCount(Key companyKey, String entityName, Map<String, Object> filters) {
+		
+		Query q = createDefaultQuery(companyKey, entityName);
+		adjustFilters(q, filters);
+		return getTotalCount(q);
+	}
+	
 	private static Query createDefaultQuery(Key companyKey, String entityName) {
 		Query q = new Query(entityName);
 		q.setAncestor(companyKey);
@@ -362,5 +401,11 @@ public class DatastoreUtils {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		return pq.asIterable().iterator();
+	}
+	
+	private static int getTotalCount(Query q) {
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		PreparedQuery pq = datastore.prepare(q);
+		return pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 	}
 }

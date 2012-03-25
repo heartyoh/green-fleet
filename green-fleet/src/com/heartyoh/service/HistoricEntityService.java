@@ -3,6 +3,7 @@
  */
 package com.heartyoh.service;
 
+import java.util.Date;
 import java.util.Map;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -10,6 +11,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
+import com.heartyoh.util.DataUtils;
 
 /**
  * 이력 저장을 위한 컨트롤러 클래스 
@@ -66,6 +68,16 @@ public abstract class HistoricEntityService extends EntityService {
 		Key histKey = KeyFactory.createKey(mainEntity.getParent(), getHistoryEntityName(), getHistoryIdValue(mainEntity));		
 		Entity histEntity = new Entity(histKey);
 		histEntity.setPropertiesFrom(mainEntity);
+		Date now = new Date();
+		
+		if(!DataUtils.isEmpty(histEntity.getProperty("created_at"))) {			
+			histEntity.setProperty("created_at", now);
+		}
+		
+		if(!DataUtils.isEmpty(histEntity.getProperty("updated_at"))) {
+			histEntity.setProperty("updated_at", now);
+		}		
+		
 		datastore.put(histEntity);
 	}
 }

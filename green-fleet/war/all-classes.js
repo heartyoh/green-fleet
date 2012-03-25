@@ -988,6 +988,11 @@ Ext.define('GreenFleet.view.viewport.East', {
 			itemId : 'state_incident',
 			flex : 1,
 			cls : 'btnIncident'
+		}, {
+			xtype : 'button',
+			itemId : 'state_Repair',
+			flex : 1,
+			cls : 'btnRepair'
 		} ]
 	}, {
 		xtype : 'panel',
@@ -1131,10 +1136,15 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'consumable',
 			closable : true
 		}, {
-			title : T('menu.health'),
-			xtype : 'dashboard_health',
-			itemId : 'health',
+			title : T('menu.vehicle_health'),
+			xtype : 'dashboard_vehicle_health',
+			itemId : 'vehicle_health',
 			closable : true
+		}, {
+			title : T('menu.consumable_health'),
+			xtype : 'dashboard_consumable_health',
+			itemId : 'consumable_health',
+			closable : true			
 		} ]
 	} ]
 });
@@ -6854,7 +6864,7 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 	extend : 'Ext.Container',
 	
-	alias : 'widget.dashboard_health',
+	alias : 'widget.dashboard_vehicle_health',
 	
 	layout : {
 		type : 'vbox',
@@ -6875,29 +6885,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 			xtype : 'panel',
 			flex : 1,
 			cls : 'paddingAll10',
-			autoScroll : true,
 			layout : {
 				type : 'vbox',
 				align : 'stretch'
 			}
 		})
-		var row1 = content.add({
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			}
-		});
-		
-		var row2 = content.add({
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			}
-		});
 		
 		var store1 = Ext.create('Ext.data.JsonStore', {
 		    fields: ['name', 'age', 'data2', 'data3', 'data4', 'data5'],
@@ -6926,17 +6918,28 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		var store3 = Ext.create('Ext.data.JsonStore', {
 		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
 		    data: [
-		        { 'name': T('label.health'),   'tb': 31, 'eo': 27, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': T('label.impending'),   'tb': 17,  'eo': 19,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': T('label.overdue'), 'tb': 2,  'eo': 4,  'data3': 14, 'data4': 12, 'data5': 7  }
+		        { 'name': T('label.health'),   'vh': 31, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': T('label.impending'),   'vh': 17,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': T('label.overdue'), 'vh': 2,  'data3': 14, 'data4': 12, 'data5': 7  }
 		    ]
-		});
+		});		
 
-		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));
-		row1.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
-		row2.add(this.buildHealthChart(T('title.timing_belt_health'), store3, 'tb'));
-		row2.add(this.buildHealthChart(T('title.engine_oil_health'), store3, 'eo'));
-		
+		row1 = this.addRow(content);
+		row2 = this.addRow(content);
+		row1.add(this.buildHealthChart(T('title.vehicle_health'), store3, 'vh'));
+		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));				
+		row2.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
+	},
+	
+	addRow : function(content) {
+		return content.add({
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
+		});		
 	},
 	
 	buildHealthChart : function(title, store, idx) {
@@ -6952,6 +6955,153 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		        store: store,
 				width : 440,
 				height : 270,
+		        shadow: true,
+		        legend: {
+		            position: 'right',
+		            labelFont : '10px',
+		            boxStroke : '#cfcfcf'
+		        },
+		        insetPadding: 15,
+		        theme: 'Base:gradients',
+		        series: [{
+		            type: 'pie',
+		            field: idx,
+		            showInLegend: true,
+		            donut: false,
+		            tips: {
+		              trackMouse: true,
+		              width: 140,
+		              height: 25,
+		              renderer: function(storeItem, item) {
+		                // calculate percentage.
+		                var total = 0;
+		                store.each(function(rec) {
+		                    total += rec.get(idx);
+		                });
+		                this.setTitle(storeItem.get('name') + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
+		              }
+		            },
+		            highlight: {
+		              segment: {
+		                margin: 20
+		              }
+		            },
+		            label: {
+		                field: 'name',
+		                display: 'rotate',
+		                contrast: true,
+		                font: '14px Arial'
+		            }
+		        }]
+			}]
+		}
+	}
+
+});
+Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
+	extend : 'Ext.Container',
+	
+	alias : 'widget.dashboard_consumable_health',
+	
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+	
+	items : [{
+		xtype : 'container',
+		cls :'pageTitle',
+		height: 35,
+		html : '<h1>' + T('title.consumable_health') + '</h1>'
+	}],
+	
+	initComponent : function() {
+		this.callParent();
+
+		var content = this.add({
+			xtype : 'panel',
+			flex : 1,
+			cls : 'paddingAll10',
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			}
+		})
+		
+		var dashboardStore = Ext.getStore('DashboardConsumableStore');
+		
+		dashboardStore.load({
+			scope   : this,
+		    callback: function(records, operation, success) {
+		    	
+		    	console.log(records);
+		    	
+				var columnCount = 0;
+				var consumableDashboardRow = null;
+								
+		    	for(var i = 0 ; i < records.length ; i++) {
+		    		var record = records[i];
+		    		var consumableItem = record.data.consumable;		    		
+		    		
+					if(columnCount == 0) {
+						consumableDashboardRow = this.addRow(content);
+						columnCount++;
+					} else if(columnCount == 1) {
+						columnCount++;
+					} else if(columnCount == 2) {
+						columnCount = 0;
+					}
+					
+					var store = Ext.create('Ext.data.JsonStore', {
+					    fields: ['name', 'count'],
+					    data: record.data.summary
+					});
+					
+					consumableDashboardRow.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'count'));
+		    	}
+		    	
+		    	var addCount = 3 - columnCount;
+		    	if(addCount < 3) {
+		    		for(var j = 0 ; j < addCount ; j++) 
+		    			consumableDashboardRow.add(this.buildEmptyChart());
+		    	}
+		    }
+		});
+	},
+	
+	addRow : function(content) {
+		return content.add({
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
+		});		
+	},
+	
+	buildEmptyChart : function() {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280
+		}
+	},
+	
+	buildHealthChart : function(title, store, idx) {
+		return {
+			xtype : 'panel',
+			title : title,
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280,
+			items : [{
+				xtype: 'chart',
+		        animate: true,
+		        store: store,
+				width : 290,
+				height : 160,
 		        shadow: true,
 		        legend: {
 		            position: 'right',
@@ -7166,7 +7316,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					defaultType : 'checkboxfield',
 					cls :'paddingLeft5',
 					items : [ {
-						cls : 'iconHealthH floatLeft',
+						cls : 'iconHealthHealthy floatLeft',
 						name : 'healthy',
 						inputValue : '1',
 						itemId : 'check_healthy',
@@ -7176,7 +7326,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 							grid.filterVehicleList(grid);							
 						}
 					}, {
-						cls : 'iconHealthI floatLeft',
+						cls : 'iconHealthImpending floatLeft',
 						name : 'impending',
 						inputValue : '1',
 						itemId : 'check_impending',
@@ -7186,7 +7336,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 							grid.filterVehicleList(grid);							
 						}						
 					}, {
-						cls : 'iconHealthO floatLeft',
+						cls : 'iconHealthOverdue floatLeft',
 						name : 'overdue',
 						inputValue : '1',
 						itemId : 'check_overdue',
@@ -7419,11 +7569,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		}, {
 			dataIndex : 'created_at',
 			header : T('label.created_at'),
-			xtype : 'datecolumn',
-			format : F('datetime')
-		}, {
-			dataIndex : 'updated_at',
-			header : T('label.updated_at'),
 			xtype : 'datecolumn',
 			format : F('datetime')
 		} ],
@@ -10187,10 +10332,6 @@ Ext.define('GreenFleet.store.ConsumableHistoryStore', {
 			name : 'created_at',
 			type : 'date',
 			dateFormat:'time'
-		}, {
-			name : 'updated_at',
-			type : 'date',
-			dateFormat:'time'
 		}	
 	],
 
@@ -10319,6 +10460,34 @@ Ext.define('GreenFleet.store.VehicleByHealthStore', {
 		}
 	}
 });
+Ext.define('GreenFleet.store.DashboardConsumableStore', {
+	extend : 'Ext.data.Store',
+
+	storeId : 'dashboard_consumable_store',
+
+	fields : [ 
+		{
+			name : 'consumable',
+			type : 'string'
+		}, {
+			name : 'summary',
+			type : 'auto'
+		}	
+	],
+
+	pageSize : 1000,
+
+	proxy : {
+		type : 'ajax',
+		url : 'dashboard/consumable/health',
+		extraParams : {
+		},
+		reader : {
+			type : 'json',
+			root : 'items'
+		}
+	}
+});
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
@@ -10330,7 +10499,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
 			'TimeZoneStore', 'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore',
 			'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore',
-			'RepairStore', 'VehicleByHealthStore' ],
+			'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore' ],
 
 	models : [ 'Code' ],
 
@@ -10339,7 +10508,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'management.Terminal', 'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
 			'management.CheckinData', 'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information',
 			'monitor.IncidentView', 'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField',
-			'common.EntityFormButtons', 'dashboard.VehicleHealth', 'pm.Consumable', 'common.ProgressColumn',
+			'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 'pm.Consumable', 'common.ProgressColumn',
 			'management.VehicleConsumableGrid', 'form.RepairForm' ],
 
 	init : function() {

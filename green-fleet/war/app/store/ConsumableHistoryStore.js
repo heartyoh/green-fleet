@@ -36,10 +36,6 @@ Ext.define('GreenFleet.store.ConsumableHistoryStore', {
 			name : 'created_at',
 			type : 'date',
 			dateFormat:'time'
-		}, {
-			name : 'updated_at',
-			type : 'date',
-			dateFormat:'time'
 		}	
 	],
 

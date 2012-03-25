@@ -21,7 +21,9 @@ T({
 		terminal : 'Terminal',
 		consumables : 'Consumables',
 		consumable_code : 'Consumable Code',
-		health : 'Health',		
+		health : 'Health',
+		vehicle_health : 'Vehicle Health',
+		consumable_health : 'Consumable Health',		
 		map : 'Board',
 		info : 'Info',
 		incident : 'Incident',
@@ -79,7 +81,8 @@ T({
 		total_running_vehicles : 'Total Running Vehicles',
 		vehicle_status : 'Vehicle Status',
 		incidents_alarm : 'Incidents Alarm',
-		add_repair : 'Add Repair'
+		add_repair : 'Add Repair',
+		consumable_health : 'Consumable Health'
 	},
 	
 	tab : {

@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 	extend : 'Ext.Container',
 	
-	alias : 'widget.dashboard_health',
+	alias : 'widget.dashboard_vehicle_health',
 	
 	layout : {
 		type : 'vbox',
@@ -22,29 +22,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 			xtype : 'panel',
 			flex : 1,
 			cls : 'paddingAll10',
-			autoScroll : true,
 			layout : {
 				type : 'vbox',
 				align : 'stretch'
 			}
 		})
-		var row1 = content.add({
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			}
-		});
-		
-		var row2 = content.add({
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			}
-		});
 		
 		var store1 = Ext.create('Ext.data.JsonStore', {
 		    fields: ['name', 'age', 'data2', 'data3', 'data4', 'data5'],
@@ -73,17 +55,28 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		var store3 = Ext.create('Ext.data.JsonStore', {
 		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
 		    data: [
-		        { 'name': T('label.health'),   'tb': 31, 'eo': 27, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': T('label.impending'),   'tb': 17,  'eo': 19,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': T('label.overdue'), 'tb': 2,  'eo': 4,  'data3': 14, 'data4': 12, 'data5': 7  }
+		        { 'name': T('label.health'),   'vh': 31, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': T('label.impending'),   'vh': 17,  'data3': 16, 'data4': 10, 'data5': 3  },
+		        { 'name': T('label.overdue'), 'vh': 2,  'data3': 14, 'data4': 12, 'data5': 7  }
 		    ]
-		});
+		});		
 
-		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));
-		row1.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
-		row2.add(this.buildHealthChart(T('title.timing_belt_health'), store3, 'tb'));
-		row2.add(this.buildHealthChart(T('title.engine_oil_health'), store3, 'eo'));
-		
+		row1 = this.addRow(content);
+		row2 = this.addRow(content);
+		row1.add(this.buildHealthChart(T('title.vehicle_health'), store3, 'vh'));
+		row1.add(this.buildHealthChart(T('title.vehicle_age'), store1, 'age'));				
+		row2.add(this.buildHealthChart(T('title.running_distance'), store2, 'rd'));
+	},
+	
+	addRow : function(content) {
+		return content.add({
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
+		});		
 	},
 	
 	buildHealthChart : function(title, store, idx) {

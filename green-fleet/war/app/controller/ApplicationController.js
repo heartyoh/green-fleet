@@ -9,7 +9,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'VehicleStatusStore', 'CheckinDataStore', 'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore',
 			'TimeZoneStore', 'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore',
 			'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore',
-			'RepairStore', 'VehicleByHealthStore' ],
+			'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore' ],
 
 	models : [ 'Code' ],
 
@@ -18,7 +18,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 			'management.Terminal', 'management.Reservation', 'management.Incident', 'management.Driver', 'management.Track',
 			'management.CheckinData', 'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information',
 			'monitor.IncidentView', 'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 'form.SearchField',
-			'common.EntityFormButtons', 'dashboard.VehicleHealth', 'pm.Consumable', 'common.ProgressColumn',
+			'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 'pm.Consumable', 'common.ProgressColumn',
 			'management.VehicleConsumableGrid', 'form.RepairForm' ],
 
 	init : function() {

@@ -194,6 +194,10 @@
                     "name": "VehicleHealth.js"
                 },
                 {
+                    "path": "app/view/dashboard/",
+                    "name": "ConsumableHealth.js"
+                },
+                {
                     "path": "app/view/pm/",
                     "name": "Consumable.js"
                 },
@@ -352,6 +356,10 @@
                 {
                     "path": "app/store/",
                     "name": "VehicleByHealthStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DashboardConsumableStore.js"
                 },
                 {
                     "path": "app/controller/",
