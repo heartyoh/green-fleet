@@ -55,7 +55,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		var store3 = Ext.create('Ext.data.JsonStore', {
 		    fields: ['name', 'tb', 'eo', 'data3', 'data4', 'data5'],
 		    data: [
-		        { 'name': T('label.health'),   'vh': 31, 'data3': 14, 'data4': 8,  'data5': 13 },
+		        { 'name': T('label.healthy'),   'vh': 31, 'data3': 14, 'data4': 8,  'data5': 13 },
 		        { 'name': T('label.impending'),   'vh': 17,  'data3': 16, 'data4': 10, 'data5': 3  },
 		        { 'name': T('label.overdue'), 'vh': 2,  'data3': 14, 'data4': 12, 'data5': 7  }
 		    ]

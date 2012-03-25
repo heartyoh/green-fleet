@@ -27,8 +27,8 @@ T({
 		map : '현황판',
 		info : '정보',
 		incident : '이상상황',
-		import : '가져오기',
-		export : '내보내기',
+		import_data : '가져오기',
+		export_data : '내보내기',
 		profile : '사용자 프로파일'
 	},
 	
@@ -214,8 +214,12 @@ T({
 		type : '타입',
 		total : '총',
 		health : '건강',
+		Healthy : '건강',
+		Impending : '임박',
+		Overdue : '기한초과',	
 		impending : '임박',
 		overdue : '기한초과',	
+		healthy : '건강',
 		repair : '수리',
 		repair_date : '수리일자',
 		next_repair_date : '다음 수리일자',

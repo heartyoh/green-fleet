@@ -64,12 +64,12 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        {
 		        	header : 'Key',
 		        	dataIndex : 'key',
-		        	hidden : true,
+		        	hidden : true
 		        },
 		        {
 		        	header : 'Vehicle',
 		        	dataIndex : 'vehicle_id',
-		        	hidden : true,
+		        	hidden : true
 		        },		        
 		        {
 		            header: T('label.consumable_item'),
@@ -141,7 +141,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		        	dataIndex : 'status',
 		        	width : 80
 		        }
-	        ],
+	        ]
 	        
 	        /*tbar: [{
 	            text: T('button.sync'),

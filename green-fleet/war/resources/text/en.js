@@ -27,8 +27,8 @@ T({
 		map : 'Board',
 		info : 'Info',
 		incident : 'Incident',
-		import : 'Import',
-		export : 'Export',
+		import_data : 'Import',
+		export_data : 'Export',
 		profile : 'User Profile'
 	},
 	
@@ -214,6 +214,10 @@ T({
 		type : 'Type',
 		total : 'Total',
 		health : 'Health',
+		Healthy : 'Healthy',
+		Impending : 'Impending',
+		Overdue : 'Overdue',
+		healthy : 'Healthy',
 		impending : 'Impending',
 		overdue : 'Overdue',
 		repair : 'Repair',

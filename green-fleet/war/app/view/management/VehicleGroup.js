@@ -351,7 +351,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			 		     {
 			 		    	 xtype : 'button',
 			 		    	 itemId : 'moveLeft',
-			 		    	 text : '<<',
+			 		    	 text : '<<'
 			 		     },
 			 		     {
 			 		    	 xtype : 'label',

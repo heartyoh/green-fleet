@@ -222,10 +222,10 @@ Ext.define('GreenFleet.view.management.Driver', {
 						fieldLabel : T('label.x_id', {x : T('label.social')})
 					}, {
 						name : 'phone_no_1',
-						fieldLabel : T('label.phone_x', {x : 1}),
+						fieldLabel : T('label.phone_x', {x : 1})
 					}, {
 						name : 'phone_no_2',
-						fieldLabel : T('label.phone_x', {x : 2}),
+						fieldLabel : T('label.phone_x', {x : 2})
 					}, {
 						xtype : 'filefield',
 						name : 'image_file',

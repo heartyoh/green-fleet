@@ -189,19 +189,19 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				text : T('label.fuel_efficiency')
 			}, {
 				dataIndex : 'sudden_accel_count',
-				text : T('label.x_count', {x : T('label.sudden_accel')}),
+				text : T('label.x_count', {x : T('label.sudden_accel')})
 			}, {
 				dataIndex : 'sudden_brake_count',
-				text : T('label.x_count', {x : T('label.sudden_brake')}),
+				text : T('label.x_count', {x : T('label.sudden_brake')})
 			}, {
 				dataIndex : 'idle_time',
-				text : T('label.x_time', {x : T('label.idling')}),
+				text : T('label.x_time', {x : T('label.idling')})
 			}, {
 				dataIndex : 'eco_driving_time',
-				text : T('label.x_time', {x : T('label.eco_driving')}),
+				text : T('label.x_time', {x : T('label.eco_driving')})
 			}, {
 				dataIndex : 'over_speed_time',
-				text : T('label.x_time', {x : T('label.over_speeding')}),
+				text : T('label.x_time', {x : T('label.over_speeding')})
 			}, {
 				dataIndex : 'co2_emissions',
 				text : T('label.co2_emissions')

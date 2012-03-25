@@ -436,7 +436,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				xtype : 'displayfield',
 				name : 'distance',
 				cls : 'dotUnderline',
-				fieldLabel : T('label.run_dist'),
+				fieldLabel : T('label.run_dist')
 			}, {
 				xtype : 'displayfield',
 				name : 'running_time',
