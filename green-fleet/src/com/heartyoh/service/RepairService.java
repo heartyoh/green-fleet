@@ -3,9 +3,9 @@
  */
 package com.heartyoh.service;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +25,9 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.MailUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -95,41 +96,39 @@ public class RepairService extends EntityService {
 	public @ResponseBody
 	String alarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
 		Key companyKey = this.getCompanyKey(request);
-		Iterator<Entity> repairs = this.findUptoRepairs(companyKey);	
 		
-		/*String receiver = request.getParameter("receiver");		
-		if(DataUtils.isEmpty(receiver))
-			throw new Exception("Receiver parameter is required!");
+		// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
+		List<Entity> uptoRepairs = this.findUptoRepairs(companyKey);
 		
-		Map<String, Object> filters = DataUtils.newMap("email", receiver);
-		Key userKey = KeyFactory.createKey(companyKey, "CompanyUser", receiver);
-		Entity receiverUser = DatastoreUtils.findByKey(userKey);
+		if(DataUtils.isEmpty(uptoRepairs))
+			return this.getResultMsg(true, "No maintenance alarms exist!");
 		
-		if(receiverUser == null)
-			throw new Exception("Receiver [" + receiver + "] not found!");*/
-
-		// 1. receiver 추출
-		String receiver = "maparam419@gmail.com";
-		String msgBody = "A maintenance schedule for the following vehicles at the moment! " + File.separator;
-		int count = 0;
+		// 1. 사용자 중에서 관리자들을 조회 
+		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
 		
-		while(repairs.hasNext()) {
-			Entity repair = repairs.next();
-			msgBody += (String)repair.getProperty("vehicle_id") + " : ";
-			msgBody += repair.getProperty("next_repair_date");
-			msgBody += File.separator;
-			count++;
+		if(DataUtils.isEmpty(admins))
+			return this.getResultMsg(true, "Users receive a notification does not exist");
+		
+			
+		String subject = "Notification in accordance with maintenance schedule";
+		int adminCount = admins.size();
+		
+		String[] receiverNames = new String[adminCount];
+		String[] receiverEmails = new String[adminCount];
+		
+		for(int i = 0 ; i < adminCount ; i++) {
+			Entity user = admins.get(i);
+			receiverNames[i] = (String)user.getProperty("name");
+			receiverEmails[i] = (String)user.getProperty("email");
 		}
 		
-		if(count > 0) {
-			// 특정 (설정된) 사용자에게 이메일 전송
-			String subject = "Notification(first email) in accordance with maintenance schedule";
-			MailUtils.sendMail("Admin", "heartyoh@gmail.com", "Name JongHo", receiver, subject, msgBody);
-		}
+		String htmlMsgBody = AlarmUtils.generateRepairAlarmContent(uptoRepairs, true);
+		String textMsgBody = AlarmUtils.generateRepairAlarmContent(uptoRepairs, false);
 		
-		return this.getResultMsg(true, "Maintenance alarms notified (" + count + " count) successfully!");
+		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
+		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
+		return this.getResultMsg(true, "Maintenance alarms notified (" + uptoRepairs.size() + " count) successfully!");
 	}
 	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
@@ -165,12 +164,12 @@ public class RepairService extends EntityService {
 	}
 	
 	/**
-	 * 검색조건 filters를 반영한 Entity 조회 
+	 * 정비 일정이 다가온 정보를 조회한다. 
 	 * 
 	 * @param companyKey
 	 * @return
 	 */
-	private Iterator<Entity> findUptoRepairs(Key companyKey) {
+	private List<Entity> findUptoRepairs(Key companyKey) {
 		
 		Query q = new Query(this.getEntityName());
 		q.setAncestor(companyKey);
@@ -182,6 +181,12 @@ public class RepairService extends EntityService {
 		q.addSort("next_repair_date", SortDirection.DESCENDING);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
-		return pq.asIterable().iterator();
+		
+		List<Entity> repairs = new ArrayList<Entity>();
+		for(Entity repair : pq.asIterable()) {
+			repairs.add(repair);
+		}
+		
+		return repairs;
 	}
 }

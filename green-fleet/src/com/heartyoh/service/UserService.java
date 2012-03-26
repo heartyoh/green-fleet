@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +23,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.security.AppRole;
+import com.heartyoh.util.DataUtils;
 
 @Controller
 public class UserService extends EntityService {
@@ -57,18 +57,18 @@ public class UserService extends EntityService {
 
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		
 		String email = (String) map.get("email");
 		String name = (String) map.get("name");
 		String company = (String) map.get("company");
 		String admin = (String) map.get("admin");
 		String enabled = (String) map.get("enabled");
-//		String locale = (String) map.get("locale");
 		String language = (String) map.get("language");
 		
 		if(language == null) {
 			try {
 				Entity entity_company = datastore.get(entity.getParent());
-				if((String)entity_company.getProperty("language") != null)
+				if(!DataUtils.isEmpty(entity_company.getProperty("language")))
 					language = (String)entity_company.getProperty("language");
 			} catch(EntityNotFoundException e) {
 			} finally {
@@ -79,7 +79,7 @@ public class UserService extends EntityService {
 
 		Set<AppRole> roles = EnumSet.of(AppRole.USER);
 
-		if (admin != null && (admin.equals("true") || admin.equals("on"))) {
+		if (admin != null && (admin.equalsIgnoreCase("true") || admin.equalsIgnoreCase("on"))) {
 			roles.add(AppRole.ADMIN);
 		}
 
@@ -89,14 +89,13 @@ public class UserService extends EntityService {
 			entity.setProperty("name", name);
 		if (company != null)
 			entity.setProperty("company", company);
-//		if (locale != null)
-//		entity.setUnindexedProperty("locale", locale);		
+		if (admin != null)
+			entity.setProperty("admin", booleanProperty(map, "admin"));
+		
 		if (language != null)
-		entity.setUnindexedProperty("language", language);		
+			entity.setUnindexedProperty("language", language);
 		if (enabled != null)
 			entity.setUnindexedProperty("enabled", booleanProperty(map, "enabled"));
-		if (admin != null)
-			entity.setUnindexedProperty("admin", booleanProperty(map, "admin"));		
 
 		long binaryAuthorities = 0;
 

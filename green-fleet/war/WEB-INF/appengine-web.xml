@@ -34,5 +34,12 @@
 		<include path="/resources/image/**.*" />
 		<include path="/resources/themes/images/greenfleet/**.*" />
 	</static-files>
+	
+	<inbound-services>
+		<service>xmpp_message</service>
+		<service>xmpp_presence</service>
+		<service>xmpp_error</service>
+		<!--service>xmpp_subscribe</service-->
+	</inbound-services>
 
 </appengine-web-app>

@@ -17,7 +17,8 @@
         <intercept-url pattern="/incident/upload_video" access="permitAll" />
         <intercept-url pattern="/incident/upload_log" access="permitAll" />
         <intercept-url pattern="/vehicle_consumable/summary" access="permitAll" />
-        <intercept-url pattern="/repair/alarm" access="permitAll" />
+        <intercept-url pattern="/vehicle_consumable/alarm" access="permitAll" />
+        <intercept-url pattern="/repair/alarm" access="permitAll" />        
 <!-- App Engine에 디플로이할 때는 아래 라인 -->
 <!-- 
     <intercept-url pattern="/" access="permitAll" />

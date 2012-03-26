@@ -67,6 +67,11 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		this.sub('consumable_grid').on('itemclick', function(grid, record) {
 			self.refreshConsumableHistory(record.data.vehicle_id, record.data.consumable_item);
 		});
+		
+		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
+			var consumable = this.up('pm_consumable');
+			consumable.modifyConsumableItemStatus(record);			
+		});		
 	},
 
 	refreshConsumableHistory : function(vehicleId, consumableItem) {
@@ -292,19 +297,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					return T('label.' + value);
 				return '';
 			}
-		}, {
-			xtype : 'actioncolumn',
-			width : 50,
-			align : 'center',
-			items : [ {
-				icon : '/resources/image/iconInfoOff.png',
-				tooltip : 'Consumable status details!',
-				handler : function(grid, rowIndex, colIndex) {
-					var record = grid.store.getAt(rowIndex);
-					var consumable = this.up('pm_consumable');
-					consumable.modifyConsumableItemStatus(record);
-				}
-			} ]
 		}, {
 			xtype : 'actioncolumn',
 			width : 50,

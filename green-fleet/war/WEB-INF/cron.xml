@@ -8,7 +8,13 @@
   
   <cron>
     <url>/repair/alarm?company=vitizen</url>
-    <description>Notification(first email) in accordance with maintenance schedule every 2 hours for test</description>
-    <schedule>every 2 hours</schedule>
+    <description>Notification in accordance with maintenance schedule every 12:00 hours For Vitizen Company</description>
+    <schedule>every day 03:00</schedule>
   </cron>
+  
+  <cron>
+    <url>/vehicle_consumable/alarm?company=vitizen</url>
+    <description>Notification in accordance with consumable replacement schedule every 3 hours for test</description>
+    <schedule>every 3 hours</schedule>
+  </cron>  
 </cronentries>

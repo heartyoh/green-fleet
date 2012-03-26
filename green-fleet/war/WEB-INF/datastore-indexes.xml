@@ -49,5 +49,9 @@
         
 	<datastore-index kind="Repair" ancestor="true" source="manual">
         <property name="next_repair_date" direction="desc"/>
+    </datastore-index>
+    
+    <datastore-index kind="VehicleConsumable" ancestor="true" source="manual">
+        <property name="health_rate" direction="asc"/>
     </datastore-index>    
 </datastore-indexes>

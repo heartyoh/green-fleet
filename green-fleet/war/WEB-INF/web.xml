@@ -52,6 +52,36 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>greenFleetServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>XMPPPresenceServlet</servlet-name>
+		<servlet-class>com.heartyoh.service.XMPPPresenceServlet</servlet-class>	
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>XMPPPresenceServlet</servlet-name>
+		<url-pattern>/_ah/xmpp/presence/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>XMPPMessageServlet</servlet-name>
+		<servlet-class>com.heartyoh.service.XMPPMessageServlet</servlet-class>	
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>XMPPMessageServlet</servlet-name>
+		<url-pattern>/_ah/xmpp/message/chat/</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>XMPPErrorServlet</servlet-name>
+		<servlet-class>com.heartyoh.service.XMPPErrorServlet</servlet-class>	
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>XMPPErrorServlet</servlet-name>
+		<url-pattern>/_ah/xmpp/error/</url-pattern>
+	</servlet-mapping>	
 
 <!-- 	
 	<welcome-file-list>

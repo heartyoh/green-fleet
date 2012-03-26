@@ -26,9 +26,12 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.Transaction;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.CalculatorUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
@@ -326,6 +329,45 @@ public class ConsumableService extends HistoricEntityService {
 		}
 	}
 	
+	@RequestMapping(value = "/vehicle_consumable/alarm", method = RequestMethod.GET)
+	public @ResponseBody
+	String alarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		Key companyKey = this.getCompanyKey(request);
+		
+		// 1. 오늘 기준으로 앞 뒤로 하루를 주어 소모품 교체 리스트를 조회 
+		List<Entity> uptoReplacements = this.findUptoReplace(companyKey);
+		
+		if(DataUtils.isEmpty(uptoReplacements))
+			return this.getResultMsg(true, "No consumable replacement exist!");
+		
+		// 2. 관리자 리스트를 조회 				
+		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
+		
+		if(DataUtils.isEmpty(admins))
+			return this.getResultMsg(true, "Users receive a notification does not exist");
+		
+			
+		String subject = "Notification in accordance with consumable replacement schedule";
+		int adminCount = admins.size();
+		
+		String[] receiverNames = new String[adminCount];
+		String[] receiverEmails = new String[adminCount];
+		
+		for(int i = 0 ; i < adminCount ; i++) {
+			Entity user = admins.get(i);
+			receiverNames[i] = (String)user.getProperty("name");
+			receiverEmails[i] = (String)user.getProperty("email");
+		}
+		
+		String htmlMsgBody = AlarmUtils.generateReplaceAlarmContent(uptoReplacements, true);
+		String textMsgBody = AlarmUtils.generateReplaceAlarmContent(uptoReplacements, false);
+		
+		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
+		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
+		return this.getResultMsg(true, "Consumables replacement alarms notified (" + uptoReplacements.size() + " count) successfully!");
+	}
+	
 	/**
 	 * request 정보로 vehicle, consumable Entity를 조회 
 	 * 
@@ -475,4 +517,26 @@ public class ConsumableService extends HistoricEntityService {
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 	}
 	
+	/**
+	 * 소모품 교체 일정이 다가온 소모품 리스트를 조회한다. 조건은 health rate가 0.98 이상인 것들 대상으로 조회 
+	 * 
+	 * @param companyKey
+	 * @return
+	 */
+	private List<Entity> findUptoReplace(Key companyKey) {
+		
+		Query q = new Query(this.getEntityName());
+		q.setAncestor(companyKey);
+		
+		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, 0.98f);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		PreparedQuery pq = datastore.prepare(q);
+		
+		List<Entity> consumables = new ArrayList<Entity>();
+		for(Entity consumable : pq.asIterable()) {
+			consumables.add(consumable);
+		}
+		
+		return consumables;
+	}	
 }

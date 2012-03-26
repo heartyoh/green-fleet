@@ -206,6 +206,21 @@ public class DatastoreUtils {
 	}	
 	
 	/**
+	 * 검색조건 filters를 반영한 Entity List 조회 
+	 * 
+	 * @param companyKey
+	 * @param entityName
+	 * @param filters
+	 * @return
+	 */
+	public static List<Entity> findEntityList(Key companyKey, String entityName, Map<String, Object> filters) {
+		
+		Query q = createDefaultQuery(companyKey, entityName);
+		adjustFilters(q, filters);
+		return findMultiEntityByList(q);
+	}
+	
+	/**
 	 * 검색조건 filters를 반영한 Entity 조회 
 	 * 
 	 * @param companyKey
@@ -236,6 +251,23 @@ public class DatastoreUtils {
 		adjustSorters(q, sorters);		
 		return findMultiEntity(q);
 	}
+	
+	/**
+	 * 검색조건 filters, sorters를 반영한 Entity List 조회 
+	 * 
+	 * @param companyKey
+	 * @param entityName
+	 * @param filters
+	 * @param sorters
+	 * @return
+	 */
+	public static List<Entity> findEntityList(Key companyKey, String entityName, Map<String, Object> filters, List<Sorter> sorters) {
+		
+		Query q = createDefaultQuery(companyKey, entityName);
+		adjustFilters(q, filters);
+		adjustSorters(q, sorters);		
+		return findMultiEntityByList(q);
+	}	
 	
 	/**
 	 * companyKey, entityName, filters 로 entity 리스트를 조회해서 그 중에 selectPropName 프로퍼티 정보만 추출해서 리턴  
@@ -335,6 +367,16 @@ public class DatastoreUtils {
 	}
 	
 	/**
+	 * 관리자 리스트를 조회 
+	 * 
+	 * @param companyKey
+	 * @return
+	 */
+	public static List<Entity> findAdminUsers(Key companyKey) {
+		return findEntityList(companyKey, "CustomUser", DataUtils.newMap("admin", true));
+	}
+	
+	/**
 	 * key로 vehicle을 찾아 리턴 
 	 * 
 	 * @param key
@@ -402,6 +444,18 @@ public class DatastoreUtils {
 		PreparedQuery pq = datastore.prepare(q);
 		return pq.asIterable().iterator();
 	}
+	
+	private static List<Entity> findMultiEntityByList(Query q) {
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		PreparedQuery pq = datastore.prepare(q);
+		List<Entity> entityList = new ArrayList<Entity>();
+		
+		for(Entity entity : pq.asIterable()) {
+			entityList.add(entity);
+		}
+			
+		return entityList;
+	}	
 	
 	private static int getTotalCount(Query q) {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

@@ -211,6 +211,22 @@ public class DataUtils {
 	}
 	
 	/**
+	 * Date 객체를 format에 따라 문자열로 변환, format이 지정되지 않았다면 기본으로 'yyyy-MM-dd' 형식으로 변환한다. 
+	 * 
+	 * @param date
+	 * @param format
+	 * @return
+	 */
+	public static String dateToString(Date date, String format) {
+		
+		if(DataUtils.isEmpty(format))
+			format = "yyyy-MM-dd";
+		
+		SimpleDateFormat formatter = new SimpleDateFormat (format);
+		return formatter.format(date);
+	}
+	
+	/**
 	 * 올해 값을 리턴한다.
 	 * 
 	 * @return
