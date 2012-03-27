@@ -23,6 +23,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.heartyoh.util.DataUtils;
 
 @Controller
 public class CompanyService extends EntityService {
@@ -93,7 +94,7 @@ public class CompanyService extends EntityService {
 			creating = true;
 		}
 		
-		if (key == null || key.trim().isEmpty()) {
+		if (DataUtils.isEmpty(key)) {
 			// It's Not OK. You try to add duplicated identifier.
 			if (obj != null)
 				throw new EntityExistsException(getEntityName() + " with id (" + getIdValue(map) + ") already Exist.");

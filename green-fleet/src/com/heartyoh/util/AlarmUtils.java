@@ -376,6 +376,8 @@ public class AlarmUtils {
 			receiverEmails[i] = (String)user.getProperty("email");
 		}
 		
-		AlarmUtils.sendXmppMessage(receiverEmails, "Please check out vehicle (id : " + vehicle.getProperty("id") + ", reg no. : " + vehicle.getProperty("registration_number") + ") accident! Event occurrence time : " + DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm"));		
+		Entity company = DatastoreUtils.findByKey(companyKey);
+		String timeStr = DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm", company);		
+		AlarmUtils.sendXmppMessage(receiverEmails, "Please check out vehicle (id : " + vehicle.getProperty("id") + ", reg no. : " + vehicle.getProperty("registration_number") + ") accident! Event occurrence time : " + timeStr);		
 	}
 }

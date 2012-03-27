@@ -225,7 +225,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				fieldLabel : T('label.total_x', {
 					x : T('label.dist')
 				}),
-				name : 'total_distance'
+				name : 'total_distance',
+				itemId : 'vehicle_mileage'
 			}, {
 				fieldLabel : T('label.birth_year'),
 				name : 'birth_year'
@@ -305,12 +306,14 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				icon : '/resources/image/iconAddOn.png',
 				tooltip : 'Consumables replacement',
 				handler : function(grid, rowIndex, colIndex) {
+					var vehicleMileage = grid.up('pm_consumable').sub('vehicle_mileage').getValue();
 					var record = grid.store.getAt(rowIndex);
 					var consumable = this.up('pm_consumable');
 					var newRecord = {
 						data : {
 							vehicle_id : record.data.vehicle_id,
 							consumable_item : record.data.consumable_item,
+							miles_last_repl : vehicleMileage,
 							last_repl_date : new Date()
 						}
 					};

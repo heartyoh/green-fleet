@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.appengine.api.datastore.Entity;
+
 /**
  * 데이터 핸들링을 위한 유틸리티 클래스
  * 
@@ -224,6 +226,43 @@ public class DataUtils {
 		
 		SimpleDateFormat formatter = new SimpleDateFormat (format);
 		return formatter.format(date);
+	}
+	
+	/**
+	 * Date 객체를 timezone에 따라 변환하고 format 패턴 문자열로 변환하여 리턴, format이 지정되지 않았다면 기본으로 'yyyy-MM-dd' 형식으로 변환한다. 
+	 * 
+	 * @param date
+	 * @param format
+	 * @param timezone
+	 * @return
+	 */
+	public static String dateToString(Date date, String format, int timezone) {
+		
+		if(DataUtils.isEmpty(format))
+			format = "yyyy-MM-dd";
+		
+		date.setTime(date.getTime() + (timezone * 3600 * 1000));		
+		SimpleDateFormat formatter = new SimpleDateFormat (format);
+		return formatter.format(date);		
+	}
+	
+	/**
+	 * Date 객체를 company에 설정된 timezone에 따라 변환하고 format 패턴 문자열로 변환하여 리턴, format이 지정되지 않았다면 기본으로 'yyyy-MM-dd' 형식으로 변환한다. 
+	 * 
+	 * @param date
+	 * @param format
+	 * @param company
+	 * @return
+	 */
+	public static String dateToString(Date date, String format, Entity company) {
+		
+		int timezone = 0;
+		
+		if(company != null && !DataUtils.isEmpty(company.getProperty("timezone"))) {
+			timezone = DataUtils.toInt(company.getProperty("timezone"));
+		}
+		
+		return dateToString(date, format, timezone);
 	}
 	
 	/**

@@ -197,14 +197,11 @@ public class ConsumableService extends HistoricEntityService {
 		
 		// 2. 차량별로 소모품에 대한 상태 처리
 		while(vehicles.hasNext()) {
-			Entity vehicle = vehicles.next();
-			String vehicleId = DataUtils.toString(vehicle.getProperty("id"));
-			double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
-			
+			Entity vehicle = vehicles.next();			
 			try {
-				count += this.summaryConsumableStatus(datastore, companyKey, vehicleId, totalMileage);
+				count += this.summaryConsumableStatus(datastore, vehicle);
 			} catch (Exception e) {
-				logger.error("Failed to summary consumable status - vehicle id (" + vehicleId + ")!", e);
+				logger.error("Failed to summary consumable status - vehicle id (" + vehicle.getProperty("id") + ")!", e);
 			}
 		}
 		
@@ -215,18 +212,19 @@ public class ConsumableService extends HistoricEntityService {
 	 * 차량별 소모품 summary
 	 * 
 	 * @param datastore
-	 * @param companyKey
-	 * @param vehicleId
-	 * @param totalMileage
+	 * @param vehicle
 	 * @throws Exception
 	 */
-	private int summaryConsumableStatus(DatastoreService datastore, Key companyKey, String vehicleId, double totalMileage) throws Exception {
+	private int summaryConsumableStatus(DatastoreService datastore, Entity vehicle) throws Exception {
+		
+		String vehicleId = DataUtils.toString(vehicle.getProperty("id"));
+		double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
 		
 		if(totalMileage < 1)
 			return 0;
 		
 		Map<String, Object> filters = DataUtils.newMap("vehicle_id", vehicleId);
-		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", filters);
+		Iterator<Entity> consumables = DatastoreUtils.findEntities(vehicle.getKey().getParent(), "VehicleConsumable", filters);
 		int count = 0;
 		String vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_H;
 		
@@ -257,12 +255,49 @@ public class ConsumableService extends HistoricEntityService {
 		}
 		
 		// 차량 건강 상태 업데이트 
-		Entity vehicle = DatastoreUtils.findVehicle(companyKey, vehicleId);
 		vehicle.setProperty("health_status", vehicleHealthStatus);
 		datastore.put(vehicle);
 		
-		logger.info("Updated vehicle (id :" + vehicleId + ") consumable health status - (" + count + ") count!");
+		if(logger.isInfoEnabled())
+			logger.info("Consumables' health statuses of vehicle (id :" + vehicleId + ") are updated! - (" + count + ") count!");
+		
 		return count;
+	}
+	
+	/**
+	 * vehicle의 소모품 상태를 기반으로 건강 상태를 업데이트한다. 
+	 * 
+	 * @param datastore
+	 * @param vehicle
+	 * @throws Exception
+	 */
+	private void updateVehicleHealth(DatastoreService datastore, Entity vehicle) throws Exception {
+		
+		Iterator<Entity> consumables = DatastoreUtils.findEntities(vehicle.getKey().getParent(), "VehicleConsumable", DataUtils.newMap("vehicle_id", vehicle.getProperty("id")));
+		String vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_H;
+		
+		// 차량별로 각각의 consumable 정보를 가져옴
+		while(consumables.hasNext()) {
+			Entity consumable = consumables.next();
+			
+			// 차량 상태 결정 : 모든 소모품이 OK이면 Healthy, 하나라도 Impending이면 Impending, 하나라도 Overdue이면 무조건 Overdue, Overdue가 우선순위가 가장 높음
+			if(GreenFleetConstant.VEHICLE_HEALTH_O.equalsIgnoreCase(vehicleHealthStatus))
+				continue;
+			
+			String healthStatus = (String)consumable.getProperty("status");
+			
+			if(GreenFleetConstant.VEHICLE_HEALTH_I.equalsIgnoreCase(healthStatus)) {
+				if(GreenFleetConstant.VEHICLE_HEALTH_H.equalsIgnoreCase(vehicleHealthStatus)) {
+					vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_I;
+				}
+			} else if(GreenFleetConstant.VEHICLE_HEALTH_O.equalsIgnoreCase(healthStatus)) {
+				vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_O;
+			}
+		}
+		
+		// 차량 건강 상태 업데이트 
+		vehicle.setProperty("health_status", vehicleHealthStatus);
+		datastore.put(vehicle);
 	}
 		
 	@RequestMapping(value = "/vehicle_consumable/import", method = RequestMethod.POST)
@@ -297,6 +332,8 @@ public class ConsumableService extends HistoricEntityService {
 			CalculatorUtils.resetConsumable(DataUtils.toDouble(vehicle.getProperty("total_distance")), consumable);
 			// 이력 저장을 위해 호출 
 			this.saveEntity(consumable, map, datastore);
+			// vehicle의 건강 상태를 다시 업데이트
+			this.updateVehicleHealth(datastore, vehicle);
 			return this.getResultMsg(true, "Consumable Reset have been processed successfully.");
 			
 		} catch (Throwable t) {
@@ -320,6 +357,8 @@ public class ConsumableService extends HistoricEntityService {
 			CalculatorUtils.calcConsumableInfo(DataUtils.toDouble(vehicle.getProperty("total_distance")), consumable, map);
 			// 이력 저장을 위해 호출 
 			this.saveEntity(consumable, map, datastore);
+			// vehicle의 건강 상태를 다시 업데이트
+			this.updateVehicleHealth(datastore, vehicle);
 			return this.getResultMsg(true, "Consumable Replacement have been processed successfully.");
 			
 		} catch (Throwable t) {
