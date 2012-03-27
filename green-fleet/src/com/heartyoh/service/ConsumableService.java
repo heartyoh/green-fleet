@@ -29,7 +29,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.CalculatorUtils;
@@ -336,36 +335,18 @@ public class ConsumableService extends HistoricEntityService {
 		Key companyKey = this.getCompanyKey(request);
 		
 		// 1. 오늘 기준으로 앞 뒤로 하루를 주어 소모품 교체 리스트를 조회 
-		List<Entity> uptoReplacements = this.findUptoReplace(companyKey);
+		List<Entity> consumables = this.findConsumablesToReplace(companyKey);
 		
-		if(DataUtils.isEmpty(uptoReplacements))
-			return this.getResultMsg(true, "No consumable replacement exist!");
+		if(DataUtils.isEmpty(consumables))
+			return this.getResultMsg(true, "No consumable to replace exist!");
 		
-		// 2. 관리자 리스트를 조회 				
-		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
-		
-		if(DataUtils.isEmpty(admins))
-			return this.getResultMsg(true, "Users receive a notification does not exist");
-		
-			
-		String subject = "Notification in accordance with consumable replacement schedule";
-		int adminCount = admins.size();
-		
-		String[] receiverNames = new String[adminCount];
-		String[] receiverEmails = new String[adminCount];
-		
-		for(int i = 0 ; i < adminCount ; i++) {
-			Entity user = admins.get(i);
-			receiverNames[i] = (String)user.getProperty("name");
-			receiverEmails[i] = (String)user.getProperty("email");
+		try {
+			AlarmUtils.alarmRepairs(consumables);
+		} catch (Exception e) {
+			return this.getResultMsg(false, e.getMessage());
 		}
 		
-		String htmlMsgBody = AlarmUtils.generateReplaceAlarmContent(uptoReplacements, true);
-		String textMsgBody = AlarmUtils.generateReplaceAlarmContent(uptoReplacements, false);
-		
-		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
-		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
-		return this.getResultMsg(true, "Consumables replacement alarms notified (" + uptoReplacements.size() + " count) successfully!");
+		return this.getResultMsg(true, "Consumables replacement alarms notified (" + consumables.size() + " count) successfully!");
 	}
 	
 	/**
@@ -523,7 +504,7 @@ public class ConsumableService extends HistoricEntityService {
 	 * @param companyKey
 	 * @return
 	 */
-	private List<Entity> findUptoReplace(Key companyKey) {
+	private List<Entity> findConsumablesToReplace(Key companyKey) {
 		
 		Query q = new Query(this.getEntityName());
 		q.setAncestor(companyKey);
@@ -538,5 +519,5 @@ public class ConsumableService extends HistoricEntityService {
 		}
 		
 		return consumables;
-	}	
+	}
 }

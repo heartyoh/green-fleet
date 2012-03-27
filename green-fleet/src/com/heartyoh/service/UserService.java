@@ -133,6 +133,8 @@ public class UserService extends EntityService {
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
+		
+		logger.info("User service called....");
 		return super.retrieve(request, response);
 	}
 	

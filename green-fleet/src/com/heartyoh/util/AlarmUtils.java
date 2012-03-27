@@ -14,6 +14,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.MessageType;
@@ -267,5 +268,114 @@ public class AlarmUtils {
 		for(String to : toList) {
 			sendXmppMessage(to, msg);
 		}
+	}
+	
+	/**
+	 * 정비가 필요한 차량 정보를 알림 
+	 * 
+	 * @param impendingRepairs
+	 * @throws Exception
+	 */
+	public static void alarmRepairs(List<Entity> impendingRepairs) throws Exception {
+		
+		if(DataUtils.isEmpty(impendingRepairs))
+			return;
+		
+		// 1. companyKey 조회 
+		Key companyKey = impendingRepairs.get(0).getKey().getParent();
+		
+		// 2. 관리자 리스트를 조회
+		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
+		
+		if(DataUtils.isEmpty(admins))
+			throw new Exception("The company [" + companyKey.getName() + "] does not have an administrator user");
+		
+		String subject = "Notification in accordance with maintenance schedule";
+		int adminCount = admins.size();
+		
+		String[] receiverNames = new String[adminCount];
+		String[] receiverEmails = new String[adminCount];
+		
+		for(int i = 0 ; i < adminCount ; i++) {
+			Entity user = admins.get(i);
+			receiverNames[i] = (String)user.getProperty("name");
+			receiverEmails[i] = (String)user.getProperty("email");
+		}
+		
+		String htmlMsgBody = AlarmUtils.generateRepairAlarmContent(impendingRepairs, true);
+		String textMsgBody = AlarmUtils.generateRepairAlarmContent(impendingRepairs, false);
+		
+		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
+		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);		
+	}
+	
+	/**
+	 * 교체가 필요한 소모품 정보를 알림 
+	 * 
+	 * @param consumables
+	 * @throws Exception
+	 */
+	public static void alarmConsumables(List<Entity> consumables) throws Exception {
+		
+		if(DataUtils.isEmpty(consumables))
+			return;
+		
+		// 1. companyKey 조회 
+		Key companyKey = consumables.get(0).getKey().getParent();
+		
+		// 2. 관리자 리스트를 조회
+		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
+		
+		if(DataUtils.isEmpty(admins))
+			throw new Exception("The company [" + companyKey.getName() + "] does not have an administrator user");
+		
+		String subject = "Notification in accordance with consumable replacement schedule";
+		int adminCount = admins.size();
+		
+		String[] receiverNames = new String[adminCount];
+		String[] receiverEmails = new String[adminCount];
+		
+		for(int i = 0 ; i < adminCount ; i++) {
+			Entity user = admins.get(i);
+			receiverNames[i] = (String)user.getProperty("name");
+			receiverEmails[i] = (String)user.getProperty("email");
+		}
+		
+		String htmlMsgBody = AlarmUtils.generateReplaceAlarmContent(consumables, true);
+		String textMsgBody = AlarmUtils.generateReplaceAlarmContent(consumables, false);
+		
+		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
+		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
+	}
+	
+	/**
+	 * 사고 정보를 알림
+	 * 
+	 * @param vehicle
+	 * @throws Exception
+	 */
+	public static void alarmIncidents(Entity vehicle) throws Exception {
+		
+		if(vehicle == null)
+			return;
+		
+		// 1. companyKey 조회 
+		Key companyKey = vehicle.getKey().getParent();
+		
+		// 2. 관리자 리스트를 조회
+		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
+		
+		if(DataUtils.isEmpty(admins))
+			throw new Exception("The company [" + companyKey.getName() + "] does not have an administrator user");
+		
+		int adminCount = admins.size();
+		String[] receiverEmails = new String[adminCount];
+		
+		for(int i = 0 ; i < adminCount ; i++) {
+			Entity user = admins.get(i);
+			receiverEmails[i] = (String)user.getProperty("email");
+		}
+		
+		AlarmUtils.sendXmppMessage(receiverEmails, "Please check out vehicle (id : " + vehicle.getProperty("id") + ", reg no. : " + vehicle.getProperty("registration_number") + ") accident! Event occurrence time : " + DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm"));		
 	}
 }

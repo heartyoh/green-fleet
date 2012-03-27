@@ -27,7 +27,6 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -99,36 +98,18 @@ public class RepairService extends EntityService {
 		Key companyKey = this.getCompanyKey(request);
 		
 		// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
-		List<Entity> uptoRepairs = this.findUptoRepairs(companyKey);
+		List<Entity> impendingRepairs = this.findImpendingRepairs(companyKey);
+
+		if(DataUtils.isEmpty(impendingRepairs))
+			return this.getResultMsg(true, "No vehicles to repair exist!");
 		
-		if(DataUtils.isEmpty(uptoRepairs))
-			return this.getResultMsg(true, "No maintenance alarms exist!");
-		
-		// 1. 사용자 중에서 관리자들을 조회 
-		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
-		
-		if(DataUtils.isEmpty(admins))
-			return this.getResultMsg(true, "Users receive a notification does not exist");
-		
-			
-		String subject = "Notification in accordance with maintenance schedule";
-		int adminCount = admins.size();
-		
-		String[] receiverNames = new String[adminCount];
-		String[] receiverEmails = new String[adminCount];
-		
-		for(int i = 0 ; i < adminCount ; i++) {
-			Entity user = admins.get(i);
-			receiverNames[i] = (String)user.getProperty("name");
-			receiverEmails[i] = (String)user.getProperty("email");
+		try {
+			AlarmUtils.alarmRepairs(impendingRepairs);
+		} catch (Exception e) {
+			return this.getResultMsg(false, e.getMessage());
 		}
 		
-		String htmlMsgBody = AlarmUtils.generateRepairAlarmContent(uptoRepairs, true);
-		String textMsgBody = AlarmUtils.generateRepairAlarmContent(uptoRepairs, false);
-		
-		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
-		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
-		return this.getResultMsg(true, "Maintenance alarms notified (" + uptoRepairs.size() + " count) successfully!");
+		return this.getResultMsg(true, "Repair alarms notified (" + impendingRepairs.size() + " count) successfully!");
 	}
 	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
@@ -169,7 +150,7 @@ public class RepairService extends EntityService {
 	 * @param companyKey
 	 * @return
 	 */
-	private List<Entity> findUptoRepairs(Key companyKey) {
+	private List<Entity> findImpendingRepairs(Key companyKey) {
 		
 		Query q = new Query(this.getEntityName());
 		q.setAncestor(companyKey);

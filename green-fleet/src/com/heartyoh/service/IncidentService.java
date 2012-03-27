@@ -20,13 +20,14 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -110,17 +111,17 @@ public class IncidentService extends EntityService {
 		 * 관련 차량의 정보를 가져온다.
 		 */
 		Key vehicleKey = KeyFactory.createKey(entity.getParent(), "Vehicle", (String)entity.getProperty("vehicle_id"));
-		Entity vehicle;
-		try {
-			vehicle = datastore.get(vehicleKey);
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
+		Entity vehicle = DatastoreUtils.findByKey(vehicleKey);
+
+		if(vehicle == null)
 			return;
-		}
+		
 		boolean confirmed = (entity.getProperty("confirm") == null) ? false : ((Boolean)entity.getProperty("confirm")).booleanValue();
 		if(!confirmed) {
 			vehicle.setProperty("status", "Incident");
 			datastore.put(vehicle);
+			// 사고 알람 
+			AlarmUtils.alarmIncidents(vehicle);
 			return;
 		}
 		
@@ -144,6 +145,8 @@ public class IncidentService extends EntityService {
 
 		if(incidents.size() > 0) {
 			vehicle.setProperty("status", "Incident");
+			// 사고 알람 
+			AlarmUtils.alarmIncidents(vehicle);
 		} else {
 			vehicle.setProperty("status", "Running");
 		}

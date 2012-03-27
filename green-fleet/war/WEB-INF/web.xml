@@ -4,13 +4,14 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
+	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			/WEB-INF/spring/root-context.xml
 		</param-value>
 	</context-param>
-
+	
 	<filter>
 		<filter-name>Request Encoding</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -23,11 +24,11 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<filter-name>Request Encoding</filter-name>
 		<servlet-name>dispatcher</servlet-name>
 	</filter-mapping>
-     
+    
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-	
+  		
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -70,22 +71,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	
 	<servlet-mapping>
 		<servlet-name>XMPPMessageServlet</servlet-name>
-		<url-pattern>/_ah/xmpp/message/chat/</url-pattern>
+		<url-pattern>/_ah/xmpp/message/*</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>XMPPErrorServlet</servlet-name>
-		<servlet-class>com.heartyoh.service.XMPPErrorServlet</servlet-class>	
+		<servlet-name>ChannelPresenceServlet</servlet-name>
+		<servlet-class>com.heartyoh.service.ChannelPresenceServlet</servlet-class>	
 	</servlet>
 	
 	<servlet-mapping>
-		<servlet-name>XMPPErrorServlet</servlet-name>
-		<url-pattern>/_ah/xmpp/error/</url-pattern>
+		<servlet-name>ChannelPresenceServlet</servlet-name>
+		<url-pattern>/_ah/channel/*</url-pattern>
 	</servlet-mapping>	
-
-<!-- 	
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
- -->
+	
  </web-app>

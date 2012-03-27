@@ -9,6 +9,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -25,7 +27,9 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 public class GaeAuthenticationFilter extends GenericFilterBean {
 
-	private static final String REGISTRATION_URL = "/register";
+	private static Logger logger = LoggerFactory.getLogger(GaeAuthenticationFilter.class);
+	
+	private static final String REGISTRATION_URL = "/register";	
 	private AuthenticationDetailsSource ads = new WebAuthenticationDetailsSource();
 	private AuthenticationManager authenticationManager;
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
@@ -55,6 +59,7 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 						return;
 					}
 				} catch (AuthenticationException e) {
+					logger.error("Failed to authenticated!", e);
 					// Authentication information was rejected by the
 					// authentication manager
 					failureHandler.onAuthenticationFailure((HttpServletRequest) request,
