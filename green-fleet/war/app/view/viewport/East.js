@@ -19,6 +19,9 @@ Ext.define('GreenFleet.view.viewport.East', {
 
 		var self = this;
 
+		// Channel 구현 중 
+		// this.initChannel();
+		
 		this.sub('state_running').on('click', function() {
 			GreenFleet.doMenu('monitor_map');
 
@@ -126,6 +129,60 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 	},
 
+	// 1. 로그 아웃 시점에 socket.disconnect
+	// 2. ajax로 보내는 게 아니라 channel로 메시지 보내기
+	initChannel : function() {
+		var self = this;
+		
+		Ext.Ajax.request({
+			url : '/channel/init',
+			method : 'POST',
+			success : function(response) {
+				self.openChannel(response.responseText);
+			},
+			failure : function(response) {
+				Ext.Msg.alert(T('label.failure'), response.responseText);
+			}
+		});
+	},
+	
+	openChannel : function(token) {
+		Ext.Msg.alert(T('label.success'), token);
+		var channel = new goog.appengine.Channel(token);
+		var socket = channel.open();
+		
+		socket.onopen = function() {
+			Ext.Msg.alert(T('label.success'), "Socket opened! User email [" + GreenFleet.login.key + "]");
+			
+			Ext.Ajax.request({
+				url : '/channel/message',
+				method : 'POST',
+				params : {
+					key : GreenFleet.login.email,
+					message : 'Client Socket Opened!',
+				},
+				success : function(response) {
+					GreenFleet.msg(T('label.success'), "Message sended!");
+				},
+				failure : function(error) {
+					GreenFleet.msg(T('label.failure'), "Send message error!");
+				}
+			});
+		};
+		
+		socket.onmessage = function(message) {
+			Ext.Msg.alert(T('label.success'), "Message received ! [" + message.data + "]");
+		};
+		
+		socket.onerror = function(error) {
+			Ext.Msg.alert(T('label.failure'), "Error code : " + error.code + ", Description" + error.description);
+		};
+		
+		socket.onclose = function() {
+			Ext.Msg.alert('Closed', "Socket Connection closed");
+		};
+	},
+	
 	toggleHide : function() {
 		if (this.isVisible())
 			this.hide();

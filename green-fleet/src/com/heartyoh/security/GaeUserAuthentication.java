@@ -9,6 +9,10 @@ import org.springframework.security.core.GrantedAuthority;
 import com.heartyoh.model.CustomUser;
 
 public class GaeUserAuthentication implements Authentication {
+	/**
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = -7923390262882445539L;
 	private final CustomUser principal;
 	private final Object details;
 	private boolean authenticated;
