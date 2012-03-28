@@ -2,8 +2,6 @@ package com.heartyoh.service;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -32,6 +31,10 @@ import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class IncidentService extends EntityService {
+	
+	/**
+	 * logger
+	 */
 	private static final Logger logger = LoggerFactory.getLogger(IncidentService.class);
 
 	@Override
@@ -121,7 +124,7 @@ public class IncidentService extends EntityService {
 			vehicle.setProperty("status", "Incident");
 			datastore.put(vehicle);
 			// 사고 알람 
-			AlarmUtils.alarmIncidents(vehicle);
+			AlarmUtils.alarmIncidents(vehicle, entity);
 			return;
 		}
 		
@@ -133,20 +136,14 @@ public class IncidentService extends EntityService {
 		Query q = new Query("Incident");
 		q.setAncestor(entity.getParent());
 		q.addFilter("vehicle_id", FilterOperator.EQUAL, (String)vehicle.getProperty("id"));
-		q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);
-		
+		q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);		
 		PreparedQuery pq = datastore.prepare(q);
+		int incidentsCount = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 
-		List<Map<String, Object>> incidents = new LinkedList<Map<String, Object>>();
-		
-		for (Entity result : pq.asIterable()) {
-			incidents.add(SessionUtils.cvtEntityToMap(result));
-		}
-
-		if(incidents.size() > 0) {
+		if(incidentsCount > 0) {
 			vehicle.setProperty("status", "Incident");
 			// 사고 알람 
-			AlarmUtils.alarmIncidents(vehicle);
+			AlarmUtils.alarmIncidents(vehicle, entity);
 		} else {
 			vehicle.setProperty("status", "Running");
 		}
@@ -197,7 +194,7 @@ public class IncidentService extends EntityService {
 
 		String confirm = request.getParameter("confirm");
 		if(!DataUtils.isEmpty(confirm)) {
-			q.addFilter("confirm", FilterOperator.EQUAL, confirm.equalsIgnoreCase("true") || confirm.equalsIgnoreCase("on"));
+			q.addFilter("confirm", FilterOperator.EQUAL, DataUtils.toBool(confirm));
 		}
 	}
 

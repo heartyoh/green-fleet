@@ -15,7 +15,7 @@ Ext.define('GreenFleet.mixin.Msg', function(){
 		var m = Ext.core.DomHelper.append(msgCt, createBox(t, s), true);
 		m.hide();
 		m.slideIn('t').ghost("t", {
-			delay : 1000,
+			delay : 3000,
 			remove : true
 		});
 	}

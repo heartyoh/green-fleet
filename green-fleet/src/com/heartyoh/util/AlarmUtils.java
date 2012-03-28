@@ -13,6 +13,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.google.appengine.api.channel.ChannelMessage;
+import com.google.appengine.api.channel.ChannelService;
+import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.xmpp.JID;
@@ -21,6 +24,7 @@ import com.google.appengine.api.xmpp.MessageType;
 import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+
 
 /**
  * Alarm Util Class
@@ -33,6 +37,79 @@ public class AlarmUtils {
 	 * XMPPService
 	 */
 	private static XMPPService xmppService = null;
+	/**
+	 * Channel Service
+	 */
+	private static ChannelService channelService = null;
+	
+	/**
+	 * msg 내용으로 현재 세션의 사용자에게 Channel Message를 보낸다.
+	 *  
+	 * @param to
+	 * @param msg
+	 * @throws Exception
+	 */
+	public static void sendChannelMessage(String[] toList, String msg) throws Exception {
+		
+		for(String to : toList) {
+			sendChannelMessage(to, msg);
+		}
+	}
+	
+	/**
+	 * msg 내용으로 현재 세션의 사용자에게 Channel Message를 보낸다.
+	 *  
+	 * @param to
+	 * @param msg
+	 * @throws Exception
+	 */
+	public static void sendChannelMessage(String to, String msg) throws Exception {
+		
+		if(channelService == null)
+			channelService = ChannelServiceFactory.getChannelService();
+
+		ChannelMessage channelMessage = new ChannelMessage(to, msg);
+		channelService.sendMessage(channelMessage);
+	}
+	
+	/**
+	 * XMPP Message를 to에게 msg 내용을 보낸다. 
+	 * 
+	 * @param to
+	 * @param msg
+	 * @throws Exception
+	 */
+	public static void sendXmppMessage(String[] toList, String msg) throws Exception {
+		for(String to : toList) {
+			sendXmppMessage(to, msg);
+		}
+	}	
+	
+	/**
+	 * to에게 msg 내용으로 XMPP Message를 보낸다. 
+	 * 
+	 * @param to
+	 * @param msg
+	 * @throws Exception
+	 */
+	public static void sendXmppMessage(String to, String msg) throws Exception {
+		
+		if(xmppService == null)
+			xmppService = XMPPServiceFactory.getXMPPService();
+		
+        MessageBuilder messageBuilder = new MessageBuilder();
+        JID receiver = new JID(to);
+        messageBuilder.withRecipientJids(receiver);
+        messageBuilder.withMessageType(MessageType.NORMAL);
+        messageBuilder.withBody(msg);
+        com.google.appengine.api.xmpp.Message xmppMsg = messageBuilder.build();
+        SendResponse xmppResponse = xmppService.sendMessage(xmppMsg);
+        boolean messageSent = (xmppResponse.getStatusMap().get(receiver) == SendResponse.Status.SUCCESS);
+        
+        if(!messageSent) {
+        	throw new Exception("User [" + receiver.getId() + "] didn't receive messsage!");
+        }
+	}
 	
 	/**
 	 * mail send
@@ -232,45 +309,6 @@ public class AlarmUtils {
 	}
 	
 	/**
-	 * XMPP Message를 to에게 msg 내용을 보낸다. 
-	 * 
-	 * @param to
-	 * @param msg
-	 * @throws Exception
-	 */
-	public static void sendXmppMessage(String to, String msg) throws Exception {
-		
-		if(xmppService == null)
-			xmppService = XMPPServiceFactory.getXMPPService();
-		
-        MessageBuilder messageBuilder = new MessageBuilder();
-        JID receiver = new JID(to);
-        messageBuilder.withRecipientJids(receiver);
-        messageBuilder.withMessageType(MessageType.NORMAL);
-        messageBuilder.withBody(msg);
-        com.google.appengine.api.xmpp.Message xmppMsg = messageBuilder.build();
-        SendResponse xmppResponse = xmppService.sendMessage(xmppMsg);
-        boolean messageSent = (xmppResponse.getStatusMap().get(receiver) == SendResponse.Status.SUCCESS);
-        
-        if(!messageSent) {
-        	throw new Exception("User [" + receiver.getId() + "] didn't receive messsage!");
-        }
-	}
-	
-	/**
-	 * XMPP Message를 to에게 msg 내용을 보낸다. 
-	 * 
-	 * @param to
-	 * @param msg
-	 * @throws Exception
-	 */
-	public static void sendXmppMessage(String[] toList, String msg) throws Exception {
-		for(String to : toList) {
-			sendXmppMessage(to, msg);
-		}
-	}
-	
-	/**
 	 * 정비가 필요한 차량 정보를 알림 
 	 * 
 	 * @param impendingRepairs
@@ -352,9 +390,10 @@ public class AlarmUtils {
 	 * 사고 정보를 알림
 	 * 
 	 * @param vehicle
+	 * @param incidnet
 	 * @throws Exception
 	 */
-	public static void alarmIncidents(Entity vehicle) throws Exception {
+	public static void alarmIncidents(Entity vehicle, Entity incident) throws Exception {
 		
 		if(vehicle == null)
 			return;
@@ -377,7 +416,12 @@ public class AlarmUtils {
 		}
 		
 		Entity company = DatastoreUtils.findByKey(companyKey);
-		String timeStr = DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm", company);		
-		AlarmUtils.sendXmppMessage(receiverEmails, "Please check out vehicle (id : " + vehicle.getProperty("id") + ", reg no. : " + vehicle.getProperty("registration_number") + ") accident! Event occurrence time : " + timeStr);		
+		String timeStr = DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm", company);
+		String msg = "[Incident] Please check out vehicle (id : " + vehicle.getProperty("id") + ", reg no. : " + vehicle.getProperty("registration_number") + ") accident! Event occurrence time : " + timeStr;		
+
+		AlarmUtils.sendXmppMessage(receiverEmails, msg);
+		
+		// GAE Channel을 사용한다면 주석해제  
+		//AlarmUtils.sendChannelMessage(receiverEmails, "Incident");
 	}
 }

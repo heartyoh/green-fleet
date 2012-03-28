@@ -19,7 +19,8 @@
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>
 		<script src="lib/label/label.js"></script>
 		<script src="lib/locale/locale.js"></script>
-		<script src='/_ah/channel/jsapi'></script>
+		<!-- GAE Channel을 이용하려면 아래 주석 해제 -->
+		<!--script src='/_ah/channel/jsapi'></script-->
 		
 		<script>
 		var login = {

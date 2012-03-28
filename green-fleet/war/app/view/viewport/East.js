@@ -18,9 +18,6 @@ Ext.define('GreenFleet.view.viewport.East', {
 		this.callParent();
 
 		var self = this;
-
-		// Channel 구현 중 
-		// this.initChannel();
 		
 		this.sub('state_running').on('click', function() {
 			GreenFleet.doMenu('monitor_map');
@@ -123,17 +120,20 @@ Ext.define('GreenFleet.view.viewport.East', {
 
 		this.on('afterrender', function() {
 			Ext.getStore('VehicleMapStore').on('load',self.refreshVehicleCounts, self);
-			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
-			Ext.getStore('RecentIncidentStore').load();
+			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);			
 			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
 		});
+		
+		Ext.getStore('RecentIncidentStore').load();
+		// GAE Channel 연결 
+		//this.initChannel();
 	},
 
-	// 1. 로그 아웃 시점에 socket.disconnect
-	// 2. ajax로 보내는 게 아니라 channel로 메시지 보내기
+	// Channel 연결 시도
 	initChannel : function() {
 		var self = this;
 		
+		// 서버에 채널 생성 요청 
 		Ext.Ajax.request({
 			url : '/channel/init',
 			method : 'POST',
@@ -146,40 +146,34 @@ Ext.define('GreenFleet.view.viewport.East', {
 		});
 	},
 	
+	// 서버로 부터 넘겨받은 토큰으로 채널 오픈 
 	openChannel : function(token) {
-		Ext.Msg.alert(T('label.success'), token);
+		var self = this;
 		var channel = new goog.appengine.Channel(token);
 		var socket = channel.open();
 		
 		socket.onopen = function() {
-			Ext.Msg.alert(T('label.success'), "Socket opened! User email [" + GreenFleet.login.key + "]");
-			
-			Ext.Ajax.request({
-				url : '/channel/message',
-				method : 'POST',
-				params : {
-					key : GreenFleet.login.email,
-					message : 'Client Socket Opened!',
-				},
-				success : function(response) {
-					GreenFleet.msg(T('label.success'), "Message sended!");
-				},
-				failure : function(error) {
-					GreenFleet.msg(T('label.failure'), "Send message error!");
-				}
-			});
+			GreenFleet.msg('Channel', 'Channel opened!');
 		};
 		
-		socket.onmessage = function(message) {
-			Ext.Msg.alert(T('label.success'), "Message received ! [" + message.data + "]");
+		socket.onmessage = function(message) {			
+			var data = Ext.String.trim(message.data);
+			
+			// 사고 상황
+			if(data == 'Incident') {
+				Ext.Msg.alert("Incident", "There seems to be an accident. Please check!");
+				Ext.getStore('RecentIncidentStore').load();				
+			} else {
+				GreenFleet.msg("Message arrived", data);
+			}
 		};
 		
 		socket.onerror = function(error) {
-			Ext.Msg.alert(T('label.failure'), "Error code : " + error.code + ", Description" + error.description);
+			Ext.Msg.alert('Channel', "There was a problem with the channel connection!");
 		};
 		
 		socket.onclose = function() {
-			Ext.Msg.alert('Closed', "Socket Connection closed");
+			Ext.Msg.alert('Channel', "Channel closed!");
 		};
 	},
 	
@@ -228,17 +222,20 @@ Ext.define('GreenFleet.view.viewport.East', {
 	},
 
 	refreshIncidents : function(store) {
+				
 		if (!store)
 			store = Ext.getStore('RecentIncidentStore');
+		
+		var incidents = this.sub('incidents');
+		if(!incidents)
+			incidents = this.up('viewport.east').sub('incidents');
 
-		this.sub('incidents').removeAll();
-
+		incidents.removeAll();
 		var count = store.count() > 5 ? 5 : store.count();
 
-		for ( var i = 0; i < count; i++) {
+		for (var i = 0; i < count; i++) {			
 			var incident = store.getAt(i);
-
-			this.sub('incidents').add(
+			incidents.add(
 					{
 						xtype : 'button',
 						listeners : {
@@ -258,7 +255,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 					});
 		}
 	},
-
+	
 	refreshVehicleGroups : function() {
 		if (this.isHidden())
 			return;

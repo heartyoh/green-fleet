@@ -35,6 +35,13 @@ public class ChannelMgmtService {
 	 */
 	private static ChannelService channelService = ChannelServiceFactory.getChannelService();
 
+	/**
+	 * 클라이언트로 부터 채널 생성 요청을 받아 채널을 생성하고 토큰을 넘겨준다. 
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/channel/init", method = RequestMethod.POST)
 	public void init(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
