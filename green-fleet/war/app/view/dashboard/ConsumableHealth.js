@@ -39,8 +39,8 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 
 				for ( var i = 0; i < records.length; i++) {
 					var record = records[i];
-					var consumableItem = record.data.consumable;
-
+					var consumableItem = record.data.consumable;				
+					
 					if (columnCount == 0) {
 						row = this.createRow(content);
 						columnCount++;
@@ -49,7 +49,7 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 					} else if (columnCount == 2) {
 						columnCount = 0;
 					}
-
+					
 					this.addToRow(row, consumableItem + ' ' + T('menu.health'), record);
 				}
 
@@ -64,17 +64,20 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 	
 	addToRow : function(row, title, record) {
 		var store = Ext.create('Ext.data.JsonStore', {
-			fields : [ {
-				name : 'name',
-				type : 'string',
-				convert : function(value, record) {
-					return T('label.' + value);
-				}
-			}, 'count' ],
+			fields : [
+			    'name',
+			    {
+			    	name : 'desc',
+			    	type : 'string',
+			    	convert : function(value, record) {
+			    		return T('label.' + value);
+			    	}
+			    }, 'value' 
+			],
 			data : record.data.summary
 		});
 		
-		row.add(this.buildHealthChart(title, store, 'count'));		
+		row.add(this.buildHealthChart(title, store, 'value'));		
 	},	
 
 	createRow : function(content) {
@@ -133,7 +136,7 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 							store.each(function(rec) {
 								total += rec.get(idx);
 							});
-							var name = storeItem.get('name');
+							var name = storeItem.get('desc');
 							this.setTitle(name + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
 						}
 					},
@@ -143,10 +146,17 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 						}
 					},
 					label : {
-						field : 'name',
+						field : 'desc',
 						display : 'rotate',
 						contrast : true,
 						font : '14px Arial'
+					},
+					listeners : {
+						itemmousedown : function(target, event) {
+							alert("name : " + target.storeItem.data.name + ", desc : " + target.storeItem.data.desc + ", value : " + target.storeItem.data.value);
+							var menu = GreenFleet.getMenu('consumable');
+							GreenFleet.doMenu("consumable");
+						}
 					}
 				} ]
 			} ]
