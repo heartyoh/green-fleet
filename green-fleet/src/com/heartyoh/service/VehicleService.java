@@ -1,6 +1,9 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +27,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class VehicleService extends EntityService {
@@ -114,19 +118,67 @@ public class VehicleService extends EntityService {
 		// 2. consumable_item은 없고 health_status만 있는 경우 : vehicle의 상태가 health_status인 모든 차량 조회, 하지만 health_status가 세 개인 경우는 모든 vehicle 조회 		
 		else {
 			Key companyKey = this.getCompanyKey(request);
-			List<Object> statusList = DataUtils.toList(request.getParameterValues("health_status"));
-			Map<String, Object> filters = DataUtils.newMap(new String[] { "consumable_item", "status" }, new Object[] { consumableItem, statusList });
-			List<Object> vehicleIds = DatastoreUtils.findEntityProperties(companyKey, "VehicleConsumable", filters, "vehicle_id");
+			Map<String, String> consumablesMap = this.findConsumables(companyKey, consumableItem, request.getParameterValues("health_status"));
 			
-			if(!vehicleIds.isEmpty()) {
-				List<Sorter> sorters = this.parseSorters(request.getParameter("sort"));
-				List<Map<String, Object>> items = DatastoreUtils.findEntityPropMap(companyKey, this.getEntityName(), DataUtils.newMap("id", vehicleIds), sorters, request.getParameterValues("select"));
+			if(!consumablesMap.isEmpty()) {
+				List<Object> items = this.findVehicles(companyKey, request.getParameter("sort"), request.getParameterValues("select"), consumablesMap);
 				return packResultDataset(true, items.size(), items);
 			} else {
 				return packResultDataset(true, 0, null);
-			}						
+			}
 		}
-	}	
+	}
+	
+	/**
+	 * 소모품 정보를 조회하여 key (vehicle id) - value (consumable 상태) 맵으로 리턴 
+	 * 
+	 * @param companyKey
+	 * @param consumableItem
+	 * @param healthStatus
+	 * @return
+	 */
+	private Map<String, String> findConsumables(Key companyKey, String consumableItem, String[] healthStatus) {
+		
+		List<Object> statusList = DataUtils.toList(healthStatus);
+		Map<String, Object> filters = DataUtils.newMap(new String[] { "consumable_item", "status" }, new Object[] { consumableItem, statusList });
+		Map<String, String> resultMap = new HashMap<String, String>();
+		
+		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", filters);
+		while(consumables.hasNext()) {
+			Entity consumable = consumables.next();
+			resultMap.put((String)consumable.getProperty("vehicle_id"), (String)consumable.getProperty("status"));
+		}
+		
+		return resultMap;
+	}
+	
+	/**
+	 * 조건에 의해 vehicle을 조회해서 consumableMap의 상태 정보를 vehicle 상태 정보로 overwrite해서 리턴  
+	 * 
+	 * @param companyKey
+	 * @param sorterStr
+	 * @param selectPropName
+	 * @param consumablesMap
+	 * @return
+	 */
+	private List<Object> findVehicles(Key companyKey, String sorterStr, String[] selectPropName, Map<String, String> consumablesMap) {
+		
+		List<Sorter> sorters = this.parseSorters(sorterStr);
+		List<Object> list = new ArrayList<Object>();		
+		Iterator<Entity> entities = DatastoreUtils.findEntities(companyKey, this.getEntityName(), DataUtils.newMap("id", consumablesMap.keySet()), sorters);
+		
+		while(entities.hasNext()) {
+			Entity entity = entities.next();
+			Map<String, Object> data = SessionUtils.cvtEntityToMap(entity, selectPropName);
+			// vehicle 상태를 consumable 상태로 변경 
+			String vehicleId = (String)data.get("id");
+			String consumableStatus = consumablesMap.get(vehicleId);
+			data.put("health_status", consumableStatus);
+			list.add(data);
+		}
+		
+		return list;
+	}
 	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {		

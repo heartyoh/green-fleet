@@ -248,7 +248,7 @@ public class DatastoreUtils {
 		
 		Query q = createDefaultQuery(companyKey, entityName);
 		adjustFilters(q, filters);
-		adjustSorters(q, sorters);		
+		adjustSorters(q, sorters);
 		return findMultiEntity(q);
 	}
 	

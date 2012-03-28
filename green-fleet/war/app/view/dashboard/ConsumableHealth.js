@@ -50,7 +50,7 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 						columnCount = 0;
 					}
 					
-					this.addToRow(row, consumableItem + ' ' + T('menu.health'), record);
+					this.addToRow(row, consumableItem, record);
 				}
 
 				var addCount = 3 - columnCount;
@@ -62,22 +62,21 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 		});
 	},
 	
-	addToRow : function(row, title, record) {
+	addToRow : function(row, consumableItem, record) {
+		
+		var summaryRecords = record.data.summary;		
+		Ext.Array.each(summaryRecords, function(summaryRecord) {
+	        summaryRecord.consumable = consumableItem;
+	        summaryRecord.desc = T('label.' + summaryRecord.name);
+	    });
+		
 		var store = Ext.create('Ext.data.JsonStore', {
-			fields : [
-			    'name',
-			    {
-			    	name : 'desc',
-			    	type : 'string',
-			    	convert : function(value, record) {
-			    		return T('label.' + value);
-			    	}
-			    }, 'value' 
-			],
-			data : record.data.summary
+			fields : ['consumable', 'name', 'desc', 'value' ],
+			autoDestroy : true,
+			data : summaryRecords
 		});
 		
-		row.add(this.buildHealthChart(title, store, 'value'));		
+		row.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'value'));		
 	},	
 
 	createRow : function(content) {
@@ -153,9 +152,10 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 					},
 					listeners : {
 						itemmousedown : function(target, event) {
-							alert("name : " + target.storeItem.data.name + ", desc : " + target.storeItem.data.desc + ", value : " + target.storeItem.data.value);
-							var menu = GreenFleet.getMenu('consumable');
+							// alert("consumable : " + target.storeItem.data.consumable + ", name : " + target.storeItem.data.name + ", desc : " + target.storeItem.data.desc + ", value : " + target.storeItem.data.value);							
 							GreenFleet.doMenu("consumable");
+							var menu = GreenFleet.getMenu('consumable');
+							menu.setConsumable(target.storeItem.data.consumable, target.storeItem.data.name);
 						}
 					}
 				} ]

@@ -61,7 +61,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				records.push(record);
 			});
 
-			self.sub('repair_view').refreshRepair(records);
+			if(self.sub('repair_view'))
+				self.sub('repair_view').refreshRepair(records);
 		});
 
 		this.sub('consumable_grid').on('itemclick', function(grid, record) {
@@ -70,8 +71,12 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		
 		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
 			var consumable = this.up('pm_consumable');
-			consumable.modifyConsumableItemStatus(record);			
+			consumable.showConsumableStatus(record);			
 		});		
+	},
+	
+	setConsumable : function(consumable, status) {
+		this.sub('vehicle_info').vehicleList(this.sub('vehicle_info'), consumable, status);
 	},
 
 	refreshConsumableHistory : function(vehicleId, consumableItem) {
@@ -89,6 +94,27 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			title : T('title.vehicle_list'),
 			width : 300,
 			autoScroll : true,
+			
+			vehicleList : function(grid, consumable, status) {
+				
+				if(status == 'Healthy') {
+					grid.sub('check_healthy').setValue(true);
+					grid.sub('check_impending').setValue(false);
+					grid.sub('check_overdue').setValue(false);
+					
+				} else if(status == 'Impending') {
+					grid.sub('check_healthy').setValue(false);
+					grid.sub('check_impending').setValue(true);
+					grid.sub('check_overdue').setValue(false);
+					
+				} else if(status == 'Overdue') {
+					grid.sub('check_healthy').setValue(false);
+					grid.sub('check_impending').setValue(false);
+					grid.sub('check_overdue').setValue(true);
+				}
+				
+				grid.sub('consumables_combo').setValue(consumable);
+			},
 
 			filterVehicleList : function(grid) {
 
@@ -318,7 +344,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						}
 					};
 
-					consumable.addConsumableChangeItem(newRecord);
+					consumable.showConsumableChange(newRecord);
 				}
 			} ]
 		}, {
@@ -401,7 +427,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		} ],
 		listeners : {
 			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
-				grid.up('pm_consumable').addConsumableChangeItem(record);
+				grid.up('pm_consumable').showConsumableChange(record);
 			}
 		}
 	},
@@ -628,11 +654,11 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				} ]
 	},
 
-	modifyConsumableItemStatus : function(selectedRecord) {
+	showConsumableStatus : function(selectedRecord) {
 		this.consumableStatusWin(selectedRecord).show();
 	},
 
-	addConsumableChangeItem : function(selectedRecord) {
+	showConsumableChange : function(selectedRecord) {
 		this.consumableChangeWin(selectedRecord).show();
 	},
 

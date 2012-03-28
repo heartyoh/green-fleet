@@ -46,19 +46,19 @@ public class DashboardService {
 			// healthy
 			Map<String, Object> filters = DataUtils.newMap(new String[] { "consumable_item", "status" }, new Object[] { consumableItem, GreenFleetConstant.VEHICLE_HEALTH_H } );			
 			int healthCount = DatastoreUtils.totalCount(companyKey, "VehicleConsumable", filters);		
-			Map<String, Object> result1 = DataUtils.newMap(new String[] { "name", "desc", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_H, GreenFleetConstant.VEHICLE_HEALTH_H, healthCount });
+			Map<String, Object> result1 = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_H, healthCount });
 			resultList.add(result1);
 			
 			// impending
 			filters.put("status", GreenFleetConstant.VEHICLE_HEALTH_I);
 			int impendingCount = DatastoreUtils.totalCount(companyKey, "VehicleConsumable", filters);
-			Map<String, Object> result2 = DataUtils.newMap(new String[] { "name", "desc", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_I, GreenFleetConstant.VEHICLE_HEALTH_I, impendingCount });
+			Map<String, Object> result2 = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_I, impendingCount });
 			resultList.add(result2);
 			
 			// overdue
 			filters.put("status", GreenFleetConstant.VEHICLE_HEALTH_O);
 			int overdueCount = DatastoreUtils.totalCount(companyKey, "VehicleConsumable", filters);
-			Map<String, Object> result3 = DataUtils.newMap(new String[] { "name", "desc", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_O, GreenFleetConstant.VEHICLE_HEALTH_O, overdueCount });
+			Map<String, Object> result3 = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_O, overdueCount });
 			resultList.add(result3);
 			
 			items.add(item);
