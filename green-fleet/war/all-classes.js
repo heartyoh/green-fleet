@@ -18,7 +18,7 @@ Ext.define('GreenFleet.mixin.Msg', function(){
 		var m = Ext.core.DomHelper.append(msgCt, createBox(t, s), true);
 		m.hide();
 		m.slideIn('t').ghost("t", {
-			delay : 1000,
+			delay : 3000,
 			remove : true
 		});
 	}
@@ -757,7 +757,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		this.callParent();
 
 		var self = this;
-
+		
 		this.sub('state_running').on('click', function() {
 			GreenFleet.doMenu('monitor_map');
 
@@ -859,12 +859,63 @@ Ext.define('GreenFleet.view.viewport.East', {
 
 		this.on('afterrender', function() {
 			Ext.getStore('VehicleMapStore').on('load',self.refreshVehicleCounts, self);
-			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);
-			Ext.getStore('RecentIncidentStore').load();
+			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);			
 			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
 		});
+		
+		Ext.getStore('RecentIncidentStore').load();
+		// GAE Channel 연결 
+		//this.initChannel();
 	},
 
+	// Channel 연결 시도
+	initChannel : function() {
+		var self = this;
+		
+		// 서버에 채널 생성 요청 
+		Ext.Ajax.request({
+			url : '/channel/init',
+			method : 'POST',
+			success : function(response) {
+				self.openChannel(response.responseText);
+			},
+			failure : function(response) {
+				Ext.Msg.alert(T('label.failure'), response.responseText);
+			}
+		});
+	},
+	
+	// 서버로 부터 넘겨받은 토큰으로 채널 오픈 
+	openChannel : function(token) {
+		var self = this;
+		var channel = new goog.appengine.Channel(token);
+		var socket = channel.open();
+		
+		socket.onopen = function() {
+			GreenFleet.msg('Channel', 'Channel opened!');
+		};
+		
+		socket.onmessage = function(message) {			
+			var data = Ext.String.trim(message.data);
+			
+			// 사고 상황
+			if(data == 'Incident') {
+				Ext.Msg.alert("Incident", "There seems to be an accident. Please check!");
+				Ext.getStore('RecentIncidentStore').load();				
+			} else {
+				GreenFleet.msg("Message arrived", data);
+			}
+		};
+		
+		socket.onerror = function(error) {
+			Ext.Msg.alert('Channel', "There was a problem with the channel connection!");
+		};
+		
+		socket.onclose = function() {
+			Ext.Msg.alert('Channel', "Channel closed!");
+		};
+	},
+	
 	toggleHide : function() {
 		if (this.isVisible())
 			this.hide();
@@ -910,17 +961,20 @@ Ext.define('GreenFleet.view.viewport.East', {
 	},
 
 	refreshIncidents : function(store) {
+				
 		if (!store)
 			store = Ext.getStore('RecentIncidentStore');
+		
+		var incidents = this.sub('incidents');
+		if(!incidents)
+			incidents = this.up('viewport.east').sub('incidents');
 
-		this.sub('incidents').removeAll();
-
+		incidents.removeAll();
 		var count = store.count() > 5 ? 5 : store.count();
 
-		for ( var i = 0; i < count; i++) {
+		for (var i = 0; i < count; i++) {			
 			var incident = store.getAt(i);
-
-			this.sub('incidents').add(
+			incidents.add(
 					{
 						xtype : 'button',
 						listeners : {
@@ -940,7 +994,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 					});
 		}
 	},
-
+	
 	refreshVehicleGroups : function() {
 		if (this.isHidden())
 			return;
@@ -7125,8 +7179,8 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 
 				for ( var i = 0; i < records.length; i++) {
 					var record = records[i];
-					var consumableItem = record.data.consumable;
-
+					var consumableItem = record.data.consumable;				
+					
 					if (columnCount == 0) {
 						row = this.createRow(content);
 						columnCount++;
@@ -7135,8 +7189,8 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 					} else if (columnCount == 2) {
 						columnCount = 0;
 					}
-
-					this.addToRow(row, consumableItem + ' ' + T('menu.health'), record);
+					
+					this.addToRow(row, consumableItem, record);
 				}
 
 				var addCount = 3 - columnCount;
@@ -7148,19 +7202,21 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 		});
 	},
 	
-	addToRow : function(row, title, record) {
+	addToRow : function(row, consumableItem, record) {
+		
+		var summaryRecords = record.data.summary;		
+		Ext.Array.each(summaryRecords, function(summaryRecord) {
+	        summaryRecord.consumable = consumableItem;
+	        summaryRecord.desc = T('label.' + summaryRecord.name);
+	    });
+		
 		var store = Ext.create('Ext.data.JsonStore', {
-			fields : [ {
-				name : 'name',
-				type : 'string',
-				convert : function(value, record) {
-					return T('label.' + value);
-				}
-			}, 'count' ],
-			data : record.data.summary
+			fields : ['consumable', 'name', 'desc', 'value' ],
+			autoDestroy : true,
+			data : summaryRecords
 		});
 		
-		row.add(this.buildHealthChart(title, store, 'count'));		
+		row.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'value'));		
 	},	
 
 	createRow : function(content) {
@@ -7219,7 +7275,7 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 							store.each(function(rec) {
 								total += rec.get(idx);
 							});
-							var name = storeItem.get('name');
+							var name = storeItem.get('desc');
 							this.setTitle(name + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
 						}
 					},
@@ -7229,10 +7285,18 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 						}
 					},
 					label : {
-						field : 'name',
+						field : 'desc',
 						display : 'rotate',
 						contrast : true,
 						font : '14px Arial'
+					},
+					listeners : {
+						itemmousedown : function(target, event) {
+							// alert("consumable : " + target.storeItem.data.consumable + ", name : " + target.storeItem.data.name + ", desc : " + target.storeItem.data.desc + ", value : " + target.storeItem.data.value);							
+							GreenFleet.doMenu("consumable");
+							var menu = GreenFleet.getMenu('consumable');
+							menu.setConsumable(target.storeItem.data.consumable, target.storeItem.data.name);
+						}
 					}
 				} ]
 			} ]
@@ -7303,7 +7367,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				records.push(record);
 			});
 
-			self.sub('repair_view').refreshRepair(records);
+			if(self.sub('repair_view'))
+				self.sub('repair_view').refreshRepair(records);
 		});
 
 		this.sub('consumable_grid').on('itemclick', function(grid, record) {
@@ -7312,8 +7377,12 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		
 		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
 			var consumable = this.up('pm_consumable');
-			consumable.modifyConsumableItemStatus(record);			
+			consumable.showConsumableStatus(record);			
 		});		
+	},
+	
+	setConsumable : function(consumable, status) {
+		this.sub('vehicle_info').vehicleList(this.sub('vehicle_info'), consumable, status);
 	},
 
 	refreshConsumableHistory : function(vehicleId, consumableItem) {
@@ -7331,6 +7400,27 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			title : T('title.vehicle_list'),
 			width : 300,
 			autoScroll : true,
+			
+			vehicleList : function(grid, consumable, status) {
+				
+				if(status == 'Healthy') {
+					grid.sub('check_healthy').setValue(true);
+					grid.sub('check_impending').setValue(false);
+					grid.sub('check_overdue').setValue(false);
+					
+				} else if(status == 'Impending') {
+					grid.sub('check_healthy').setValue(false);
+					grid.sub('check_impending').setValue(true);
+					grid.sub('check_overdue').setValue(false);
+					
+				} else if(status == 'Overdue') {
+					grid.sub('check_healthy').setValue(false);
+					grid.sub('check_impending').setValue(false);
+					grid.sub('check_overdue').setValue(true);
+				}
+				
+				grid.sub('consumables_combo').setValue(consumable);
+			},
 
 			filterVehicleList : function(grid) {
 
@@ -7560,7 +7650,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						}
 					};
 
-					consumable.addConsumableChangeItem(newRecord);
+					consumable.showConsumableChange(newRecord);
 				}
 			} ]
 		}, {
@@ -7643,7 +7733,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		} ],
 		listeners : {
 			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
-				grid.up('pm_consumable').addConsumableChangeItem(record);
+				grid.up('pm_consumable').showConsumableChange(record);
 			}
 		}
 	},
@@ -7870,11 +7960,11 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				} ]
 	},
 
-	modifyConsumableItemStatus : function(selectedRecord) {
+	showConsumableStatus : function(selectedRecord) {
 		this.consumableStatusWin(selectedRecord).show();
 	},
 
-	addConsumableChangeItem : function(selectedRecord) {
+	showConsumableChange : function(selectedRecord) {
 		this.consumableChangeWin(selectedRecord).show();
 	},
 
