@@ -77,7 +77,7 @@ T({
 		vehicle_age : '차량 연수',		
 		timing_belt_health : '타이밍벨트 상태',
 		running_distance : '주행거리',
-		engine_oil_health : '엔진 오일 건강',
+		engine_oil_health : '엔진오일 상태',
 		total_running_vehicles : '총 주행 차량',
 		vehicle_status : '차량 상태',
 		incidents_alarm : '이상상황 알림',
@@ -214,12 +214,12 @@ T({
 		type : '타입',
 		total : '총',
 		health : '건강',
-		Healthy : '건강',
-		Impending : '임박',
-		Overdue : '기한초과',	
-		impending : '임박',
-		overdue : '기한초과',	
-		healthy : '건강',
+		Healthy : '양호',
+		Impending : '교체 임박',
+		Overdue : '기한 초과',	
+		impending : '교체 임박',
+		overdue : '기한 초과',	
+		healthy : '양호',
 		repair : '수리',
 		repair_date : '수리일자',
 		next_repair_date : '다음 수리일자',
@@ -275,6 +275,7 @@ T({
 		failed_to_delete : '삭제 실패했습니다!',
 		failed_to_do : '{do} 실패했습니다!',
 		failed_to_ajax : 'Ajax 통신에 실패했습니다!',
-		invalid_form_values : '폼 필드에 유효하지 않은 값이 있습니다'	
+		invalid_form_values : '폼 필드에 유효하지 않은 값이 있습니다',
+		select_a_consumable : '소모품 종류를 선택하세요'
 	}
 });
