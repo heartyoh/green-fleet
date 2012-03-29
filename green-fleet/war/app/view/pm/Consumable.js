@@ -61,8 +61,9 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				records.push(record);
 			});
 
-			if(self.sub('repair_view'))
-				self.sub('repair_view').refreshRepair(records);
+			var repairListView = self.sub('repair_view');
+			if(repairListView)
+				repairListView.refreshRepair(records);
 		});
 
 		this.sub('consumable_grid').on('itemclick', function(grid, record) {
@@ -76,7 +77,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	},
 	
 	setConsumable : function(consumable, status) {
-		this.sub('vehicle_info').vehicleList(this.sub('vehicle_info'), consumable, status);
+		var vehicleListGrid = this.sub('vehicle_info');
+		vehicleListGrid.vehicleList(vehicleListGrid, consumable, status);
 	},
 
 	refreshConsumableHistory : function(vehicleId, consumableItem) {
@@ -97,15 +99,15 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			
 			vehicleList : function(grid, consumable, status) {
 				
-				if(status == 'Healthy') {
-					grid.sub('check_healthy').setValue(true);
+				if(status == 'Healthy') {					
 					grid.sub('check_impending').setValue(false);
 					grid.sub('check_overdue').setValue(false);
+					grid.sub('check_healthy').setValue(true);
 					
 				} else if(status == 'Impending') {
-					grid.sub('check_healthy').setValue(false);
-					grid.sub('check_impending').setValue(true);
+					grid.sub('check_healthy').setValue(false);					
 					grid.sub('check_overdue').setValue(false);
+					grid.sub('check_impending').setValue(true);
 					
 				} else if(status == 'Overdue') {
 					grid.sub('check_healthy').setValue(false);

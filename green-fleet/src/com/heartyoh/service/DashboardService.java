@@ -217,7 +217,7 @@ public class DashboardService {
 	 * @param countValue
 	 */
 	private void setResultSetData(List<Map<String, Object>> list, String nameValue, Object countValue) {
-		Map<String, Object> healthResult = DataUtils.newMap(new String[] { "name", "count" }, new Object[] { nameValue, countValue });
+		Map<String, Object> healthResult = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { nameValue, countValue });
 		list.add(healthResult);		
 	}
 	

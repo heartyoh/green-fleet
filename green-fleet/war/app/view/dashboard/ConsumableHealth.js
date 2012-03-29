@@ -136,7 +136,9 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 								total += rec.get(idx);
 							});
 							var name = storeItem.get('desc');
-							this.setTitle(name + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
+							var count = storeItem.get('value');
+							var percent = Math.round(count / total * 100);
+							this.setTitle(name + ' : ' + count + '(' + percent + '%)');
 						}
 					},
 					highlight : {
@@ -152,7 +154,6 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 					},
 					listeners : {
 						itemmousedown : function(target, event) {
-							// alert("consumable : " + target.storeItem.data.consumable + ", name : " + target.storeItem.data.name + ", desc : " + target.storeItem.data.desc + ", value : " + target.storeItem.data.value);							
 							GreenFleet.doMenu("consumable");
 							var menu = GreenFleet.getMenu('consumable');
 							menu.setConsumable(target.storeItem.data.consumable, target.storeItem.data.name);

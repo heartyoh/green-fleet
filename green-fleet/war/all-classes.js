@@ -6984,30 +6984,6 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 			}
 		})
 		
-		var store1 = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'age', 'data2', 'data3', 'data4', 'data5'],
-		    data: [
-		        { 'name': '~ 1Y',   'age': 10, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': '1Y ~ 2Y',   'age': 13,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': '2Y ~ 3Y', 'age': 18,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
-		        { 'name': '3Y ~ 5Y',  'age': 5,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
-		        { 'name': '5Y ~ 10Y',  'age': 3, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 },
-		        { 'name': '10Y ~',  'age': 1, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
-		    ]
-		});
-
-		var store2 = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'rd', 'data2', 'data3', 'data4', 'data5'],
-		    data: [
-		        { 'name': '~ 10K',   'rd': 1, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
-		        { 'name': '10K ~ 30K',   'rd': 4,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
-		        { 'name': '30K ~ 50K', 'rd': 5,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
-		        { 'name': '50K ~ 100K',  'rd': 22,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
-		        { 'name': '100K ~ 200K',  'rd': 12, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 },
-		        { 'name': '200K ~',  'rd': 6, 'data2': 38, 'data3': 36, 'data4': 13, 'data5': 33 }
-		    ]
-		});
-		
 		var row1 = this.createRow(content);
 		var row2 = this.createRow(content);		
 		var dashboardStore = Ext.getStore('DashboardVehicleStore');
@@ -7036,20 +7012,20 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		        	convert : function(value, record) {
 		        		return T('label.' + value);
 		        	}
-				},  'count'],
+				},  'value'],
 		    data: record.data.summary
 		});
 		
-		row.add(this.buildHealthChart(title, store, 'count'));		
+		row.add(this.buildHealthChart(title, store, 'value'));		
 	},
 	
 	addChartToRow : function(row, title, record) {
 		var store = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'count'],
+		    fields: ['name', 'value'],
 		    data: record.data.summary
 		});
 		
-		row.add(this.buildHealthChart(title, store, 'count'));		
+		row.add(this.buildHealthChart(title, store, 'value'));		
 	},
 	
 	findRecord : function(records, healthName) {
@@ -7113,12 +7089,15 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		              width: 140,
 		              height: 25,
 		              renderer: function(storeItem, item) {
-		                // calculate percentage.
-		                var total = 0;
-		                store.each(function(rec) {
-		                    total += rec.get(idx);
-		                });
-		                this.setTitle(storeItem.get('name') + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
+		            	  // calculate percentage.
+		            	  var total = 0;
+		            	  store.each(function(rec) {
+		            		  total += rec.get(idx);
+		            	  });
+		            	  var name = storeItem.get('name');
+		            	  var count = storeItem.get('value');
+		            	  var percent = Math.round(count / total * 100);
+		            	  this.setTitle(name + ' : ' + count + '(' + percent + '%)');
 		              }
 		            },
 		            highlight: {
@@ -7276,7 +7255,9 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 								total += rec.get(idx);
 							});
 							var name = storeItem.get('desc');
-							this.setTitle(name + ': ' + Math.round(storeItem.get(idx) / total * 100) + '%');
+							var count = storeItem.get('value');
+							var percent = Math.round(count / total * 100);
+							this.setTitle(name + ' : ' + count + '(' + percent + '%)');
 						}
 					},
 					highlight : {
@@ -7292,7 +7273,6 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 					},
 					listeners : {
 						itemmousedown : function(target, event) {
-							// alert("consumable : " + target.storeItem.data.consumable + ", name : " + target.storeItem.data.name + ", desc : " + target.storeItem.data.desc + ", value : " + target.storeItem.data.value);							
 							GreenFleet.doMenu("consumable");
 							var menu = GreenFleet.getMenu('consumable');
 							menu.setConsumable(target.storeItem.data.consumable, target.storeItem.data.name);
@@ -7367,8 +7347,9 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				records.push(record);
 			});
 
-			if(self.sub('repair_view'))
-				self.sub('repair_view').refreshRepair(records);
+			var repairListView = self.sub('repair_view');
+			if(repairListView)
+				repairListView.refreshRepair(records);
 		});
 
 		this.sub('consumable_grid').on('itemclick', function(grid, record) {
@@ -7382,7 +7363,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	},
 	
 	setConsumable : function(consumable, status) {
-		this.sub('vehicle_info').vehicleList(this.sub('vehicle_info'), consumable, status);
+		var vehicleListGrid = this.sub('vehicle_info');
+		vehicleListGrid.vehicleList(vehicleListGrid, consumable, status);
 	},
 
 	refreshConsumableHistory : function(vehicleId, consumableItem) {
@@ -7403,15 +7385,15 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			
 			vehicleList : function(grid, consumable, status) {
 				
-				if(status == 'Healthy') {
-					grid.sub('check_healthy').setValue(true);
+				if(status == 'Healthy') {					
 					grid.sub('check_impending').setValue(false);
 					grid.sub('check_overdue').setValue(false);
+					grid.sub('check_healthy').setValue(true);
 					
 				} else if(status == 'Impending') {
-					grid.sub('check_healthy').setValue(false);
-					grid.sub('check_impending').setValue(true);
+					grid.sub('check_healthy').setValue(false);					
 					grid.sub('check_overdue').setValue(false);
+					grid.sub('check_impending').setValue(true);
 					
 				} else if(status == 'Overdue') {
 					grid.sub('check_healthy').setValue(false);
