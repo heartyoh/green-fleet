@@ -380,7 +380,7 @@ public class ConsumableService extends HistoricEntityService {
 			return this.getResultMsg(true, "No consumable to replace exist!");
 		
 		try {
-			AlarmUtils.alarmRepairs(consumables);
+			AlarmUtils.alarmConsumables(consumables);
 		} catch (Exception e) {
 			return this.getResultMsg(false, e.getMessage());
 		}

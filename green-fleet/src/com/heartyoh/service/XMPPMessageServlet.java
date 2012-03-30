@@ -142,7 +142,7 @@ public class XMPPMessageServlet extends HttpServlet {
 		// vehicles_to_repair company=vitizen
 		} else if(reqMsg.startsWith("vehicles_to_repair")) {
 			// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
-			List<Entity> uptoRepairs = this.findUptoRepairs(companyKey);
+			List<Entity> uptoRepairs = this.findTodaysRepairs(companyKey);
 			
 			if(DataUtils.isEmpty(uptoRepairs))
 				return "No vehicle to repair!";
@@ -152,7 +152,7 @@ public class XMPPMessageServlet extends HttpServlet {
 		// consumables_to_replace company=vitizen
 		} else if(reqMsg.startsWith("consumables_to_replace")) {
 			// 1. 오늘 기준으로 앞 뒤로 하루를 주어 소모품 교체 리스트를 조회 
-			List<Entity> uptoReplacements = this.findUptoReplace(companyKey);
+			List<Entity> uptoReplacements = this.findConsumablesToReplace(companyKey);
 			
 			if(DataUtils.isEmpty(uptoReplacements))
 				return "No consumables to replace!";
@@ -180,13 +180,12 @@ public class XMPPMessageServlet extends HttpServlet {
 	 * @param companyKey
 	 * @return
 	 */	
-	private List<Entity> findUptoRepairs(Key companyKey) {
+	private List<Entity> findTodaysRepairs(Key companyKey) {
 		
 		Query q = new Query("Repair");
 		q.setAncestor(companyKey);
 		
-		long dateMillis = DataUtils.getTodayMillis();
-		Date[] fromToDate = DataUtils.getFromToDate(dateMillis, 0, 1);
+		Date[] fromToDate = DataUtils.getFromToDateStToday(0, 1);
 		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
 		q.addSort("next_repair_date", SortDirection.DESCENDING);
@@ -207,7 +206,7 @@ public class XMPPMessageServlet extends HttpServlet {
 	 * @param companyKey
 	 * @return
 	 */
-	private List<Entity> findUptoReplace(Key companyKey) {
+	private List<Entity> findConsumablesToReplace(Key companyKey) {
 		
 		Query q = new Query("VehicleConsumable");
 		q.setAncestor(companyKey);

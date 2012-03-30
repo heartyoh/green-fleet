@@ -326,4 +326,16 @@ public class DataUtils {
 		
 		return new Date[] {fromDate, toDate};
 	}
+	
+	/**
+	 * 오늘 00:00 기준으로 넘어온 앞 뒤 날 수 조건을 추가한 From, To Date를 리턴한다.
+	 *  
+	 * @param beforeDateAmount
+	 * @param afterDateAmount
+	 * @return
+	 */
+	public static Date[] getFromToDateStToday(int beforeDateAmount, int afterDateAmount) {
+		long millis = DataUtils.getTodayMillis();
+		return getFromToDate(millis, beforeDateAmount, afterDateAmount);
+	}
 }

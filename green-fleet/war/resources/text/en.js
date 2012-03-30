@@ -275,6 +275,7 @@ T({
 		failed_to_delete : 'Failed to delete!',
 		failed_to_do : 'Failed to {do}!',
 		failed_to_ajax : 'Ajax communication failed!',
-		invalid_form_values : 'Form fields may not be submitted with invalid values!'		
+		invalid_form_values : 'Form fields may not be submitted with invalid values!',
+		select_a_consumable : 'Select a consumable'
 	}
 });
