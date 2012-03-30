@@ -7359,7 +7359,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
 			var consumable = this.up('pm_consumable');
 			consumable.showConsumableStatus(record);			
-		});		
+		});
 	},
 	
 	setConsumable : function(consumable, status) {
@@ -7455,6 +7455,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				queryMode : 'local',
 				displayField : 'name',
 				valueField : 'name',
+				emptyText : T('msg.select_a_consumable'),
 				listeners : {
 					render : function(combo) {
 						combo.store.load();
@@ -7474,6 +7475,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					inputValue : '1',
 					itemId : 'check_healthy',
 					width : 45,
+					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
 						grid.filterVehicleList(grid);
@@ -7484,6 +7486,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					inputValue : '1',
 					itemId : 'check_impending',
 					width : 45,
+					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
 						grid.filterVehicleList(grid);
@@ -7494,6 +7497,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					inputValue : '1',
 					itemId : 'check_overdue',
 					width : 45,
+					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
 						grid.filterVehicleList(grid);

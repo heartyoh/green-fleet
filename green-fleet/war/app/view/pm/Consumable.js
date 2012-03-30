@@ -189,6 +189,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					inputValue : '1',
 					itemId : 'check_healthy',
 					width : 45,
+					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
 						grid.filterVehicleList(grid);
@@ -199,6 +200,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					inputValue : '1',
 					itemId : 'check_impending',
 					width : 45,
+					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
 						grid.filterVehicleList(grid);
@@ -209,6 +211,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					inputValue : '1',
 					itemId : 'check_overdue',
 					width : 45,
+					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
 						grid.filterVehicleList(grid);
