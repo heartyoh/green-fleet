@@ -115,7 +115,7 @@ public abstract class EntityService {
 	}
 	
 	/**
-	 * save 결과 메시지를 json형태의 문자열로 리턴한다.
+	 * save 결과 메시지를 json 형태의 문자열로 리턴한다.
 	 * 
 	 * @param success
 	 * @param entity
@@ -126,7 +126,17 @@ public abstract class EntityService {
 	}
 	
 	/**
-	 * delete 결과 메시지를 json형태의 문자열로 리턴한다.
+	 * 처리 결과 발생된 결과 메시지를 json 형태의 문자열로 리턴한다.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	protected String getSuccessMsg(String key) {
+		return "{ \"success\" : true, \"key\" : \"" + key + "\" }";
+	}	
+	
+	/**
+	 * delete 결과 메시지를 json 형태의 문자열로 리턴한다.
 	 * 
 	 * @param success
 	 * @param key
@@ -137,7 +147,7 @@ public abstract class EntityService {
 	}
 	
 	/**
-	 * 일반적인 success와 결과 메시지를 json형태의 문자열로 리턴한다.
+	 * 일반적인 success와 결과 메시지를 json 형태의 문자열로 리턴한다.
 	 * FIXME 문자열 escape를 위해 리턴 결과셋을 오브젝트화 하고 이를 json 형태의 문자열로 변환한다.
 	 * 
 	 * @param success
@@ -318,7 +328,7 @@ public abstract class EntityService {
 		}
 
 		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);		
+		Key companyKey = this.getCompanyKey(request);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		

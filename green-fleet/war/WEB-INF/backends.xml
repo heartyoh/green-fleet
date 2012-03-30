@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<backends>
+	<backend name="video-backend">
+		<class>B1</class>
+		<options>
+			<dynamic>true</dynamic>
+			<fail-fast>true</fail-fast>
+			<public>true</public>
+		</options>
+	</backend>
+</backends>

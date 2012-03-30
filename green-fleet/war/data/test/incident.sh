@@ -1,11 +1,12 @@
 #!/bin/bash
 lat=37.38
 lng=127.11
-host="http://green-fleets.appspot.com"
+#host="http://green-fleets.appspot.com"
+host="http://video-backend.green-fleets.appspot.com/"
 #host="http://localhost:8888"
-tid="T016"
-did="D016"
-vid="V016"
+tid="T018"
+did="D018"
+vid="V018"
 
 dt_incident=$(date '+%F %T')
 lat_incident=$lat
