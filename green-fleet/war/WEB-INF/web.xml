@@ -55,16 +55,6 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>XMPPPresenceServlet</servlet-name>
-		<servlet-class>com.heartyoh.service.XMPPPresenceServlet</servlet-class>	
-	</servlet>
-	
-	<servlet-mapping>
-		<servlet-name>XMPPPresenceServlet</servlet-name>
-		<url-pattern>/_ah/xmpp/presence/*</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
 		<servlet-name>XMPPMessageServlet</servlet-name>
 		<servlet-class>com.heartyoh.service.XMPPMessageServlet</servlet-class>	
 	</servlet>
@@ -74,7 +64,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/_ah/xmpp/message/*</url-pattern>
 	</servlet-mapping>
 	
-	<servlet>
+	<!--servlet>
 		<servlet-name>ChannelPresenceServlet</servlet-name>
 		<servlet-class>com.heartyoh.service.ChannelPresenceServlet</servlet-class>	
 	</servlet>
@@ -82,6 +72,6 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	<servlet-mapping>
 		<servlet-name>ChannelPresenceServlet</servlet-name>
 		<url-pattern>/_ah/channel/*</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping-->
 		
  </web-app>

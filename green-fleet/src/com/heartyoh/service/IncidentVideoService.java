@@ -72,148 +72,15 @@ public class IncidentVideoService extends EntityService {
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		BackendService backendsApi = BackendServiceFactory.getBackendService();
-		String currentBackend = backendsApi.getCurrentBackend();
-		
-		if(!DataUtils.isEmpty(currentBackend)) {
-			if(logger.isInfoEnabled())
-				logger.info("This is backend mode! Current backend name : " + currentBackend + ", currentInstance : " + backendsApi.getCurrentInstance());
-		} else {
-			if(logger.isInfoEnabled())
-				logger.info("This is frontend mode!");			
-		}
-		
 		long time = System.currentTimeMillis();
 		try {
 			return super.save(request, response);
-			//return this.enqueueTask(request, response);
 		} catch(Throwable e) {
+			BackendService backendsApi = BackendServiceFactory.getBackendService();
+			String currentBackend = backendsApi.getCurrentBackend();			
 			time = System.currentTimeMillis() - time;
-			logger.error("It took " + time + " millis to save file.", e);
-			return getResultMsg(false, "It took " + time + " millis to save file. [" + e.toString() + "]");
-			
+			logger.error("It took " + time + " millis to save file. " + (DataUtils.isEmpty(currentBackend) ? "At frontend mode!" : "At backend (" + currentBackend + ") mode!"), e);
+			return getResultMsg(false, "It took " + time + " millis to save file. [" + e.toString() + "]");			
 		}
 	}
-
-	/**
-	 * Video 데이터 임시 저장소 
-	 * 키 : IncidentVideo entity의 key, 값 : vedio 데이터 
-	 */
-	//private static Map<Object, Object> VIDEO_FILE_CACHE = new HashMap<Object, Object>();
-	
-	/**
-	 * Task를 VideoQueue로 넣는다.
-	 * 
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	/*private String enqueueTask(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		Map<String, Object> map = toMap(request);
-		
-		if (request instanceof MultipartHttpServletRequest) {
-			preMultipart(map, (MultipartHttpServletRequest) request);
-		}
-
-		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);
-		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
-		key = KeyFactory.keyToString(objKey);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		map.put("_now", new Date());
-		map.put("_company_key", companyKey);
-		Entity incident = null;
-
-		try {
-			incident = datastore.get(objKey);
-		} catch (EntityNotFoundException e) {
-			incident = new Entity(objKey);
-			onCreate(incident, map, datastore);
-		}		
-
-		onSave(incident, map, datastore);
-		// 1. Memcache를 이용하고 싶지만 Memcache는 value limit가 1Mbyte밖에 안 됨 
-		VIDEO_FILE_CACHE.put(key, new Object[] { incident, map });
-		
-		// task 생성 후 enqueue
-	    Queue queue = QueueFactory.getQueue("VideoQueue");
-	    // Create Task and insert into Video Queue
-	  	TaskOptions taskOption = TaskOptions.Builder.withUrl("/tasks/incident/execute_task").param("key", key).method(Method.POST);
-	  	queue.add(taskOption);
-	    
-		response.setContentType("text/html");
-		return this.getSuccessMsg(key);
-	}*/
-	
-	/**
-	 * VideoQueue로 부터 Task를 실행 
-	 * 
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	/*@RequestMapping(value = "/tasks/incident/execute_task", method = RequestMethod.POST)
-	public void executeTask(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		String key = request.getParameter("key");
-		
-		if(DataUtils.isEmpty(key) || !VIDEO_FILE_CACHE.containsKey(key)) {
-			logger.error("Failed to execute task entity key [" + key + "]");
-		}
-		
-		Object[] incidentVideoObjs = (Object[])VIDEO_FILE_CACHE.get(key);
-		Entity incident = (Entity)incidentVideoObjs[0];
-		@SuppressWarnings("unchecked")
-		Map<String, Object> map = (Map<String, Object>)incidentVideoObjs[1];
-		
-		if(logger.isInfoEnabled())
-			logger.info("Video File Saving Task executing (terminal_id : " + incident.getProperty("terminal_id") + ", datetime : " + incident.getProperty("datetime") + ")");
-		
-		// 1. 파일 저장 
-		String videoFile = this.saveFile(incident.getKey().getParent().getName(), (MultipartFile) map.get("video_clip"));
-		if(videoFile != null) {
-			incident.setProperty("video_clip", videoFile);
-		}
-
-		// 2. 나머지 데이터 저장 
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		this.onSave(incident, map, datastore);
-		this.saveEntity(incident, map, datastore);
-		
-		if(logger.isInfoEnabled())
-			logger.info("Video File Saving Task executed (terminal_id : " + incident.getProperty("terminal_id") + ", datetime : " + incident.getProperty("datetime") + ")!");		
-	}*/
-	
-	/**
-	 * save video file
-	 * 
-	 * @param company
-	 * @param file
-	 * @return
-	 * @throws IOException
-	 */
-	/*private String saveFile(String company, MultipartFile file) throws IOException {
-		
-		if (file != null && file.getSize() > 0) {
-			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-			
-			GSFileOptionsBuilder optionsBuilder = new GSFileOptionsBuilder()
-		       .setBucket("green-fleets")
-		       .setKey(company + "/incident/" + file.getOriginalFilename())
-		       .setMimeType(file.getContentType())
-		       .setAcl("public_read");
-
-		    AppEngineFile appfile = fileService.createNewGSFile(optionsBuilder.build());			
-			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, true);
-			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
-			writeChannel.closeFinally();			
-			return "http://commondatastorage.googleapis.com/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
-			
-		} else {
-			return null;
-		}
-	}*/
 }

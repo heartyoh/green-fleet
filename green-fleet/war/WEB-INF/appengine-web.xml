@@ -37,7 +37,6 @@
 	
 	<inbound-services>
 		<service>xmpp_message</service>
-		<service>xmpp_presence</service>
 		<service>xmpp_error</service>
 	</inbound-services>
 
