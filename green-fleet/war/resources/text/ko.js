@@ -29,7 +29,8 @@ T({
 		incident : '이상상황',
 		import_data : '가져오기',
 		export_data : '내보내기',
-		profile : '사용자 프로파일'
+		profile : '사용자 프로파일',
+		location : '위치',
 	},
 	
 	title : {
@@ -82,7 +83,11 @@ T({
 		vehicle_status : '차량 상태',
 		incidents_alarm : '이상상황 알림',
 		add_repair : '정비내역 추가',
-		consumable_health : '소모품 건강상태'
+		consumable_health : '소모품 건강상태',
+		location : '위치',
+		location_list : '위치 리스트',
+		location_details : '위치 상세',
+		set_the_location : '위치 지정'
 	},
 	
 	tab : {
@@ -233,6 +238,7 @@ T({
 		repl_mileage : '교체 주행거리',
 		repl_time : '교체 시간',
 		repl_date : '교체 일자',
+		address : '주소',
 		phone_x : '전화번호 #{x}',
 		x_id : '{x} 아이디',
 		x_no : '{x} 번호',

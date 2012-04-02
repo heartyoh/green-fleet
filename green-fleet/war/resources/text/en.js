@@ -29,7 +29,8 @@ T({
 		incident : 'Incident',
 		import_data : 'Import',
 		export_data : 'Export',
-		profile : 'User Profile'
+		profile : 'User Profile',
+		location : 'Location'
 	},
 	
 	title : {
@@ -82,7 +83,11 @@ T({
 		vehicle_status : 'Vehicle Status',
 		incidents_alarm : 'Incidents Alarm',
 		add_repair : 'Add Repair',
-		consumable_health : 'Consumable Health'
+		consumable_health : 'Consumable Health',
+		location : 'Location',
+		location_list : 'Location List',
+		location_details : 'Location Details',
+		set_the_location : 'Set the Location'
 	},
 	
 	tab : {
@@ -233,6 +238,7 @@ T({
 		repl_mileage : 'Repl. Mileage',
 		repl_time : 'Repl. Time',
 		repl_date : 'Repl. Date',
+		address : 'Address',
 		phone_x : 'Phone #{x}',
 		x_id : '{x} Id',
 		x_no : '{x} No.',

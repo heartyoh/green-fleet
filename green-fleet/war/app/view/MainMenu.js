@@ -65,7 +65,17 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_consumable_code',
 			itemId : 'consumable_code',
 			closable : true
-		} ]
+		}, {
+			title : T('menu.location'),
+			xtype : 'management_location',
+			itemId : 'location',
+			closable : true			
+		}/*, {
+			title : T('menu.alarm_config'),
+			xtype : 'management_alarm_config',
+			itemId : 'alarm_config',
+			closable : true
+		}*/ ]
 	}, {
 		text : T('menu.vehicle'),
 		submenus : [ {
