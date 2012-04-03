@@ -31,6 +31,7 @@ T({
 		export_data : '내보내기',
 		profile : '사용자 프로파일',
 		location : '위치',
+		alarm : '알람'
 	},
 	
 	title : {
@@ -87,7 +88,9 @@ T({
 		location : '위치',
 		location_list : '위치 리스트',
 		location_details : '위치 상세',
-		set_the_location : '위치 지정'
+		set_the_location : '위치 지정',
+		alarm_list : '알람 리스트',
+		alarm_details : '알람 상세'
 	},
 	
 	tab : {
@@ -133,6 +136,7 @@ T({
 		company : '회사',
 		group : '그룹',
 		code : '코드',
+		consumable_repl : '소모품 교체',
 		consumable_code : '소모품 코드',
 		consumable_item : '소모품 항목',
 		autofit : '자동맞춤',
@@ -239,6 +243,14 @@ T({
 		repl_time : '교체 시간',
 		repl_date : '교체 일자',
 		address : '주소',
+		alarm : '알람',
+		event_type : '이벤트 타입',
+		location_radius : '위치 반경',
+		event_trigger : '이벤트 트리거',
+		destination : '알람 대상',
+		message : '메세지',
+		from_date : '시작일',
+		to_date : '종료일',
 		phone_x : '전화번호 #{x}',
 		x_id : '{x} 아이디',
 		x_no : '{x} 번호',
@@ -260,7 +272,9 @@ T({
 		state_incident : '이상상황',
 		state_maint : '정비중',
 		second_s : '초',
-		minute_s : '분'
+		minute_s : '분',
+		maintenence : '정비',
+		period_always : '기간 항상'
 	},
 	
 	format : {
@@ -282,6 +296,7 @@ T({
 		failed_to_do : '{do} 실패했습니다!',
 		failed_to_ajax : 'Ajax 통신에 실패했습니다!',
 		invalid_form_values : '폼 필드에 유효하지 않은 값이 있습니다',
-		select_a_consumable : '소모품 종류를 선택하세요'
+		select_a_consumable : '소모품 종류를 선택하세요',
+		select_users : '알람을 보내고자 하는 사용자의 이메일 주소를 ,로 구분하여 입력...'
 	}
 });

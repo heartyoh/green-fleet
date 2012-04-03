@@ -51,10 +51,13 @@ Ext.define('GreenFleet.store.CodeGroupStore', {
 		group : 'Division',
 		desc : 'Devisions of Company'
 	}, {
-		group : 'Consumable',
-		desc : 'Kinds of Consumables'
-	}, {
 		group : 'ReplacementUnit',
 		desc : 'Unit of Consumables Replacement Cycle'
+	}, {
+		group : 'AlarmEventType',
+		desc : 'Alarm Event Type'
+	}, {
+		group : 'AlarmType',
+		desc : 'Alarm Type'
 	} ]
 });

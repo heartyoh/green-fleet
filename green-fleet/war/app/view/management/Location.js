@@ -22,16 +22,11 @@ Ext.define('GreenFleet.view.management.Location', {
 		type : 'vbox'
 	},
 
-	items : {
-		html : "<div class='listTitle'>" + T('title.location_list') + "</div>"
-	},
-
 	initComponent : function() {
 		var self = this;
 
-		this.items = [ 
-		    { html : "<div class='listTitle'>" + T('title.location_list') + "</div>" }, 
-		    this.buildList(this),
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('title.location_list') + "</div>" },
 		    {
 		    	xtype : 'container',
 		    	flex : 1,
@@ -39,7 +34,18 @@ Ext.define('GreenFleet.view.management.Location', {
 			    	type : 'hbox',
 			    	align : 'stretch'
 			    },
-			    items : [ this.buildForm(this), this.zmap ]
+			    items : [			        
+			        this.buildList(this),
+				    {
+				    	xtype : 'container',
+				    	flex : 1,
+				    	layout : {
+					    	type : 'vbox',
+					    	align : 'stretch'
+					    },
+					    items : [ this.buildForm(this), this.zmap ]
+				    }			        
+			    ]		    	
 		    }
 		];
 		
@@ -228,7 +234,7 @@ Ext.define('GreenFleet.view.management.Location', {
 			cls : 'hIndexbar',
 			title : T('title.location_details'),
 			autoScroll : true,
-			flex : 1,
+			height : 265,
 			defaults : {
 				xtype : 'textfield',
 				anchor : '100%'

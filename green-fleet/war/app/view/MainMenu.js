@@ -70,12 +70,12 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_location',
 			itemId : 'location',
 			closable : true			
-		}/*, {
-			title : T('menu.alarm_config'),
-			xtype : 'management_alarm_config',
-			itemId : 'alarm_config',
+		}, {
+			title : T('menu.alarm'),
+			xtype : 'management_alarm',
+			itemId : 'alarm',
 			closable : true
-		}*/ ]
+		} ]
 	}, {
 		text : T('menu.vehicle'),
 		submenus : [ {

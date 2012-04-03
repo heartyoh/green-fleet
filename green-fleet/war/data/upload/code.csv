@@ -122,13 +122,13 @@ Division,R&D,R&D
 Division,Account,Account
 Division,Sales,Sales
 Division,OS,OutSourcing
-Consumable,EngineOil,Engine Oil
-Consumable,AirconFilter,Aircon Filter
-Consumable,TimingBelt,TimingBelt
-Consumable,BrakeOil,BrakeOil
-Consumable,Tire,Tire
-Consumable,BrakePad,BrakePad
-Consumable,Battery,Battery
 ReplacementUnit,Mileage,Running Mileage
 ReplacementUnit,Time,Running Time
 ReplacementUnit,MileageTime,Running Mileage and Time
+AlarmEventType,location,Location
+AlarmEventType,incident,Incident
+AlarmEventType,consumable_repl,Consumable Replacement
+AlarmEventType,maintenence,Maintenence
+AlarmType,mail,Mail
+AlarmType,xmpp,XMPP
+AlarmType,sms,SMS

@@ -30,7 +30,8 @@ T({
 		import_data : 'Import',
 		export_data : 'Export',
 		profile : 'User Profile',
-		location : 'Location'
+		location : 'Location',
+		alarm : 'Alarm'
 	},
 	
 	title : {
@@ -87,7 +88,9 @@ T({
 		location : 'Location',
 		location_list : 'Location List',
 		location_details : 'Location Details',
-		set_the_location : 'Set the Location'
+		set_the_location : 'Set the Location',
+		alarm_list : 'Alarm List',
+		alarm_details : 'Alarm Details'
 	},
 	
 	tab : {
@@ -133,6 +136,7 @@ T({
 		company : 'Company',
 		group : 'Group',
 		code : 'Code',
+		consumable_repl : 'Consumable Replacement',
 		consumable_code : 'Consumable Code',
 		consumable_item : 'Consumable Item',
 		autofit : 'Autofit',
@@ -239,7 +243,15 @@ T({
 		repl_time : 'Repl. Time',
 		repl_date : 'Repl. Date',
 		address : 'Address',
-		phone_x : 'Phone #{x}',
+		phone_x : 'Phone #{x}',		
+		alarm : 'Alarm',
+		event_type : 'Event Type',
+		location_radius : 'Loc. Radius',
+		event_trigger : 'Event Trigger',
+		destination : 'Destination',
+		message : 'Message',
+		from_date : 'From Date',
+		to_date : 'To Date',
 		x_id : '{x} Id',
 		x_no : '{x} No.',
 		x_name : '{x} Name',
@@ -260,7 +272,9 @@ T({
 		state_incident : 'Incident',
 		state_maint : 'Maint.',
 		second_s : 'sec.',
-		minute_s : 'min.'
+		minute_s : 'min.',
+		maintenence : 'Maintenence',
+		period_always : 'Period Always'
 	},
 	
 	format : {
@@ -282,6 +296,7 @@ T({
 		failed_to_do : 'Failed to {do}!',
 		failed_to_ajax : 'Ajax communication failed!',
 		invalid_form_values : 'Form fields may not be submitted with invalid values!',
-		select_a_consumable : 'Select a consumable'
+		select_a_consumable : 'Select a consumable',
+		select_users : 'Enter email addresses of users that you want to send an alarm, separated by , ...'
 	}
 });
