@@ -61,10 +61,11 @@ public class AlarmService extends EntityService {
 		// 알림 기간 from
 		entity.setProperty("from_date", map.get("from_date"));
 		// 알림 기간 to
-		entity.setProperty("to_date", map.get("to_date"));		
+		entity.setProperty("to_date", map.get("to_date"));
 		// 알림 메세지 
 		entity.setProperty("msg", map.get("msg"));
 		
+		// TODO Alarm 저장 후에 차량 ==> 차량, 위치, 상태, 그 당시 위치 (위도, 경도) 테이블에 vehicles를 추가 ... 
 		super.onSave(entity, map, datastore);
 	}
 	

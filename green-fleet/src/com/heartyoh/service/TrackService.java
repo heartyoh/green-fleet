@@ -22,6 +22,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
@@ -91,6 +92,9 @@ public class TrackService extends EntityService {
 		
 		if(dblLattitude == 0 && dblLongitude == 0)
 			throw new Exception("Both of lattitude & longitude values are 0. It might meant to be non stable status of blackbox.");
+		
+		// 위치 기반 서비스 알림
+		AlarmUtils.alarmByLocBased(entity.getParent(), (float)dblLattitude, (float)dblLongitude);
 		
 		entity.setProperty("terminal_id", terminal_id);
 		entity.setProperty("vehicle_id", vehicle_id);

@@ -53,5 +53,5 @@
     
     <datastore-index kind="VehicleConsumable" ancestor="true" source="manual">
         <property name="health_rate" direction="asc"/>
-    </datastore-index>    
+    </datastore-index>
 </datastore-indexes>

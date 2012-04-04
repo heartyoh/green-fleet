@@ -113,46 +113,129 @@ Ext.define('GreenFleet.view.management.Location', {
 		this.marker = marker;
 	},
 	
+	getCircle : function() {
+		return this.circle;
+	},
+	
+	setCircle : function(circle) {
+		if (this.circle)
+			this.circle.setMap(null);
+		
+		this.circle = circle;
+	},
+	
 	refreshMapByLoc : function(locRecord) {
 		
 		this.setMarker(null);
-		var location = locRecord ? new google.maps.LatLng(locRecord.data.lattitude, locRecord.data.longitude) : new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+		var center = locRecord ? new google.maps.LatLng(locRecord.data.lat, locRecord.data.lng) : new google.maps.LatLng(System.props.lattitude, System.props.longitude);
 		
-		if (!location)
+		if (!center)
 			return;
 		
-		this.getMap().setCenter(location);
+		var map = this.getMap();
+		map.setCenter(center);
+		
 		this.setMarker(new google.maps.Marker({
-			position : location,
-			map : this.getMap()
+			position : center,
+			map : map
 		}));
+		
+		if(locRecord.data.rad && locRecord.data.rad > 100) {		
+			this.setCircle(new google.maps.Circle({
+				map: map,
+				center : center,
+				radius: locRecord.data.rad,
+				strokeColor : 'red'
+	  	  	}));
+		} else {
+			this.setCircle(null);
+		}
 	},
 	
-	refreshMapByAddr : function(address) {
+	refreshMapByAddr : function(address, radius) {
 		var self = this;
 		var map = this.getMap();
 
 		// 주소로 검색
 	    this.geocoder.geocode( {'address': address}, function(results, status) {
-	      if (status == google.maps.GeocoderStatus.OK) {	    	  
-	    	  var findLoc = results[0].geometry.location;
-	    	  map.setCenter(findLoc);
-	        
-	    	  // 폼 위도, 경도에 추가
-	    	  self.sub('form_lattitude').setValue(findLoc.Ta);
-	    	  self.sub('form_longitude').setValue(findLoc.Ua);	        
-	    	  // 마커 리셋
-	    	  self.setMarker(null);	    	
-	    	  var marker = new google.maps.Marker({
-	    		  map: map,
-	    		  position: results[0].geometry.location
-	    	  });
+	    	if (status == google.maps.GeocoderStatus.OK) {
+	    		
+	    		var center = results[0].geometry.location;
+	    		map.setCenter(center);
+	    		
+	    		// 폼 위도, 경도에 추가	    		
+	    		self.sub('form_lattitude').setValue(center.Xa);
+	    		self.sub('form_longitude').setValue(center.Ya);	        
+	    		// 마커 리셋
+	    		self.setMarker(null);
+	    		self.setMarker(new google.maps.Marker({
+	    			map: map,
+	    			position: center
+	    		}));
+	    		
+	    		if(radius) {
+		    		self.setCircle(new google.maps.Circle({
+		    			map: map,
+		    			center : center,
+		    			radius: radius,
+		    			strokeColor : 'red'
+		      	  	}));
+	    		} else {
+	    			this.setCircle(null);
+	    		}
 	      } else {
-	    	  Ext.Msg.alert("Failed to search!", "Geocode was not successful for the following reason: " + status);
+	    	  self.setMarker(null);
+	    	  Ext.Msg.alert("Failed to search!", "Address (" + address + ") Not Found!");
 	      }
 	    });		
 	},
-
+	
+	refreshCircle : function(radius) {
+		
+		if(!this.marker)
+			return;
+		
+		if(radius) {
+			var map = this.map;
+			var marker = this.marker;
+			
+			this.setCircle(new google.maps.Circle({
+				map: map,
+				center : marker.getPosition(),
+				radius: radius,
+				strokeColor : 'red'
+	  	  	}));
+			
+			// North, West, South, East lat, lng를 구함
+			var bounds = this.circle.getBounds();
+			var northWest = bounds.getNorthEast();
+			var southEast = bounds.getSouthWest();
+			
+			this.sub('form_lat_hi').setValue(northWest.lat());
+			this.sub('form_lng_hi').setValue(northWest.lng());
+			this.sub('form_lat_lo').setValue(southEast.lat());
+			this.sub('form_lng_lo').setValue(southEast.lng());
+			
+		} else {
+			this.setCircle(null);
+		}
+	},
+	
+	resetMap : function() {
+		this.setCircle(null);
+		this.setMarker(null);
+	},
+	
+	radiusChanged : function(radius) {
+		var address = this.sub('form_address').getValue();
+		
+		if(address) {
+			this.refreshCircle(radius);
+		} else {
+			this.resetMap();
+		}
+	},
+	
 	search : function() {
 		this.sub('grid').store.clearFilter();
 
@@ -179,16 +262,36 @@ Ext.define('GreenFleet.view.management.Location', {
 				text : T('label.name'),
 				type : 'string'
 			}, {
-				dataIndex : 'address',
+				dataIndex : 'addr',
 				text : T('label.address'),
 				type : 'string'
 			}, {
-				dataIndex : 'lattitude',
+				dataIndex : 'lat',
 				text : T('label.lattitude'),
 				type : 'float'
 			}, {
-				dataIndex : 'longitude',
+				dataIndex : 'lng',
 				text : T('label.longitude'),
+				type : 'float'
+			}, {
+				dataIndex : 'rad',
+				text : T('label.radius') + ' (m)',
+				type : 'int'
+			}, {
+				dataIndex : 'lat_lo',
+				text : T('label.lattitude_min'),
+				type : 'float'
+			}, {
+				dataIndex : 'lng_lo',
+				text : T('label.longitude_min'),
+				type : 'float'					
+			}, {
+				dataIndex : 'lat_hi',
+				text : T('label.lattitude_max'),
+				type : 'float'
+			}, {
+				dataIndex : 'lng_hi',
+				text : T('label.longitude_max'),
 				type : 'float'					
 			}, {
 				dataIndex : 'desc',
@@ -234,7 +337,7 @@ Ext.define('GreenFleet.view.management.Location', {
 			cls : 'hIndexbar',
 			title : T('title.location_details'),
 			autoScroll : true,
-			height : 265,
+			height : 395,
 			defaults : {
 				xtype : 'textfield',
 				anchor : '100%'
@@ -255,8 +358,9 @@ Ext.define('GreenFleet.view.management.Location', {
                 },
                 items: [
                     {
+                    	itemId : 'form_address',
                         xtype : 'textfield',
-                        name : 'address',
+                        name : 'addr',
                         fieldLabel : T('label.address'),
                         flex : 1
                     },
@@ -265,28 +369,54 @@ Ext.define('GreenFleet.view.management.Location', {
                         text : T('button.search'),
                         margin : '0 0 0 5',
                         handler : function(btn, event) {
+                        	var locationView = btn.up('management_location');
                         	var address = btn.up('fieldcontainer').down('textfield').getValue();
-                        	btn.up('management_location').refreshMapByAddr(address);
+                        	var radius = locationView.sub('form_radius').getValue();
+                        	locationView.refreshMapByAddr(address, radius);                        	
                         }
                     }
                 ]
 			}, {
 				itemId : 'form_lattitude',
-				name : 'lattitude',
-				xtype : 'numberfield',
-				fieldLabel : T('label.lattitude'),
-				minValue : 0,
-				step : 0.1
+				name : 'lat',
+				xtype : 'textfield',
+				fieldLabel : T('label.lattitude')
 			}, {
 				itemId : 'form_longitude',
-				name : 'longitude',
+				name : 'lng',
+				xtype : 'textfield',
+				fieldLabel : T('label.longitude')
+			}, {
+				itemId : 'form_radius',
+				name : 'rad',
 				xtype : 'numberfield',
-				fieldLabel : T('label.longitude'),
+				fieldLabel : T('label.radius') + ' (m)',
 				minValue : 0,
-				step : 0.1				
+				step : 100,
+				listeners : {
+					change : function(field, newValue, oldValue, eOpts) {
+						field.up('management_location').radiusChanged(newValue);
+					}
+				}
 			}, {
 				name : 'desc',
 				fieldLabel : T('label.desc')
+			}, {
+				itemId : 'form_lat_lo',
+				name : 'lat_lo',
+				fieldLabel : T('label.lattitude_min'),
+			}, {
+				itemId : 'form_lng_lo',
+				name : 'lng_lo',
+				fieldLabel : T('label.longitude_min'),
+			}, {
+				itemId : 'form_lat_hi',
+				name : 'lat_hi',
+				fieldLabel : T('label.lattitude_max'),
+			}, {
+				itemId : 'form_lng_hi',
+				name : 'lng_hi',
+				fieldLabel : T('label.longitude_max'),
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',

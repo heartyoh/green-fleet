@@ -39,7 +39,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-			self.sub('location_field').store.load();
+			self.sub('form_location').store.load();
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
@@ -88,10 +88,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				dataIndex : 'loc',
 				text : T('label.location'),
 				type : 'string'
-			}, {
-				dataIndex : 'rad',
-				text : T('label.location_radius') + " (km)",
-				type : 'float'					
 			}, {
 				dataIndex : 'evt_trg',
 				text : T('label.event_trigger'),
@@ -187,7 +183,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 	                anchor: '100%'
 	            },
 	            items :[{
-	            	itemId : 'location_field',
+	            	itemId : 'form_location',
 					name : 'loc',
 					fieldLabel : T('label.location'),
 					xtype : 'combo',
@@ -196,22 +192,20 @@ Ext.define('GreenFleet.view.management.Alarm', {
 					displayField : 'name',
 					valueField : 'name',
 					allowBlank : false
-	            },{
-					name : 'rad',
-					fieldLabel : T('label.location_radius') + " (km)",
-					xtype : 'numberfield',
-					minValue : 0,
-					maxValue : 100,
-					step : 0.5,
+	            }, {
+	            	itemId : 'form_vehicles',
+					name : 'vehicles',
+					xtype : 'textfield',
+					fieldLabel : T('label.vehicle'),
 					allowBlank : false
 	            }, {
 					name : 'evt_trg',
 					fieldLabel : T('label.event_trigger'),				
 					xtype: 'radiogroup',
 		            items: [
-		                { boxLabel: 'In', name: 'evt_trg', inputValue: 'In' },
-		                { boxLabel: 'Out', name: 'evt_trg', inputValue: 'Out' },
-		                { boxLabel: 'In/Out', name: 'evt_trg', inputValue: 'In-Out' },
+		                { boxLabel: 'In', name: 'evt_trg', inputValue: 'in' },
+		                { boxLabel: 'Out', name: 'evt_trg', inputValue: 'out' },
+		                { boxLabel: 'In/Out', name: 'evt_trg', inputValue: 'in-out' },
 		            ],
 		            allowBlank : false
 	            }]
@@ -239,14 +233,14 @@ Ext.define('GreenFleet.view.management.Alarm', {
 					checked : true,
 					handler : function(checkbox, value) {
 						var alarmView = checkbox.up('management_alarm');
-						var alarmFromDate = alarmView.sub('alarm_from_date');
-						var alarmToDate = alarmView.sub('alarm_to_date');
+						var alarmFromDate = alarmView.sub('form_from_date');
+						var alarmToDate = alarmView.sub('form_to_date');
 						alarmFromDate.setVisible(!value);
 						alarmToDate.setVisible(!value);
 					}
                 },
                 {
-                	itemId : 'alarm_from_date',
+                	itemId : 'form_from_date',
     				name : 'from_date',
     				fieldLabel : T('label.from_date'),
     				xtype : 'datefield',
@@ -254,7 +248,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
     				flex : 1,
     				hidden : true
                 }, {
-                	itemId : 'alarm_to_date',
+                	itemId : 'form_to_date',
     				name : 'to_date',
     				fieldLabel : T('label.to_date'),
     				xtype : 'datefield',
@@ -263,10 +257,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
                 }]
             },
             {
-				xtype: 'htmleditor',
+				xtype: 'textarea',
 	            name: 'msg',
 	            fieldLabel: T('label.message'),
-	            height: 200,
+	            height: 100,
 				allowBlank : false
 			}, {
 				xtype : 'datefield',
@@ -291,5 +285,14 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				}
 			} ]
 		}
-	}
+	},
+	
+	zmap : {
+		xtype : 'panel',
+		title : T('title.set_the_location'),
+		cls : 'paddingPanel backgroundGray borderLeftGray',
+		itemId : 'map',
+		flex : 1,
+		html : '<div class="map"></div>'
+	}	
 });

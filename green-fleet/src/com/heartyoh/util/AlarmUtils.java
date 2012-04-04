@@ -3,6 +3,7 @@
  */
 package com.heartyoh.util;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -16,8 +17,12 @@ import javax.mail.internet.MimeMessage;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.MessageType;
@@ -423,5 +428,61 @@ public class AlarmUtils {
 		
 		// GAE Channel을 사용한다면 주석해제  
 		//AlarmUtils.sendChannelMessage(receiverEmails, "Incident");
+	}
+	
+	/**
+	 * 차량의 lattitude, longitude 정보가 위치 기반 알림에 설정된 정보에 포함되는지 체크해서 알림을 보냄
+	 * 
+	 * @param companyKey
+	 * @param lattitude
+	 * @param longitude
+	 * @throws Exception
+	 */
+	public static void alarmByLocBased(Key companyKey, float lattitude, float longitude) throws Exception {
+		
+		// filters : from_date, to_date, evt_type		
+		List<Entity> alarmList = findLocBasedAlarmList(companyKey);
+		
+		for(Entity alarm : alarmList) {
+			String locName = (String)alarm.getProperty("loc");
+			Entity location = DatastoreUtils.findEntity(companyKey, "Location", DataUtils.newMap("name", locName));
+			
+			if(containsArea(location, lattitude, longitude)) {
+				String senders = (String)alarm.getProperty("dest");
+				String message = (String)alarm.getProperty("msg");
+				String[] senderArr = senders.split(",");
+				
+				for(int i = 0 ; i < senderArr.length ; i++) 
+					sendXmppMessage(senderArr[i], message);
+			}
+		}
+	}
+	
+	private static boolean containsArea(Entity location, float lattitude, float longitude) throws Exception {		
+		float minLat = DataUtils.toFloat(location.getProperty("lat_lo"));
+		float minLng = DataUtils.toFloat(location.getProperty("lng_lo"));
+		float maxLat = DataUtils.toFloat(location.getProperty("lat_hi"));
+		float maxLng = DataUtils.toFloat(location.getProperty("lng_hi"));
+		return (lattitude <= maxLat && lattitude >= minLat && longitude <= maxLng && longitude >= minLng);
+	}
+	
+	private static List<Entity> findLocBasedAlarmList(Key companyKey) {
+		
+		Query q = new Query("Alarm");
+		q.setAncestor(companyKey);
+		
+		Date today = DataUtils.getToday();
+		q.addFilter("evt_type", Query.FilterOperator.EQUAL, "location");
+		//q.addFilter("from_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, today);
+		q.addFilter("to_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, today);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		PreparedQuery pq = datastore.prepare(q);
+		
+		List<Entity> alarms = new ArrayList<Entity>();
+		for(Entity repair : pq.asIterable()) {
+			alarms.add(repair);
+		}
+		
+		return alarms;
 	}
 }

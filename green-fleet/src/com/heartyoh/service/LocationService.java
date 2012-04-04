@@ -48,13 +48,23 @@ public class LocationService extends EntityService {
 	
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		// 주소
-		entity.setProperty("address", map.get("address"));
+		// 주소 
+		entity.setProperty("addr", map.get("addr"));
 		// 위도 
-		entity.setProperty("lattitude", map.get("lattitude"));
-		// 경도  
-		entity.setProperty("longitude", map.get("longitude"));
-		// 설명  
+		entity.setProperty("lat", map.get("lat"));
+		// 경도 
+		entity.setProperty("lng", map.get("lng"));
+		// 반경
+		entity.setProperty("rad", map.get("rad"));		
+		// lat_hi
+		entity.setProperty("lat_hi", map.get("lat_hi"));
+		// lat_lo
+		entity.setProperty("lat_lo", map.get("lat_lo"));
+		// lng_hi
+		entity.setProperty("lng_hi", map.get("lng_hi"));
+		// lng_lo
+		entity.setProperty("lng_lo", map.get("lng_lo"));		
+		// 설명 
 		entity.setProperty("desc", map.get("desc"));
 		
 		super.onSave(entity, map, datastore);

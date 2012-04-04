@@ -11,14 +11,29 @@ Ext.define('GreenFleet.store.LocationStore', {
 			name : 'name',
 			type : 'string'
 		}, {
-			name : 'address',
+			name : 'addr',
 			type : 'string'
 		}, {
-			name : 'lattitude',
+			name : 'lat',
 			type : 'float'
 		}, {
-			name : 'longitude',
+			name : 'lng',
 			type : 'float'
+		}, {
+			name : 'rad',
+			type : 'int'
+		}, {
+			name : 'lat_lo',
+			type : 'float'
+		}, {
+			name : 'lat_hi',
+			type : 'float'
+		}, {
+			name : 'lng_lo',
+			type : 'float'
+		}, {
+			name : 'lng_hi',
+			type : 'float'				
 		}, {
 			name : 'desc',
 			type : 'string'				
