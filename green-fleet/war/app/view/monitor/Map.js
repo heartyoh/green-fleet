@@ -27,7 +27,9 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
 			
 			vehicleFilteredStore.on('datachanged', function() {
-				self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
+				if(self.isVisible()) {
+					self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
+				}
 			});
 			
 			vehicleMapStore.load();
