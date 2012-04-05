@@ -2,8 +2,8 @@
 <queue-entries>
 	<total-storage-limit>1G</total-storage-limit>
 	<queue>
-		<name>VideoQueue</name>
-		<rate>3/s</rate>
+		<name>LBAQueue</name>
+		<rate>100/s</rate>
 		<bucket-size>5</bucket-size> 
 		<retry-parameters>
 			<task-retry-limit>5</task-retry-limit>

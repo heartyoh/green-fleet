@@ -101,6 +101,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				text : T('label.type'),
 				type : 'string'	
 			}, {
+				dataIndex : 'always',
+				text : T('label.period_always'),
+				type : 'boolean'
+			}, {
 				dataIndex : 'from_date',
 				text : T('label.from_date'),
 				xtype : 'datecolumn',

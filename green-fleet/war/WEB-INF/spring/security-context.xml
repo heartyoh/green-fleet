@@ -19,6 +19,7 @@
         <intercept-url pattern="/vehicle_consumable/summary" access="permitAll" />
         <intercept-url pattern="/vehicle_consumable/alarm" access="permitAll" />
         <intercept-url pattern="/repair/alarm" access="permitAll" />
+        <intercept-url pattern="/lba_status/execute_task" access="permitAll" />
 <!-- App Engine에 디플로이할 때는 아래 라인 -->
 <!-- 
     <intercept-url pattern="/" access="permitAll" />
