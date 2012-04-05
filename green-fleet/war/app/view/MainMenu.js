@@ -6,21 +6,24 @@ Ext.define('GreenFleet.view.MainMenu', {
 	defaults : {
 		handler : function(button) {
 			var content = Ext.getCmp('content');
-			var closables = content.query('[closable=true]');
-			for ( var i = 0; i < closables.length; i++) {
-				content.remove(closables[i]);
+			
+			/*
+			 * 이전 탭들을 삭제함.
+			 * closable한 item들을 모두 찾아서, 제거함.
+			 * Ext.Array.each 내부적으로 index를 이용하기 때문에, each 함수 내에서 제거하지 않도록 주의함.
+			 */
+			var tobe_removed = []; 
+			Ext.Array.each(content.items.items, function(item) {
+				if(item.closable)
+					tobe_removed.push(item);
+			});
+			
+			for ( var i = 0; i < tobe_removed.length; i++) {
+				content.remove(tobe_removed[i]);
 			}
 
 			var first = null;
 			for (i = 0; i < button.submenus.length; i++) {
-				button.submenus[i]['listeners'] = {
-					activate : function(item) {
-						var menutab = Ext.getCmp('menutab');
-						var tab = menutab.getComponent(item.itemId);
-
-						menutab.setActiveTab(tab);
-					}
-				};
 				var item = content.add(button.submenus[i]);
 				first = first || item;
 			}
@@ -28,6 +31,25 @@ Ext.define('GreenFleet.view.MainMenu', {
 			if (first)
 				GreenFleet.doMenu(first.itemId);
 		}
+	},
+	
+	initComponent : function() {
+		function menu_activate_handler(item) {
+			var menutab = Ext.getCmp('menutab');
+			var tab = menutab.getComponent(item.itemId);
+
+			menutab.setActiveTab(tab);
+		}
+		
+		Ext.Array.each(this.items, function(item) {
+			Ext.Array.each(item.submenus, function(menu) {
+				menu.listeners = {
+					activate : menu_activate_handler
+				}
+			});
+		})
+		
+		this.callParent();
 	},
 
 	items : [ {
