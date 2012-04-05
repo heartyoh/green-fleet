@@ -176,7 +176,7 @@ public class AlarmService extends EntityService {
 	 */
 	private void deleteLbaStatus(DatastoreService datastore, Entity alarm) throws Exception {
 		
-		List<Entity> lbaStatusList = DatastoreUtils.findEntityList(alarm.getParent(), "LbaStatus", DataUtils.newMap("loc", alarm.getProperty("loc")));
+		List<Entity> lbaStatusList = DatastoreUtils.findEntityList(alarm.getParent(), "LbaStatus", DataUtils.newMap("alarm", alarm.getProperty("alarm")));
 		if(DataUtils.isEmpty(lbaStatusList))
 			return;
 		
@@ -211,9 +211,11 @@ public class AlarmService extends EntityService {
 	 */
 	private Entity createLbaStatus(Entity alarm, String vehicleId) {
 		
-		String idValue = vehicleId + "@" + alarm.getProperty("loc");
+		String alarmName = (String)alarm.getProperty("name");
+		String idValue = vehicleId + "@" + alarmName;
 		Entity lbaStatus = new Entity(KeyFactory.createKey(alarm.getParent(), "LbaStatus", idValue));
 		lbaStatus.setProperty("vehicle", vehicleId);
+		lbaStatus.setProperty("alarm", alarmName);
 		lbaStatus.setProperty("loc", alarm.getProperty("loc"));
 		lbaStatus.setProperty("evt_trg", alarm.getProperty("evt_trg"));
 		lbaStatus.setProperty("bef_status", "");
