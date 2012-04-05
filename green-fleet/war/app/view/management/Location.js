@@ -53,24 +53,26 @@ Ext.define('GreenFleet.view.management.Location', {
 		
 		this.sub('map').on('afterrender', function(mapbox) {
 			self.setGeocoder(new google.maps.Geocoder());
+			var center = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
 			var options = {
 				zoom : 10,
 				minZoom : 3,
 				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : center,
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
 			self.setMap(new google.maps.Map(mapbox.getEl().down('.map').dom, options));
 		});
 		
-		this.on('activate', function() {
+		this.on('activate', function() {			
 			google.maps.event.trigger(self.getMap(), 'resize');
+			self.markCenter();
 		});		
 
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);			
-			self.refreshMapByLoc(record);
+			self.refreshMap(new google.maps.LatLng(record.data.lat, record.data.lng), record.data.rad);
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
@@ -117,77 +119,73 @@ Ext.define('GreenFleet.view.management.Location', {
 		return this.circle;
 	},
 	
-	setCircle : function(circle) {
+	setCircle : function(circle) {	
 		if (this.circle)
 			this.circle.setMap(null);
-		
+					
 		this.circle = circle;
 	},
 	
-	refreshMapByLoc : function(locRecord) {
-		
-		this.setMarker(null);
-		var center = locRecord ? new google.maps.LatLng(locRecord.data.lat, locRecord.data.lng) : new google.maps.LatLng(System.props.lattitude, System.props.longitude);
-		
+	markCenter : function() {
+		this.setMarker(this.createMarker(this.map.getCenter()));
+	},
+	
+	refreshMap : function(center, radius) {
+
 		if (!center)
 			return;
 		
-		var map = this.getMap();
-		map.setCenter(center);
+		// 지도 중심 이동
+		this.map.setCenter(center);
 		
-		this.setMarker(new google.maps.Marker({
-			position : center,
-			map : map
-		}));
+		// 마커 표시 
+		this.setMarker(null);
+		this.setMarker(this.createMarker(center));
 		
-		if(locRecord.data.rad && locRecord.data.rad > 100) {		
-			this.setCircle(new google.maps.Circle({
-				map: map,
-				center : center,
-				radius: locRecord.data.rad,
-				strokeColor : 'red'
-	  	  	}));
-		} else {
-			this.setCircle(null);
-		}
+		if(!radius)
+			radius = this.sub('form_radius').getValue();
+		
+		// Circle Refresh
+		this.refreshCircle(radius);		
 	},
 	
-	refreshMapByAddr : function(address, radius) {
+	refreshLocation : function(center, radius) {		
+		this.refreshMap(center, radius);
+		// 폼 위도, 경도에 추가	
+		this.sub('form_lattitude').setValue(center.lat());
+		this.sub('form_longitude').setValue(center.lng());		
+	},	
+	
+	refreshLocByAddr : function(address) {
 		var self = this;
-		var map = this.getMap();
-
-		// 주소로 검색
-	    this.geocoder.geocode( {'address': address}, function(results, status) {
-	    	if (status == google.maps.GeocoderStatus.OK) {
-	    		
+		// 주소로 위치 검색
+	    this.geocoder.geocode({'address': address}, function(results, status) {
+	    	
+	    	if (status == google.maps.GeocoderStatus.OK) {	    		
 	    		var center = results[0].geometry.location;
-	    		map.setCenter(center);
-	    		
-	    		// 폼 위도, 경도에 추가	    		
-	    		self.sub('form_lattitude').setValue(center.Xa);
-	    		self.sub('form_longitude').setValue(center.Ya);	        
-	    		// 마커 리셋
-	    		self.setMarker(null);
-	    		self.setMarker(new google.maps.Marker({
-	    			map: map,
-	    			position: center
-	    		}));
-	    		
-	    		if(radius) {
-		    		self.setCircle(new google.maps.Circle({
-		    			map: map,
-		    			center : center,
-		    			radius: radius,
-		    			strokeColor : 'red'
-		      	  	}));
-	    		} else {
-	    			this.setCircle(null);
-	    		}
+	    		self.refreshLocation(center);
 	      } else {
-	    	  self.setMarker(null);
-	    	  Ext.Msg.alert("Failed to search!", "Address (" + address + ") Not Found!");
+	    	  	self.setMarker(null);
+	    	  	Ext.Msg.alert("Failed to search!", "Address (" + address + ") Not Found!");
 	      }
-	    });		
+	    });
+	},
+	
+	moveMarker : function(marker) {		
+		var self = this;
+		var position = marker.getPosition();
+		
+		// 위치로 주소 검색
+		this.geocoder.geocode({'latLng': position}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				self.refreshLocation(position);
+				// 폼의 주소 필드에 주소값 업데이트
+				self.sub('form_address').setValue(results[0].formatted_address);				
+			} else {
+				self.map.setCenter(position);
+				Ext.Msg.alert("Failed to search!", "Couldn't find address by position [" + position.lat() + ", " + position.lng() + "]!");
+			}
+		});
 	},
 	
 	refreshCircle : function(radius) {
@@ -195,44 +193,78 @@ Ext.define('GreenFleet.view.management.Location', {
 		if(!this.marker)
 			return;
 		
+		if(!radius)
+			radius = this.sub('form_radius').getValue();
+		
+		this.setCircle(null);
 		if(radius) {
 			var map = this.map;
 			var marker = this.marker;
-			
-			this.setCircle(new google.maps.Circle({
-				map: map,
-				center : marker.getPosition(),
-				radius: radius,
-				strokeColor : 'red'
-	  	  	}));
+			this.setCircle(this.createCircle(marker.getPosition(), radius));
 			
 			// North, West, South, East lat, lng를 구함
 			var bounds = this.circle.getBounds();
 			var northWest = bounds.getNorthEast();
 			var southEast = bounds.getSouthWest();
 			
+			this.sub('form_radius').setValue(radius);
 			this.sub('form_lat_hi').setValue(northWest.lat());
 			this.sub('form_lng_hi').setValue(northWest.lng());
 			this.sub('form_lat_lo').setValue(southEast.lat());
 			this.sub('form_lng_lo').setValue(southEast.lng());
-			
-		} else {
-			this.setCircle(null);
 		}
 	},
 	
-	resetMap : function() {
-		this.setCircle(null);
-		this.setMarker(null);
+	createMarker : function(center) {
+		var self = this;
+		var marker = new google.maps.Marker({
+			position : center,
+			map : self.map,
+			draggable : true
+		});
+		
+		if(this.marker && this.marker.dragend_listener) {
+			google.maps.event.removeListener(this.marker.dragend_listener);
+		}
+		
+		marker.dragend_listener = google.maps.event.addListener(marker, 'dragend', function() {
+			self.moveMarker(marker);
+		});
+				
+		return marker;
 	},
 	
-	radiusChanged : function(radius) {
-		var address = this.sub('form_address').getValue();
+	createCircle : function(center, radius) {
 		
-		if(address) {
+		if(!center)
+			return;
+		
+		if(!radius)
+			radius = this.sub('form_radius').getValue();
+		
+		var self = this;
+		var circle = new google.maps.Circle({
+			map: this.map,
+			center : center,
+			radius: radius,
+			strokeColor : 'red',
+			editable : true
+  	  	});
+		
+		if(this.circle && this.circle.radius_change_listener) {
+			google.maps.event.removeListener(this.circle.radius_change_listener);
+		}
+		
+		circle.radius_change_listener = google.maps.event.addListener(circle, 'radius_changed', function() {
+			self.radiusChanged(circle.getRadius());
+		});
+		
+		return circle;
+	},
+	
+	radiusChanged : function(radius) {		
+		if(this.marker) {
 			this.refreshCircle(radius);
-		} else {
-			this.resetMap();
 		}
 	},
 	
@@ -371,8 +403,7 @@ Ext.define('GreenFleet.view.management.Location', {
                         handler : function(btn, event) {
                         	var locationView = btn.up('management_location');
                         	var address = btn.up('fieldcontainer').down('textfield').getValue();
-                        	var radius = locationView.sub('form_radius').getValue();
-                        	locationView.refreshMapByAddr(address, radius);                        	
+                        	locationView.refreshLocByAddr(address);                        	
                         }
                     }
                 ]
