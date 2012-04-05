@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.SessionUtils;
 
 /**
  * 알람 컨트롤러
@@ -45,7 +47,11 @@ public class AlarmService extends EntityService {
 	
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+
+		this.checkDate(map);
 		
+		// 모니터 대상 차량 
+		entity.setProperty("vehicles", map.get("vehicles"));
 		// 이벤트 종류 
 		entity.setProperty("evt_type", map.get("evt_type"));
 		// 위치 
@@ -57,7 +63,9 @@ public class AlarmService extends EntityService {
 		// 알림 대상
 		entity.setProperty("dest", map.get("dest"));
 		// 알림 방식 
-		entity.setProperty("type", map.get("type"));	
+		entity.setProperty("type", map.get("type"));
+		// 알림 기간 always
+		entity.setProperty("always", DataUtils.toBool(map.get("always")));		
 		// 알림 기간 from
 		entity.setProperty("from_date", map.get("from_date"));
 		// 알림 기간 to
@@ -65,9 +73,19 @@ public class AlarmService extends EntityService {
 		// 알림 메세지 
 		entity.setProperty("msg", map.get("msg"));
 		
-		// TODO Alarm 저장 후에 차량 ==> 차량, 위치, 상태, 그 당시 위치 (위도, 경도) 테이블에 vehicles를 추가 ... 
 		super.onSave(entity, map, datastore);
 	}
+	
+	private void checkDate(Map<String, Object> map) {
+		Object fromDateObj = map.get("from_date");
+		Object toDateObj = map.get("to_date");
+		
+		if(!DataUtils.isEmpty(fromDateObj) && fromDateObj instanceof String)
+			map.put("from_date", SessionUtils.stringToDate(fromDateObj.toString()));
+		
+		if(!DataUtils.isEmpty(toDateObj) && toDateObj instanceof String)
+			map.put("to_date", SessionUtils.stringToDate(toDateObj.toString()));
+	}	
 	
 	@RequestMapping(value = "/alarm/import", method = RequestMethod.POST)
 	public @ResponseBody

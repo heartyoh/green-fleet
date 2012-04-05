@@ -11,6 +11,9 @@ Ext.define('GreenFleet.store.AlarmStore', {
 			name : 'name',
 			type : 'string'
 		}, {
+			name : 'vehicles',
+			type : 'string'
+		}, {
 			name : 'evt_type',
 			type : 'string'
 		}, {
@@ -28,6 +31,9 @@ Ext.define('GreenFleet.store.AlarmStore', {
 		}, {
 			name : 'type',
 			type : 'string'
+		}, {
+			name : 'always',
+			type : 'boolean'
 		}, {
 			name : 'from_date',
 			type : 'date',

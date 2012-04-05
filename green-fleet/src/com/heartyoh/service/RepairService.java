@@ -61,13 +61,11 @@ public class RepairService extends EntityService {
 		Object repairDateObj = map.get("repair_date");
 		Object nextRepairDateObj = map.get("next_repair_date");
 		
-		if(repairDateObj instanceof String) {
-			map.put("repair_date", SessionUtils.stringToDate((String)map.get("repair_date")));
-		}
+		if(!DataUtils.isEmpty(repairDateObj) && repairDateObj instanceof String)
+			map.put("repair_date", SessionUtils.stringToDate((String)repairDateObj));
 		
-		if(nextRepairDateObj != null && nextRepairDateObj instanceof String) {
-			map.put("next_repair_date", SessionUtils.stringToDate((String)map.get("next_repair_date")));
-		}		
+		if(!DataUtils.isEmpty(nextRepairDateObj) && nextRepairDateObj instanceof String)
+			map.put("next_repair_date", SessionUtils.stringToDate((String)nextRepairDateObj));
 	}
 	
 	@Override

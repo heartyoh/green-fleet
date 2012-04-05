@@ -59,5 +59,8 @@ Ext.define('GreenFleet.store.CodeGroupStore', {
 	}, {
 		group : 'AlarmType',
 		desc : 'Alarm Type'
+	}, {
+		group : 'LocationEvent',
+		desc : 'Location Event'
 	} ]
 });

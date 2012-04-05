@@ -214,6 +214,14 @@
                     "name": "RepairForm.js"
                 },
                 {
+                    "path": "app/view/management/",
+                    "name": "Location.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "Alarm.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -364,6 +372,14 @@
                 {
                     "path": "app/store/",
                     "name": "DashboardVehicleStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "LocationStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "AlarmStore.js"
                 },
                 {
                     "path": "app/controller/",

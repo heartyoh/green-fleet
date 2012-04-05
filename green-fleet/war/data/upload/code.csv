@@ -132,3 +132,6 @@ AlarmEventType,maintenence,Maintenence
 AlarmType,mail,Mail
 AlarmType,xmpp,XMPP
 AlarmType,sms,SMS
+LocationEvent,in,When arrived
+LocationEvent,out,When leaved
+LocationEvent,in-out,When arrived or leaved

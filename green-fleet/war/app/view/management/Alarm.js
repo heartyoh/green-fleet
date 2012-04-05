@@ -125,7 +125,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				format : F('datetime'),
 				width : 120
 			} ],
-			tbar : [ T('label.code'), {
+			tbar : [ T('label.name'), {
 				xtype : 'textfield',
 				name : 'name_filter',
 				itemId : 'name_filter',
@@ -199,15 +199,11 @@ Ext.define('GreenFleet.view.management.Alarm', {
 					fieldLabel : T('label.vehicle'),
 					allowBlank : false
 	            }, {
+					xtype : 'codecombo',
 					name : 'evt_trg',
-					fieldLabel : T('label.event_trigger'),				
-					xtype: 'radiogroup',
-		            items: [
-		                { boxLabel: 'In', name: 'evt_trg', inputValue: 'in' },
-		                { boxLabel: 'Out', name: 'evt_trg', inputValue: 'out' },
-		                { boxLabel: 'In/Out', name: 'evt_trg', inputValue: 'in-out' },
-		            ],
-		            allowBlank : false
+					group : 'LocationEvent',
+		            fieldLabel: T('label.event_trigger'),
+		            allowBlank : false		            
 	            }]
 	        },			
 	        {
@@ -226,7 +222,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
                 xtype: 'container',
                 layout: 'hbox',
                 items: [{
-    				name : 'period_always',
+    				name : 'always',
     				fieldLabel : T('label.period_always'),
     				xtype : 'checkboxfield',
     				flex : 1,
@@ -244,14 +240,16 @@ Ext.define('GreenFleet.view.management.Alarm', {
     				name : 'from_date',
     				fieldLabel : T('label.from_date'),
     				xtype : 'datefield',
+    				format : F('date'),
     				margin : '0 30 0 0',
     				flex : 1,
-    				hidden : true
+    				hidden : true,    				
                 }, {
                 	itemId : 'form_to_date',
     				name : 'to_date',
     				fieldLabel : T('label.to_date'),
     				xtype : 'datefield',
+    				format : F('date'),
     				flex : 1,
     				hidden : true
                 }]
