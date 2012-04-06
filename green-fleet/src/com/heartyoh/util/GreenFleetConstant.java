@@ -35,4 +35,30 @@ public class GreenFleetConstant {
 	 * 차량 건강 상태 : 교체 기간 지남 
 	 */
 	public static final String VEHICLE_HEALTH_O = "Overdue";
+	
+	/**
+	 * Location Based Alarm Event : IN (When arrived at the location)
+	 */
+	public static final String LBA_EVENT_IN = "in";
+	/**
+	 * Location Based Alarm Event : OUT (When leaved the location)
+	 */
+	public static final String LBA_EVENT_OUT = "out";
+	/**
+	 * Location Based Alarm Event : INOUT (When arrived or leaved the location)
+	 */
+	public static final String LBA_EVENT_INOUT = "in-out";
+	
+	/**
+	 * ALRM - XMPP
+	 */
+	public static final String ALARM_XMPP = "xmpp";
+	/**
+	 * ALRM - MAIL
+	 */
+	public static final String ALARM_MAIL = "mail";
+	/**
+	 * ALRM - SMS
+	 */
+	public static final String ALARM_SMS = "sms";	
 }

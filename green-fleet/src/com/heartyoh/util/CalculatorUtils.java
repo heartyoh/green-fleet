@@ -309,5 +309,22 @@ public class CalculatorUtils {
 			return null;
 		
 		return DataUtils.addDate(lastReplDate, 30 * replTime);
-	}	
+	}
+	
+	/**
+	 * 위치(lattitude, longitude)가 location내에 포함되어 있는지 아닌지를 판단한다. 
+	 * 
+	 * @param location
+	 * @param lattitude
+	 * @param longitude
+	 * @return
+	 * @throws Exception
+	 */
+	public static boolean contains(Entity location, float lattitude, float longitude) throws Exception {		
+		float minLat = DataUtils.toFloat(location.getProperty("lat_lo"));
+		float minLng = DataUtils.toFloat(location.getProperty("lng_lo"));
+		float maxLat = DataUtils.toFloat(location.getProperty("lat_hi"));
+		float maxLng = DataUtils.toFloat(location.getProperty("lng_hi"));		
+		return (lattitude <= maxLat && lattitude >= minLat && longitude <= maxLng && longitude >= minLng);
+	}
 }

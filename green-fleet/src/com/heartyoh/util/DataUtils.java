@@ -338,4 +338,27 @@ public class DataUtils {
 		long millis = DataUtils.getTodayMillis();
 		return getFromToDate(millis, beforeDateAmount, afterDateAmount);
 	}
+	
+	/**
+	 * date가 fromDate, toDate 사이에 있는지 체크
+	 * 
+	 * @param date
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	public static boolean between(Date date, Date fromDate, Date toDate) {
+		
+		boolean between = false;		
+		
+		if(fromDate != null && toDate == null) {
+			between = date.equals(fromDate) || date.after(fromDate);
+		} else if(fromDate == null && toDate != null) {
+			between = date.equals(toDate) || date.before(toDate);
+		} else if(fromDate != null && toDate != null) {
+			between = (date.equals(fromDate) || date.after(fromDate)) && (date.equals(toDate) || date.before(toDate));
+		}
+		
+		return between;
+	}
 }

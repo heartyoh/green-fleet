@@ -16,16 +16,51 @@ import com.google.appengine.api.taskqueue.TaskOptions.Method;
 public class AsyncUtils {
 
 	/**
-	 * vehicleId, lattitude, longitude로 task를 만들어서 push queue에 추가
+	 * vehicleId, lattitude, longitude로 task를 만들어서 LBAQueue에 추가
 	 * 
 	 * @param company
-	 * @param vehicleId
+	 * @param vehicle
 	 * @param lattitude
 	 * @param longitude
 	 * @throws Exception
 	 */
-	public static void addLbaTaskToQueue(String company, String vehicleId, double lattitude, double longitude) throws Exception {
+	public static void addLbaTaskToQueue(String company, String vehicle, double lattitude, double longitude) throws Exception {
 		Queue queue = QueueFactory.getQueue("LBAQueue");
-		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicleId).param("lat", "" + lattitude).param("lng", "" + longitude));
+		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicle).param("lat", "" + lattitude).param("lng", "" + longitude));
+	}
+	
+	/**
+	 * mail task를 MailQueue에 추가 
+	 * 
+	 * @param company
+	 * @param receivers
+	 * @param subject
+	 * @param message
+	 * @throws Exception
+	 */
+	public static void addMailTaskToQueue(String company, String[] receivers, String subject, String message) throws Exception {
+		Queue queue = QueueFactory.getQueue("MailQueue");
+		TaskOptions task = TaskOptions.Builder.withMethod(Method.POST).url("/alarm/send/mail").param("company", company).param("subject", subject).param("message", message);
+		for(int i = 0 ; i < receivers.length ; i++) {
+			task.param("receivers", receivers[i]);
+		}
+		queue.add(task);
+	}
+	
+	/**
+	 * xmpp task를 XmppQueue에 추가 
+	 * 
+	 * @param company
+	 * @param receivers
+	 * @param message
+	 * @throws Exception
+	 */
+	public static void addXmppTaskToQueue(String company, String[] receivers, String message) throws Exception {
+		Queue queue = QueueFactory.getQueue("XmppQueue");
+		TaskOptions task = TaskOptions.Builder.withMethod(Method.POST).url("/alarm/send/xmpp").param("company", company).param("message", message);
+		for(int i = 0 ; i < receivers.length ; i++) {
+			task.param("receivers", receivers[i]);
+		}
+		queue.add(task);
 	}
 }

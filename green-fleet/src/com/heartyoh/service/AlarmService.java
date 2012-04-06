@@ -4,12 +4,15 @@
 package com.heartyoh.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,6 +24,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
@@ -32,7 +36,9 @@ import com.heartyoh.util.SessionUtils;
  */
 @Controller
 public class AlarmService extends EntityService {
-
+	
+	private static final Logger logger = LoggerFactory.getLogger(AlarmService.class);
+	
 	@Override
 	protected String getEntityName() {
 		return "Alarm";
@@ -115,6 +121,40 @@ public class AlarmService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
+	@RequestMapping(value = "/alarm/send/mail", method = RequestMethod.POST)
+	public void sendMail(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String[] receivers = request.getParameterValues("receivers");
+		String message = request.getParameter("message");
+		String subject = DataUtils.isEmpty(request.getParameter("subject")) ? "GreenFleet Email Alarm!" : request.getParameter("subject");
+		String contentType = DataUtils.isEmpty(request.getParameter("contentType")) ? "text" : request.getParameter("contentType");
+		boolean htmlType = "html".equalsIgnoreCase(contentType);
+		
+		try {
+			AlarmUtils.sendMail(null, null, null, receivers, subject, htmlType, message);
+		} catch (Exception e) {
+			logger.error("Failed to send mail!", e);
+		}
+	}
+	
+	@RequestMapping(value = "/alarm/send/xmpp", method = RequestMethod.POST)
+	public void sendXmpp(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String[] receivers = request.getParameterValues("receivers");
+		String message = request.getParameter("message");
+		
+		try {
+			AlarmUtils.sendXmppMessage(receivers, message);
+		} catch (Exception e) {
+			logger.error("Failed to send xmpp!", e);
+		}
+	}
+	
+	@RequestMapping(value = "/alarm/send/push", method = RequestMethod.POST)
+	public void sendPush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO
+	}
+	
 	@Override
 	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 				
@@ -160,9 +200,13 @@ public class AlarmService extends EntityService {
 	private void createLbaStatuses(DatastoreService datastore, Entity alarm, String[] vehicleIdArr) throws Exception {
 		
 		List<Entity> lbaStatusList = new ArrayList<Entity>();
+		Date now = new Date();
 		
-		for(int i = 0 ; i < vehicleIdArr.length ; i++)
-			lbaStatusList.add(this.createLbaStatus(alarm, vehicleIdArr[i]));
+		for(int i = 0 ; i < vehicleIdArr.length ; i++) {
+			Entity lbaStatus = this.createLbaStatus(alarm, vehicleIdArr[i]);
+			lbaStatus.setProperty("updated_at", now);
+			lbaStatusList.add(lbaStatus);			
+		}
 		
 		datastore.put(lbaStatusList);
 	}
@@ -220,6 +264,19 @@ public class AlarmService extends EntityService {
 		lbaStatus.setProperty("evt_trg", alarm.getProperty("evt_trg"));
 		lbaStatus.setProperty("bef_status", "");
 		lbaStatus.setProperty("cur_status", "");
+		
+		boolean use = false;
+		
+		if(DataUtils.toBool(alarm.getProperty("always"))) {
+			use = true;
+		} else {
+			//오늘이 from_date, to_date 사이에 있는지 확인 
+			Date fromDate = DataUtils.toDate(alarm.getProperty("from_date"));
+			Date toDate = DataUtils.toDate(alarm.getProperty("to_date"));
+			use = DataUtils.between(DataUtils.getToday(), fromDate, toDate);
+		}
+		
+		lbaStatus.setProperty("use", use);
 		return lbaStatus;
 	}
 }

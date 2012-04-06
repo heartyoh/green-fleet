@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blacklistentries>
-  <blacklist>
+  <!--blacklist>
     <subnet>0.1.0.2</subnet>
     <description>Default Queue Request</description>
-  </blacklist>
+  </blacklist-->
 </blacklistentries>

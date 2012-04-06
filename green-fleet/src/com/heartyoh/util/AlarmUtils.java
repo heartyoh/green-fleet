@@ -130,17 +130,17 @@ public class AlarmUtils {
 	 */
 	public static void sendMail(String senderName, String senderEmail, String receiverName, String receiverEmail, String subject, boolean htmlType, String msgBody) throws Exception {
 		
-		if(DataUtils.isEmpty(senderEmail)) 
-			throw new Exception("Sender Email is required!");
-		
 		if(DataUtils.isEmpty(receiverEmail)) 
 			throw new Exception("Receiver Email is required!");
-				
+		
+		senderName = DataUtils.isEmpty(senderName) ? "GreenFleet" : senderName;
+		senderEmail = DataUtils.isEmpty(senderEmail) ? "heartyoh@gmail.com" : senderEmail;
+		
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(senderEmail, senderName));        
-    	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmail, receiverName));        
+    	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmail, receiverName));
         msg.setSubject(subject);
         
         if(htmlType)
@@ -165,11 +165,11 @@ public class AlarmUtils {
 	 */
 	public static void sendMail(String senderName, String senderEmail, String[] receiverNames, String[] receiverEmails, String subject, boolean htmlType, String msgBody) throws Exception {
 		
-		if(DataUtils.isEmpty(senderEmail)) 
-			throw new Exception("Sender Email is required!");
-		
 		if(DataUtils.isEmpty(receiverEmails)) 
 			throw new Exception("Receiver Email is required!");
+		
+		senderName = DataUtils.isEmpty(senderName) ? "GreenFleet" : senderName;
+		senderEmail = DataUtils.isEmpty(senderEmail) ? "heartyoh@gmail.com" : senderEmail;
 		
 		boolean existReceiverNames = DataUtils.isEmpty(receiverNames) ? false : true;
 		if(existReceiverNames && receiverEmails.length != receiverNames.length)
@@ -180,7 +180,7 @@ public class AlarmUtils {
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(senderEmail, senderName));
         
-        for(int i = 0 ; i < receiverNames.length ; i++) {
+        for(int i = 0 ; i < receiverEmails.length ; i++) {
         	String receiverName = existReceiverNames ? receiverNames[i] : "";
         	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmails[i], receiverName));
         }
