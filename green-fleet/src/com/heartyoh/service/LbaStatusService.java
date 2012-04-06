@@ -127,12 +127,13 @@ public class LbaStatusService extends EntityService {
 			String beforeStatus = (String)lbaStatus.getProperty("cur_status");
 			lbaStatus.setProperty("cur_status", CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT);
 			lbaStatus.setProperty("bef_status", beforeStatus);
-			lbaStatus.setProperty("updated_at", now);
-			this.checkAlarm(lbaStatus);
+			lbaStatus.setProperty("updated_at", now);			
 		}
 		
 		if(!lbaStatuses.isEmpty()) {
 			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+			for(Entity lbaStatus : lbaStatuses)
+				this.checkAlarm(ds, lbaStatus, lattitude, longitude);
 			ds.put(lbaStatuses);
 		}
 	}
@@ -141,8 +142,10 @@ public class LbaStatusService extends EntityService {
 	 * LbaStatus 정보로 알람을 보내야 하는지를 체크하여 조건에 맞으면 알람을 보냄 ...
 	 * 
 	 * @param lbaStatus
+	 * @param lattitude
+	 * @param longitude
 	 */
-	private void checkAlarm(Entity lbaStatus) {
+	private void checkAlarm(DatastoreService ds, Entity lbaStatus, float lattitude, float longitude) {
 		
 		String evtTrg = (String)lbaStatus.getProperty("evt_trg");
 		String beforeStatus = DataUtils.toNotNull(lbaStatus.getProperty("bef_status"));
@@ -166,7 +169,7 @@ public class LbaStatusService extends EntityService {
 		}
 		
 		if(eventName != null)
-			this.alarm(lbaStatus, eventName);
+			this.alarm(ds, lbaStatus, eventName, lattitude, longitude);
 	}
 	
 	/**
@@ -175,7 +178,7 @@ public class LbaStatusService extends EntityService {
 	 * @param lbaStatus
 	 * @param eventName
 	 */
-	private void alarm(Entity lbaStatus, String eventName) {
+	private void alarm(DatastoreService ds, Entity lbaStatus, String eventName, float lattitude, float longitude) {
 		
 		Entity alarm = DatastoreUtils.findEntity(lbaStatus.getParent(), "Alarm", DataUtils.newMap("name", lbaStatus.getProperty("alarm")));
 		
@@ -185,39 +188,68 @@ public class LbaStatusService extends EntityService {
 		String company = lbaStatus.getParent().getName();
 		String type = (String)alarm.getProperty("type");
 		String[] receivers = DataUtils.toNotNull(alarm.getProperty("dest")).split(",");
-		StringBuffer subject = new StringBuffer();
-		subject.append("Location Based Alarm [").append(alarm.getProperty("name")).append("] : Vehicle [").append(lbaStatus.getProperty("vehicle"));
-		subject.append(eventName.equals(GreenFleetConstant.LBA_EVENT_IN) ? "] comes in to Location [" : "] comes out from Location [");
-		subject.append(alarm.getProperty("loc")).append("]!\n");
 		String content = this.convertMessage((String)alarm.getProperty("msg"), eventName, lbaStatus);
 		
 		if(GreenFleetConstant.ALARM_MAIL.equalsIgnoreCase(type)) {
-			this.sendMail(company, receivers, subject.toString(), content);
+			StringBuffer subject = new StringBuffer();
+			subject.append("Location Based Alarm [").append(alarm.getProperty("name")).append("] : Vehicle [").append(lbaStatus.getProperty("vehicle"));
+			subject.append(eventName.equals(GreenFleetConstant.LBA_EVENT_IN) ? "] comes in to Location [" : "] comes out from Location [");
+			subject.append(alarm.getProperty("loc")).append("]!\n");			
+			try {
+				AsyncUtils.addMailTaskToQueue(company, receivers, subject.toString(), content);
+			} catch (Exception e) {
+				logger.error("Failed to add email task to queue!", e);
+			}
+			this.saveAlarmHistory(ds, alarm, lbaStatus, eventName, lattitude, longitude);
 		} else if(GreenFleetConstant.ALARM_XMPP.equalsIgnoreCase(type)) {
-			this.sendXmpp(company, receivers, subject.toString() + content);
+			try {
+				AsyncUtils.addXmppTaskToQueue(company, receivers, content);
+			} catch (Exception e) {
+				logger.error("Failed to add xmpp task to queue!", e);
+			}
+			this.saveAlarmHistory(ds, alarm, lbaStatus, eventName, lattitude, longitude);
 		}
 	}
-	
-	private void sendMail(String company, String[] receivers, String subject, String message) {
-		try {
-			AsyncUtils.addMailTaskToQueue(company, receivers, subject, message);
-		} catch (Exception e) {
-			logger.error("Failed to add email task to queue!", e);
-		}
-	}
-	
-	private void sendXmpp(String company, String[] receivers, String message) {
-		try {
-			AsyncUtils.addXmppTaskToQueue(company, receivers, message);
-		} catch (Exception e) {
-			logger.error("Failed to add xmpp task to queue!", e);
-		}		
-	}
-	
+
+	/**
+	 * message를 치환 
+	 * 
+	 * @param message
+	 * @param event
+	 * @param lbaStatus
+	 * @return
+	 */
 	private String convertMessage(String message, String event, Entity lbaStatus) {
 		String vehicle = (String)lbaStatus.getProperty("vehicle");
 		String alarmName = (String)lbaStatus.getProperty("alarm");
 		String location = (String)lbaStatus.getProperty("loc");
 		return message.replaceAll("\\{vehicle\\}", vehicle).replaceAll("\\{alarm\\}", alarmName).replaceAll("\\{location\\}", location).replaceAll("\\{event\\}", event.toUpperCase());		
+	}
+	
+	/**
+	 * alarmHistory를 생성하여 리턴 
+	 * 
+	 * @param companyKey
+	 * @param alarm
+	 * @param lbaStatus
+	 * @param eventName
+	 * @return
+	 */
+	private void saveAlarmHistory(DatastoreService ds, Entity alarm, Entity lbaStatus, String eventName, float lattitude, float longitude) {		
+		String vehicle = (String)lbaStatus.getProperty("vehicle");
+		String alarmName = (String)lbaStatus.getProperty("alarm");
+		String datetimeStr = DataUtils.dateToString((Date)lbaStatus.getProperty("updated_at"), "yyyy-MM-dd HH:mm:ss");
+		String idValue = vehicle + "@" + alarmName + "@" + datetimeStr;
+		Key alarmHistKey = KeyFactory.createKey(lbaStatus.getParent(), "AlarmHistory", idValue);
+		Entity alarmHistory = new Entity(alarmHistKey);
+		alarmHistory.setProperty("vehicle", vehicle);
+		alarmHistory.setProperty("alarm", alarmName);
+		alarmHistory.setProperty("loc", lbaStatus.getProperty("loc"));
+		alarmHistory.setProperty("datetime", datetimeStr);
+		alarmHistory.setProperty("event", eventName);
+		alarmHistory.setProperty("lat", lattitude);
+		alarmHistory.setProperty("lng", longitude);
+		alarmHistory.setProperty("alarm_type", alarm.getProperty("type"));
+		ds.put(alarmHistory);
 	}
 }
