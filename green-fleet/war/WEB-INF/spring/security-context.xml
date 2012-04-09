@@ -28,6 +28,7 @@
 <!-- 
     <intercept-url pattern="/" access="permitAll" />
 -->
+		<intercept-url pattern="/_ah/prospective_search" access="permitAll" />
 		<intercept-url pattern="/_ah/start" access="permitAll" />
 		<intercept-url pattern="/_ah/xmpp/**" access="permitAll" />		
         <intercept-url pattern="/_ah/login" access="permitAll" />

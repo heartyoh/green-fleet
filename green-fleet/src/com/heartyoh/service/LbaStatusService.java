@@ -23,7 +23,8 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.heartyoh.util.AsyncUtils;
+import com.google.appengine.api.prospectivesearch.ProspectiveSearchService;
+import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
 import com.heartyoh.util.CalculatorUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
@@ -38,6 +39,10 @@ import com.heartyoh.util.GreenFleetConstant;
 public class LbaStatusService extends EntityService {
 
 	private static final Logger logger = LoggerFactory.getLogger(LbaStatusService.class);
+	/**
+	 * prospective search
+	 */
+	private static ProspectiveSearchService prospectiveSearch = ProspectiveSearchServiceFactory.getProspectiveSearchService();
 	
 	@Override
 	protected String getEntityName() {
@@ -71,6 +76,8 @@ public class LbaStatusService extends EntityService {
 		entity.setProperty("cur_status", map.get("cur_status"));
 		// alarm의 유효 기간이 유효한 지에 따라서 true, false : 이 부분에 대한 업데이트는 cron job으로 하루 한 번 업데이트 한다.
 		entity.setProperty("use", DataUtils.toBool(map.get("use")));
+		// 발생한 위치 기반 알람 이벤트 - in/out/in-out
+		entity.setProperty("evt", map.get("evt"));
 		
 		super.onSave(entity, map, datastore);
 	}	
@@ -127,17 +134,16 @@ public class LbaStatusService extends EntityService {
 			String beforeStatus = (String)lbaStatus.getProperty("cur_status");
 			lbaStatus.setProperty("cur_status", CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT);
 			lbaStatus.setProperty("bef_status", beforeStatus);
-			lbaStatus.setProperty("updated_at", now);			
+			lbaStatus.setProperty("updated_at", now);
+			this.checkEvent(lbaStatus, lattitude, longitude);
 		}
 		
 		if(!lbaStatuses.isEmpty()) {
 			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-			for(Entity lbaStatus : lbaStatuses)
-				this.checkAlarm(ds, lbaStatus, lattitude, longitude);
 			ds.put(lbaStatuses);
 		}
 	}
-		
+	
 	/**
 	 * LbaStatus 정보로 알람을 보내야 하는지를 체크하여 조건에 맞으면 알람을 보냄 ...
 	 * 
@@ -145,111 +151,46 @@ public class LbaStatusService extends EntityService {
 	 * @param lattitude
 	 * @param longitude
 	 */
-	private void checkAlarm(DatastoreService ds, Entity lbaStatus, float lattitude, float longitude) {
+	private void checkEvent(Entity lbaStatus, float lattitude, float longitude) {
 		
 		String evtTrg = (String)lbaStatus.getProperty("evt_trg");
 		String beforeStatus = DataUtils.toNotNull(lbaStatus.getProperty("bef_status"));
 		String currentStatus = DataUtils.toNotNull(lbaStatus.getProperty("cur_status"));
-		String eventName = null;
+		String eventName = this.getEvent(evtTrg, beforeStatus, currentStatus);
+		
+		if(eventName != null) {
+			lbaStatus.setProperty("evt", eventName);
+			prospectiveSearch.match(lbaStatus, "LbaStatus");
+		}
+	}
+	
+	/**
+	 * evtTrg, beforeStatus, currentStatus
+	 * 
+	 * @param evtTrg
+	 * @param beforeStatus
+	 * @param currentStatus
+	 * @return
+	 */
+	private String getEvent(String evtTrg, String beforeStatus, String currentStatus) {
 		
 		if(GreenFleetConstant.LBA_EVENT_IN.equalsIgnoreCase(evtTrg)) {
 			if(GreenFleetConstant.LBA_EVENT_OUT.equalsIgnoreCase(beforeStatus) && GreenFleetConstant.LBA_EVENT_IN.equalsIgnoreCase(currentStatus)) {
-				eventName = GreenFleetConstant.LBA_EVENT_IN;
+				return GreenFleetConstant.LBA_EVENT_IN;
 			}
 		} else if(GreenFleetConstant.LBA_EVENT_OUT.equalsIgnoreCase(evtTrg)) {
 			if(GreenFleetConstant.LBA_EVENT_IN.equalsIgnoreCase(beforeStatus) && GreenFleetConstant.LBA_EVENT_OUT.equalsIgnoreCase(currentStatus)) {
-				eventName = GreenFleetConstant.LBA_EVENT_OUT;
+				return GreenFleetConstant.LBA_EVENT_OUT;
 			}
 		} else if(GreenFleetConstant.LBA_EVENT_INOUT.equalsIgnoreCase(evtTrg)) {
 			if(GreenFleetConstant.LBA_EVENT_OUT.equalsIgnoreCase(beforeStatus) && GreenFleetConstant.LBA_EVENT_IN.equalsIgnoreCase(currentStatus)) {
-				eventName = GreenFleetConstant.LBA_EVENT_IN;
+				return GreenFleetConstant.LBA_EVENT_IN;
 			} else if(GreenFleetConstant.LBA_EVENT_IN.equalsIgnoreCase(beforeStatus) && GreenFleetConstant.LBA_EVENT_OUT.equalsIgnoreCase(currentStatus)) {
-				eventName = GreenFleetConstant.LBA_EVENT_OUT;
+				return GreenFleetConstant.LBA_EVENT_OUT;
 			}
 		}
 		
-		if(eventName != null)
-			this.alarm(ds, lbaStatus, eventName, lattitude, longitude);
-	}
-	
-	/**
-	 * 알람을 보냄
-	 * 
-	 * @param lbaStatus
-	 * @param eventName
-	 */
-	private void alarm(DatastoreService ds, Entity lbaStatus, String eventName, float lattitude, float longitude) {
-		
-		Entity alarm = DatastoreUtils.findEntity(lbaStatus.getParent(), "Alarm", DataUtils.newMap("name", lbaStatus.getProperty("alarm")));
-		
-		if(alarm == null)
-			return;
-		
-		String company = lbaStatus.getParent().getName();
-		String type = (String)alarm.getProperty("type");
-		String[] receivers = DataUtils.toNotNull(alarm.getProperty("dest")).split(",");
-		String content = this.convertMessage((String)alarm.getProperty("msg"), eventName, lbaStatus);
-		
-		if(GreenFleetConstant.ALARM_MAIL.equalsIgnoreCase(type)) {
-			StringBuffer subject = new StringBuffer();
-			subject.append("Location Based Alarm [").append(alarm.getProperty("name")).append("] : Vehicle [").append(lbaStatus.getProperty("vehicle"));
-			subject.append(eventName.equals(GreenFleetConstant.LBA_EVENT_IN) ? "] comes in to Location [" : "] comes out from Location [");
-			subject.append(alarm.getProperty("loc")).append("]!\n");			
-			try {
-				AsyncUtils.addMailTaskToQueue(company, receivers, subject.toString(), content);
-			} catch (Exception e) {
-				logger.error("Failed to add email task to queue!", e);
-			}
-			this.saveAlarmHistory(ds, alarm, lbaStatus, eventName, lattitude, longitude);
-		} else if(GreenFleetConstant.ALARM_XMPP.equalsIgnoreCase(type)) {
-			try {
-				AsyncUtils.addXmppTaskToQueue(company, receivers, content);
-			} catch (Exception e) {
-				logger.error("Failed to add xmpp task to queue!", e);
-			}
-			this.saveAlarmHistory(ds, alarm, lbaStatus, eventName, lattitude, longitude);
-		}
-	}
+		return null;
+	}	
 
-	/**
-	 * message를 치환 
-	 * 
-	 * @param message
-	 * @param event
-	 * @param lbaStatus
-	 * @return
-	 */
-	private String convertMessage(String message, String event, Entity lbaStatus) {
-		String vehicle = (String)lbaStatus.getProperty("vehicle");
-		String alarmName = (String)lbaStatus.getProperty("alarm");
-		String location = (String)lbaStatus.getProperty("loc");
-		return message.replaceAll("\\{vehicle\\}", vehicle).replaceAll("\\{alarm\\}", alarmName).replaceAll("\\{location\\}", location).replaceAll("\\{event\\}", event.toUpperCase());		
-	}
-	
-	/**
-	 * alarmHistory를 생성하여 리턴 
-	 * 
-	 * @param companyKey
-	 * @param alarm
-	 * @param lbaStatus
-	 * @param eventName
-	 * @return
-	 */
-	private void saveAlarmHistory(DatastoreService ds, Entity alarm, Entity lbaStatus, String eventName, float lattitude, float longitude) {		
-		String vehicle = (String)lbaStatus.getProperty("vehicle");
-		String alarmName = (String)lbaStatus.getProperty("alarm");
-		String datetimeStr = DataUtils.dateToString((Date)lbaStatus.getProperty("updated_at"), "yyyy-MM-dd HH:mm:ss");
-		String idValue = vehicle + "@" + alarmName + "@" + datetimeStr;
-		Key alarmHistKey = KeyFactory.createKey(lbaStatus.getParent(), "AlarmHistory", idValue);
-		Entity alarmHistory = new Entity(alarmHistKey);
-		alarmHistory.setProperty("vehicle", vehicle);
-		alarmHistory.setProperty("alarm", alarmName);
-		alarmHistory.setProperty("loc", lbaStatus.getProperty("loc"));
-		alarmHistory.setProperty("datetime", datetimeStr);
-		alarmHistory.setProperty("event", eventName);
-		alarmHistory.setProperty("lat", lattitude);
-		alarmHistory.setProperty("lng", longitude);
-		alarmHistory.setProperty("alarm_type", alarm.getProperty("type"));
-		ds.put(alarmHistory);
-	}
 }

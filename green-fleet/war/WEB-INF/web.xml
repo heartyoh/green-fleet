@@ -28,6 +28,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
+	
+	<listener>
+        <listener-class>com.heartyoh.GreenFleetListener</listener-class>
+    </listener>	
   		
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
@@ -63,6 +67,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>XMPPMessageServlet</servlet-name>
 		<url-pattern>/_ah/xmpp/message/*</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+    	<servlet-name>matches</servlet-name>
+    	<servlet-class>com.heartyoh.service.ProspectiveSearchMatchServlet</servlet-class>
+  	</servlet>
+  	
+  	<servlet-mapping>
+    	<servlet-name>matches</servlet-name>
+    	<url-pattern>/_ah/prospective_search</url-pattern>
+  	</servlet-mapping>	
 	
 	<!--servlet>
 		<servlet-name>ChannelPresenceServlet</servlet-name>
