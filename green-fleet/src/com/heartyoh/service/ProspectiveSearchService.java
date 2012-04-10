@@ -3,17 +3,15 @@
  */
 package com.heartyoh.service;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
@@ -23,42 +21,33 @@ import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
 
 /**
- * ProspectiveSearch에 대한 Match 결과를 처리하는 Servlet
+ * Prospective Search 서비스 컨트롤러
  * 
  * @author jhnam
  */
-public class ProspectiveSearchMatchServlet extends HttpServlet {
+@Controller
+public class ProspectiveSearchService {
 
-	/**
-	 * serialVersionUID
-	 */
-	private static final long serialVersionUID = 1L;
 	/**
 	 * logger
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ProspectiveSearchMatchServlet.class);
-	/**
-	 * datastore service
-	 */
-	private static DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
-
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doPost(request, response);
-    }
+	private static final Logger logger = LoggerFactory.getLogger(ProspectiveSearchService.class);
 	
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	/**
+	 * location baased alarm을 처리한다. 
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/prospective/lba_alarm", method = RequestMethod.POST)
+	public void lbaAlarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		//int resultsOffset = Integer.parseInt(request.getParameter("results_offset"));
-	    //int resultsCount = Integer.parseInt(request.getParameter("results_count"));
-	    //String [] reqSubIDs = request.getParameterValues("id");
-	    
-	    if (!DataUtils.isEmpty(request.getParameter("document"))) {		    
+	    if (!DataUtils.isEmpty(request.getParameter("document"))) {
 	    	Entity alarmHist = ProspectiveSearchServiceFactory.getProspectiveSearchService().getDocument(request);
 	    	try {
 	    		this.alarm(alarmHist);
-	    		datastoreService.put(alarmHist);
+	    		DatastoreServiceFactory.getDatastoreService().put(alarmHist);
 	    		
 	    		if(logger.isInfoEnabled())
 	    			logger.info("Location Based Alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!");
@@ -116,5 +105,4 @@ public class ProspectiveSearchMatchServlet extends HttpServlet {
 		String event = (String)alarmHistory.getProperty("evt");
 		return message.replaceAll("\\{vehicle\\}", vehicle).replaceAll("\\{alarm\\}", alarmName).replaceAll("\\{location\\}", location).replaceAll("\\{event\\}", event.toUpperCase());
 	}	
-	
 }

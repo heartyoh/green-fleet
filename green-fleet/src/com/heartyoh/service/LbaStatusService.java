@@ -3,7 +3,9 @@
  */
 package com.heartyoh.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchService;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
 import com.heartyoh.util.CalculatorUtils;
@@ -105,6 +108,71 @@ public class LbaStatusService extends EntityService {
 	}
 	
 	/**
+	 * 하루에 한번 모든 LbaStatus 엔티티의 use 데이터를 업데이트
+	 * Alarm 정보에 유효 기간이 있는데 이 유효기간을 지났는지 안 지났는지 정보가 LbaStatus에 use 필드이다.  
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/lba_status/update_use", method = RequestMethod.GET)
+	public void updateUse(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		if(logger.isInfoEnabled())
+			logger.info("LbaStatus update_use started!");
+		
+		// 0. company key 추출 
+		Key companyKey = this.getCompanyKey(request);
+		
+		// 1. 모든 alarm을 조회 
+		Iterator<Entity> alarmList = DatastoreUtils.findEntities("Alarm", companyKey, null);
+		List<Entity> lbaStatusList = new ArrayList<Entity>();
+		
+		// 2. 각 alarm에 대해서 유효기간 체크 
+		while(alarmList.hasNext()) {
+			Entity alarm = alarmList.next();
+			boolean always = DataUtils.toBool(alarm.getProperty("always"));
+			
+			if(always)
+				continue; 
+			
+			// Alarm 기준정보로 부터 오늘 날짜로 use 데이터 체크 
+			Date fromDate = DataUtils.toDate(alarm.getProperty("from_date"));
+			Date toDate = DataUtils.toDate(alarm.getProperty("to_date"));			
+			if(fromDate == null && toDate == null)
+				continue;
+			
+			// Alarm의 from_date, to_date로 오늘이 유효기간인지 체크 
+			boolean use = DataUtils.between(DataUtils.getToday(), fromDate, toDate);
+			// LbaStatus에 alarm, use 데이터를 찾아 use 데이터를 업데이트 
+			Iterator<Entity> lbaStatuses = DatastoreUtils.findEntities(companyKey, this.getEntityName(), 
+					DataUtils.newMap(new String[] { "alarm", "use" }, new Object[] { alarm.getProperty("name"), !use }));
+			while(lbaStatuses.hasNext()) {
+				Entity lbaStatus = lbaStatuses.next();
+				lbaStatus.setProperty("use", use);
+				lbaStatusList.add(lbaStatus);
+			}
+		}
+		
+		// 3. 업데이트된 LbaStatus를 저장...
+		if(!lbaStatusList.isEmpty()) {
+			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+			Transaction txn = ds.beginTransaction();
+			
+			try {
+				ds.put(lbaStatusList);
+				txn.commit();
+
+				if(logger.isInfoEnabled())
+					logger.info("LbaStatus update_use finished!");
+			
+			} catch(Exception e) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	/**
 	 * LBAQueue에 들어온 데이터를 처리한다. 
 	 * 
 	 * @param request
@@ -114,42 +182,34 @@ public class LbaStatusService extends EntityService {
 	@RequestMapping(value = "/lba_status/execute_task", method = RequestMethod.POST)
 	public void executeTask(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		String company = request.getParameter("company");
-		Key companyKey = KeyFactory.createKey("Company", company);
+		Key companyKey = this.getCompanyKey(request);
 		String vehicle = request.getParameter("vehicle");
 		float lattitude = DataUtils.toFloat(request.getParameter("lat"));
 		float longitude = DataUtils.toFloat(request.getParameter("lng"));
 		Date now = new Date();
 		
-		// VehicleId로 현재 활성화 상태인 LbaStatus를 찾아서 각각의 현재 상태와 이전 상태를 업데이트 해준다. 
+		// Vehicle로 현재 활성화 상태인 LbaStatus를 찾아서 각각의 현재 상태와 이전 상태를 업데이트 해준다. 
 		List<Entity> lbaStatuses = DatastoreUtils.findEntityList(
 				companyKey, "LbaStatus", DataUtils.newMap(new String[] { "vehicle", "use" }, new Object[] { vehicle, true } ));
-		for(Entity lbaStatus : lbaStatuses) {
-			Entity location = DatastoreUtils.findEntity(companyKey, "Location", DataUtils.newMap("name", lbaStatus.getProperty("loc")));
-			
-			if(location == null)
-				continue;
-			
-			String beforeStatus = (String)lbaStatus.getProperty("cur_status");
-			lbaStatus.setProperty("cur_status", 
-					CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT);
-			lbaStatus.setProperty("bef_status", beforeStatus);
-			lbaStatus.setProperty("updated_at", now);
-		}
 		
 		// lbaStatus 정보를 업데이트하고 이벤트가 발생했다면 alarm을 보내기 위해 Prospective Search를 match 시킨다.
-		if(!lbaStatuses.isEmpty()) {
-			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-			ds.put(lbaStatuses);
-			for(Entity lbaStatus : lbaStatuses) {
-				String event = this.checkEvent(lbaStatus, lattitude, longitude);
-				if(event != null) {
-					Entity alarmHist = this.createAlarmHistory(lbaStatus, event, lattitude, longitude);
-					prospectiveSearch.match(alarmHist, "AlarmHistory", "", ProspectiveSearchService.DEFAULT_RESULT_RELATIVE_URL, "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);
-					ds.put(alarmHist);
-				}
+		if(lbaStatuses.isEmpty())
+			return;
+		
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		
+		for(Entity lbaStatus : lbaStatuses) {
+			lbaStatus.setProperty("updated_at", now);
+			String event = this.checkEvent(companyKey, lbaStatus, lattitude, longitude);
+			
+			if(event != null) {
+				Entity alarmHist = this.createAlarmHistory(lbaStatus, event, lattitude, longitude);
+				prospectiveSearch.match(alarmHist, "AlarmHistory", "", "/prospective/lba_alarm", "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);
+				ds.put(alarmHist);
 			}
 		}
+		
+		ds.put(lbaStatuses);
 	}
 	
 	/**
@@ -159,12 +219,20 @@ public class LbaStatusService extends EntityService {
 	 * @param lattitude
 	 * @param longitude
 	 * @return event
+	 * @throws
 	 */
-	private String checkEvent(Entity lbaStatus, float lattitude, float longitude) {
+	private String checkEvent(Key companyKey, Entity lbaStatus, float lattitude, float longitude) throws Exception {
+		
+		Entity location = DatastoreUtils.findEntity(companyKey, "Location", DataUtils.newMap("name", lbaStatus.getProperty("loc")));
+		
+		if(location == null)
+			return null;
 		
 		String evtTrg = (String)lbaStatus.getProperty("evt_trg");
-		String beforeStatus = DataUtils.toNotNull(lbaStatus.getProperty("bef_status"));
-		String currentStatus = DataUtils.toNotNull(lbaStatus.getProperty("cur_status"));
+		String beforeStatus = (String)lbaStatus.getProperty("cur_status");
+		String currentStatus = CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT;
+		lbaStatus.setProperty("cur_status", currentStatus);
+		lbaStatus.setProperty("bef_status", beforeStatus);				
 		return this.getEvent(evtTrg, beforeStatus, currentStatus);		
 	}
 	

@@ -22,13 +22,14 @@
         <intercept-url pattern="/vehicle_consumable/alarm" access="permitAll" />
         <intercept-url pattern="/repair/alarm" access="permitAll" />
         <intercept-url pattern="/lba_status/execute_task" access="permitAll" />
+        <intercept-url pattern="/lba_status/update_use" access="permitAll" />
         <intercept-url pattern="/alarm/send/**" access="permitAll" />
+        <intercept-url pattern="/prospective/**" access="permitAll" />
         
 <!-- App Engine에 디플로이할 때는 아래 라인 -->
 <!-- 
     <intercept-url pattern="/" access="permitAll" />
 -->
-		<intercept-url pattern="/_ah/prospective_search" access="permitAll" />
 		<intercept-url pattern="/_ah/start" access="permitAll" />
 		<intercept-url pattern="/_ah/xmpp/**" access="permitAll" />		
         <intercept-url pattern="/_ah/login" access="permitAll" />

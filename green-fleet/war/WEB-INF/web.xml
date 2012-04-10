@@ -68,7 +68,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/_ah/xmpp/message/*</url-pattern>
 	</servlet-mapping>
 	
-	<servlet>
+	<!--servlet>
     	<servlet-name>matches</servlet-name>
     	<servlet-class>com.heartyoh.service.ProspectiveSearchMatchServlet</servlet-class>
   	</servlet>
@@ -78,7 +78,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     	<url-pattern>/_ah/prospective_search</url-pattern>
   	</servlet-mapping>	
 	
-	<!--servlet>
+	<servlet>
 		<servlet-name>ChannelPresenceServlet</servlet-name>
 		<servlet-class>com.heartyoh.service.ChannelPresenceServlet</servlet-class>	
 	</servlet>

@@ -3,7 +3,6 @@
  */
 package com.heartyoh.util;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -14,15 +13,15 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.google.appengine.api.capabilities.CapabilitiesService;
+import com.google.appengine.api.capabilities.CapabilitiesServiceFactory;
+import com.google.appengine.api.capabilities.Capability;
+import com.google.appengine.api.capabilities.CapabilityStatus;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.MessageType;
@@ -46,6 +45,10 @@ public class AlarmUtils {
 	 * Channel Service
 	 */
 	private static ChannelService channelService = null;
+	/**
+	 * Capabilities Service
+	 */
+	private static CapabilitiesService capabilityService = null;
 	
 	/**
 	 * msg 내용으로 현재 세션의 사용자에게 Channel Message를 보낸다.
@@ -102,6 +105,8 @@ public class AlarmUtils {
 		if(xmppService == null)
 			xmppService = XMPPServiceFactory.getXMPPService();
 		
+		checkCapablities(Capability.XMPP);
+			
         MessageBuilder messageBuilder = new MessageBuilder();
         JID receiver = new JID(to);
         messageBuilder.withRecipientJids(receiver);
@@ -114,6 +119,22 @@ public class AlarmUtils {
         if(!messageSent) {
         	throw new Exception("User [" + receiver.getId() + "] didn't receive messsage!");
         }
+	}
+	
+	/**
+	 * service가 사용 가능한지 아닌지 판단하여 아니라면 예외를 발생 
+	 *  
+	 * @param service
+	 * @throws Exception
+	 */
+	public static void checkCapablities(Capability service) throws Exception {
+		
+		if(capabilityService == null)
+			capabilityService = CapabilitiesServiceFactory.getCapabilitiesService();
+		
+		CapabilityStatus status = capabilityService.getStatus(service).getStatus();
+		if(status == CapabilityStatus.DISABLED)
+			throw new Exception("[" + service.getName() + "] Capability is disabled!");		
 	}
 	
 	/**
@@ -130,25 +151,7 @@ public class AlarmUtils {
 	 */
 	public static void sendMail(String senderName, String senderEmail, String receiverName, String receiverEmail, String subject, boolean htmlType, String msgBody) throws Exception {
 		
-		if(DataUtils.isEmpty(receiverEmail)) 
-			throw new Exception("Receiver Email is required!");
-		
-		senderName = DataUtils.isEmpty(senderName) ? "GreenFleet" : senderName;
-		senderEmail = DataUtils.isEmpty(senderEmail) ? "heartyoh@gmail.com" : senderEmail;
-		
-        Properties props = new Properties();
-        Session session = Session.getDefaultInstance(props, null);
-        Message msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(senderEmail, senderName));        
-    	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmail, receiverName));
-        msg.setSubject(subject);
-        
-        if(htmlType)
-        	msg.setContent(msgBody, "text/html;charset=utf-8");
-        else
-        	msg.setText(msgBody);
-        
-        Transport.send(msg);
+		sendMail(senderName, senderEmail, (receiverName == null ? null : new String[] {receiverName}), new String[] { receiverEmail }, subject, htmlType, msgBody);
 	}
 	
 	/**
@@ -164,6 +167,8 @@ public class AlarmUtils {
 	 * @throws Exception
 	 */
 	public static void sendMail(String senderName, String senderEmail, String[] receiverNames, String[] receiverEmails, String subject, boolean htmlType, String msgBody) throws Exception {
+		
+		checkCapablities(Capability.MAIL);
 		
 		if(DataUtils.isEmpty(receiverEmails)) 
 			throw new Exception("Receiver Email is required!");
@@ -428,61 +433,5 @@ public class AlarmUtils {
 		
 		// GAE Channel을 사용한다면 주석해제  
 		//AlarmUtils.sendChannelMessage(receiverEmails, "Incident");
-	}
-	
-	/**
-	 * 차량의 lattitude, longitude 정보가 위치 기반 알림에 설정된 정보에 포함되는지 체크해서 알림을 보냄
-	 * 
-	 * @param companyKey
-	 * @param lattitude
-	 * @param longitude
-	 * @throws Exception
-	 */
-	public static void alarmByLocBased(Key companyKey, float lattitude, float longitude) throws Exception {
-		
-		// filters : from_date, to_date, evt_type		
-		List<Entity> alarmList = findLocBasedAlarmList(companyKey);
-		
-		for(Entity alarm : alarmList) {
-			String locName = (String)alarm.getProperty("loc");
-			Entity location = DatastoreUtils.findEntity(companyKey, "Location", DataUtils.newMap("name", locName));
-			
-			if(containsArea(location, lattitude, longitude)) {
-				String senders = (String)alarm.getProperty("dest");
-				String message = (String)alarm.getProperty("msg");
-				String[] senderArr = senders.split(",");
-				
-				for(int i = 0 ; i < senderArr.length ; i++) 
-					sendXmppMessage(senderArr[i], message);
-			}
-		}
-	}
-	
-	private static boolean containsArea(Entity location, float lattitude, float longitude) throws Exception {		
-		float minLat = DataUtils.toFloat(location.getProperty("lat_lo"));
-		float minLng = DataUtils.toFloat(location.getProperty("lng_lo"));
-		float maxLat = DataUtils.toFloat(location.getProperty("lat_hi"));
-		float maxLng = DataUtils.toFloat(location.getProperty("lng_hi"));
-		return (lattitude <= maxLat && lattitude >= minLat && longitude <= maxLng && longitude >= minLng);
-	}
-	
-	private static List<Entity> findLocBasedAlarmList(Key companyKey) {
-		
-		Query q = new Query("Alarm");
-		q.setAncestor(companyKey);
-		
-		Date today = DataUtils.getToday();
-		q.addFilter("evt_type", Query.FilterOperator.EQUAL, "location");
-		//q.addFilter("from_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, today);
-		q.addFilter("to_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, today);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		PreparedQuery pq = datastore.prepare(q);
-		
-		List<Entity> alarms = new ArrayList<Entity>();
-		for(Entity repair : pq.asIterable()) {
-			alarms.add(repair);
-		}
-		
-		return alarms;
 	}
 }

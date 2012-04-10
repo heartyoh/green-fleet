@@ -17,5 +17,11 @@
     <description>Notification in accordance with maintenance schedule every 11:00 hours For Vitizen Company</description>
     <schedule>every day 02:00</schedule>
   </cron>
+  
+  <cron>
+    <url>/lba_status/update_use?company=vitizen</url>
+    <description>Location Based Alarm info update use field 00:00 hours For Vitizen Company</description>
+    <schedule>every day 15:00</schedule>
+  </cron>  
     
 </cronentries>
