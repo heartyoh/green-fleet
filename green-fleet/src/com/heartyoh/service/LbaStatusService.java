@@ -76,8 +76,6 @@ public class LbaStatusService extends EntityService {
 		entity.setProperty("cur_status", map.get("cur_status"));
 		// alarm의 유효 기간이 유효한 지에 따라서 true, false : 이 부분에 대한 업데이트는 cron job으로 하루 한 번 업데이트 한다.
 		entity.setProperty("use", DataUtils.toBool(map.get("use")));
-		// 발생한 위치 기반 알람 이벤트 - in/out/in-out
-		entity.setProperty("evt", map.get("evt"));
 		
 		super.onSave(entity, map, datastore);
 	}	
@@ -124,7 +122,8 @@ public class LbaStatusService extends EntityService {
 		Date now = new Date();
 		
 		// VehicleId로 현재 활성화 상태인 LbaStatus를 찾아서 각각의 현재 상태와 이전 상태를 업데이트 해준다. 
-		List<Entity> lbaStatuses = DatastoreUtils.findEntityList(companyKey, "LbaStatus", DataUtils.newMap(new String[] { "vehicle", "use" }, new Object[] { vehicle, true } ));
+		List<Entity> lbaStatuses = DatastoreUtils.findEntityList(
+				companyKey, "LbaStatus", DataUtils.newMap(new String[] { "vehicle", "use" }, new Object[] { vehicle, true } ));
 		for(Entity lbaStatus : lbaStatuses) {
 			Entity location = DatastoreUtils.findEntity(companyKey, "Location", DataUtils.newMap("name", lbaStatus.getProperty("loc")));
 			
@@ -132,36 +131,41 @@ public class LbaStatusService extends EntityService {
 				continue;
 			
 			String beforeStatus = (String)lbaStatus.getProperty("cur_status");
-			lbaStatus.setProperty("cur_status", CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT);
+			lbaStatus.setProperty("cur_status", 
+					CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT);
 			lbaStatus.setProperty("bef_status", beforeStatus);
 			lbaStatus.setProperty("updated_at", now);
-			this.checkEvent(lbaStatus, lattitude, longitude);
 		}
 		
+		// lbaStatus 정보를 업데이트하고 이벤트가 발생했다면 alarm을 보내기 위해 Prospective Search를 match 시킨다.
 		if(!lbaStatuses.isEmpty()) {
 			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 			ds.put(lbaStatuses);
+			for(Entity lbaStatus : lbaStatuses) {
+				String event = this.checkEvent(lbaStatus, lattitude, longitude);
+				if(event != null) {
+					Entity alarmHist = this.createAlarmHistory(lbaStatus, event, lattitude, longitude);
+					prospectiveSearch.match(alarmHist, "AlarmHistory", "", ProspectiveSearchService.DEFAULT_RESULT_RELATIVE_URL, "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);
+					ds.put(alarmHist);
+				}
+			}
 		}
 	}
 	
 	/**
-	 * LbaStatus 정보로 알람을 보내야 하는지를 체크하여 조건에 맞으면 알람을 보냄 ...
+	 * LbaStatus 정보로 알람을 보내야 하는지를 체크하고 어떤 이벤트인지 (IN/OUT) 혹은 변화가 없는지(NULL)를 리턴한다.
 	 * 
 	 * @param lbaStatus
 	 * @param lattitude
 	 * @param longitude
+	 * @return event
 	 */
-	private void checkEvent(Entity lbaStatus, float lattitude, float longitude) {
+	private String checkEvent(Entity lbaStatus, float lattitude, float longitude) {
 		
 		String evtTrg = (String)lbaStatus.getProperty("evt_trg");
 		String beforeStatus = DataUtils.toNotNull(lbaStatus.getProperty("bef_status"));
 		String currentStatus = DataUtils.toNotNull(lbaStatus.getProperty("cur_status"));
-		String eventName = this.getEvent(evtTrg, beforeStatus, currentStatus);
-		
-		if(eventName != null) {
-			lbaStatus.setProperty("evt", eventName);
-			prospectiveSearch.match(lbaStatus, "LbaStatus");
-		}
+		return this.getEvent(evtTrg, beforeStatus, currentStatus);		
 	}
 	
 	/**
@@ -191,6 +195,33 @@ public class LbaStatusService extends EntityService {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * alarmHistory를 생성하여 리턴 
+	 * 
+	 * @param lbaStatus
+	 * @param eventName
+	 * @param lattitude
+	 * @param longitude
+	 * @return
+	 */
+	private Entity createAlarmHistory(Entity lbaStatus, String eventName, float lattitude, float longitude) {
+		
+		String vehicle = (String)lbaStatus.getProperty("vehicle");
+		String alarmName = (String)lbaStatus.getProperty("alarm");
+		String datetimeStr = DataUtils.dateToString((Date)lbaStatus.getProperty("updated_at"), "yyyy-MM-dd HH:mm:ss");
+		String idValue = vehicle + "@" + alarmName + "@" + datetimeStr; 
+		Key alarmHistKey = KeyFactory.createKey(lbaStatus.getParent(), "AlarmHistory", idValue);
+		Entity alarmHistory = new Entity(alarmHistKey);
+		alarmHistory.setProperty("vehicle", vehicle);
+		alarmHistory.setProperty("alarm", alarmName);
+		alarmHistory.setProperty("loc", lbaStatus.getProperty("loc"));
+		alarmHistory.setProperty("datetime", datetimeStr);
+		alarmHistory.setProperty("evt", eventName);
+		alarmHistory.setProperty("lat", lattitude);
+		alarmHistory.setProperty("lng", longitude);
+		alarmHistory.setProperty("send", "N");
+		return alarmHistory;
 	}	
-
 }

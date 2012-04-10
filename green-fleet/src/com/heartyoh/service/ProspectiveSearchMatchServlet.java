@@ -4,7 +4,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,10 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
-import com.heartyoh.util.AsyncUtils;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
@@ -53,114 +50,71 @@ public class ProspectiveSearchMatchServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-	    if(logger.isInfoEnabled())
-	    	logger.info("ProspectiveSearchMatchServlet doPost called!");
+		//int resultsOffset = Integer.parseInt(request.getParameter("results_offset"));
+	    //int resultsCount = Integer.parseInt(request.getParameter("results_count"));
+	    //String [] reqSubIDs = request.getParameterValues("id");
 	    
-		int resultsOffset = Integer.parseInt(request.getParameter("results_offset"));
-	    int resultsCount = Integer.parseInt(request.getParameter("results_count"));
-	    String [] reqSubIDs = request.getParameterValues("id");
-	    
-	    if (!DataUtils.isEmpty(request.getParameter("document"))) {
-		    if(logger.isInfoEnabled())
-		    	logger.info("Subscribe Id : " + reqSubIDs[0] + ", offset : " + resultsOffset + ", count : " + resultsCount);
-		    
-	    	Entity lbaStatus = ProspectiveSearchServiceFactory.getProspectiveSearchService().getDocument(request);
-	    	// TODO lattitude, longitude를 추가해야 함...
-	    	Entity alarmHist = this.alarm(lbaStatus, 0f, 0f);
-	    	lbaStatus.setProperty("evt", null);
-	    	datastoreService.put(lbaStatus);
-	    	datastoreService.put(alarmHist);
+	    if (!DataUtils.isEmpty(request.getParameter("document"))) {		    
+	    	Entity alarmHist = ProspectiveSearchServiceFactory.getProspectiveSearchService().getDocument(request);
+	    	try {
+	    		this.alarm(alarmHist);
+	    		datastoreService.put(alarmHist);
+	    		
+	    		if(logger.isInfoEnabled())
+	    			logger.info("Location Based Alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!");
+	    	} catch (Exception e) {
+	    		logger.info("Failed to send location based alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!", e);
+	    	}
 	    }
 	}
 	
 	/**
 	 * 알람을 보냄
 	 * 
-	 * @param lbaStatus
-	 * @param eventName
+	 * @param alarmHistory
 	 * @return
 	 */
-	private Entity alarm(Entity lbaStatus, float lattitude, float longitude) {
+	private void alarm(Entity alarmHistory) throws Exception {
 		
-		Entity alarm = DatastoreUtils.findEntity(lbaStatus.getParent(), "Alarm", DataUtils.newMap("name", lbaStatus.getProperty("alarm")));
+		Entity alarm = DatastoreUtils.findEntity(alarmHistory.getParent(), "Alarm", DataUtils.newMap("name", alarmHistory.getProperty("alarm")));
 		
 		if(alarm == null)
-			return null;
+			return;
 		
-		String company = lbaStatus.getParent().getName();
 		String type = (String)alarm.getProperty("type");
 		String[] receivers = DataUtils.toNotNull(alarm.getProperty("dest")).split(",");
-		String eventName = (String)lbaStatus.getProperty("evt");
-		String content = this.convertMessage((String)alarm.getProperty("msg"), eventName, lbaStatus);
+		String eventName = (String)alarmHistory.getProperty("evt");
+		String content = this.convertMessage((String)alarm.getProperty("msg"), alarmHistory);
 		
 		if(GreenFleetConstant.ALARM_MAIL.equalsIgnoreCase(type)) {
 			StringBuffer subject = new StringBuffer();
-			subject.append("Location Based Alarm [").append(alarm.getProperty("name")).append("] : Vehicle [").append(lbaStatus.getProperty("vehicle"));
+			subject.append("Location Based Alarm [").append(alarm.getProperty("name")).append("] : Vehicle [").append(alarmHistory.getProperty("vehicle"));
 			subject.append(eventName.equals(GreenFleetConstant.LBA_EVENT_IN) ? "] comes in to Location [" : "] comes out from Location [");
-			subject.append(alarm.getProperty("loc")).append("]!\n");			
-			try {
-				AsyncUtils.addMailTaskToQueue(company, receivers, subject.toString(), content);
-			} catch (Exception e) {
-				logger.error("Failed to add email task to queue!", e);
-			}
-			
-			return this.saveAlarmHistory(alarm, lbaStatus, lattitude, longitude);
-			
+			subject.append(alarm.getProperty("loc")).append("]!\n");
+			AlarmUtils.sendMail(null, null, null, receivers, subject.toString(), false, content);
+						
 		} else if(GreenFleetConstant.ALARM_XMPP.equalsIgnoreCase(type)) {
-			try {
-				AsyncUtils.addXmppTaskToQueue(company, receivers, content);
-			} catch (Exception e) {
-				logger.error("Failed to add xmpp task to queue!", e);
-			}
-			
-			return this.saveAlarmHistory(alarm, lbaStatus, lattitude, longitude);
+			AlarmUtils.sendXmppMessage(receivers, content);
 		}
 		
-		return null;
+		alarmHistory.setProperty("type", type);
+		alarmHistory.setProperty("send", "Y");
 	}
 	
 	/**
 	 * message를 치환 
 	 * 
 	 * @param message
-	 * @param event
-	 * @param lbaStatus
+	 * @param alarmHistory
 	 * @return
 	 */
-	private String convertMessage(String message, String event, Entity lbaStatus) {
+	private String convertMessage(String message, Entity alarmHistory) {
 		
-		String vehicle = (String)lbaStatus.getProperty("vehicle");
-		String alarmName = (String)lbaStatus.getProperty("alarm");
-		String location = (String)lbaStatus.getProperty("loc");
-		return message.replaceAll("\\{vehicle\\}", vehicle).replaceAll("\\{alarm\\}", alarmName).replaceAll("\\{location\\}", location).replaceAll("\\{event\\}", event.toUpperCase());		
+		String vehicle = (String)alarmHistory.getProperty("vehicle");
+		String alarmName = (String)alarmHistory.getProperty("alarm");
+		String location = (String)alarmHistory.getProperty("loc");
+		String event = (String)alarmHistory.getProperty("evt");
+		return message.replaceAll("\\{vehicle\\}", vehicle).replaceAll("\\{alarm\\}", alarmName).replaceAll("\\{location\\}", location).replaceAll("\\{event\\}", event.toUpperCase());
 	}	
 	
-	/**
-	 * alarmHistory를 생성하여 리턴 
-	 * 
-	 * @param companyKey
-	 * @param alarm
-	 * @param lbaStatus
-	 * @param eventName
-	 * @return
-	 */
-	private Entity saveAlarmHistory(Entity alarm, Entity lbaStatus, float lattitude, float longitude) {
-		
-		String vehicle = (String)lbaStatus.getProperty("vehicle");
-		String alarmName = (String)lbaStatus.getProperty("alarm");
-		String datetimeStr = DataUtils.dateToString((Date)lbaStatus.getProperty("updated_at"), "yyyy-MM-dd HH:mm:ss");
-		String idValue = vehicle + "@" + alarmName + "@" + datetimeStr;
-		String eventName = (String)lbaStatus.getProperty("evt");
-		Key alarmHistKey = KeyFactory.createKey(lbaStatus.getParent(), "AlarmHistory", idValue);
-		Entity alarmHistory = new Entity(alarmHistKey);
-		alarmHistory.setProperty("vehicle", vehicle);
-		alarmHistory.setProperty("alarm", alarmName);
-		alarmHistory.setProperty("loc", lbaStatus.getProperty("loc"));
-		alarmHistory.setProperty("datetime", datetimeStr);
-		alarmHistory.setProperty("event", eventName);
-		alarmHistory.setProperty("lat", lattitude);
-		alarmHistory.setProperty("lng", longitude);
-		alarmHistory.setProperty("alarm_type", alarm.getProperty("type"));
-		return alarmHistory;
-	}
 }

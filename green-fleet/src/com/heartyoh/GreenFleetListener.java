@@ -32,13 +32,13 @@ public class GreenFleetListener implements ServletContextListener {
 			logger.info("GreenFleetListener initialized...");
 
 		ProspectiveSearchService prospectiveSearch = ProspectiveSearchServiceFactory.getProspectiveSearchService();
-	    String topic = "LbaStatus";
-	    String subscriptionId = "SearchByLbaEvent";
+	    String topic = "AlarmHistory";
+	    String subscriptionId = "SearchBySendFlag";
 	    long leaseTimeInMilliseconds = 24 * 60 * 60 * 1000;
-	    String query = "evt:in";
+	    String query = "send:N";
 
 	    Map<String, FieldType> schema = new HashMap<String, FieldType>();
-	    schema.put("evt", FieldType.STRING);
+	    schema.put("send", FieldType.STRING);
 	    prospectiveSearch.subscribe(
 	        topic,
 	        subscriptionId,
