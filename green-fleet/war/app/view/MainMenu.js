@@ -3,8 +3,21 @@ Ext.define('GreenFleet.view.MainMenu', {
 	cls : 'appMenu',
 	alias : 'widget.main_menu',
 
-	defaults : {
-		handler : function(button) {
+	initComponent : function() {
+		var self = this;
+		var active_menu_button;
+		
+		function menu_activate_handler(item) {
+			var menutab = Ext.getCmp('menutab');
+			var tab = menutab.getComponent(item.itemId);
+
+			menutab.setActiveTab(tab);
+		}
+		
+		function menu_button_handler(button) {
+			if(button === active_menu_button)
+				return;
+			
 			var content = Ext.getCmp('content');
 			
 			/*
@@ -13,7 +26,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			 * Ext.Array.each 내부적으로 index를 이용하기 때문에, each 함수 내에서 제거하지 않도록 주의함.
 			 */
 			var tobe_removed = []; 
-			Ext.Array.each(content.items.items, function(item) {
+			content.items.each(function(item) {
 				if(item.closable)
 					tobe_removed.push(item);
 			});
@@ -28,21 +41,24 @@ Ext.define('GreenFleet.view.MainMenu', {
 				first = first || item;
 			}
 
+			/*
+			 * Active Top Level Menu의 Active 상태 클래스를 새 메뉴로 교체함.
+			 */
+			if(active_menu_button)
+				active_menu_button.removeCls('x-btn-default-toolbar-small-focus');
+			button.addCls('x-btn-default-toolbar-small-focus');
+			active_menu_button = button;
+
+			/*
+			 * 첫번째 아이템을 실행하도록 함.
+			 */
 			if (first)
 				GreenFleet.doMenu(first.itemId);
 		}
-	},
-	
-	initComponent : function() {
-		function menu_activate_handler(item) {
-			var menutab = Ext.getCmp('menutab');
-			var tab = menutab.getComponent(item.itemId);
-
-			menutab.setActiveTab(tab);
-		}
 		
-		Ext.Array.each(this.items, function(item) {
-			Ext.Array.each(item.submenus, function(menu) {
+		Ext.Array.each(this.items, function(button) {
+			button.handler = menu_button_handler;
+			Ext.Array.each(button.submenus, function(menu) {
 				menu.listeners = {
 					activate : menu_activate_handler
 				}
