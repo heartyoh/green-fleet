@@ -93,13 +93,13 @@ Ext.define('GreenFleet.view.monitor.VehiclePopup', {
 		xtype : 'tabpanel',
 		flex : 1,
 		items : [{
-			xtype : 'info_by_vehicle',
+			xtype : 'info_by_vehicle'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'control_by_vehicle'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'control_by_vehicle'
 		}, {
-			xtype : 'control_by_vehicle',
+			xtype : 'control_by_vehicle'
 		}]
 	}]
 });

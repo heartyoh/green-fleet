@@ -17,6 +17,6 @@ Ext.define('GreenFleet.view.file.FileList', {
 	}, {
 		header : 'Size',
 		dataIndex : 'size'
-	} ],
+	} ]
 
 });

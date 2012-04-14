@@ -247,7 +247,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
     				format : F('date'),
     				margin : '0 30 0 0',
     				flex : 1,
-    				hidden : true,    				
+    				hidden : true
                 }, {
                 	itemId : 'form_to_date',
     				name : 'to_date',

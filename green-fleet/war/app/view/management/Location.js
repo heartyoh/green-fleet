@@ -435,19 +435,19 @@ Ext.define('GreenFleet.view.management.Location', {
 			}, {
 				itemId : 'form_lat_lo',
 				name : 'lat_lo',
-				fieldLabel : T('label.lattitude_min'),
+				fieldLabel : T('label.lattitude_min')
 			}, {
 				itemId : 'form_lng_lo',
 				name : 'lng_lo',
-				fieldLabel : T('label.longitude_min'),
+				fieldLabel : T('label.longitude_min')
 			}, {
 				itemId : 'form_lat_hi',
 				name : 'lat_hi',
-				fieldLabel : T('label.lattitude_max'),
+				fieldLabel : T('label.lattitude_max')
 			}, {
 				itemId : 'form_lng_hi',
 				name : 'lng_hi',
-				fieldLabel : T('label.longitude_max'),
+				fieldLabel : T('label.longitude_max')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
