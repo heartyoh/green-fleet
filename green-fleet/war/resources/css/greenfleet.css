@@ -18,8 +18,8 @@
 #msg-div .msg p {margin: 0;}
 
 /*header style*/
-.header{background:url('../image/bgLogo.gif') no-repeat}
-.header .x-panel-body-default,.x-toolbar-default{background-color:transparent}
+.header{background:url('../image/bgLogo.gif') no-repeat;}
+.header .x-panel-body-default,.x-nlg .x-toolbar-default{background-image:none !important;background-color:transparent}
 .header .x-tab-bar-top .x-tab-bar-body{border:none;height:22px;margin-top:1px}
 .header .x-border-box .x-tab-bar-top .x-tab-bar-body{height:23px !important}
 .header .x-btn-default-toolbar-small{border:0;}
@@ -33,10 +33,10 @@
 
 .appMenu.x-toolbar{padding:0}
 .appMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:14px}
-.appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:8px 5px 0 5px;margin-right:10px}
-.appMenu .x-btn-default-toolbar-small-over,.appMenu .x-btn-default-toolbar-small-active,.appMenu .x-btn-default-toolbar-small-focus
-{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat;border:none;padding:8px 5px 0 5px;color:#fff !important;border:none;background-color:transparent}
-.appMenu .x-btn-default-toolbar-small-over .x-btn-inner,.appMenu .x-btn-default-toolbar-small-active .x-btn-inner,.appMenu .x-btn-default-toolbar-small-focus .x-btn-inner
+.appMenu .x-btn-default-toolbar-small{border:0;height:39px;padding:8px 5px 0 5px !important;margin-right:10px}
+.appMenu .x-btn-default-toolbar-small-over,.appMenu .x-btn-default-toolbar-small-active,.appMenu .menuActive
+{background:url('../image/iconFocusDownArrow.png') 50% 0 no-repeat !important;border:none;padding:8px 5px 0 5px;color:#fff !important;border:none;background-color:transparent}
+.appMenu .x-btn-default-toolbar-small-over .x-btn-inner,.appMenu .x-btn-default-toolbar-small-active .x-btn-inner,.appMenu .menuActive .x-btn-inner
 {color:#fff}
 .sideMenu .x-btn-default-toolbar-small .x-btn-inner{color:#b7b7b7;font-size:11px}
 .sideMenu .x-btn-default-toolbar-small-over .x-btn-inner{color:#fff;font-size:11px}
@@ -44,26 +44,26 @@
 .tool{background:url('../image/bgTool.gif') repeat-y}
 
 .x-panel-body-default,.x-toolbar{border:none;background:none;background-color:transparent}
-.btnLogout{background:url('../image/iconLogout.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
-.btnHome{background:url('../image/iconHome.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
-.btnReport{background:url('../image/iconReport.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
-.btnSetting{background:url('../image/iconSetting.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
-.btnEastHidden{background:url('../image/iconEastHidden.png') 50% 0 no-repeat;width:25px;height:20px;margin-left:7px}
-.btnLogout:hover{background:url('../image/iconLogoutOn.png') 50% 0 no-repeat;}
-.btnHome:hover{background:url('../image/iconHomeOn.png') 50% 0 no-repeat;}
-.btnReport:hover{background:url('../image/iconReportOn.png') 50% 0 no-repeat;}
-.btnSetting:hover{background:url('../image/iconSettingOn.png') 50% 0 no-repeat;}
-.btnEastHidden:hover{background:url('../image/iconEastHiddenOn.png') 50% 0 no-repeat;}
+.btnLogout{background:url('../image/iconLogout.png') 50% 0 no-repeat !important;width:25px;height:20px;margin-left:7px}
+.btnHome{background:url('../image/iconHome.png') 50% 0 no-repeat !important;width:25px;height:20px;margin-left:7px}
+.btnReport{background:url('../image/iconReport.png') 50% 0 no-repeat !important;width:25px;height:20px;margin-left:7px}
+.btnSetting{background:url('../image/iconSetting.png') 50% 0 no-repeat !important;width:25px;height:20px;margin-left:7px}
+.btnEastHidden{background:url('../image/iconEastHidden.png') 50% 0 no-repeat !important;width:25px;height:20px;margin-left:7px}
+.btnLogout:hover{background:url('../image/iconLogoutOn.png') 50% 0 no-repeat !important;}
+.btnHome:hover{background:url('../image/iconHomeOn.png') 50% 0 no-repeat !important;}
+.btnReport:hover{background:url('../image/iconReportOn.png') 50% 0 no-repeat !important;}
+.btnSetting:hover{background:url('../image/iconSettingOn.png') 50% 0 no-repeat !important;}
+.btnEastHidden:hover{background:url('../image/iconEastHiddenOn.png') 50% 0 no-repeat !important;}
 
 /*tool style*/
 .tool{padding:2px 0 0 0}
-.tool .x-btn-default-small{width:50px;height:55px;padding-top:37px;font-size:10px;color:#ccc;text-transform:capitalize;text-align:center;border:0;border-bottom:1px solid #474b55}
-.tool .btnDashboard{background:url('../image/iconDashboardOff.png') 10px 9px no-repeat;}
-.tool .btnDashboard.x-btn-default-small-over,.tool .btnDashboard.active{background:url('../image/iconDashboardOn.png') no-repeat;color:#fff}
-.tool .btnInfo{background:url('../image/iconInfoOff.png') 9px 7px no-repeat;}
-.tool .btnInfo.x-btn-default-small-over,.tool .btnInfo.active{background:url('../image/iconInfoOn.png') no-repeat;color:#fff}
-.tool .btnIncidentInfo{background:url('../image/iconIncidentInfoOff.png') 10px 5px no-repeat;}
-.tool .btnIncidentInfo.x-btn-default-small-over,.tool .btnIncidentInfo.active{background:url('../image/iconIncidentInfoOn.png') no-repeat;color:#fff}
+.tool .x-btn-default-small{width:50px;height:55px;padding-top:37px !important;font-size:10px;font-size:/*\**/11px\9;color:#ccc;text-transform:capitalize;text-align:center;border:0;border-bottom:1px solid #474b55}
+.tool .btnDashboard{background:url('../image/iconDashboardOff.png') 10px 9px no-repeat !important;}
+.tool .btnDashboard.x-btn-default-small-over,.tool .btnDashboard.active{background:url('../image/iconDashboardOn.png') no-repeat !important;color:#fff}
+.tool .btnInfo{background:url('../image/iconInfoOff.png') 9px 7px no-repeat !important;}
+.tool .btnInfo.x-btn-default-small-over,.tool .btnInfo.active{background:url('../image/iconInfoOn.png') no-repeat !important;color:#fff}
+.tool .btnIncidentInfo{background:url('../image/iconIncidentInfoOff.png') 10px 5px no-repeat !important;}
+.tool .btnIncidentInfo.x-btn-default-small-over,.tool .btnIncidentInfo.active{background:url('../image/iconIncidentInfoOn.png') no-repeat !important;color:#fff}
 
 .tool .btnEvent{background:url('../image/iconEventOff.png') 58% 10px no-repeat;padding-top:33px}
 .tool .btnEvent.x-btn-default-small-over{background:url('../image/iconEventOn.png') 58% 10px no-repeat;color:#fff}
@@ -104,20 +104,21 @@
 .summaryBoard .x-panel-header-default-top{box-shadow:none;border-top:1px solid #323641}
 .summaryBoard .statusPanel,.summaryBoard .groupPanel,.summaryBoard .incidentPanel{background:url('../image/bgSummaryPanel.gif') 0 100% repeat-x;}
 .statusPanel .x-btn-default-small{background:none;background-color:transparent;border:0} 
-.statusPanel .btnDriving,.statusPanel .btnStop,.statusPanel .btnIncident,.statusPanel .btnMaint{width:43px;height:85px;margin:0 0 5px 6px;padding-top:50px;color:#ccc;text-align:center;font-size:11px}
-.statusPanel .btnDriving.x-btn-default-small{background:url('../image/statusDriving.png') 50% 5px no-repeat;}
-.statusPanel .btnStop.x-btn-default-small{background:url('../image/statusStop.png') 50% 5px no-repeat;}
-.statusPanel .btnIncident.x-btn-default-small{background:url('../image/statusIncident.png') 50% 5px no-repeat;}
-.statusPanel .btnMaint.x-btn-default-small{background:url('../image/statusMaint.png') 50% 5px no-repeat;}
+.statusPanel .btnDriving,.statusPanel .btnStop,.statusPanel .btnIncident,.statusPanel .btnMaint{width:43px;height:85px;margin:0 0 5px 6px;padding-top:50px !important;color:#ccc;text-align:center;font-size:11px}
+.statusPanel .btnDriving{background:url('../image/statusDriving.png') 50% 5px no-repeat !important;}
+.statusPanel .btnStop{background:url('../image/statusStop.png') 50% 5px no-repeat !important;}
+.statusPanel .btnIncident{background:url('../image/statusIncident.png') 50% 5px no-repeat !important;}
+.statusPanel .btnMaint{background:url('../image/statusMaint.png') 50% 5px no-repeat !important;}
 .statusPanel .x-btn-default-small span{font-size:18px;color:#fff}
 .statusPanel .x-btn-default-small-pressed{background-color:#252937;border:1px solid #4e5774}
 .groupPanel,.incidentPanel{padding-bottom:5px}
 .groupPanel a{background:url('../image/dotGray.gif') 8px 50% no-repeat;color:#ccc;padding:1px 0 4px 15px;text-decoration:none;display:block}
 .groupPanel a span,.groupPanel a:hover{color:#fff}
-.incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;color:#fff;padding:1px 0 4px 20px;text-decoration:none;display:block}
+.incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;background-position/*\**/:8px 10px\9;color:#fff;padding:1px 0 4px 20px;text-decoration:none;display:block}
 .incidentPanel a span{display:block;font-size:11px;color:#a5a5a5;}
 .incidentPanel .x-btn-default-small-over a{color:#fff799}
 .incidentPanel .x-btn-default-small-over a span{color:#fff}
+.x-nbr .incidentPanel .x-btn .x-frame-mc{text-align /*\**/:left\9} 
 .summaryBoard .x-btn-default-small{background-image:none;background-color:transparent;border:none}
 
 /*common style*/
@@ -212,6 +213,21 @@ span.mapTipID{
 .x-progress-text{height:13px;line-height:13px;font-size:10px}
 .x-progress-bar{height:13px;border:none}
 .x-progress-default .x-progress-text-back{color:#ccc}
+
+/*button style*/
+.x-nbr .x-btn-default-small-tl,.x-nbr .x-btn-default-small-tc,.x-nbr .x-btn-default-small-tr,
+.x-nbr .x-btn-default-small-ml,.x-nbr .x-btn-default-small-mc,.x-nbr .x-btn-default-small-mr,
+.x-nbr .x-btn-default-small-bl,.x-nbr .x-btn-default-small-bc,.x-nbr .x-btn-default-small-br,
+.x-nbr .x-btn-default-toolbar-small-over .x-frame-tl,.x-nbr .x-btn-default-toolbar-small-over .x-frame-tc,.x-nbr .x-btn-default-toolbar-small-over .x-frame-tr,
+.x-nbr .x-btn-default-toolbar-small-over .x-frame-ml,.x-nbr .x-btn-default-toolbar-small-over .x-frame-mc,.x-nbr .x-btn-default-toolbar-small-over .x-frame-mr,
+.x-nbr .x-btn-default-toolbar-small-over .x-frame-bl,.x-nbr .x-btn-default-toolbar-small-over .x-frame-bc,.x-nbr .x-btn-default-toolbar-small-over .x-frame-br,
+.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-tl,.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-tc,.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-tr,
+.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-ml,.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-mc,.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-mr,
+.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-bl,.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-bc,.x-nbr .x-btn-default-toolbar-small-pressed .x-frame-br,
+.x-nbr .x-btn-default-toolbar-small-focus .x-frame-tl,.x-nbr .x-btn-default-toolbar-small-focus .x-frame-tc,.x-nbr .x-btn-default-toolbar-small-focus .x-frame-tr,
+.x-nbr .x-btn-default-toolbar-small-focus .x-frame-ml,.x-nbr .x-btn-default-toolbar-small-focus .x-frame-mc,.x-nbr .x-btn-default-toolbar-small-focus .x-frame-mr,
+.x-nbr .x-btn-default-toolbar-small-focus .x-frame-bl,.x-nbr .x-btn-default-toolbar-small-focus .x-frame-bc,.x-nbr .x-btn-default-toolbar-small-focus .x-frame-br
+{background-image/*\**/:none !important\9;background-color:transparent}
 
 /*window style*/
 .x-window-header-default-top{box-shadow:none;background:url('../image/bgTab.gif') repeat-x;}

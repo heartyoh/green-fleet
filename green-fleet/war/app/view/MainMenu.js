@@ -45,8 +45,8 @@ Ext.define('GreenFleet.view.MainMenu', {
 			 * Active Top Level Menu의 Active 상태 클래스를 새 메뉴로 교체함.
 			 */
 			if(active_menu_button)
-				active_menu_button.removeCls('x-btn-default-toolbar-small-focus');
-			button.addCls('x-btn-default-toolbar-small-focus');
+				active_menu_button.removeCls('menuActive');
+			button.addCls('menuActive');
 			active_menu_button = button;
 
 			/*
