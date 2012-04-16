@@ -32,7 +32,7 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	
 	sorters : [ {
 		property : 'month',
-		direction : 'DESC'
+		direction : 'ASC'
 	} ],	
 	
 	proxy : {

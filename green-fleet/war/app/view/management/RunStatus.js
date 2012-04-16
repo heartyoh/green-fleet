@@ -5,6 +5,13 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 
 	title : T('title.vehicle_runstatus'),
 
+	entityUrl : 'vehicle_run',
+	
+	importUrl : 'vehicle_run/import',
+
+	afterImport : function() {
+	},
+	
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
@@ -15,26 +22,30 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 	initComponent : function() {
 		var self = this;
 
-		this.items = [ {
-			html : "<div class='listTitle'>" + T('title.vehicle_runstatus') + "</div>"
-		}, {
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [ this.zvehiclelist(self), {
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('title.vehicle_runstatus') + "</div>"}, 
+		    {
 				xtype : 'container',
 				flex : 1,
-				cls : 'borderRightGray',
 				layout : {
-					align : 'stretch',
-					type : 'vbox'
+					type : 'hbox',
+					align : 'stretch'
 				},
-				items : [ this.zrunstatus, this.zrunstatus_chart ]
-			} ]
-		} ],
+				items : [ 
+				    this.zvehiclelist(self), 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zrunstatus, this.zrunstatus_chart ]
+					} 
+				]
+		    }
+		],
 
 		this.callParent();
 
@@ -47,7 +58,7 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
-					self.refreshChart('Running Distance', runStatusStore, 'month', 'run_dist');
+					self.refreshChart(T('label.run_dist'), runStatusStore, 'month', 'run_dist');
 				}
 			});
 		});
@@ -180,7 +191,29 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		cls : 'hIndexbar',
 		title : T('title.runstatus_chart'),
 		flex : 1.5,
-		autoScroll : true
+		autoScroll : true,
+		tbar : [
+		    { xtype : 'tbfill' },
+		    ' Chart : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',				
+				store :  Ext.create('Ext.data.Store', {
+				    fields: ['name', 'desc'],
+				    data : [
+				        { "name" : "run_dist", "desc" : T('label.run_dist') },
+				        { "name" : "run_time", "desc" : T('label.run_time')  },
+				        { "name" : "consmpt", "desc" : T('label.fuel_consumption') },
+				        { "name" : "co2_emss", "desc" : T('label.co2_emissions') },
+				        { "name" : "effcc", "desc" : T('label.fuel_efficiency') }
+				    ]
+				})
+			}, 
+			'  '
+		]
 	},	
 	
 	refreshChart : function(title, store, x_field, y_field) {
@@ -203,84 +236,83 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		
 		var chartPanel = chartContainer.down('panel');
 		var chart = chartPanel.down('chart');
-		chartPanel.setWidth(width);
-		chartPanel.setHeight(height);
-		chart.setWidth(width);
-		chart.setHeight(height);
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 70);
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 85);
 	},	
 	
 	buildChart : function(title, store, x_field, y_field, width, height) {
 		return {
 			xtype : 'panel',
-			title : title,
-			cls : 'paddingPanel healthDashboard',
-			width : width,
-			height : height,
-			items : [ {
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : width - 10,
-				height : height - 10,
-				shadow : true,
-				legend : {
-					position : 'right',
-					labelFont : '10px',
-					boxStroke : '#cfcfcf'
-				},
-				insetPadding : 15,
-				theme : 'Base:gradients',
-				axes: [{
-	                type: 'Numeric',
-	                position: 'left',
-	                fields: [y_field],
-	                label: {
-	                	renderer: Ext.util.Format.numberRenderer('0,0')
-	                },
-	                title: 'Number',
-	                minimum: 1000
-	            }, {
-	                type: 'Category',
-	                position: 'bottom',
-	                fields: [x_field],
-	                title: 'Month',
-	                label: {
-	                	renderer: Ext.util.Format.dateRenderer('Y-m')
-	                }	                
-	            }],	
-				series : [ {
-					type : 'column',
-					axis: 'left',
-					xField: x_field,
-	                yField: y_field,
-					showInLegend : true,
-					tips : {
-						trackMouse : true,
-						width : 140,
-						height : 25,
-						renderer : function(storeItem, item) {
-							
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 70,
+			items : [ 
+				{
+					xtype : 'chart',
+					animate : true,
+					store : store,
+					width : width - 25,
+					height : height - 85,
+					shadow : true,
+					insetPadding : 15,
+					theme : 'Base:gradients',
+					axes: [
+						{
+			                type: 'Numeric',
+			                position: 'left',
+			                fields: [y_field],
+			                label: {
+			                	renderer: Ext.util.Format.numberRenderer('0,0')
+			                },
+			                title: 'Number',
+			                minimum: 500
+			            }, {
+			                type: 'Category',
+			                position: 'bottom',
+			                fields: [x_field],
+			                title: 'Month',
+			                label: {
+			                	renderer: Ext.util.Format.dateRenderer('Y-m')
+			                }
+			            }
+		            ],
+					series : [
+						{
+							type : 'column',
+							axis: 'left',
+							xField: x_field,
+			                yField: y_field,
+							showInLegend : true,
+							tips : {
+								trackMouse : true,
+								width : 140,
+								height : 25,
+								renderer : function(storeItem, item) {
+									this.setTitle(Ext.util.Format.date(storeItem.get(x_field), 'Y-m') + ': ' + storeItem.get(y_field) + 'km');
+								}
+							},
+							highlight : {
+								segment : {
+									margin : 20
+								}
+							},
+							label : {
+								field : 'run_dist',
+								display : 'insideEnd',
+								contrast : true,
+								color: '#333',
+								font : '14px Arial',
+							},
+							listeners : {
+								itemmousedown : function(target, event) {
+								}
+							}
 						}
-					},
-					highlight : {
-						segment : {
-							margin : 20
-						}
-					},
-					label : {
-						field : 'run_dist',
-						display : 'insideEnd',
-						contrast : true,
-						color: '#333',
-						font : '14px Arial',
-					},
-					listeners : {
-						itemmousedown : function(target, event) {
-							
-						}
-					}
-				} ]
-			} ]			
+					]
+				}
+			]
 		}
 	}	
 });
