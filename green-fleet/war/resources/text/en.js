@@ -31,7 +31,8 @@ T({
 		export_data : 'Export',
 		profile : 'User Profile',
 		location : 'Location',
-		alarm : 'Alarm'
+		alarm : 'Alarm',
+		vehicle_runstatus : 'Vehicle RunStatus'
 	},
 	
 	title : {
@@ -90,7 +91,10 @@ T({
 		location_details : 'Location Details',
 		set_the_location : 'Set the Location',
 		alarm_list : 'Alarm List',
-		alarm_details : 'Alarm Details'
+		alarm_details : 'Alarm Details',
+		vehicle_runstatus : 'Vehicle RunStatus',
+		runstatus_history : 'RunStatus History',
+		runstatus_chart : 'RunStatus Chart'
 	},
 	
 	tab : {
@@ -279,7 +283,8 @@ T({
 		second_s : 'sec.',
 		minute_s : 'min.',
 		maintenence : 'Maintenence',
-		period_always : 'Period Always'
+		period_always : 'Period Always',
+		period : 'Period'
 	},
 	
 	format : {

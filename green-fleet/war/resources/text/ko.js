@@ -31,7 +31,8 @@ T({
 		export_data : '내보내기',
 		profile : '사용자 프로파일',
 		location : '위치',
-		alarm : '알람'
+		alarm : '알람',
+		vehicle_runstatus : '운행현황'
 	},
 	
 	title : {
@@ -90,7 +91,10 @@ T({
 		location_details : '위치 상세',
 		set_the_location : '위치 지정',
 		alarm_list : '알람 리스트',
-		alarm_details : '알람 상세'
+		alarm_details : '알람 상세',
+		vehicle_runstatus : '차량 운행현황',
+		runstatus_history : '운행 이력',
+		runstatus_chart : '운행현황 차트'
 	},
 	
 	tab : {
@@ -279,7 +283,8 @@ T({
 		second_s : '초',
 		minute_s : '분',
 		maintenence : '정비',
-		period_always : '기간 항상'
+		period_always : '기간 항상',
+		period : '기간'
 	},
 	
 	format : {

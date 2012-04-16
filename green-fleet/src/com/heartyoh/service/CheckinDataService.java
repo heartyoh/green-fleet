@@ -137,7 +137,7 @@ public class CheckinDataService extends EntityService {
 			double distance = DataUtils.toDouble(checkinObj.getProperty("distance"));
 			vehicle.setProperty("driver_id", checkinObj.getProperty("driver_id"));
 			vehicle.setProperty("terminal_id", checkinObj.getProperty("terminal_id"));
-			vehicle.setProperty("total_distance", totalMileage + distance);
+			vehicle.setProperty("total_distance", totalMileage + distance);			
 
 			// Vehicle 정보 업데이트와 Checkin 정보 업데이트 ...
 			Transaction txn = datastore.beginTransaction();
@@ -166,6 +166,29 @@ public class CheckinDataService extends EntityService {
 			}
 		} else {			
 			q.addFilter(property, FilterOperator.EQUAL, value);
+		}
+	}
+	
+	@Override
+	protected void buildQuery(Query q, HttpServletRequest request) {		
+		String vehicleId = request.getParameter("vehicle_id");
+		if(!DataUtils.isEmpty(vehicleId)) {
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+		}
+		
+		String fromDateStr = request.getParameter("from_date");
+		String toDateStr = request.getParameter("to_date");
+		
+		if(!DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
+			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
+			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+			
+		} else if(!DataUtils.isEmpty(fromDateStr) && DataUtils.isEmpty(toDateStr)) {
+			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
+			
+		} else if(DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
+			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+			
 		}
 	}
 }
