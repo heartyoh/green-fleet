@@ -284,7 +284,8 @@ T({
 		minute_s : '분',
 		maintenence : '정비',
 		period_always : '기간 항상',
-		period : '기간'
+		period : '기간',
+		chart : '차트'
 	},
 	
 	format : {

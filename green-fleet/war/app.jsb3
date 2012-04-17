@@ -222,6 +222,10 @@
                     "name": "Alarm.js"
                 },
                 {
+                    "path": "app/view/management/",
+                    "name": "RunStatus.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -380,6 +384,10 @@
                 {
                     "path": "app/store/",
                     "name": "AlarmStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "VehicleRunStore.js"
                 },
                 {
                     "path": "app/controller/",

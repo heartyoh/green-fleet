@@ -284,7 +284,8 @@ T({
 		minute_s : 'min.',
 		maintenence : 'Maintenence',
 		period_always : 'Period Always',
-		period : 'Period'
+		period : 'Period',
+		chart : 'Chart'
 	},
 	
 	format : {
