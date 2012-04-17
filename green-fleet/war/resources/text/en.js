@@ -32,7 +32,8 @@ T({
 		profile : 'User Profile',
 		location : 'Location',
 		alarm : 'Alarm',
-		vehicle_runstatus : 'Vehicle RunStatus'
+		vehicle_runstatus : 'Vehicle RunStatus',
+		driver_runstatus : 'Driver RunSatus'
 	},
 	
 	title : {
@@ -94,7 +95,8 @@ T({
 		alarm_details : 'Alarm Details',
 		vehicle_runstatus : 'Vehicle RunStatus',
 		runstatus_history : 'RunStatus History',
-		runstatus_chart : 'RunStatus Chart'
+		runstatus_chart : 'RunStatus Chart',
+		driver_runstatus : 'Driver RunStatus'
 	},
 	
 	tab : {
@@ -285,7 +287,8 @@ T({
 		maintenence : 'Maintenence',
 		period_always : 'Period Always',
 		period : 'Period',
-		chart : 'Chart'
+		chart : 'Chart',
+		driving_habit : 'Driving Habit'
 	},
 	
 	format : {

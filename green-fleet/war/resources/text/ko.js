@@ -32,7 +32,8 @@ T({
 		profile : '사용자 프로파일',
 		location : '위치',
 		alarm : '알람',
-		vehicle_runstatus : '운행현황'
+		vehicle_runstatus : '차량별 운행현황',
+		driver_runstatus : '운전자별 운행현황'
 	},
 	
 	title : {
@@ -92,9 +93,10 @@ T({
 		set_the_location : '위치 지정',
 		alarm_list : '알람 리스트',
 		alarm_details : '알람 상세',
-		vehicle_runstatus : '차량 운행현황',
+		vehicle_runstatus : '차량별 운행현황',
 		runstatus_history : '운행 이력',
-		runstatus_chart : '운행현황 차트'
+		runstatus_chart : '운행현황 차트',
+		driver_runstatus : '운전자별 주행현황',		
 	},
 	
 	tab : {
@@ -285,7 +287,8 @@ T({
 		maintenence : '정비',
 		period_always : '기간 항상',
 		period : '기간',
-		chart : '차트'
+		chart : '차트',
+		driving_habit : '운전습관'
 	},
 	
 	format : {

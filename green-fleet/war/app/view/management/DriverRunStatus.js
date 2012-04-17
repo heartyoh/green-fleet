@@ -1,13 +1,13 @@
-Ext.define('GreenFleet.view.management.RunStatus', {
+Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.management_runstatus',
+	alias : 'widget.management_driver_runstatus',
 
-	title : T('title.vehicle_runstatus'),
+	title : T('title.driver_runstatus'),
 
-	entityUrl : 'vehicle_run',
+	entityUrl : 'driver_run',
 	
-	importUrl : 'vehicle_run/import',
+	importUrl : 'driver_run/import',
 
 	afterImport : function() {
 	},
@@ -23,7 +23,7 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		var self = this;
 
 		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.vehicle_runstatus') + "</div>"}, 
+		    { html : "<div class='listTitle'>" + T('title.driver_runstatus') + "</div>"}, 
 		    {
 				xtype : 'container',
 				flex : 1,
@@ -49,10 +49,10 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 
 		this.callParent();
 
-		this.sub('vehicle_info').on('itemclick', function(grid, record) {
+		this.sub('driver_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.vehicle = record.data.id;
+			proxy.extraParams.driver = record.data.id;
 			proxy.extraParams.from_date = self.sub('from_date').getValue();
 			proxy.extraParams.to_date = self.sub('to_date').getValue();
 			runStatusStore.load({
@@ -74,33 +74,34 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
 		 */
 		this.sub('id_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
+			self.searchDrivers(false);
 		});
 
 		/**
 		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
 		 */
-		this.sub('reg_no_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
+		this.sub('name_filter').on('change', function(field, value) {
+			self.searchDrivers(false);
 		});		
 	},
 	
-	searchVehicles : function(searchRemote) {
+	searchDrivers : function(searchRemote) {
 		
 		if(searchRemote) {
-			this.sub('vehicle_info').store.load();
-		} else {
-			this.sub('vehicle_info').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
+			this.sub('driver_list').store.load();
 			
-			if(idValue || regNoValue) {
-				this.sub('vehicle_info').store.filter([ {
+		} else {
+			this.sub('driver_list').store.clearFilter(true);			
+			var idValue = this.sub('id_filter').getValue();
+			var nameValue = this.sub('name_filter').getValue();
+			
+			if(idValue || nameValue) {
+				this.sub('driver_list').store.filter([ {
 					property : 'id',
 					value : idValue
 				}, {
-					property : 'registration_number',
-					value : regNoValue
+					property : 'name',
+					value : nameValue
 				} ]);
 			}			
 		}		
@@ -109,10 +110,10 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 	zvehiclelist : function(self) {
 		return {
 			xtype : 'gridpanel',
-			itemId : 'vehicle_info',
-			store : 'VehicleBriefStore',
-			title : T('title.vehicle_list'),
-			width : 280,
+			itemId : 'driver_list',
+			store : 'DriverStore',
+			title : T('title.driver_list'),
+			width : 260,
 			autoScroll : true,
 			
 			columns : [ {
@@ -120,8 +121,8 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 				text : T('label.id'),
 				flex : 1
 			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
+				dataIndex : 'name',
+				text : T('label.name'),
 				flex : 1
 			} ],
 
@@ -133,11 +134,11 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 					itemId : 'id_filter',
 					width : 60
 				}, 
-				T('label.reg_no'),
+				T('label.name'),
 				{
 					xtype : 'textfield',
-					name : 'reg_no_filter',
-					itemId : 'reg_no_filter',
+					name : 'name_filter',
+					itemId : 'name_filter',
 					width : 65
 				},
 				' ',
@@ -145,7 +146,7 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 					xtype : 'button',
 					text : T('button.search'),
 					handler : function(btn) {
-						btn.up('management_runstatus').searchVehicles(true);
+						btn.up('management_driver_runstatus').searchDrivers(true);
 					}
 				}
 			]
@@ -155,7 +156,7 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 	zrunstatus : {
 		xtype : 'grid',
 		itemId : 'runstatus_grid',
-		store : 'VehicleRunStore',
+		store : 'DriverRunStore',
 		cls : 'hIndexbar',
 		title : T('title.runstatus_history'),
 		flex : 1,
@@ -183,6 +184,21 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		}, {
 			header : T('label.fuel_efficiency') + ' (km/l)',
 			dataIndex : 'effcc'
+		}, {
+			header : T('label.x_count', {x : T('label.sudden_accel')}),
+			dataIndex : 'sud_accel_cnt'
+		}, {
+			header : T('label.x_count', {x : T('label.sudden_brake')}),
+			dataIndex : 'sud_brake_cnt'
+		}, {
+			header : T('label.x_time', {x : T('label.eco_driving')}) + ' (min)',
+			dataIndex : 'eco_drv_time'	
+		}, {
+			header : T('label.x_time', {x : T('label.over_speeding')}) + ' (min)',
+			dataIndex : 'ovr_spd_time'
+		}, {
+			header : T('label.x_count', {x : T('label.incident')}),
+			dataIndex : 'inc_cnt'
 		} ]
 	},
 
@@ -225,27 +241,33 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 				displayField: 'desc',
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_dist", 	"desc" : T('label.run_dist'), 			"unit" : "(km)" },
-					        { "name" : "run_time", 	"desc" : T('label.run_time'), 			"unit" : "(min)" },
-							{ "name" : "consmpt", 	"desc" : T('label.fuel_consumption'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 	"desc" : T('label.co2_emissions'), 		"unit" : "(g/km)" },
-							{ "name" : "effcc", 	"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" }]
+					fields : [ 'name', 'desc', 'unit' ],					
+					data : [{ "name" : "run_dist", 		"desc" : T('label.run_dist'), 								"unit" : "(km)" },
+					        { "name" : "run_time", 		"desc" : T('label.run_time'), 								"unit" : "(min)" },
+							{ "name" : "consmpt", 		"desc" : T('label.fuel_consumption'), 						"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"desc" : T('label.co2_emissions'), 							"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 						"unit" : "(km/l)" },
+							{ "name" : "sud_accel_cnt", "desc" : T('label.x_count', {x : T('label.sudden_accel')}), "unit" : "" },
+							{ "name" : "sud_brake_cnt", "desc" : T('label.x_count', {x : T('label.sudden_brake')}),	"unit" : "" },
+							{ "name" : "eco_drv_time", 	"desc" : T('label.x_time', {x : T('label.eco_driving')}), 	"unit" : "(min)" },
+							{ "name" : "ovr_spd_time",  "desc" : T('label.x_time', {x : T('label.over_speeding')}), "unit" : "(min)" },
+							{ "name" : "inc_cnt",  		"desc" : T('label.x_count', {x : T('label.incident')}), 	"unit" : "" },
+							{ "name" : "driving_habit", "desc" : T('label.driving_habit'), 							"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('management_runstatus');
+						var thisView = combo.up('management_driver_runstatus');
 						var runStatusStore = thisView.sub('runstatus_grid').store;
-						thisView.refreshChart(runStatusStore, currentValue);
+						
+						if(currentValue != 'driving_habit')
+							thisView.refreshChart(runStatusStore, currentValue);
+						else
+							thisView.refreshRadarChart(runStatusStore);
 					}
 			    }
 			}, 
 			'  '
 		]
-	},
-	
-	getOneYearBefore : function() {
-		return new Date();
 	},
 	
 	refreshChart : function(store, yField) {
@@ -271,9 +293,67 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		this.chartPanel = chart;
 	},
 	
-	resizeChart : function(width, height) {
-		var chartContainer = this.sub('chart_panel');
+	refreshRadarChart : function(store) {
 		
+		var totalRecordCnt = 0;
+		var ecoDrvTime = 0;
+		var efficiency = 0;
+		var overSpdCnt = 0;
+		var sudAccelCnt = 0;
+		var sudBrakeCnt = 0;
+		
+		store.each(function(record) {
+			if(record.get('driver'))
+				totalRecordCnt += 1;
+			
+			if(record.get('eco_drv_time'))
+				ecoDrvTime += record.get('eco_drv_time');
+			
+			if(record.get('effcc'))
+				efficiency += record.get('effcc');
+			
+			if(record.get('ovr_spd_time'))
+				overSpdCnt += record.get('ovr_spd_time');
+			
+			if(record.get('sud_accel_cnt'))
+				sudAccelCnt += record.get('sud_accel_cnt');
+			
+			if(record.get('sud_brake_cnt'))
+				sudBrakeCnt += record.get('sud_brake_cnt');			
+		});
+		
+		ecoDrvTime = ecoDrvTime / totalRecordCnt;
+		efficiency = efficiency / totalRecordCnt;
+		overSpdCnt = overSpdCnt / totalRecordCnt;
+		sudAccelCnt = sudAccelCnt / totalRecordCnt;
+		sudBrakeCnt = sudBrakeCnt / totalRecordCnt;
+		
+		var radarData = [
+		    { 'name' : 'eco_drv_time',  'desc' : T('label.x_time', {x : T('label.eco_driving')}), 	'value' : ecoDrvTime },
+		    { 'name' : 'effcc', 		'desc': T('label.fuel_efficiency'), 						'value' : efficiency },
+		    { 'name' : 'ovr_spd_time', 	'desc': T('label.x_time', {x : T('label.over_speeding')}), 	'value' : overSpdCnt },
+		    { 'name' : 'sud_accel_cnt', 'desc': T('label.x_count', {x : T('label.sudden_accel')}), 	'value' : sudAccelCnt },
+		    { 'name' : 'sud_brake_cnt', 'desc': T('label.x_count', {x : T('label.sudden_brake')}),	'value' : sudBrakeCnt },
+		];
+		
+		var radarStore = Ext.create('Ext.data.JsonStore', {
+			fields : ['name', 'desc', 'value' ],
+			autoDestroy : true,
+			data : radarData
+		});		
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = chartPanel.getWidth();
+		var height = chartPanel.getHeight();
+		chartPanel.removeAll();
+		var chart = this.buildRadar(radarStore, width, height);
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');		
 		if(!width)
 			width = chartContainer.getWidth();		
 		if(!height)
@@ -285,7 +365,59 @@ Ext.define('GreenFleet.view.management.RunStatus', {
 		chartPanel.setHeight(height - 70);
 		chart.setWidth(width - 25);
 		chart.setHeight(height - 85);
-	},	
+	},
+	
+	buildRadar : function(store, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 70,
+			items : [
+				{
+					xtype : 'chart',
+					animate : true,
+					store : store,
+					width : width - 50,
+					height : height - 85,
+					insetPadding: 20,
+					legend: {
+		                position: 'right'
+		            },
+		            axes: [{
+		                type: 'Radial',
+		                position: 'radial',
+		                label: {
+		                    display: true
+		                }
+		            }],		            
+		            series: [{
+		                showInLegend: false,
+		                showMarkers: true,
+		                type: 'radar',
+		                xField: 'name',
+		                yField: 'value',
+		                title : 'desc',
+		                style: {
+		                    opacity: 0.4
+		                },
+		                markerConfig: {
+		                    radius: 5,
+		                    size: 5
+		                },
+		                tips: {
+		                	trackMouse: true,
+		                	width: 140,
+		                	height: 28,
+		                	renderer: function(storeItem, item) {
+		                		this.setTitle(storeItem.get('name') + ': ' + storeItem.get('value'));
+		                	}
+	                	},
+		            }]
+				}
+			]
+		};
+	},
 	
 	buildChart : function(store, yField, yTitle, unit, minValue, width, height) {
 		return {

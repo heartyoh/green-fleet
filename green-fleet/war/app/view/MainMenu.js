@@ -138,8 +138,8 @@ Ext.define('GreenFleet.view.MainMenu', {
 			closable : true
 		}, {
 			title : T('menu.vehicle_runstatus'),
-			xtype : 'management_runstatus',
-			itemId : 'runstatus',
+			xtype : 'management_vehicle_runstatus',
+			itemId : 'vehicle_runstatus',
 			closable : true			
 		} ]
 	}, {
@@ -148,6 +148,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			title : T('menu.driver'),
 			xtype : 'management_driver',
 			itemId : 'driver',
+			closable : true
+		}, {
+			title : T('menu.driver_runstatus'),
+			xtype : 'management_driver_runstatus',
+			itemId : 'driver_runstatus',
 			closable : true
 		} ]
 	}, {

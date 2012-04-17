@@ -105,6 +105,14 @@ public class VehicleRunService extends EntityService {
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
+	
+	@Override
+	protected void adjustItem(Map<String, Object> item) {
+		if(item.containsKey("month")) {
+			Date monthDt = (Date)item.get("month");
+			item.put("month_str", DataUtils.dateToString(monthDt, "yyyy-MM"));
+		}
+	}	
 
 	@Override
 	protected void addFilter(Query q, String property, String value) {
@@ -123,23 +131,18 @@ public class VehicleRunService extends EntityService {
 	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {		
-		String vehicle = request.getParameter("vehicle");
-		if(!DataUtils.isEmpty(vehicle)) {
-			q.addFilter("vehicle", FilterOperator.EQUAL, vehicle);
-		}
 		
+		String vehicle = request.getParameter("vehicle");
 		String fromDateStr = request.getParameter("from_date");
 		String toDateStr = request.getParameter("to_date");
 		
-		if(!DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
-			q.addFilter("month", Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
-			q.addFilter("month", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
-			
-		} else if(!DataUtils.isEmpty(fromDateStr) && DataUtils.isEmpty(toDateStr)) {
-			q.addFilter("month", Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
-			
-		} else if(DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
-			q.addFilter("month", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
-		}
+		if(!DataUtils.isEmpty(vehicle))
+			q.addFilter("vehicle", FilterOperator.EQUAL, vehicle);
+		
+		if(!DataUtils.isEmpty(fromDateStr))
+			q.addFilter("month", FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
+		
+		if(!DataUtils.isEmpty(toDateStr))
+			q.addFilter("month", FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
 	}
 }

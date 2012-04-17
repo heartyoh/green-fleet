@@ -1,13 +1,13 @@
-Ext.define('GreenFleet.store.VehicleRunStore', {
+Ext.define('GreenFleet.store.DriverRunStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
-
+	
 	fields : [ {
 		name : 'key',
 		type : 'string'
 	}, {
-		name : 'vehicle',
+		name : 'driver',
 		type : 'string'
 	}, {
 		name : 'month',
@@ -31,16 +31,31 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	}, {
 		name : 'effcc',
 		type : 'float'
+	}, {
+		name : 'sud_accel_cnt',
+		type : 'integer'
+	}, {
+		name : 'sud_brake_cnt',
+		type : 'integer'
+	}, {
+		name : 'eco_drv_time',
+		type : 'integer'
+	}, {
+		name : 'ovr_spd_time',
+		type : 'integer'
+	}, {
+		name : 'inc_cnt',
+		type : 'integer'
 	} ],
 	
 	sorters : [ {
 		property : 'month',
 		direction : 'ASC'
-	} ],
+	} ],	
 	
 	proxy : {
 		type : 'ajax',
-		url : 'vehicle_run',
+		url : 'driver_run',
 		reader : {
 			type : 'json',
 			root : 'items',
