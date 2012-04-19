@@ -33,7 +33,8 @@ T({
 		location : '위치',
 		alarm : '알람',
 		vehicle_runstatus : '차량별 운행현황',
-		driver_runstatus : '운전자별 운행현황'
+		driver_runstatus : '운전자별 운행현황',
+		driver_speed_section : '운전자별 속도구간'
 	},
 	
 	title : {
@@ -96,7 +97,9 @@ T({
 		vehicle_runstatus : '차량별 운행현황',
 		runstatus_history : '운행 이력',
 		runstatus_chart : '운행현황 차트',
-		driver_runstatus : '운전자별 주행현황',		
+		driver_runstatus : '운전자별 주행현황',
+		driver_speed_section : '운전자별 속도구간',
+		speed_section_chart : '속도구간 차트'
 	},
 	
 	tab : {
@@ -262,6 +265,7 @@ T({
 		message : '메세지',
 		from_date : '시작일',
 		to_date : '종료일',
+		times : '횟수',		
 		phone_x : '전화번호 #{x}',
 		x_id : '{x} 아이디',
 		x_no : '{x} 번호',
@@ -288,7 +292,15 @@ T({
 		period_always : '기간 항상',
 		period : '기간',
 		chart : '차트',
-		driving_habit : '운전습관'
+		driving_habit : '운전습관',
+		view : '보기',
+		monthly_view : '월별 보기',
+		yearly_view : '년별 보기',
+		chart_type : '차트 타입',		
+		line : '라인',
+		column : '컬럼',
+		radar : '레이더',
+		speed_section : '속도 구간'
 	},
 	
 	format : {

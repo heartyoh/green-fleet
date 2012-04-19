@@ -139,6 +139,12 @@ public class DriverRunService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
+	@RequestMapping(value = "/driver_run/speed", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> retrieveSpeed(HttpServletRequest request, HttpServletResponse response) {
+		return super.retrieve(request, response);
+	}
+	
 	@Override
 	protected void adjustItem(Map<String, Object> item) {
 		if(item.containsKey("month")) {

@@ -154,6 +154,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_driver_runstatus',
 			itemId : 'driver_runstatus',
 			closable : true
+		}, {
+			title : T('menu.driver_speed_section'),
+			xtype : 'management_driver_speed',
+			itemId : 'driver_speed',
+			closable : true
 		} ]
 	}, {
 		text : T('menu.terminal'),

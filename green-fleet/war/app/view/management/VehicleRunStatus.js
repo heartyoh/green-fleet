@@ -58,8 +58,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			runStatusStore.load({
 				scope : self,
 				callback : function() {					
-					self.refreshChart(runStatusStore, 'run_dist');
-					self.sub('combo_chart').setValue('run_dist');
+					self.refreshChart();
 				}
 			});
 		});
@@ -82,7 +81,20 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		 */
 		this.sub('reg_no_filter').on('change', function(field, value) {
 			self.searchVehicles(false);
-		});		
+		});
+		
+		/**
+		 * combo_chart_type에 값을 기본값(column)을 설정
+		 */
+		this.sub('combo_chart_type').setValue('column');
+		/**
+		 * combo_chart에 값을 기본값(run_dist)을 설정
+		 */
+		this.sub('combo_chart').setValue('run_dist');
+		/**
+		 * combo_view에 값을 기본값(monthly_view)을 설정
+		 */
+		this.sub('combo_view').setValue('monthly_view');		
 	},
 	
 	searchVehicles : function(searchRemote) {
@@ -154,48 +166,81 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	},
 
 	zrunstatus : {
-		xtype : 'grid',
-		itemId : 'runstatus_grid',
-		store : 'VehicleRunStore',
+		xtype : 'panel',
 		cls : 'hIndexbar',
 		title : T('title.runstatus_history'),
 		flex : 1,
-		columns : [ {
-			header : 'Key',
-			dataIndex : 'key',
-			hidden : true
-		}, {
-			dataIndex : 'month',
-			text : T('label.datetime'),
-			xtype:'datecolumn',
-			format:F('date')
-		}, {
-			header : T('label.run_dist') + ' (km)',
-			dataIndex : 'run_dist'
-		}, {
-			header : T('label.run_time') + ' (min)',
-			dataIndex : 'run_time'
-		}, {
-			header : T('label.fuel_consumption') + ' (l)',
-			dataIndex : 'consmpt'
-		}, {
-			header : T('label.co2_emissions') + ' (g/km)',
-			dataIndex : 'co2_emss'
-		}, {
-			header : T('label.fuel_efficiency') + ' (km/l)',
-			dataIndex : 'effcc'
-		} ]
-	},
-
-	zrunstatus_chart : {
-		xtype : 'panel',
-		itemId : 'chart_panel',
-		cls : 'hIndexbar',
-		title : T('title.runstatus_chart'),
-		flex : 1.5,
 		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'runstatus_grid',
+			store : 'VehicleRunStore',
+			flex : 1,
+			columns : [ {
+				header : 'Key',
+				dataIndex : 'key',
+				hidden : true
+			}, {
+				dataIndex : 'month',
+				text : T('label.datetime'),
+				xtype:'datecolumn',
+				format:F('date')
+			}, {
+				header : T('label.run_dist') + ' (km)',
+				dataIndex : 'run_dist'
+			}, {
+				header : T('label.run_time') + ' (min)',
+				dataIndex : 'run_time'
+			}, {
+				header : T('label.fuel_consumption') + ' (l)',
+				dataIndex : 'consmpt'
+			}, {
+				header : T('label.co2_emissions') + ' (g/km)',
+				dataIndex : 'co2_emss'
+			}, {
+				header : T('label.fuel_efficiency') + ' (km/l)',
+				dataIndex : 'effcc'
+			} ]
+		}],
+
 		tbar : [
-		    { xtype : 'tbfill' },
+	        T('label.view') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_view',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', { 
+					fields : [ 'name', 'desc' ],
+					data : [{ "name" : "monthly_view",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly_view",	"desc" : T('label.yearly_view')  }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						// TODO 월간보기에서 년간보기로 변경시 년 설정으로 변경 ...
+					}
+			    }
+			},
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "column", "desc" : T('label.column') },
+					        { "name" : "line",	 "desc" : T('label.line')   }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('management_vehicle_runstatus');
+						thisView.refreshChart();
+					}
+			    }
+			},
 			T('label.period') + ' : ',
 			{
 				xtype : 'datefield',
@@ -218,7 +263,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				value : new Date(),
 				width : 90
 			},		    
-		    '  ' + T('label.chart') + ' : ',
+		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
 				itemId : 'combo_chart',
@@ -237,24 +282,47 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
 						var thisView = combo.up('management_vehicle_runstatus');
-						var runStatusStore = thisView.sub('runstatus_grid').store;
 						
-						if(currentValue != 'total')
-							thisView.refreshChart(runStatusStore, currentValue);
+						if(currentValue != 'driving_habit')
+							thisView.refreshChart();
 						else
-							thisView.refreshRadarChart(runStatusStore);
+							thisView.refreshRadarChart();
 					}
 			    }
-			}, 
-			'  '
-		]
+			}
+		]		
+	},
+
+	zrunstatus_chart : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('title.runstatus_chart'),
+		flex : 1,
+		autoScroll : true
 	},
 	
-	refreshChart : function(store, yField) {
+	refreshChart : function() {
 		
-		var chartTypeArr = this.sub('combo_chart').store.data;
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var comboChart = this.sub('combo_chart');
+		var yField = comboChart.getValue();
+		var store = this.sub('runstatus_grid').store;
+		var chartTypeArr = comboChart.store.data;
 		var yTitle = '';
 		var unit = '';
+		
 		for(var i = 0 ; i < chartTypeArr.length ; i++) {
 			var chartTypeData = chartTypeArr.items[i].data;
 			if(yField == chartTypeData.name) {
@@ -263,18 +331,16 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				break;
 			}
 		}
-		
-		var chartPanel = this.sub('chart_panel');
-		var width = chartPanel.getWidth();
-		var height = chartPanel.getHeight();
+				
+		var chart = this.buildChart(chartType, store, yField, yTitle, unit, 0, width, height);
 		chartPanel.removeAll();
-		var chart = this.buildChart(store, yField, yTitle, unit, 0, width, height);
 		chartPanel.add(chart);
 		this.chartPanel = chart;
 	},
 	
-	refreshRadarChart : function(store) {
+	refreshRadarChart : function() {
 		
+		var store = this.sub('runstatus_grid').store;
 		var chartPanel = this.sub('chart_panel');
 		var width = chartPanel.getWidth();
 		var height = chartPanel.getHeight();
@@ -285,19 +351,22 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	},	
 	
 	resizeChart : function(width, height) {
+		
 		var chartContainer = this.sub('chart_panel');
 		
 		if(!width)
-			width = chartContainer.getWidth();		
+			width = chartContainer.getWidth();
+		
 		if(!height)
-			height = chartContainer.getHeight();		
+			height = chartContainer.getHeight();
 		
 		var chartPanel = chartContainer.down('panel');
-		var chart = chartPanel.down('chart');
 		chartPanel.setWidth(width - 25);
-		chartPanel.setHeight(height - 70);
-		chart.setWidth(width - 35);
-		chart.setHeight(height - 85);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
 	},
 	
 	buildRadar : function(store, width, height) {
@@ -305,143 +374,124 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			xtype : 'panel',
 			cls : 'paddingPanel healthDashboard paddingAll10',
 			width : width - 25,
-			height : height - 70,
-			items : [
-				{
-					xtype : 'chart',
-					animate : true,
-					store : store,
-					width : width - 35,
-					height : height - 85,
-					insetPadding: 20,
-					legend: {
-		                position: 'right'
-		            },
-		            axes: [{
-		                type: 'Radial',
-		                position: 'radial',
-		                label: {
-		                    display: true
-		                }
-		            }],
-		            
-		            series: [{
-		                showInLegend: true,
-		                type: 'radar',
-		                xField: 'month_str',
-		                yField: 'run_dist',
-		                style: {
-		                    opacity: 0.4
-		                }
-		            },{
-		                showInLegend: true,
-		                type: 'radar',
-		                xField: 'month_str',
-		                yField: 'run_time',
-		                style: {
-		                    opacity: 0.4
-		                }
-		            },{
-		                showInLegend: true,
-		                type: 'radar',
-		                xField: 'month_str',
-		                yField: 'consmpt',
-		                style: {
-		                    opacity: 0.4
-		                }
-		            },{
-		                showInLegend: true,
-		                type: 'radar',
-		                xField: 'month_str',
-		                yField: 'co2_emss',
-		                style: {
-		                    opacity: 0.4
-		                }
-		            },{
-		                showInLegend: true,
-		                type: 'radar',
-		                xField: 'month_str',
-		                yField: 'effcc',
-		                style: {
-		                    opacity: 0.4
-		                }		            
-		            }]
-				}
-			]
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				insetPadding: 20,
+				legend: { position: 'right' },
+	            axes: [{
+	                type: 'Radial',
+	                position: 'radial',
+	                label: {
+	                    display: true
+	                }
+	            }],
+	            series: [{
+	                showInLegend: true,
+	                type: 'radar',
+	                xField: 'month_str',
+	                yField: 'run_dist',
+	                style: {
+	                    opacity: 0.4
+	                }
+	            },{
+	                showInLegend: true,
+	                type: 'radar',
+	                xField: 'month_str',
+	                yField: 'run_time',
+	                style: {
+	                    opacity: 0.4
+	                }
+	            },{
+	                showInLegend: true,
+	                type: 'radar',
+	                xField: 'month_str',
+	                yField: 'consmpt',
+	                style: {
+	                    opacity: 0.4
+	                }
+	            },{
+	                showInLegend: true,
+	                type: 'radar',
+	                xField: 'month_str',
+	                yField: 'co2_emss',
+	                style: {
+	                    opacity: 0.4
+	                }
+	            },{
+	                showInLegend: true,
+	                type: 'radar',
+	                xField: 'month_str',
+	                yField: 'effcc',
+	                style: {
+	                    opacity: 0.4
+	                }		            
+	            }]
+			}]
 		};
 	},	
 	
-	buildChart : function(store, yField, yTitle, unit, minValue, width, height) {
+	buildChart : function(chartType, store, yField, yTitle, unit, minValue, width, height) {
 		return {
 			xtype : 'panel',
 			cls : 'paddingPanel healthDashboard paddingAll10',
 			width : width - 25,
-			height : height - 70,
-			items : [ 
-				{
-					xtype : 'chart',
-					animate : true,
-					store : store,
-					width : width - 35,
-					height : height - 85,
-					shadow : true,
-					insetPadding : 15,
-					theme : 'Base:gradients',
-					axes: [
-						{
-			                type: 'Numeric',
-			                position: 'left',
-			                fields: [yField],
-			                label: {
-			                	renderer: Ext.util.Format.numberRenderer('0,0')
-			                },
-			                title: yTitle,
-			                minimum: minValue
-			            }, {
-			                type: 'Category',
-			                position: 'bottom',
-			                fields: ['month'],
-			                title: T('label.month'),
-			                label: {
-			                	renderer: Ext.util.Format.dateRenderer('Y-m')
-			                }
-			            }
-		            ],
-					series : [
-						{
-							type : 'column',
-							axis: 'left',
-							xField: 'month',
-			                yField: yField,
-							showInLegend : true,
-							tips : {
-								trackMouse : true,
-								width : 140,
-								height : 25,
-								renderer : function(storeItem, item) {
-									this.setTitle(Ext.util.Format.date(storeItem.get('month'), 'Y-m') + ' : ' + storeItem.get(yField) + unit);
-								}
-							},
-							highlight : {
-								segment : {
-									margin : 20
-								}
-							},
-							label : {
-								field : yField,
-								display : 'insideEnd',
-								contrast : true,
-								color: '#333',
-								font : '14px Arial',
-							},
-							listeners : {
-								itemmousedown : function(target, event) {
-								}
-							}
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: [yField],
+	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
+	                title: yTitle,
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['month'],
+	                title: T('label.month'),
+	                label: { renderer: Ext.util.Format.dateRenderer('Y-m') }
+				}],
+				series : [{
+					type : chartType,
+					axis: 'left',
+					xField: 'month',
+	                yField: yField,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(Ext.util.Format.date(storeItem.get('month'), 'Y-m') + ' : ' + storeItem.get(yField) + unit);
 						}
-					]
-				}
-			]
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yField,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
 		}
-	}	
+	}
 });

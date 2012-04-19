@@ -223,7 +223,15 @@
                 },
                 {
                     "path": "app/view/management/",
-                    "name": "RunStatus.js"
+                    "name": "VehicleRunStatus.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "DriverRunStatus.js"
+                },
+                {
+                    "path": "app/view/management/",
+                    "name": "DriverSpeedSection.js"
                 },
                 {
                     "path": "app/store/",
@@ -388,6 +396,14 @@
                 {
                     "path": "app/store/",
                     "name": "VehicleRunStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverRunStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverSpeedStore.js"
                 },
                 {
                     "path": "app/controller/",

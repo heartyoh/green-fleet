@@ -33,7 +33,8 @@ T({
 		location : 'Location',
 		alarm : 'Alarm',
 		vehicle_runstatus : 'Vehicle RunStatus',
-		driver_runstatus : 'Driver RunSatus'
+		driver_runstatus : 'Driver RunSatus',
+		driver_speed_section : 'Drivers Speed Section'
 	},
 	
 	title : {
@@ -96,7 +97,9 @@ T({
 		vehicle_runstatus : 'Vehicle RunStatus',
 		runstatus_history : 'RunStatus History',
 		runstatus_chart : 'RunStatus Chart',
-		driver_runstatus : 'Driver RunStatus'
+		driver_runstatus : 'Driver RunStatus',
+		driver_speed_section : 'Drivers Speed Section',
+		speed_section_chart : 'Drivers Speed Section Chart'
 	},
 	
 	tab : {
@@ -252,8 +255,7 @@ T({
 		repl_mileage : 'Repl. Mileage',
 		repl_time : 'Repl. Time',
 		repl_date : 'Repl. Date',
-		address : 'Address',
-		phone_x : 'Phone #{x}',		
+		address : 'Address',			
 		alarm : 'Alarm',
 		event_type : 'Event Type',
 		radius : 'Radius',
@@ -263,6 +265,8 @@ T({
 		message : 'Message',
 		from_date : 'From Date',
 		to_date : 'To Date',
+		times : 'Times',
+		phone_x : 'Phone #{x}',
 		x_id : '{x} Id',
 		x_no : '{x} No.',
 		x_name : '{x} Name',
@@ -288,7 +292,15 @@ T({
 		period_always : 'Period Always',
 		period : 'Period',
 		chart : 'Chart',
-		driving_habit : 'Driving Habit'
+		driving_habit : 'Driving Habit',
+		view : 'View',
+		monthly_view : 'Monthly View',
+		yearly_view : 'Yearly View',
+		chart_type : 'Chart Type',
+		line : 'Line',
+		column : 'Column',
+		radar : 'Radar',
+		speed_section : 'Speed Section'
 	},
 	
 	format : {
