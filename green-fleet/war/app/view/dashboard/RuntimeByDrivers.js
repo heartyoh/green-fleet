@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
+Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 	extend : 'Ext.Container',
 	
-	alias : 'widget.dashboard_vehicle_health',
+	alias : 'widget.dashboard_runtime_by_drivers',
 	
 	layout : {
 		type : 'vbox',

@@ -6,6 +6,7 @@ T({
 	},
 	
 	menu : {
+		dashboard : 'Dashboard',
 		company : 'Company',
 		vehicle : 'Vehicle',
 		driver : 'Driver',
@@ -99,7 +100,27 @@ T({
 		runstatus_chart : 'RunStatus Chart',
 		driver_runstatus : 'Driver RunStatus',
 		driver_speed_section : 'Drivers Speed Section',
-		speed_section_chart : 'Drivers Speed Section Chart'
+		speed_section_chart : 'Drivers Speed Section Chart',
+		report_list : 'Report List'
+	},
+	
+	report : {
+		report : 'Report',
+		runtime_by_vehicles : 'Runtime By Vehicles',
+        runtime_by_drivers : 'Runtime By Drivers',
+        rundist_by_vehicles : 'Mileage By Vehicles',
+        rundist_by_drivers : 'Mileage By Drivers',
+        consumption_by_vehicles : 'Consumption By Vehicles',
+        efficiency_by_vehicles : 'Efficiency By Vehicles',
+        oprate_by_vehicles : 'Rate of Operate By Vehicles',
+        oprate_by_drivers : 'Rate of Operate By Drivers',
+        maint_times : 'Maintenence Times',
+        breakdown_times : 'Breakdown Times',
+        vehicle_effcc_rel : 'Vehicle-Efficiency Rel.',
+        driver_effcc_rel : 'Driver-Efficiency Rel.',
+        habit_effcc_rel : 'Driver Habits-Efficiency Rel.',
+        incident_effcc_rel : 'Incident-Efficiency Rel.',
+        consumable_effcc_rel : 'Consumable-Efficiency Rel.'
 	},
 	
 	tab : {
@@ -282,6 +303,7 @@ T({
 		x_speed : '{x} Speed',
 		total_x : 'Total {x}',
 		lessthan_km : 'Less Than {km}Km',
+		lessthan_km_min : 'Less Than {km}Km (min)',
 		state_driving : 'Driving',
 		state_idle : 'Idle',
 		state_incident : 'Incident',
@@ -300,7 +322,8 @@ T({
 		line : 'Line',
 		column : 'Column',
 		radar : 'Radar',
-		speed_section : 'Speed Section'
+		speed_section : 'Speed Section',
+		sum : 'Sum'
 	},
 	
 	format : {

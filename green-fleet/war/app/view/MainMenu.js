@@ -194,5 +194,13 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'consumable_health',
 			closable : true			
 		} ]
+	}, {
+		text : T('menu.dashboard'),
+		submenus : [ {
+			title : T('menu.dashboard'),
+			xtype : 'dashboard_report',
+			itemId : 'dashboard_report',
+			closable : true
+		} ]
 	} ]
 });

@@ -6,6 +6,7 @@ T({
 	},
 	
 	menu : {
+		dashboard : '대쉬보드',
 		company : '회사',
 		vehicle : '차량',
 		driver : '운전자',
@@ -99,8 +100,28 @@ T({
 		runstatus_chart : '운행현황 차트',
 		driver_runstatus : '운전자별 주행현황',
 		driver_speed_section : '운전자별 속도구간',
-		speed_section_chart : '속도구간 차트'
+		speed_section_chart : '속도구간 차트',
+		report_list : '리포트 리스트',
 	},
+	
+	report : {
+		report : '리포트',
+		runtime_by_vehicles : '차량별 주행시간',
+        runtime_by_drivers : '운전자별 주행시간',
+        rundist_by_vehicles : '차량별 주행거리',
+        rundist_by_drivers : '운전자별 주행거리',
+        consumption_by_vehicles : '차량별 연료소모량',
+        efficiency_by_vehicles : '차량별 연비',
+        oprate_by_vehicles : '차량별 가동율',
+        oprate_by_drivers : '운전자별 가동율',
+        maint_times : '차량별 정비횟수',
+        breakdown_times : '차량별 고장횟수',
+        vehicle_effcc_rel : '차량-연비 상관관계',
+        driver_effcc_rel : '운전자-연비 상관관계',
+        habit_effcc_rel : '운전자습관-연비 상관관계',
+        incident_effcc_rel : 'Incident-연비 상관관계',
+        consumable_effcc_rel : '소모품 Health 상태-연비 상관관계',
+	},	
 	
 	tab : {
 		info_by_vehicle : '차량별 정보',
@@ -282,6 +303,7 @@ T({
 		x_speed : '{x} 속도',
 		total_x : '총 {x}',
 		lessthan_km : '{km}Km 이하',
+		lessthan_km_min : '{km}Km 이하 (분)',
 		state_driving : '운행중',
 		state_idle : '정차',
 		state_incident : '이상상황',
@@ -300,7 +322,8 @@ T({
 		line : '라인',
 		column : '컬럼',
 		radar : '레이더',
-		speed_section : '속도 구간'
+		speed_section : '속도 구간',
+		sum : '합계'
 	},
 	
 	format : {

@@ -191,52 +191,52 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			xtype:'datecolumn',
 			format:F('date')
 		}, {
-			header : T('label.lessthan_km', {km : 10}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
 		}, {
-			header : T('label.lessthan_km', {km : 20}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 20}),
 			dataIndex : 'spd_lt20'
 		}, {
-			header : T('label.lessthan_km', {km : 30}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 30}),
 			dataIndex : 'spd_lt30'
 		}, {
-			header : T('label.lessthan_km', {km : 40}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 40}),
 			dataIndex : 'spd_lt40'
 		}, {
-			header : T('label.lessthan_km', {km : 50}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 50}),
 			dataIndex : 'spd_lt50'
 		}, {
-			header : T('label.lessthan_km', {km : 60}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 60}),
 			dataIndex : 'spd_lt60'
 		}, {
-			header : T('label.lessthan_km', {km : 70}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 70}),
 			dataIndex : 'spd_lt70'
 		}, {
-			header : T('label.lessthan_km', {km : 80}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 80}),
 			dataIndex : 'spd_lt80'
 		}, {
-			header : T('label.lessthan_km', {km : 90}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 90}),
 			dataIndex : 'spd_lt90'
 		}, {
-			header : T('label.lessthan_km', {km : 100}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 100}),
 			dataIndex : 'spd_lt100'
 		}, {
-			header : T('label.lessthan_km', {km : 110}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 110}),
 			dataIndex : 'spd_lt110'
 		}, {
-			header : T('label.lessthan_km', {km : 120}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 120}),
 			dataIndex : 'spd_lt120'
 		}, {
-			header : T('label.lessthan_km', {km : 130}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 130}),
 			dataIndex : 'spd_lt130'
 		}, {
-			header : T('label.lessthan_km', {km : 140}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 140}),
 			dataIndex : 'spd_lt140'
 		}, {
-			header : T('label.lessthan_km', {km : 150}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 150}),
 			dataIndex : 'spd_lt150'
 		}, {
-			header : T('label.lessthan_km', {km : 160}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 160}),
 			dataIndex : 'spd_lt160'
 		} ],
 	
@@ -315,7 +315,6 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	refreshChart : function() {
 				
 		var chartType = this.sub('combo_chart_type').getValue();
-		
 		if(chartType == 'radar') 
 			this.refreshRadarChart();
 		else
@@ -347,7 +346,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			// speed 90 ~ 120
 			var spd_100_120 = (record.get('spd_lt90') + record.get('spd_lt100') + record.get('spd_lt110') + record.get('spd_lt120'));			
 			// speed 130 ~
-			var spd_over_130 =  (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
+			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
 			
 			var columnData = { 	'month' : record.get('month_str'), 
 								'value1' : spd_10_30, 		'desc1' : '10 ~ 30(km)', 
@@ -595,7 +594,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	},
 	
 	createChartData : function(record) {
-		return [ { 'name' : '10~20', 		'value' : record.get('spd_lt10') },
+		return [  { 'name' : '10~20', 		'value' : record.get('spd_lt10') },
 		          { 'name' : '20~30', 		'value' : record.get('spd_lt20') },
 		          { 'name' : '30~40', 		'value' : record.get('spd_lt30') },
 		          { 'name' : '40~50', 		'value' : record.get('spd_lt40') },
