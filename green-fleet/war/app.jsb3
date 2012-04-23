@@ -234,6 +234,34 @@
                     "name": "DriverSpeedSection.js"
                 },
                 {
+                    "path": "app/view/dashboard/",
+                    "name": "Reports.js"
+                },
+                {
+                    "path": "app/view/dashboard/",
+                    "name": "RuntimeByVehicles.js"
+                },
+                {
+                    "path": "app/view/dashboard/",
+                    "name": "RuntimeByDrivers.js"
+                },
+                {
+                    "path": "app/view/dashboard/",
+                    "name": "RundistByVehicles.js"
+                },
+                {
+                    "path": "app/view/dashboard/",
+                    "name": "ConsumptionByVehicles.js"
+                },
+                {
+                    "path": "app/view/dashboard/",
+                    "name": "RundistByDrivers.js"
+                },
+                {
+                    "path": "app/view/dashboard/",
+                    "name": "EfficiencyByVehicles.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },

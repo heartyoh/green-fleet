@@ -3,7 +3,10 @@
  */
 package com.heartyoh.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +23,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -133,6 +137,7 @@ public class VehicleRunService extends EntityService {
 	protected void buildQuery(Query q, HttpServletRequest request) {		
 		
 		String vehicle = request.getParameter("vehicle");
+		String vehicleGroup = request.getParameter("vehicle_group");
 		String fromDateStr = request.getParameter("from_date");
 		String toDateStr = request.getParameter("to_date");
 		
@@ -144,5 +149,17 @@ public class VehicleRunService extends EntityService {
 		
 		if(!DataUtils.isEmpty(toDateStr))
 			q.addFilter("month", FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+		
+		if(!DataUtils.isEmpty(vehicleGroup)) {
+			List<String> vgList = new ArrayList<String>();
+			Iterator<Entity> vgIter = DatastoreUtils.findEntities(this.getCompanyKey(request), "VehicleRelation", DataUtils.newMap("vehicle_group_id", vehicleGroup));
+			while(vgIter.hasNext()) {
+				Entity vg = vgIter.next();
+				vgList.add((String)vg.getProperty("vehicle_id"));
+			}
+			
+			if(!vgList.isEmpty())
+				q.addFilter("vehicle", FilterOperator.IN, vgList);
+		}
 	}
 }

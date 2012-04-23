@@ -1297,6 +1297,14 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'consumable_health',
 			closable : true			
 		} ]
+	}, {
+		text : T('menu.dashboard'),
+		submenus : [ {
+			title : T('menu.dashboard'),
+			xtype : 'dashboard_report',
+			itemId : 'dashboard_report',
+			closable : true
+		} ]
 	} ]
 });
 Ext.define('GreenFleet.view.SideMenu', {
@@ -7047,7 +7055,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 				type : 'vbox',
 				align : 'stretch'
 			}
-		})
+		});
 		
 		var row1 = this.createRow(content);
 		var row2 = this.createRow(content);		
@@ -9534,10 +9542,11 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		],
 
 		this.callParent();
-
+			
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
+			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc'];
 			proxy.extraParams.vehicle = record.data.id;
 			proxy.extraParams.from_date = self.sub('from_date').getValue();
 			proxy.extraParams.to_date = self.sub('to_date').getValue();
@@ -10723,52 +10732,52 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			xtype:'datecolumn',
 			format:F('date')
 		}, {
-			header : T('label.lessthan_km', {km : 10}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
 		}, {
-			header : T('label.lessthan_km', {km : 20}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 20}),
 			dataIndex : 'spd_lt20'
 		}, {
-			header : T('label.lessthan_km', {km : 30}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 30}),
 			dataIndex : 'spd_lt30'
 		}, {
-			header : T('label.lessthan_km', {km : 40}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 40}),
 			dataIndex : 'spd_lt40'
 		}, {
-			header : T('label.lessthan_km', {km : 50}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 50}),
 			dataIndex : 'spd_lt50'
 		}, {
-			header : T('label.lessthan_km', {km : 60}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 60}),
 			dataIndex : 'spd_lt60'
 		}, {
-			header : T('label.lessthan_km', {km : 70}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 70}),
 			dataIndex : 'spd_lt70'
 		}, {
-			header : T('label.lessthan_km', {km : 80}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 80}),
 			dataIndex : 'spd_lt80'
 		}, {
-			header : T('label.lessthan_km', {km : 90}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 90}),
 			dataIndex : 'spd_lt90'
 		}, {
-			header : T('label.lessthan_km', {km : 100}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 100}),
 			dataIndex : 'spd_lt100'
 		}, {
-			header : T('label.lessthan_km', {km : 110}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 110}),
 			dataIndex : 'spd_lt110'
 		}, {
-			header : T('label.lessthan_km', {km : 120}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 120}),
 			dataIndex : 'spd_lt120'
 		}, {
-			header : T('label.lessthan_km', {km : 130}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 130}),
 			dataIndex : 'spd_lt130'
 		}, {
-			header : T('label.lessthan_km', {km : 140}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 140}),
 			dataIndex : 'spd_lt140'
 		}, {
-			header : T('label.lessthan_km', {km : 150}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 150}),
 			dataIndex : 'spd_lt150'
 		}, {
-			header : T('label.lessthan_km', {km : 160}) + ' (km)',
+			header : T('label.lessthan_km_min', {km : 160}),
 			dataIndex : 'spd_lt160'
 		} ],
 	
@@ -10847,7 +10856,6 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	refreshChart : function() {
 				
 		var chartType = this.sub('combo_chart_type').getValue();
-		
 		if(chartType == 'radar') 
 			this.refreshRadarChart();
 		else
@@ -10879,7 +10887,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			// speed 90 ~ 120
 			var spd_100_120 = (record.get('spd_lt90') + record.get('spd_lt100') + record.get('spd_lt110') + record.get('spd_lt120'));			
 			// speed 130 ~
-			var spd_over_130 =  (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
+			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
 			
 			var columnData = { 	'month' : record.get('month_str'), 
 								'value1' : spd_10_30, 		'desc1' : '10 ~ 30(km)', 
@@ -11127,7 +11135,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	},
 	
 	createChartData : function(record) {
-		return [ { 'name' : '10~20', 		'value' : record.get('spd_lt10') },
+		return [  { 'name' : '10~20', 		'value' : record.get('spd_lt10') },
 		          { 'name' : '20~30', 		'value' : record.get('spd_lt20') },
 		          { 'name' : '30~40', 		'value' : record.get('spd_lt30') },
 		          { 'name' : '40~50', 		'value' : record.get('spd_lt40') },
@@ -11234,6 +11242,3177 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			}]
 		}
 	}	
+});
+Ext.define('GreenFleet.view.dashboard.Reports', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_report',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+	
+	title : T('menu.dashboard'),
+
+	initComponent : function() {
+		var self = this;
+		
+		this.items = [{
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [
+			    this.reportlist(), 
+			    {
+			    	itemId : 'report_view',
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : {
+						align : 'stretch',
+						type : 'vbox'
+					},
+					items : [ this.dashboard_body() ]
+				} 
+			]
+	    }],
+
+		this.callParent();
+		
+		this.sub('report_list').on('itemclick', function(grid, record) {
+			self.sub('report_view').removeAll();
+			self.sub('report_view').add(self.dashboard_body(record.get('id')));
+		});
+	},
+	
+	dashboard_body : function(dashboard_id) {
+		
+		if(!dashboard_id)
+			dashboard_id = "runtime_by_vehicles";
+		
+		return {
+			xtype : 'dashboard_' + dashboard_id,
+			itemId : 'dashboard_panel',
+			cls : 'hIndexbar',
+			title : T('report.report') + ' Test',
+			flex : 1,
+			autoScroll : true
+		};
+	},
+	
+	zvehiclelist : {
+		xtype : 'gridpanel',
+		itemId : 'driver_list',
+		store : 'DriverStore',
+		title : T('title.driver_list'),
+		width : 260,
+		autoScroll : true,
+		
+		columns : [ {
+			dataIndex : 'id',
+			text : T('label.id'),
+			flex : 1
+		}, {
+			dataIndex : 'name',
+			text : T('label.name'),
+			flex : 1
+		} ]
+	},	
+	
+	reportlist : function() {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'report_list',
+			store : Ext.create('Ext.data.Store', {
+				fields : [ 'id', 'name' ],		        
+				data : [{ "id" : "runtime_by_vehicles", 	"name" : T('report.runtime_by_vehicles') },
+				        { "id" : "runtime_by_drivers", 		"name" : T('report.runtime_by_drivers') },
+				        { "id" : "rundist_by_vehicles", 	"name" : T('report.rundist_by_vehicles') },
+				        { "id" : "rundist_by_drivers", 		"name" : T('report.rundist_by_drivers') },
+				        { "id" : "consumption_by_vehicles", "name" : T('report.consumption_by_vehicles') },
+				        { "id" : "efficiency_by_vehicles", 	"name" : T('report.efficiency_by_vehicles') },
+				        { "id" : "oprate_by_vehicles", 		"name" : T('report.oprate_by_vehicles') },
+				        { "id" : "oprate_by_drivers", 		"name" : T('report.oprate_by_drivers') },
+				        { "id" : "maint_times", 			"name" : T('report.maint_times') },
+				        { "id" : "breakdown_times", 		"name" : T('report.breakdown_times') },
+				        { "id" : "vehicle_effcc_rel", 		"name" : T('report.vehicle_effcc_rel') },
+				        { "id" : "driver_effcc_rel", 		"name" : T('report.driver_effcc_rel') },
+				        { "id" : "habit_effcc_rel", 		"name" : T('report.habit_effcc_rel') },
+				        { "id" : "incident_effcc_rel", 		"name" : T('report.incident_effcc_rel') },
+				        { "id" : "consumable_effcc_rel", 	"name" : T('report.consumable_effcc_rel') }]
+			}),
+			title : T('title.report_list'),
+			width : 180,
+			autoScroll : true,			
+			columns : [ {
+				dataIndex : 'name',
+				text : T('label.name'),
+				flex : 1
+			} ]
+		}
+	},
+});
+Ext.define('GreenFleet.view.dashboard.RuntimeByVehicles', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_runtime_by_vehicles',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('report.runtime_by_vehicles') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zdatagrid, this.zchartpanel ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});		
+	},
+
+	zdatagrid : {
+		xtype : 'panel',
+		flex : 1,
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			store : Ext.create('Ext.data.Store', { 
+				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.vehicle'),
+	            dataIndex: 'vehicle',
+	            width : 70
+			}, {
+				header : T('label.year'),
+				dataIndex : 'year',
+				width : 50
+	        }, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : 'Jan',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : 'Feb',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : 'Mar',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : 'Apr',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : 'May',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : 'Jun',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : 'Jul',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : 'Aug',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : 'Sep',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : 'Oct',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : 'Nov',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : 'Dec',
+					width : 60
+	            }]
+	        }, {
+				header : T('label.sum'),
+				dataIndex : 'sum',
+				width : 80
+	        }]
+		}],
+
+		tbar : [
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
+					        { "name" : "by_year",	 "desc" : 'By Year' }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_runtime_by_vehicles');
+						thisView.refresh();
+					}
+			    }
+			},		        
+			T('title.vehicle_group'),
+			{
+				xtype : 'combo',
+				itemId : 'combo_vehicle_group',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'id',
+				store : 'VehicleGroupStore',
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_runtime_by_vehicles');
+						thisView.refresh();						
+					}
+			    }				
+			},
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : 1,
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},			
+			' ', {
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_runtime_by_vehicles');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('report.runtime_by_vehicles') + ' ' + T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	getDateValue : function(from) {
+		
+		var fromTo = from ? 'from_' : 'to_';
+		var fromYear = this.sub(fromTo + 'year').getValue();
+		var fromMonthStr = null;
+		if(fromYear) {
+			var fromMonth = this.sub(fromTo + 'month').getValue();
+			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		}
+		
+		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
+	},
+		
+	refresh : function() {
+		var dataGrid = this.sub('data_grid');
+		var vehicleGroup = this.sub('combo_vehicle_group');
+		var fromDateStr = this.getDateValue(true);
+		var toDateStr = this.getDateValue(false);
+		var store = Ext.getStore('VehicleRunStore');
+		var proxy = store.getProxy();
+		proxy.extraParams.select = ['vehicle', 'month', 'run_time'];
+		
+		if(fromDateStr)
+			proxy.extraParams.from_date = fromDateStr;
+		
+		if(toDateStr)
+			proxy.extraParams.to_date = toDateStr;
+		
+		if(vehicleGroup.getValue())
+			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
+		
+		store.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				
+				var newRecords = [];
+				Ext.each(records, function(record) {
+					var vehicle = record.data.vehicle;
+					var year = record.data.month.getFullYear();
+					var month = record.data.month.getMonth() + 1;
+					var runTime = record.data.run_time;
+					
+					var newRecord = null;
+					Ext.each(newRecords, function(nr) {
+						if(vehicle == nr.vehicle && year == nr.year)
+							newRecord = nr;
+					});
+					
+					var monthStr = 'mon_' + month;
+					if(newRecord == null) {
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runTime };
+						newRecord[monthStr] = runTime;
+						newRecords.push(newRecord);
+					
+					} else {
+						newRecord[monthStr] = runTime;
+						if(runTime && runTime > 0)
+							newRecord['sum'] = newRecord.sum + runTime;
+					}
+				});
+				
+				dataGrid.store.loadData(newRecords);
+				this.refreshChart(newRecords);
+			}
+		});
+	},
+	
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var chart = null;
+		if('by_year' == chartType)
+			chart = this.refreshChartByYear(records, width, height);
+		else
+			chart = this.refreshChartByVehicle(records, width, height);
+		
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	refreshChartByVehicle : function(records, width, height) {
+		
+		var yearFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['vehicle'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(yearFields, function(yearField) {
+				if(yearField == year)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push('' + year);
+				yearFields.push(year);
+				yFields.push(year + '_sum');
+				fields.push(year + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;			
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(vehicle == data.vehicle) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'vehicle' : vehicle };
+				dataList.push(chartData);
+			}
+			
+			chartData[year + '_sum'] = sum;
+		});
+		
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'vehicle';
+		var xTitle = T('label.vehicle');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+	},
+	
+	refreshChartByYear : function(records, width, height) {
+		
+		var vehicleFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['year'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle; 
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(vehicleFields, function(vehicleField) {
+				if(vehicleField == vehicle)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push(vehicle);
+				vehicleFields.push(vehicle);
+				yFields.push(vehicle + '_sum');
+				fields.push(vehicle + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;		
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(year == data.year) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'year' : year };
+				dataList.push(chartData);
+			}
+			
+			chartData[vehicle + '_sum'] = sum;
+		});
+				
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'year';
+		var xTitle = T('label.year');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
+	},	
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: yFields,
+	                title: T('label.run_time') + ' (min)',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: [xField],
+	                title: xTitle	                
+				}],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: xField,
+	                yField: yFields,
+	                title : yTitles,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yFields,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_runtime_by_drivers',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('report.runtime_by_drivers') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zdatagrid, this.zchartpanel ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});		
+	},
+
+	zdatagrid : {
+		xtype : 'panel',
+		flex : 1,
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			store : Ext.create('Ext.data.Store', { 
+				fields : [ 'driver', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.driver'),
+	            dataIndex: 'driver',
+	            width : 70
+			}, {
+				header : T('label.year'),
+				dataIndex : 'year',
+				width : 50
+	        }, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : 'Jan',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : 'Feb',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : 'Mar',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : 'Apr',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : 'May',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : 'Jun',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : 'Jul',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : 'Aug',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : 'Sep',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : 'Oct',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : 'Nov',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : 'Dec',
+					width : 60
+	            }]
+	        }, {
+				header : T('label.sum'),
+				dataIndex : 'sum',
+				width : 80
+	        }]
+		}],
+
+		tbar : [
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
+					        { "name" : "by_year",	 "desc" : 'By Year' }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_runtime_by_drivers');
+						thisView.refresh();
+					}
+			    }
+			},		        
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : 1,
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},			
+			' ', {
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_runtime_by_drivers');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('report.runtime_by_drivers') + ' ' + T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	getDateValue : function(from) {
+		
+		var fromTo = from ? 'from_' : 'to_';
+		var fromYear = this.sub(fromTo + 'year').getValue();
+		var fromMonthStr = null;
+		if(fromYear) {
+			var fromMonth = this.sub(fromTo + 'month').getValue();
+			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		}
+		
+		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
+	},
+		
+	refresh : function() {
+		var dataGrid = this.sub('data_grid');
+		var fromDateStr = this.getDateValue(true);
+		var toDateStr = this.getDateValue(false);
+		var store = Ext.getStore('DriverRunStore');
+		var proxy = store.getProxy();
+		proxy.extraParams.select = ['driver', 'month', 'run_time'];
+		
+		if(fromDateStr)
+			proxy.extraParams.from_date = fromDateStr;
+		
+		if(toDateStr)
+			proxy.extraParams.to_date = toDateStr;
+		
+		store.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				
+				var newRecords = [];
+				Ext.each(records, function(record) {
+					var driver = record.data.driver;
+					var year = record.data.month.getFullYear();
+					var month = record.data.month.getMonth() + 1;
+					var runTime = record.data.run_time;
+					
+					var newRecord = null;
+					Ext.each(newRecords, function(nr) {
+						if(driver == nr.driver && year == nr.year)
+							newRecord = nr;
+					});
+					
+					var monthStr = 'mon_' + month;
+					if(newRecord == null) {
+						newRecord = { 'driver' : driver, 'year' : year , 'sum' : runTime };
+						newRecord[monthStr] = runTime;
+						newRecords.push(newRecord);
+					
+					} else {
+						newRecord[monthStr] = runTime;
+						if(runTime && runTime > 0)
+							newRecord['sum'] = newRecord.sum + runTime;
+					}
+				});
+				
+				dataGrid.store.loadData(newRecords);
+				this.refreshChart(newRecords);
+			}
+		});
+	},
+	
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var chart = null;
+		if('by_year' == chartType)
+			chart = this.refreshChartByYear(records, width, height);
+		else
+			chart = this.refreshChartByDriver(records, width, height);
+		
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	refreshChartByDriver : function(records, width, height) {
+		
+		var yearFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['driver'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver;
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(yearFields, function(yearField) {
+				if(yearField == year)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push('' + year);
+				yearFields.push(year);
+				yFields.push(year + '_sum');
+				fields.push(year + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver;			
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(driver == data.driver) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'driver' : driver };
+				dataList.push(chartData);
+			}
+			
+			chartData[year + '_sum'] = sum;
+		});
+		
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'driver';
+		var xTitle = T('label.driver');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+	},
+	
+	refreshChartByYear : function(records, width, height) {
+		
+		var driverFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['year'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver; 
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(driverFields, function(driverField) {
+				if(driverField == driver)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push(driver);
+				driverFields.push(driver);
+				yFields.push(driver + '_sum');
+				fields.push(driver + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver;		
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(year == data.year) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'year' : year };
+				dataList.push(chartData);
+			}
+			
+			chartData[driver + '_sum'] = sum;
+		});
+				
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'year';
+		var xTitle = T('label.year');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
+	},	
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: yFields,
+	                title: T('label.run_time') + ' (min)',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: [xField],
+	                title: xTitle	                
+				}],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: xField,
+	                yField: yFields,
+	                title : yTitles,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yFields,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.RundistByVehicles', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_rundist_by_vehicles',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('report.rundist_by_vehicles') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zdatagrid, this.zchartpanel ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});		
+	},
+
+	zdatagrid : {
+		xtype : 'panel',
+		flex : 1,
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			store : Ext.create('Ext.data.Store', { 
+				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.vehicle'),
+	            dataIndex: 'vehicle',
+	            width : 70
+			}, {
+				header : T('label.year'),
+				dataIndex : 'year',
+				width : 50
+	        }, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : 'Jan',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : 'Feb',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : 'Mar',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : 'Apr',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : 'May',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : 'Jun',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : 'Jul',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : 'Aug',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : 'Sep',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : 'Oct',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : 'Nov',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : 'Dec',
+					width : 60
+	            }]
+	        }, {
+				header : T('label.sum'),
+				dataIndex : 'sum',
+				width : 80
+	        }]
+		}],
+
+		tbar : [
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
+					        { "name" : "by_year",	 "desc" : 'By Year' }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_rundist_by_vehicles');
+						thisView.refresh();
+					}
+			    }
+			},		        
+			T('title.vehicle_group'),
+			{
+				xtype : 'combo',
+				itemId : 'combo_vehicle_group',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'id',
+				store : 'VehicleGroupStore',
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_rundist_by_vehicles');
+						thisView.refresh();						
+					}
+			    }				
+			},
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : 1,
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},			
+			' ', {
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_rundist_by_vehicles');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('report.rundist_by_vehicles') + ' ' + T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	getDateValue : function(from) {
+		
+		var fromTo = from ? 'from_' : 'to_';
+		var fromYear = this.sub(fromTo + 'year').getValue();
+		var fromMonthStr = null;
+		if(fromYear) {
+			var fromMonth = this.sub(fromTo + 'month').getValue();
+			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		}
+		
+		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
+	},
+		
+	refresh : function() {
+		var dataGrid = this.sub('data_grid');
+		var vehicleGroup = this.sub('combo_vehicle_group');
+		var fromDateStr = this.getDateValue(true);
+		var toDateStr = this.getDateValue(false);
+		var store = Ext.getStore('VehicleRunStore');
+		var proxy = store.getProxy();
+		proxy.extraParams.select = ['vehicle', 'month', 'run_dist'];
+		
+		if(fromDateStr)
+			proxy.extraParams.from_date = fromDateStr;
+		
+		if(toDateStr)
+			proxy.extraParams.to_date = toDateStr;
+		
+		if(vehicleGroup.getValue())
+			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
+		
+		store.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				
+				var newRecords = [];
+				Ext.each(records, function(record) {
+					var vehicle = record.data.vehicle;
+					var year = record.data.month.getFullYear();
+					var month = record.data.month.getMonth() + 1;
+					var runDist = record.data.run_dist;
+					
+					var newRecord = null;
+					Ext.each(newRecords, function(nr) {
+						if(vehicle == nr.vehicle && year == nr.year)
+							newRecord = nr;
+					});
+					
+					var monthStr = 'mon_' + month;
+					if(newRecord == null) {
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runDist };
+						newRecord[monthStr] = runDist;
+						newRecords.push(newRecord);
+					
+					} else {
+						newRecord[monthStr] = runDist;
+						if(runDist && runDist > 0)
+							newRecord['sum'] = newRecord.sum + runDist;
+					}
+				});
+				
+				dataGrid.store.loadData(newRecords);
+				this.refreshChart(newRecords);
+			}
+		});
+	},
+	
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var chart = null;
+		if('by_year' == chartType)
+			chart = this.refreshChartByYear(records, width, height);
+		else
+			chart = this.refreshChartByVehicle(records, width, height);
+		
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	refreshChartByVehicle : function(records, width, height) {
+		
+		var yearFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['vehicle'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(yearFields, function(yearField) {
+				if(yearField == year)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push('' + year);
+				yearFields.push(year);
+				yFields.push(year + '_sum');
+				fields.push(year + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;			
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(vehicle == data.vehicle) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'vehicle' : vehicle };
+				dataList.push(chartData);
+			}
+			
+			chartData[year + '_sum'] = sum;
+		});
+		
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'vehicle';
+		var xTitle = T('label.vehicle');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+	},
+	
+	refreshChartByYear : function(records, width, height) {
+		
+		var vehicleFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['year'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle; 
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(vehicleFields, function(vehicleField) {
+				if(vehicleField == vehicle)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push(vehicle);
+				vehicleFields.push(vehicle);
+				yFields.push(vehicle + '_sum');
+				fields.push(vehicle + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;		
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(year == data.year) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'year' : year };
+				dataList.push(chartData);
+			}
+			
+			chartData[vehicle + '_sum'] = sum;
+		});
+				
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'year';
+		var xTitle = T('label.year');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
+	},	
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: yFields,
+	                title: T('label.run_dist') + ' (km)',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: [xField],
+	                title: xTitle	                
+				}],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: xField,
+	                yField: yFields,
+	                title : yTitles,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yFields,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.ConsumptionByVehicles', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_consumption_by_vehicles',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('report.consumption_by_vehicles') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zdatagrid, this.zchartpanel ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});		
+	},
+
+	zdatagrid : {
+		xtype : 'panel',
+		flex : 1,
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			store : Ext.create('Ext.data.Store', { 
+				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.vehicle'),
+	            dataIndex: 'vehicle',
+	            width : 70
+			}, {
+				header : T('label.year'),
+				dataIndex : 'year',
+				width : 50
+	        }, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : 'Jan',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : 'Feb',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : 'Mar',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : 'Apr',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : 'May',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : 'Jun',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : 'Jul',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : 'Aug',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : 'Sep',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : 'Oct',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : 'Nov',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : 'Dec',
+					width : 60
+	            }]
+	        }, {
+				header : T('label.sum'),
+				dataIndex : 'sum',
+				width : 80
+	        }]
+		}],
+
+		tbar : [
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
+					        { "name" : "by_year",	 "desc" : 'By Year' }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_consumption_by_vehicles');
+						thisView.refresh();
+					}
+			    }
+			},		        
+			T('title.vehicle_group'),
+			{
+				xtype : 'combo',
+				itemId : 'combo_vehicle_group',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'id',
+				store : 'VehicleGroupStore',
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_consumption_by_vehicles');
+						thisView.refresh();						
+					}
+			    }				
+			},
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : 1,
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},			
+			' ', {
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_consumption_by_vehicles');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('report.consumption_by_vehicles') + ' ' + T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	getDateValue : function(from) {
+		
+		var fromTo = from ? 'from_' : 'to_';
+		var fromYear = this.sub(fromTo + 'year').getValue();
+		var fromMonthStr = null;
+		if(fromYear) {
+			var fromMonth = this.sub(fromTo + 'month').getValue();
+			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		}
+		
+		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
+	},
+		
+	refresh : function() {
+		var dataGrid = this.sub('data_grid');
+		var vehicleGroup = this.sub('combo_vehicle_group');
+		var fromDateStr = this.getDateValue(true);
+		var toDateStr = this.getDateValue(false);
+		var store = Ext.getStore('VehicleRunStore');
+		var proxy = store.getProxy();
+		proxy.extraParams.select = ['vehicle', 'month', 'consmpt'];
+		
+		if(fromDateStr)
+			proxy.extraParams.from_date = fromDateStr;
+		
+		if(toDateStr)
+			proxy.extraParams.to_date = toDateStr;
+		
+		if(vehicleGroup.getValue())
+			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
+		
+		store.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				
+				var newRecords = [];
+				Ext.each(records, function(record) {
+					var vehicle = record.data.vehicle;
+					var year = record.data.month.getFullYear();
+					var month = record.data.month.getMonth() + 1;
+					var consumption = record.data.consmpt;
+					
+					var newRecord = null;
+					Ext.each(newRecords, function(nr) {
+						if(vehicle == nr.vehicle && year == nr.year)
+							newRecord = nr;
+					});
+					
+					var monthStr = 'mon_' + month;
+					if(newRecord == null) {
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : consumption };
+						newRecord[monthStr] = consumption;
+						newRecords.push(newRecord);
+					
+					} else {
+						newRecord[monthStr] = consumption;
+						if(consumption && consumption > 0)
+							newRecord['sum'] = newRecord.sum + consumption;
+					}
+				});
+				
+				dataGrid.store.loadData(newRecords);
+				this.refreshChart(newRecords);
+			}
+		});
+	},
+	
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var chart = null;
+		if('by_year' == chartType)
+			chart = this.refreshChartByYear(records, width, height);
+		else
+			chart = this.refreshChartByVehicle(records, width, height);
+		
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	refreshChartByVehicle : function(records, width, height) {
+		
+		var yearFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['vehicle'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(yearFields, function(yearField) {
+				if(yearField == year)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push('' + year);
+				yearFields.push(year);
+				yFields.push(year + '_sum');
+				fields.push(year + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;			
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(vehicle == data.vehicle) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'vehicle' : vehicle };
+				dataList.push(chartData);
+			}
+			
+			chartData[year + '_sum'] = sum;
+		});
+		
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'vehicle';
+		var xTitle = T('label.vehicle');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+	},
+	
+	refreshChartByYear : function(records, width, height) {
+		
+		var vehicleFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['year'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle; 
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(vehicleFields, function(vehicleField) {
+				if(vehicleField == vehicle)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push(vehicle);
+				vehicleFields.push(vehicle);
+				yFields.push(vehicle + '_sum');
+				fields.push(vehicle + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;		
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(year == data.year) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'year' : year };
+				dataList.push(chartData);
+			}
+			
+			chartData[vehicle + '_sum'] = sum;
+		});
+				
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'year';
+		var xTitle = T('label.year');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
+	},	
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: yFields,
+	                title: T('label.fuel_consumption') + ' (l)',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: [xField],
+	                title: xTitle	                
+				}],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: xField,
+	                yField: yFields,
+	                title : yTitles,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yFields,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_rundist_by_drivers',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('report.rundist_by_drivers') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zdatagrid, this.zchartpanel ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});		
+	},
+
+	zdatagrid : {
+		xtype : 'panel',
+		flex : 1,
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			store : Ext.create('Ext.data.Store', { 
+				fields : [ 'driver', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.driver'),
+	            dataIndex: 'driver',
+	            width : 70
+			}, {
+				header : T('label.year'),
+				dataIndex : 'year',
+				width : 50
+	        }, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : 'Jan',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : 'Feb',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : 'Mar',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : 'Apr',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : 'May',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : 'Jun',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : 'Jul',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : 'Aug',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : 'Sep',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : 'Oct',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : 'Nov',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : 'Dec',
+					width : 60
+	            }]
+	        }, {
+				header : T('label.sum'),
+				dataIndex : 'sum',
+				width : 80
+	        }]
+		}],
+
+		tbar : [
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
+					        { "name" : "by_year",	 "desc" : 'By Year' }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_rundist_by_drivers');
+						thisView.refresh();
+					}
+			    }
+			},		        
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : 1,
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},			
+			' ', {
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_rundist_by_drivers');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('report.rundist_by_drivers') + ' ' + T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	getDateValue : function(from) {
+		
+		var fromTo = from ? 'from_' : 'to_';
+		var fromYear = this.sub(fromTo + 'year').getValue();
+		var fromMonthStr = null;
+		if(fromYear) {
+			var fromMonth = this.sub(fromTo + 'month').getValue();
+			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		}
+		
+		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
+	},
+		
+	refresh : function() {
+		var dataGrid = this.sub('data_grid');
+		var fromDateStr = this.getDateValue(true);
+		var toDateStr = this.getDateValue(false);
+		var store = Ext.getStore('DriverRunStore');
+		var proxy = store.getProxy();
+		proxy.extraParams.select = ['driver', 'month', 'run_dist'];
+		
+		if(fromDateStr)
+			proxy.extraParams.from_date = fromDateStr;
+		
+		if(toDateStr)
+			proxy.extraParams.to_date = toDateStr;
+		
+		store.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				
+				var newRecords = [];
+				Ext.each(records, function(record) {
+					var driver = record.data.driver;
+					var year = record.data.month.getFullYear();
+					var month = record.data.month.getMonth() + 1;
+					var runDist = record.data.run_dist;
+					
+					var newRecord = null;
+					Ext.each(newRecords, function(nr) {
+						if(driver == nr.driver && year == nr.year)
+							newRecord = nr;
+					});
+					
+					var monthStr = 'mon_' + month;
+					if(newRecord == null) {
+						newRecord = { 'driver' : driver, 'year' : year , 'sum' : runDist };
+						newRecord[monthStr] = runDist;
+						newRecords.push(newRecord);
+					
+					} else {
+						newRecord[monthStr] = runDist;
+						if(runDist && runDist > 0)
+							newRecord['sum'] = newRecord.sum + runDist;
+					}
+				});
+				
+				dataGrid.store.loadData(newRecords);
+				this.refreshChart(newRecords);
+			}
+		});
+	},
+	
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var chart = null;
+		if('by_year' == chartType)
+			chart = this.refreshChartByYear(records, width, height);
+		else
+			chart = this.refreshChartByDriver(records, width, height);
+		
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	refreshChartByDriver : function(records, width, height) {
+		
+		var yearFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['driver'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver;
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(yearFields, function(yearField) {
+				if(yearField == year)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push('' + year);
+				yearFields.push(year);
+				yFields.push(year + '_sum');
+				fields.push(year + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver;			
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(driver == data.driver) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'driver' : driver };
+				dataList.push(chartData);
+			}
+			
+			chartData[year + '_sum'] = sum;
+		});
+		
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'driver';
+		var xTitle = T('label.driver');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+	},
+	
+	refreshChartByYear : function(records, width, height) {
+		
+		var driverFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['year'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver; 
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(driverFields, function(driverField) {
+				if(driverField == driver)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push(driver);
+				driverFields.push(driver);
+				yFields.push(driver + '_sum');
+				fields.push(driver + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var driver = record.driver;		
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(year == data.year) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'year' : year };
+				dataList.push(chartData);
+			}
+			
+			chartData[driver + '_sum'] = sum;
+		});
+				
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'year';
+		var xTitle = T('label.year');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
+	},	
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: yFields,
+	                title: T('label.run_dist') + ' (km)',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: [xField],
+	                title: xTitle	                
+				}],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: xField,
+	                yField: yFields,
+	                title : yTitles,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yFields,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.EfficiencyByVehicles', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_efficiency_by_vehicles',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('report.efficiency_by_vehicles') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zdatagrid, this.zchartpanel ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});		
+	},
+
+	zdatagrid : {
+		xtype : 'panel',
+		flex : 1,
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			store : Ext.create('Ext.data.Store', { 
+				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.vehicle'),
+	            dataIndex: 'vehicle',
+	            width : 70
+			}, {
+				header : T('label.year'),
+				dataIndex : 'year',
+				width : 50
+	        }, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : 'Jan',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : 'Feb',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : 'Mar',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : 'Apr',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : 'May',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : 'Jun',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : 'Jul',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : 'Aug',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : 'Sep',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : 'Oct',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : 'Nov',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : 'Dec',
+					width : 60
+	            }]
+	        }, {
+				header : T('label.sum'),
+				dataIndex : 'sum',
+				width : 80
+	        }]
+		}],
+
+		tbar : [
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
+					        { "name" : "by_year",	 "desc" : 'By Year' }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_efficiency_by_vehicles');
+						thisView.refresh();
+					}
+			    }
+			},		        
+			T('title.vehicle_group'),
+			{
+				xtype : 'combo',
+				itemId : 'combo_vehicle_group',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'id',
+				store : 'VehicleGroupStore',
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_efficiency_by_vehicles');
+						thisView.refresh();						
+					}
+			    }				
+			},
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : 1,
+				store : Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'year' ],			
+					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
+					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
+				}),
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'month' ],			
+					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
+					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				}),
+				width : 40
+			},			
+			' ', {
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_efficiency_by_vehicles');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('report.efficiency_by_vehicles') + ' ' + T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	getDateValue : function(from) {
+		
+		var fromTo = from ? 'from_' : 'to_';
+		var fromYear = this.sub(fromTo + 'year').getValue();
+		var fromMonthStr = null;
+		if(fromYear) {
+			var fromMonth = this.sub(fromTo + 'month').getValue();
+			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		}
+		
+		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
+	},
+		
+	refresh : function() {
+		var dataGrid = this.sub('data_grid');
+		var vehicleGroup = this.sub('combo_vehicle_group');
+		var fromDateStr = this.getDateValue(true);
+		var toDateStr = this.getDateValue(false);
+		var store = Ext.getStore('VehicleRunStore');
+		var proxy = store.getProxy();
+		proxy.extraParams.select = ['vehicle', 'month', 'effcc'];
+		
+		if(fromDateStr)
+			proxy.extraParams.from_date = fromDateStr;
+		
+		if(toDateStr)
+			proxy.extraParams.to_date = toDateStr;
+		
+		if(vehicleGroup.getValue())
+			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
+		
+		store.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				
+				var newRecords = [];
+				Ext.each(records, function(record) {
+					var vehicle = record.data.vehicle;
+					var year = record.data.month.getFullYear();
+					var month = record.data.month.getMonth() + 1;
+					var efficiency = record.data.effcc;
+					
+					var newRecord = null;
+					Ext.each(newRecords, function(nr) {
+						if(vehicle == nr.vehicle && year == nr.year)
+							newRecord = nr;
+					});
+					
+					var monthStr = 'mon_' + month;
+					if(newRecord == null) {
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : efficiency };
+						newRecord[monthStr] = efficiency;
+						newRecords.push(newRecord);
+					
+					} else {
+						newRecord[monthStr] = efficiency;
+						if(efficiency && efficiency > 0)
+							newRecord['sum'] = newRecord.sum + efficiency;
+					}
+				});
+				
+				dataGrid.store.loadData(newRecords);
+				this.refreshChart(newRecords);
+			}
+		});
+	},
+	
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chartType = this.sub('combo_chart_type').getValue();
+		var chart = null;
+		if('by_year' == chartType)
+			chart = this.refreshChartByYear(records, width, height);
+		else
+			chart = this.refreshChartByVehicle(records, width, height);
+		
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	refreshChartByVehicle : function(records, width, height) {
+		
+		var yearFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['vehicle'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(yearFields, function(yearField) {
+				if(yearField == year)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push('' + year);
+				yearFields.push(year);
+				yFields.push(year + '_sum');
+				fields.push(year + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;			
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(vehicle == data.vehicle) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'vehicle' : vehicle };
+				dataList.push(chartData);
+			}
+			
+			chartData[year + '_sum'] = sum;
+		});
+		
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'vehicle';
+		var xTitle = T('label.vehicle');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+	},
+	
+	refreshChartByYear : function(records, width, height) {
+		
+		var vehicleFields = [];
+		var yFields = [];
+		var yTitles = [];
+		var fields = ['year'];
+		var dataList = [];
+		var count = 0;
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle; 
+			var year = record.year;
+			var contains = false;
+			
+			Ext.each(vehicleFields, function(vehicleField) {
+				if(vehicleField == vehicle)
+					contains = true;
+			});
+			
+			if(!contains) {
+				yTitles.push(vehicle);
+				vehicleFields.push(vehicle);
+				yFields.push(vehicle + '_sum');
+				fields.push(vehicle + '_sum');
+			}
+		});		
+		
+		Ext.each(records, function(record) {
+			var vehicle = record.vehicle;		
+			var year = record.year;
+			var sum = record.sum;
+			var chartData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(year == data.year) {
+					chartData = data;
+				}
+			});
+			
+			if(!chartData) {
+				chartData = { 'year' : year };
+				dataList.push(chartData);
+			}
+			
+			chartData[vehicle + '_sum'] = sum;
+		});
+				
+		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
+		var xField = 'year';
+		var xTitle = T('label.year');
+		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
+	},	
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: yFields,
+	                title: T('label.fuel_efficiency') + ' (km/l)',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: [xField],
+	                title: xTitle	                
+				}],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: xField,
+	                yField: yFields,
+	                title : yTitles,
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : yFields,
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial',
+					}
+				}]
+			}]
+		}
+	}
 });
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
@@ -13600,7 +16779,9 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
-	          'management.DriverSpeedSection' ],
+	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.RuntimeByVehicles', 'dashboard.RuntimeByDrivers',
+	          'dashboard.RundistByVehicles', 'dashboard.ConsumptionByVehicles', 'dashboard.RundistByDrivers', 
+	          'dashboard.EfficiencyByVehicles' ],
 
 	init : function() {
 		this.control({

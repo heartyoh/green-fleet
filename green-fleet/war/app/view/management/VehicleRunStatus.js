@@ -48,10 +48,11 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		],
 
 		this.callParent();
-
+			
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
+			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc'];
 			proxy.extraParams.vehicle = record.data.id;
 			proxy.extraParams.from_date = self.sub('from_date').getValue();
 			proxy.extraParams.to_date = self.sub('to_date').getValue();

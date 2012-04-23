@@ -24,7 +24,9 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
-	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.RuntimeByVehicles', 'dashboard.RuntimeByDrivers' ],
+	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.RuntimeByVehicles', 'dashboard.RuntimeByDrivers',
+	          'dashboard.RundistByVehicles', 'dashboard.ConsumptionByVehicles', 'dashboard.RundistByDrivers', 
+	          'dashboard.EfficiencyByVehicles' ],
 
 	init : function() {
 		this.control({

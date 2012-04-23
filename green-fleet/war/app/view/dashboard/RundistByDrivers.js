@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
+Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.dashboard_runtime_by_drivers',
+	alias : 'widget.dashboard_rundist_by_drivers',
 
 	layout : {
 		align : 'stretch',
@@ -14,7 +14,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 		var self = this;
 
 		this.items = [
-		    { html : "<div class='listTitle'>" + T('report.runtime_by_drivers') + "</div>"}, 
+		    { html : "<div class='listTitle'>" + T('report.rundist_by_drivers') + "</div>"}, 
 		    {
 				xtype : 'container',
 				flex : 1,
@@ -140,7 +140,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('dashboard_runtime_by_drivers');
+						var thisView = combo.up('dashboard_rundist_by_drivers');
 						thisView.refresh();
 					}
 			    }
@@ -207,7 +207,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 				text : T('button.search'),
 				itemId : 'search',
 				handler : function(btn) {
-					var thisView = btn.up('dashboard_runtime_by_drivers');
+					var thisView = btn.up('dashboard_rundist_by_drivers');
 					thisView.refresh();
 				}
 			}
@@ -218,7 +218,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 		xtype : 'panel',
 		itemId : 'chart_panel',
 		cls : 'hIndexbar',
-		title : T('report.runtime_by_drivers') + ' ' + T('label.chart'),
+		title : T('report.rundist_by_drivers') + ' ' + T('label.chart'),
 		flex : 1,
 		autoScroll : true
 	},
@@ -242,7 +242,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 		var toDateStr = this.getDateValue(false);
 		var store = Ext.getStore('DriverRunStore');
 		var proxy = store.getProxy();
-		proxy.extraParams.select = ['driver', 'month', 'run_time'];
+		proxy.extraParams.select = ['driver', 'month', 'run_dist'];
 		
 		if(fromDateStr)
 			proxy.extraParams.from_date = fromDateStr;
@@ -259,7 +259,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 					var driver = record.data.driver;
 					var year = record.data.month.getFullYear();
 					var month = record.data.month.getMonth() + 1;
-					var runTime = record.data.run_time;
+					var runDist = record.data.run_dist;
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {
@@ -269,14 +269,14 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 					
 					var monthStr = 'mon_' + month;
 					if(newRecord == null) {
-						newRecord = { 'driver' : driver, 'year' : year , 'sum' : runTime };
-						newRecord[monthStr] = runTime;
+						newRecord = { 'driver' : driver, 'year' : year , 'sum' : runDist };
+						newRecord[monthStr] = runDist;
 						newRecords.push(newRecord);
 					
 					} else {
-						newRecord[monthStr] = runTime;
-						if(runTime && runTime > 0)
-							newRecord['sum'] = newRecord.sum + runTime;
+						newRecord[monthStr] = runDist;
+						if(runDist && runDist > 0)
+							newRecord['sum'] = newRecord.sum + runDist;
 					}
 				});
 				
@@ -455,7 +455,7 @@ Ext.define('GreenFleet.view.dashboard.RuntimeByDrivers', {
 	                type: 'Numeric',
 	                position: 'left',
 	                fields: yFields,
-	                title: T('label.run_time') + ' (min)',
+	                title: T('label.run_dist') + ' (km)',
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
