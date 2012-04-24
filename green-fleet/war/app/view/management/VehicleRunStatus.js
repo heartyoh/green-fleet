@@ -439,6 +439,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	buildChart : function(chartType, store, yField, yTitle, unit, minValue, width, height) {
 		return {
 			xtype : 'panel',
+			autoscroll : true,
 			cls : 'paddingPanel healthDashboard paddingAll10',
 			width : width - 25,
 			height : height - 45,

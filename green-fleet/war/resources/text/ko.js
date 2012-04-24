@@ -297,6 +297,7 @@ T({
 		x_type : '{x} 타입',
 		x_date : '{x} 일자',
 		x_time : '{x} 시간',
+		parentheses_x : ' ({x})',
 		impulse_x : '충격량 {x}',
 		accelerate_x : '가속_{x}',
 		x_distance : '{x} 거리',

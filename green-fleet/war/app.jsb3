@@ -434,6 +434,14 @@
                     "name": "DriverSpeedStore.js"
                 },
                 {
+                    "path": "app/store/",
+                    "name": "YearStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "MonthStore.js"
+                },
+                {
                     "path": "app/controller/",
                     "name": "ApplicationController.js"
                 }
