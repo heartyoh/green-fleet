@@ -239,27 +239,11 @@
                 },
                 {
                     "path": "app/view/dashboard/",
-                    "name": "RuntimeByVehicles.js"
+                    "name": "VehicleRunningSummary.js"
                 },
                 {
                     "path": "app/view/dashboard/",
-                    "name": "RuntimeByDrivers.js"
-                },
-                {
-                    "path": "app/view/dashboard/",
-                    "name": "RundistByVehicles.js"
-                },
-                {
-                    "path": "app/view/dashboard/",
-                    "name": "ConsumptionByVehicles.js"
-                },
-                {
-                    "path": "app/view/dashboard/",
-                    "name": "RundistByDrivers.js"
-                },
-                {
-                    "path": "app/view/dashboard/",
-                    "name": "EfficiencyByVehicles.js"
+                    "name": "DriverRunningSummary.js"
                 },
                 {
                     "path": "app/store/",
