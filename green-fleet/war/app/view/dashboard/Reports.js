@@ -47,7 +47,7 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 	dashboard_body : function(dashboard_id) {
 		
 		if(!dashboard_id)
-			dashboard_id = "runtime_by_vehicles";
+			dashboard_id = "vehicle_summary";
 		
 		return {
 			xtype : 'dashboard_' + dashboard_id,
@@ -84,21 +84,24 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			itemId : 'report_list',
 			store : Ext.create('Ext.data.Store', {
 				fields : [ 'id', 'name' ],		        
-				data : [{ "id" : "runtime_by_vehicles", 	"name" : T('report.runtime_by_vehicles') },
-				        { "id" : "runtime_by_drivers", 		"name" : T('report.runtime_by_drivers') },
-				        { "id" : "rundist_by_vehicles", 	"name" : T('report.rundist_by_vehicles') },
-				        { "id" : "rundist_by_drivers", 		"name" : T('report.rundist_by_drivers') },
-				        { "id" : "consumption_by_vehicles", "name" : T('report.consumption_by_vehicles') },
-				        { "id" : "efficiency_by_vehicles", 	"name" : T('report.efficiency_by_vehicles') },
-				        { "id" : "oprate_by_vehicles", 		"name" : T('report.oprate_by_vehicles') },
-				        { "id" : "oprate_by_drivers", 		"name" : T('report.oprate_by_drivers') },
-				        { "id" : "maint_times", 			"name" : T('report.maint_times') },
-				        { "id" : "breakdown_times", 		"name" : T('report.breakdown_times') },
-				        { "id" : "vehicle_effcc_rel", 		"name" : T('report.vehicle_effcc_rel') },
-				        { "id" : "driver_effcc_rel", 		"name" : T('report.driver_effcc_rel') },
-				        { "id" : "habit_effcc_rel", 		"name" : T('report.habit_effcc_rel') },
-				        { "id" : "incident_effcc_rel", 		"name" : T('report.incident_effcc_rel') },
-				        { "id" : "consumable_effcc_rel", 	"name" : T('report.consumable_effcc_rel') }]
+				data : [{ "id" : "vehicle_summary", 			"name" : T('report.vehicle_summary') },
+				        { "id" : "driver_summary", 				"name" : T('report.driver_summary') },
+				        //{ "id" : "runtime_by_vehicles", 		"name" : T('report.runtime_by_vehicles') },
+				        //{ "id" : "runtime_by_drivers", 		"name" : T('report.runtime_by_drivers') },
+				        //{ "id" : "rundist_by_vehicles", 		"name" : T('report.rundist_by_vehicles') },
+				        //{ "id" : "rundist_by_drivers", 		"name" : T('report.rundist_by_drivers') },
+				        //{ "id" : "consumption_by_vehicles", 	"name" : T('report.consumption_by_vehicles') },
+				        //{ "id" : "efficiency_by_vehicles", 	"name" : T('report.efficiency_by_vehicles') },
+				        //{ "id" : "co2_emissions_by_vehicles", "name" : T('report.co2_emissions_by_vehicles') },
+				        { "id" : "oprate_by_vehicles", 			"name" : T('report.oprate_by_vehicles') },
+				        { "id" : "oprate_by_drivers", 			"name" : T('report.oprate_by_drivers') },
+				        { "id" : "maint_times", 				"name" : T('report.maint_times') },
+				        { "id" : "breakdown_times", 			"name" : T('report.breakdown_times') },
+				        { "id" : "vehicle_effcc_rel", 			"name" : T('report.vehicle_effcc_rel') },
+				        { "id" : "driver_effcc_rel", 			"name" : T('report.driver_effcc_rel') },
+				        { "id" : "habit_effcc_rel", 			"name" : T('report.habit_effcc_rel') },
+				        { "id" : "incident_effcc_rel", 			"name" : T('report.incident_effcc_rel') },
+				        { "id" : "consumable_effcc_rel", 		"name" : T('report.consumable_effcc_rel') }]
 			}),
 			title : T('title.report_list'),
 			width : 180,

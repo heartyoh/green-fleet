@@ -1,12 +1,9 @@
-Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
+Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.dashboard_rundist_by_drivers',
+	alias : 'widget.dashboard_vehicle_summary',
 
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
+	layout : { align : 'stretch', type : 'vbox' },
 	
 	chartPanel : null,
 
@@ -14,28 +11,18 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		var self = this;
 
 		this.items = [
-		    { html : "<div class='listTitle'>" + T('report.rundist_by_drivers') + "</div>"}, 
 		    {
 				xtype : 'container',
 				flex : 1,
-				layout : {
-					type : 'hbox',
-					align : 'stretch'
-				},
-				items : [ 
-				    {
-						xtype : 'container',
-						flex : 1,
-						cls : 'borderRightGray',
-						layout : {
-							align : 'stretch',
-							type : 'vbox'
-						},
-						items : [ this.zdatagrid, this.zchartpanel ]
-					} 
-				]
-		    }
-		],
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
 
 		this.callParent();
 		
@@ -43,85 +30,101 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 			if(self.chartPanel) {				
 				self.resizeChart();
 			}
-		});		
+		});
 	},
 
+	/**
+	 * 데이터 그리드 패널 
+	 */
 	zdatagrid : {
+		itemId : 'datagrid_panel',
 		xtype : 'panel',
 		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.runtime_by_vehicles') + T('label.parentheses_x', {x : T('label.minute_s')}),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
 			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
 			store : Ext.create('Ext.data.Store', { 
-				fields : [ 'driver', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				groupField : 'year',
+				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
 				data : []
 			}),
 			autoScroll : true,
 			columnLines: true,
 	        columns: [{
-	            text     : T('label.driver'),
-	            dataIndex: 'driver',
-	            width : 70
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
 			}, {
-				header : T('label.year'),
-				dataIndex : 'year',
-				width : 50
-	        }, {
+	            text     : T('label.vehicle'),
+	            dataIndex: 'vehicle',
+	            width : 80,
+				summaryType: 'count',
+		        summaryRenderer: function(value) {
+		            return Ext.String.format('{0} {1}', T('label.total'), value);
+		        }
+			}, {
 	            text: T('label.month'),
 	            columns: [{
 					dataIndex : 'mon_1',
-					text : 'Jan',
+					text : '1',
 					width : 60
 	            }, {
 					dataIndex : 'mon_2',
-					text : 'Feb',
+					text : '2',
 					width : 60
 	            }, {
 					dataIndex : 'mon_3',
-					text : 'Mar',
+					text : '3',
 					width : 60
 	            }, {
 					dataIndex : 'mon_4',
-					text : 'Apr',
+					text : '4',
 					width : 60
 	            }, {
 					dataIndex : 'mon_5',
-					text : 'May',
+					text : '5',
 					width : 60
 	            }, {
 					dataIndex : 'mon_6',
-					text : 'Jun',
+					text : '6',
 					width : 60
 	            }, {
 					dataIndex : 'mon_7',
-					text : 'Jul',
+					text : '7',
 					width : 60
 	            }, {
 					dataIndex : 'mon_8',
-					text : 'Aug',
+					text : '8',
 					width : 60
 	            }, {
 					dataIndex : 'mon_9',
-					text : 'Sep',
+					text : '9',
 					width : 60
 	            }, {
 					dataIndex : 'mon_10',
-					text : 'Oct',
+					text : '10',
 					width : 60
 	            }, {
 					dataIndex : 'mon_11',
-					text : 'Nov',
+					text : '11',
 					width : 60
 	            }, {
 					dataIndex : 'mon_12',
-					text : 'Dec',
+					text : '12',
 					width : 60
 	            }]
 	        }, {
 				header : T('label.sum'),
 				dataIndex : 'sum',
-				width : 80
+				width : 80,
+				summaryType: 'sum',
+		        summaryRenderer: function(value) {
+		            return Ext.String.format('{0} {1}', T('label.total'), value);
+		        }
 	        }]
 		}],
 
@@ -135,16 +138,31 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 			    valueField: 'name',
 				store :  Ext.create('Ext.data.Store', {
 					fields : [ 'name', 'desc' ],			
-					data : [{ "name" : "by_vehicle", "desc" : 'By Vehicle' },
-					        { "name" : "by_year",	 "desc" : 'By Year' }]
+					data : [{ "name" : "by_vehicles", "desc" : T('report.by_vehicles') },
+					        { "name" : "by_years",	  "desc" : T('report.by_years') }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('dashboard_rundist_by_drivers');
+						var thisView = combo.up('dashboard_vehicle_summary');
 						thisView.refresh();
 					}
 			    }
 			},		        
+			T('title.vehicle_group'),
+			{
+				xtype : 'combo',
+				itemId : 'combo_vehicle_group',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'id',
+				store : 'VehicleGroupStore',
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_vehicle_summary');
+						thisView.refresh();						
+					}
+			    }				
+			},
 			T('label.period') + ' : ',
 			{
 				xtype : 'combo',
@@ -153,26 +171,8 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 				displayField: 'year',
 			    valueField: 'year',
 			    value : new Date().getFullYear(),
-				store : Ext.create('Ext.data.Store', {
-					fields : [ 'year' ],			
-					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
-					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
-				}),
+				store : 'YearStore',
 				width : 60				
-			},
-			{
-				xtype : 'combo',
-				name : 'from_month',
-				itemId : 'from_month',
-				displayField: 'month',
-			    valueField: 'month',
-			    value : 1,
-				store : Ext.create('Ext.data.Store', {
-					fields : [ 'month' ],			
-					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
-					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
-				}),
-				width : 40
 			},
 			' ~ ',
 			{
@@ -182,67 +182,107 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 				displayField: 'year',
 			    valueField: 'year',
 			    value : new Date().getFullYear(),
-				store :  Ext.create('Ext.data.Store', {
-					fields : [ 'year' ],			
-					data : [{ "year" : 2001 },{ "year" : 2002 },{ "year" : 2003 },{ "year" : 2004 },{ "year" : 2005 },{ "year" : 2006 },
-					        { "year" : 2007 },{ "year" : 2008 },{ "year" : 2009 },{ "year" : 2010 },{ "year" : 2011 },{ "year" : 2012 }]
-				}),
+				store : 'YearStore',
 				width : 60			
 			},
+		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
-				name : 'to_month',
-				itemId : 'to_month',
-				displayField: 'month',
-			    valueField: 'month',
-			    value : new Date().getMonth() + 1,
-				store :  Ext.create('Ext.data.Store', {
-					fields : [ 'month' ],			
-					data : [{ "month" : 1 },{ "month" : 2 },{ "month" : 3 },{ "month" : 4 }, { "month" : 5 }, { "month" : 6 },
-					        { "month" : 7 },{ "month" : 8 },{ "month" : 9 },{ "month" : 10 },{ "month" : 11 },{ "month" : 12 }]
+				itemId : 'combo_chart',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',				
+				store :  Ext.create('Ext.data.Store', { 
+					fields : [ 'name', 'desc', 'unit' ], 
+					data : [{ "name" : "run_time", 	"desc" : T('report.runtime_by_vehicles'), 			"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "run_dist", 	"desc" : T('report.rundist_by_vehicles'), 			"unit" : "(km)" },
+							{ "name" : "consmpt", 	"desc" : T('report.consumption_by_vehicles'), 		"unit" : "(l)" },
+							{ "name" : "co2_emss", 	"desc" : T('report.co2_emissions_by_vehicles'),		"unit" : "(g/km)" },
+							{ "name" : "effcc", 	"desc" : T('report.efficiency_by_vehicles'), 		"unit" : "(km/l)" }]
 				}),
-				width : 40
-			},			
-			' ', {
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('dashboard_vehicle_summary');
+						thisView.refresh();
+					}
+			    }
+			},
+			{
 				text : T('button.search'),
 				itemId : 'search',
 				handler : function(btn) {
-					var thisView = btn.up('dashboard_rundist_by_drivers');
+					var thisView = btn.up('dashboard_vehicle_summary');
 					thisView.refresh();
 				}
 			}
 		]
 	},
 	
+	/**
+	 * 차트 패널 
+	 */
 	zchartpanel : {
 		xtype : 'panel',
 		itemId : 'chart_panel',
 		cls : 'hIndexbar',
-		title : T('report.rundist_by_drivers') + ' ' + T('label.chart'),
+		title : T('label.chart'),
 		flex : 1,
 		autoScroll : true
 	},
 	
-	getDateValue : function(from) {
+	/**
+	 * From Date
+	 */
+	getFromDateValue : function() {
+		var fromYear = this.sub('from_year').getValue();
+		return fromYear ? fromYear + '-01-01' : null;
+	},
+	
+	/**
+	 * To Date
+	 */
+	getToDateValue : function() {
+		var toYear = this.sub('to_year').getValue();
+		return toYear ? toYear + '-12-31' : null;
+	},
+	
+	/**
+	 * 차트 정보
+	 */
+	getChartInfo : function() {
 		
-		var fromTo = from ? 'from_' : 'to_';
-		var fromYear = this.sub(fromTo + 'year').getValue();
-		var fromMonthStr = null;
-		if(fromYear) {
-			var fromMonth = this.sub(fromTo + 'month').getValue();
-			fromMonthStr = fromMonth ? (fromMonth < 10 ? '0' + fromMonth : '' + fromMonth) : null;
+		var comboChart = this.sub('combo_chart').getValue();
+		if(!comboChart) {
+			comboChart = 'run_time';
 		}
 		
-		return (fromYear && fromMonthStr) ? (fromYear + '-' + fromMonthStr + '-01') : null;
-	},
+		var chartInfo = null;		
+		var chartTypeArr = this.sub('combo_chart').store.data;
 		
+		for(var i = 0 ; i < chartTypeArr.length ; i++) {
+			var chartTypeData = chartTypeArr.items[i].data;
+			if(comboChart == chartTypeData.name) {
+				chartInfo = chartTypeData;
+				break;
+			}
+		}
+		
+		return chartInfo;
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
 	refresh : function() {
 		var dataGrid = this.sub('data_grid');
-		var fromDateStr = this.getDateValue(true);
-		var toDateStr = this.getDateValue(false);
-		var store = Ext.getStore('DriverRunStore');
+		var vehicleGroup = this.sub('combo_vehicle_group');
+		var fromDateStr = this.getFromDateValue();
+		var toDateStr = this.getToDateValue();
+		var chartInfo = this.getChartInfo();
+		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
+		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
-		proxy.extraParams.select = ['driver', 'month', 'run_dist'];
+		proxy.extraParams.select = ['vehicle', 'month', chartInfo.name];
 		
 		if(fromDateStr)
 			proxy.extraParams.from_date = fromDateStr;
@@ -250,43 +290,49 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		if(toDateStr)
 			proxy.extraParams.to_date = toDateStr;
 		
+		if(vehicleGroup.getValue())
+			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
+		
 		store.load({
 			scope : this,
 			callback : function(records, operation, success) {
 				
 				var newRecords = [];
 				Ext.each(records, function(record) {
-					var driver = record.data.driver;
+					var vehicle = record.data.vehicle;
 					var year = record.data.month.getFullYear();
 					var month = record.data.month.getMonth() + 1;
-					var runDist = record.data.run_dist;
+					var runData = record.get(chartInfo.name);
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {
-						if(driver == nr.driver && year == nr.year)
+						if(vehicle == nr.vehicle && year == nr.year)
 							newRecord = nr;
 					});
 					
 					var monthStr = 'mon_' + month;
 					if(newRecord == null) {
-						newRecord = { 'driver' : driver, 'year' : year , 'sum' : runDist };
-						newRecord[monthStr] = runDist;
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData };
+						newRecord[monthStr] = runData;
 						newRecords.push(newRecord);
 					
 					} else {
-						newRecord[monthStr] = runDist;
-						if(runDist && runDist > 0)
-							newRecord['sum'] = newRecord.sum + runDist;
+						newRecord[monthStr] = runData;
+						if(runData && runData > 0)
+							newRecord['sum'] = newRecord.sum + runData;
 					}
 				});
 				
 				dataGrid.store.loadData(newRecords);
-				this.refreshChart(newRecords);
+				this.refreshChart(newRecords, chartInfo.desc, chartInfo.unit);
 			}
 		});
 	},
 	
-	refreshChart : function(records) {
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records, yTitle, unit) {
 		
 		var chartPanel = this.sub('chart_panel');
 		var width = null;
@@ -299,28 +345,26 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = null;
-		if('by_year' == chartType)
-			chart = this.refreshChartByYear(records, width, height);
-		else
-			chart = this.refreshChartByDriver(records, width, height);
-		
+		var chart = ('by_year' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;
 	},
 	
-	refreshChartByDriver : function(records, width, height) {
+	/**
+	 * X축이 Vehicle인 Chart를 생성 
+	 */
+	refreshChartByVehicle : function(records, width, height, yTitle, unit) {
 		
 		var yearFields = [];
 		var yFields = [];
 		var yTitles = [];
-		var fields = ['driver'];
+		var fields = ['vehicle'];
 		var dataList = [];
 		var count = 0;
 		
 		Ext.each(records, function(record) {
-			var driver = record.driver;
+			var vehicle = record.vehicle;
 			var year = record.year;
 			var contains = false;
 			
@@ -338,19 +382,19 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		});		
 		
 		Ext.each(records, function(record) {
-			var driver = record.driver;			
+			var vehicle = record.vehicle;			
 			var year = record.year;
 			var sum = record.sum;
 			var chartData = null;
 			
 			Ext.each(dataList, function(data) {
-				if(driver == data.driver) {
+				if(vehicle == data.vehicle) {
 					chartData = data;
 				}
 			});
 			
 			if(!chartData) {
-				chartData = { 'driver' : driver };
+				chartData = { 'vehicle' : vehicle };
 				dataList.push(chartData);
 			}
 			
@@ -358,14 +402,17 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		});
 		
 		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
-		var xField = 'driver';
-		var xTitle = T('label.driver');
-		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);
+		var xField = 'vehicle';
+		var xTitle = T('label.vehicle');
+		return this.buildChart(store, xField, xTitle, yFields, yTitle, yTitles, unit, 0, width, height);
 	},
 	
-	refreshChartByYear : function(records, width, height) {
+	/**
+	 * X축이 Year인 Chart를 생성 
+	 */
+	refreshChartByYear : function(records, width, height, yTitle, unit) {
 		
-		var driverFields = [];
+		var vehicleFields = [];
 		var yFields = [];
 		var yTitles = [];
 		var fields = ['year'];
@@ -373,25 +420,25 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		var count = 0;
 		
 		Ext.each(records, function(record) {
-			var driver = record.driver; 
+			var vehicle = record.vehicle; 
 			var year = record.year;
 			var contains = false;
 			
-			Ext.each(driverFields, function(driverField) {
-				if(driverField == driver)
+			Ext.each(vehicleFields, function(vehicleField) {
+				if(vehicleField == vehicle)
 					contains = true;
 			});
 			
 			if(!contains) {
-				yTitles.push(driver);
-				driverFields.push(driver);
-				yFields.push(driver + '_sum');
-				fields.push(driver + '_sum');
+				yTitles.push(vehicle);
+				vehicleFields.push(vehicle);
+				yFields.push(vehicle + '_sum');
+				fields.push(vehicle + '_sum');
 			}
 		});		
 		
 		Ext.each(records, function(record) {
-			var driver = record.driver;		
+			var vehicle = record.vehicle;		
 			var year = record.year;
 			var sum = record.sum;
 			var chartData = null;
@@ -407,15 +454,18 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 				dataList.push(chartData);
 			}
 			
-			chartData[driver + '_sum'] = sum;
+			chartData[vehicle + '_sum'] = sum;
 		});
 				
 		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
 		var xField = 'year';
 		var xTitle = T('label.year');
-		return this.buildChart(store, xField, xTitle, yFields, yTitles, 0, width, height);		
-	},	
-	
+		return this.buildChart(store, xField, xTitle, yFields, yTitle, yTitles, unit, 0, width, height);		
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
 	resizeChart : function(width, height) {
 		
 		var chartContainer = this.sub('chart_panel');
@@ -435,7 +485,10 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 		chart.setHeight(height - 50);
 	},
 	
-	buildChart : function(store, xField, xTitle, yFields, yTitles, minValue, width, height) {
+	/**
+	 * 차트 생성
+	 */
+	buildChart : function(store, xField, xTitle, yFields, yTitle, yTitles, unit, minValue, width, height) {
 		return {
 			xtype : 'panel',
 			cls : 'paddingPanel healthDashboard paddingAll10',
@@ -455,7 +508,7 @@ Ext.define('GreenFleet.view.dashboard.RundistByDrivers', {
 	                type: 'Numeric',
 	                position: 'left',
 	                fields: yFields,
-	                title: T('label.run_dist') + ' (km)',
+	                title: yTitle + unit,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
