@@ -149,7 +149,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 				name : 'name_filter',
 				itemId : 'name_filter',
 				hideLabel : true,
-				width : 200
+				width : 200				
 			}, {
 				text : T('button.search'),
 				itemId : 'search'

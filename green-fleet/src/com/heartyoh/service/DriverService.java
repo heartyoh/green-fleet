@@ -1,7 +1,6 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,19 +57,12 @@ public class DriverService extends EntityService {
 
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		String name = (String) map.get("name");
-		String division = (String) map.get("division");
-		String title = (String) map.get("title");
-		String social_id = (String) map.get("social_id");
-		String phone_no_1 = (String) map.get("phone_no_1");
-		String phone_no_2 = (String) map.get("phone_no_2");
-
-		entity.setProperty("name", name);
-		entity.setProperty("division", division);
-		entity.setProperty("title", title);
-		entity.setProperty("social_id", social_id);
-		entity.setProperty("phone_no_1", phone_no_1);
-		entity.setProperty("phone_no_2", phone_no_2);
+		entity.setProperty("name", map.get("name"));
+		entity.setProperty("division", map.get("division"));
+		entity.setProperty("title", map.get("title"));
+		entity.setProperty("social_id", map.get("social_id"));
+		entity.setProperty("phone_no_1", map.get("phone_no_1"));
+		entity.setProperty("phone_no_2", map.get("phone_no_2"));
 
 		super.onSave(entity, map, datastore);
 	}

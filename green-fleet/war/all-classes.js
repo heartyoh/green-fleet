@@ -1202,6 +1202,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'vehicle_group',
 			closable : true
 		}, {
+			title : T('menu.driver_group'),
+			xtype : 'management_driver_group',
+			itemId : 'driver_group',
+			closable : true			
+		}, {
 			title : T('menu.consumable_code'),
 			xtype : 'management_consumable_code',
 			itemId : 'consumable_code',
@@ -2127,8 +2132,8 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				var record = self.sub('grid').store.findRecord('key', value);
 				if(record) {
 					self.currentVehicleGroup = record.get('id');
-					self.sub('grouped_vehicles_grid').setTitle("Vehicles By Group [" + record.get('id') + "]");
-					self.sub('form').setTitle("Group [" + record.get('id') + "] Details");
+					self.sub('grouped_vehicles_grid').setTitle(T('title.drivers_by_group') + ' [' + record.get('id') + ']');
+					self.sub('form').setTitle(T('title.group_details') + ' [' + record.get('id') + ']');
 					self.searchGroupedVehicles();
 				}
 			}
@@ -2188,13 +2193,13 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 		this.down('button[itemId=moveLeft]').on('click', function(button) {
 			
 			if(!self.currentVehicleGroup) {
-				Ext.MessageBox.alert("None Selected!", "Select vehicle group first!");
+				Ext.MessageBox.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.vehicle_group')}));
 				return;				
 			}
 			
 			var selections = self.sub('all_vehicles_grid').getSelectionModel().getSelection();
 			if(!selections || selections.length == 0) {
-				Ext.MessageBox.alert("None Selected!", "Select the vehicles to add vehicle group [" + self.currentVehicleGroup + "]");
+				Ext.MessageBox.alert(T('msg.none_selected'), "Select the vehicles to add vehicle group [" + self.currentVehicleGroup + "]");
 				return;
 			}
 
@@ -2215,14 +2220,14 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			        if(resultObj.success) {			        	
 				        self.sub('all_vehicles_grid').getSelectionModel().deselectAll(true);
 				        self.searchGroupedVehicles();
-				        GreenFleet.msg("Success", resultObj.msg);
+				        GreenFleet.msg(T('label.success'), resultObj.msg);
 				        self.changedGroupedVehicleCount();
 			        } else {
-			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
 			        }
 			    },
 			    failure: function(response) {
-			    	Ext.MessageBox.alert("Failure", response.responseText);
+			    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
 			    }
 			});			
  		});
@@ -2232,13 +2237,13 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 		 */
 		this.down('button[itemId=moveRight]').on('click', function(button) {
 			if(!self.currentVehicleGroup) {
-				Ext.Msg.alert("None Selected!", "Select vehicle group first!");
+				Ext.Msg.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.vehicle_group')}));
 				return;				
 			}
 			
 			var selections = self.sub('grouped_vehicles_grid').getSelectionModel().getSelection();
 			if(!selections || selections.length == 0) {
-				Ext.Msg.alert("None Selected!", "Select the vehicles to remove from vehicle group [" + self.currentVehicleGroup + "]");
+				Ext.Msg.alert(T('msg.none_selected'), "Select the vehicles to remove from vehicle group [" + self.currentVehicleGroup + "]");
 				return;
 			}
 
@@ -2258,14 +2263,14 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 			        var resultObj = Ext.JSON.decode(response.responseText);
 			        if(resultObj.success) {
 				        self.searchGroupedVehicles();
-				        GreenFleet.msg("Success", resultObj.msg);
+				        GreenFleet.msg(T('label.success'), resultObj.msg);
 				        self.changedGroupedVehicleCount();
 			        } else {
-			        	Ext.MessageBox.alert("Failure", resultObj.msg);
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
 			        }
 			    },
 			    failure: function(response) {
-			        Ext.MessageBox.alert("Failure", response.responseText);
+			        Ext.MessageBox.alert(T('label.failure'), response.responseText);
 			    }
 			});			
 		});		
@@ -2524,12 +2529,9 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				format : F('datetime')
 			} ],
 			dockedItems : [ {
-				xtype : 'entity_form_buttons',
-				
-				confirmMsgSave : 'Would you like to save the changed?',
-				
-				confirmMsgDelete : 'Would you like to delete selected vehicle group?',
-				
+				xtype : 'entity_form_buttons',				
+				confirmMsgSave : T('msg.confirm_save'),				
+				confirmMsgDelete : T('msg.confirm_delete'),				
 				loader : {
 					fn : function(callback) {
 						main.sub('grid').store.load(callback);
@@ -4112,7 +4114,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 				name : 'name_filter',
 				itemId : 'name_filter',
 				hideLabel : true,
-				width : 200
+				width : 200				
 			}, {
 				text : T('button.search'),
 				itemId : 'search'
@@ -10879,8 +10881,8 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		var columnDataArr = [];
 		var store = this.sub('runstatus_grid').store;
 		store.each(function(record) {
-			// speed 10 ~ 30
-			var spd_10_30 = (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
+			// speed 0 ~ 30
+			var spd_30 = (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
 			// speed 40 ~ 60
 			var spd_40_60 = (record.get('spd_lt40') + record.get('spd_lt50') + record.get('spd_lt60'));
 			// speed 50 ~ 80
@@ -10891,7 +10893,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
 			
 			var columnData = { 	'month' : record.get('month_str'), 
-								'value1' : spd_10_30, 		'desc1' : '10 ~ 30(km)', 
+								'value1' : spd_30, 			'desc1' : '0 ~ 30(km)', 
 								'value2' : spd_40_60, 		'desc2' : '40 ~ 60(km)',
 								'value3' : spd_70_90, 		'desc3' : '70 ~ 90(km)',
 								'value4' : spd_100_120, 	'desc4' : '100 ~ 120(km)', 
@@ -10914,52 +10916,61 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	refreshRadarChart : function() {
 		
 		var store = this.sub('runstatus_grid').store;
-		var totalRecordCnt = 0;
-		var spd_10_30 = 0;
-		var spd_40_60 = 0;
-		var spd_70_90 = 0;
-		var spd_100_120 = 0;
-		var spd_over_130 = 0;
+		var spd_10 = 0;
+		var spd_20 = 0;
+		var spd_30 = 0;
+		var spd_40 = 0;
+		var spd_50 = 0;
+		var spd_60 = 0;
+		var spd_70 = 0;
+		var spd_80 = 0;
+		var spd_90 = 0;
+		var spd_100 = 0;
+		var spd_110 = 0;
+		var spd_120 = 0;
+		var spd_130 = 0;
+		var spd_140 = 0;
+		var spd_150 = 0;
+		var spd_160 = 0;
 		
 		store.each(function(record) {
-			
-			if(record.get('driver'))
-				totalRecordCnt += 1;
-			
-			// speed 10 ~ 30
-			spd_10_30 += (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
-
-			// speed 40 ~ 60
-			spd_40_60 += (record.get('spd_lt40') + record.get('spd_lt50') + record.get('spd_lt60'));
-			
-			// speed 50 ~ 80
-			spd_70_90 += (record.get('spd_lt70') + record.get('spd_lt80') + record.get('spd_lt90'));
-			
-			// speed 90 ~ 120
-			spd_100_120 += (record.get('spd_lt90') + record.get('spd_lt100') + record.get('spd_lt110') + record.get('spd_lt120'));
-			
-			// speed 130 ~
-			spd_over_130 += (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
+			spd_10 += record.get('spd_lt10');
+			spd_20 += record.get('spd_lt20');
+			spd_30 += record.get('spd_lt30');
+			spd_40 += record.get('spd_lt40');
+			spd_50 += record.get('spd_lt50');
+			spd_60 += record.get('spd_lt60');
+			spd_70 += record.get('spd_lt70');
+			spd_80 += record.get('spd_lt80');
+			spd_90 += record.get('spd_lt90');
+			spd_100 += record.get('spd_lt100');
+			spd_110 += record.get('spd_lt110');
+			spd_120 += record.get('spd_lt120');
+			spd_130 += record.get('spd_lt130');
+			spd_140 += record.get('spd_lt140');
+			spd_150 += record.get('spd_lt150');
+			spd_160 += record.get('spd_lt160');
 		});
-		
-		spd_10_30 = spd_10_30 / totalRecordCnt;
-		spd_40_60 = spd_40_60 / totalRecordCnt;
-		spd_70_90 = spd_70_90 / totalRecordCnt;
-		spd_100_120 = spd_100_120 / totalRecordCnt;
-		spd_over_130 = spd_over_130 / totalRecordCnt;
-		
-		var radarData = [
-		    { 'name' : '10 ~ 30(km)', 	'value' : spd_10_30 },
-		    { 'name' : '40 ~ 60(km)', 	'value' : spd_40_60 },
-		    { 'name' : '70 ~ 90(km)', 	'value' : spd_70_90 },
-		    { 'name' : '100 ~ 120(km)', 'value' : spd_100_120 },
-		    { 'name' : '130(km) ~ ', 	'value' : spd_over_130 },
-		];
 		
 		var radarStore = Ext.create('Ext.data.JsonStore', {
 			fields : ['name', 'value'],
 			autoDestroy : true,
-			data : radarData
+			data : [ { 'name' : '0~10(km)', 		'value' : spd_10 },
+	                 { 'name' : '10~20(km)', 		'value' : spd_20 },
+	                 { 'name' : '20~30(km)', 		'value' : spd_30 },
+	                 { 'name' : '30~40(km)', 		'value' : spd_40 },
+	                 { 'name' : '40~50(km)', 		'value' : spd_50 },
+	                 { 'name' : '50~60(km)', 		'value' : spd_60 },
+	                 { 'name' : '60~70(km)', 		'value' : spd_70 },
+	                 { 'name' : '70~80(km)', 		'value' : spd_80 },
+	                 { 'name' : '80~90(km)', 		'value' : spd_90 },
+	                 { 'name' : '90~100(km)', 		'value' : spd_100 },
+	                 { 'name' : '100~110(km)', 		'value' : spd_110 },
+	                 { 'name' : '110~120(km)', 		'value' : spd_120 },
+	                 { 'name' : '120~130(km)', 		'value' : spd_130 },
+	                 { 'name' : '130~140(km)', 		'value' : spd_140 },
+	                 { 'name' : '140~150(km)', 		'value' : spd_150 },
+	                 { 'name' : '150(km)~', 		'value' : spd_160 }]
 		});
 		
 		var chartPanel = this.sub('chart_panel');
@@ -11064,7 +11075,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 					axis: 'left',
 					xField: 'month',
 	                yField: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
-	                title : [ '10 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
+	                title : [ '0 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
 					showInLegend : true,
 					tips : {
 						trackMouse : true,
@@ -11136,21 +11147,22 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	},
 	
 	createChartData : function(record) {
-		return [  { 'name' : '10~20', 		'value' : record.get('spd_lt10') },
-		          { 'name' : '20~30', 		'value' : record.get('spd_lt20') },
-		          { 'name' : '30~40', 		'value' : record.get('spd_lt30') },
-		          { 'name' : '40~50', 		'value' : record.get('spd_lt40') },
-		          { 'name' : '50~60', 		'value' : record.get('spd_lt50') },
-		          { 'name' : '60~70', 		'value' : record.get('spd_lt60') },
-		          { 'name' : '70~80', 		'value' : record.get('spd_lt70') },
-		          { 'name' : '80~90', 		'value' : record.get('spd_lt80') },
-		          { 'name' : '90~100', 		'value' : record.get('spd_lt90') },
-		          { 'name' : '100~110', 	'value' : record.get('spd_lt100') },
-		          { 'name' : '110~120', 	'value' : record.get('spd_lt110') },
-		          { 'name' : '120~130', 	'value' : record.get('spd_lt120') },
-		          { 'name' : '130~140', 	'value' : record.get('spd_lt130') },
-		          { 'name' : '140~150', 	'value' : record.get('spd_lt140') },
-		          { 'name' : '150~', 		'value' : record.get('spd_lt150') } ];
+		return [ { 'name' : '0~10(km)', 		'value' : record.get('spd_lt10') },
+		         { 'name' : '10~20(km)', 		'value' : record.get('spd_lt20') },
+		         { 'name' : '20~30(km)', 		'value' : record.get('spd_lt30') },
+		         { 'name' : '30~40(km)', 		'value' : record.get('spd_lt40') },
+		         { 'name' : '40~50(km)', 		'value' : record.get('spd_lt50') },
+		         { 'name' : '50~60(km)', 		'value' : record.get('spd_lt60') },
+		         { 'name' : '60~70(km)', 		'value' : record.get('spd_lt70') },
+		         { 'name' : '70~80(km)', 		'value' : record.get('spd_lt80') },
+		         { 'name' : '80~90(km)', 		'value' : record.get('spd_lt90') },
+		         { 'name' : '90~100(km)', 		'value' : record.get('spd_lt100') },
+		         { 'name' : '100~110(km)', 		'value' : record.get('spd_lt110') },
+		         { 'name' : '110~120(km)', 		'value' : record.get('spd_lt120') },
+		         { 'name' : '120~130(km)', 		'value' : record.get('spd_lt130') },
+		         { 'name' : '130~140(km)', 		'value' : record.get('spd_lt140') },
+		         { 'name' : '140~150(km)', 		'value' : record.get('spd_lt150') },
+		         { 'name' : '150(km)~', 		'value' : record.get('spd_lt160') }];
 	},
 	
 	buildRadarByMonth : function(store, width, height) {
@@ -12060,7 +12072,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 					}
 			    }
 			},		        
-			/*T('title.driver_group'),
+			T('title.driver_group'),
 			{
 				xtype : 'combo',
 				itemId : 'combo_driver_group',
@@ -12073,8 +12085,8 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 						var thisView = combo.up('dashboard_driver_summary');
 						thisView.refresh();						
 					}
-			    }				
-			},*/
+			    }
+			},
 			T('label.period') + ' : ',
 			{
 				xtype : 'combo',
@@ -12195,17 +12207,21 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		var fromDateStr = this.getFromDateValue();
 		var toDateStr = this.getToDateValue();
 		var chartInfo = this.getChartInfo();
-		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
+		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);		
+		var driverGroup = this.sub('combo_driver_group').getValue();		
 		var store = Ext.getStore('DriverRunStore');
 		var proxy = store.getProxy();
 		proxy.extraParams.select = ['driver', 'month', chartInfo.name];
+		
+		if(driverGroup)
+			proxy.extraParams.driver_group = driverGroup;
 		
 		if(fromDateStr)
 			proxy.extraParams.from_date = fromDateStr;
 		
 		if(toDateStr)
 			proxy.extraParams.to_date = toDateStr;
-				
+		
 		store.load({
 			scope : this,
 			callback : function(records, operation, success) {
@@ -12458,6 +12474,478 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 					}
 				}]
 			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.management.DriverGroup', {
+	extend : 'Ext.container.Container',
+	
+	alias : 'widget.management_driver_group',
+
+	title : T('title.driver_group'),
+
+	entityUrl : 'driver_group',
+
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */
+	importUrl : 'driver_group/import',
+
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	/**
+	 * 선택한 Vehicle Group ID를 전역변수로 저장 
+	 */
+	currentDriverGroup : '',
+		
+	initComponent : function() {
+		var self = this;
+
+		this.items = [ {
+			html : "<div class='listTitle'>" + T('title.driver_group_list') + "</div>"
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ this.buildDriverGroupList(this), {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : { align : 'stretch', type : 'vbox' },
+				items : [ this.buildDriverGroupForm(this), this.buildGroupedDriverList(this) ]
+			} ]
+		} ],
+
+		this.callParent(arguments);
+		
+		/**
+		 * Vehicle Group 그리드 선택시 선택한 데이터로 우측 폼 로드
+		 */  
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.currentDriverGroup = record.get('id');
+			self.sub('form').getForm().reset();
+			self.sub('form').loadRecord(record);
+		});
+		
+		/**
+		 * 우측 폼의 키가 변경될 때마다 빈 값으로 변경된 것이 아니라면 
+		 * 0. 선택한 Driver 전역변수를 설정 
+		 * 1. 두 개의 Grid에 어떤 Driver Group이 선택되었는지 표시하기 위해 타이틀을 Refresh 
+		 * 2. Driver List By Group가 그룹별로 Refresh
+		 * 3. TODO : 맨 우측의 Vehicle List가 그룹별로 필터링  
+		 */ 
+		this.sub('form_driver_group_key').on('change', function(field, value) {
+			if(value) {
+				var record = self.sub('grid').store.findRecord('key', value);
+				if(record) {
+					self.currentDriverGroup = record.get('id');
+					self.sub('grouped_drivers_grid').setTitle(T('title.drivers_by_group') + ' [' + record.get('id') + ']');
+					self.sub('form').setTitle(T('title.group_details') + ' [' + record.get('id') + ']');
+					self.searchGroupedDrivers();
+				}
+			}
+		});
+		
+		/**
+		 * Driver List By Group이 호출되기 전에 driver group id 파라미터 설정 
+		 */
+		this.sub('grouped_drivers_grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['driver_group_id'] = self.currentDriverGroup;
+		});
+		
+		/**
+		 * Driver 검색 
+		 */
+		this.down('#search_all_drivers').on('click', function() {
+			self.searchAllDrivers(true);
+		});	
+		
+		/**
+		 * Reset 버튼 선택시 Driver 검색 조건 클리어 
+		 */
+		this.down('#search_reset_all_drivers').on('click', function() {
+			self.sub('all_drivers_id_filter').setValue('');
+			self.sub('all_drivers_name_filter').setValue('');
+		});
+		
+		/**
+		 * Driver Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		this.sub('all_drivers_id_filter').on('change', function(field, value) {
+			self.searchAllDrivers(false);
+		});
+
+		/**
+		 * Driver name 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('all_drivers_name_filter').on('change', function(field, value) {
+			self.searchAllDrivers(false);
+		});		
+		
+		/**
+		 * Driver List가 호출되기 전에 검색 조건이 파라미터에 설정 
+		 */
+		this.sub('all_drivers_grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			var driver_id_filter = self.sub('all_drivers_id_filter');
+			var name_filter = self.sub('all_drivers_name_filter');			
+			operation.params['driver_id'] = driver_id_filter.getSubmitValue();
+			operation.params['name'] = name_filter.getSubmitValue();
+		});
+		
+		/**
+		 * 선택한 Driver들을 그룹에 추가 
+		 */
+		this.down('button[itemId=moveLeft]').on('click', function(button) {
+			
+			if(!self.currentDriverGroup) {
+				Ext.MessageBox.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.driver_group')}));
+				return;				
+			}
+			
+			var selections = self.sub('all_drivers_grid').getSelectionModel().getSelection();
+			if(!selections || selections.length == 0) {
+				Ext.MessageBox.alert(T('msg.none_selected'), "Select the drivers to add driver group [" + self.currentDriverGroup + "]");
+				return;
+			}
+
+			var driver_id_to_delete = [];
+			for(var i = 0 ; i < selections.length ; i++) {
+				driver_id_to_delete.push(selections[i].data.id);
+			}	
+
+			Ext.Ajax.request({
+			    url: '/driver_relation/save',
+			    method : 'POST',
+			    params: {
+			        driver_group_id: self.currentDriverGroup,			        
+			        driver_id : driver_id_to_delete
+			    },
+			    success: function(response) {
+			        var resultObj = Ext.JSON.decode(response.responseText);
+			        
+			        if(resultObj.success) {			        	
+				        self.sub('all_drivers_grid').getSelectionModel().deselectAll(true);
+				        self.searchGroupedDrivers();
+				        GreenFleet.msg(T('label.success'), resultObj.msg);
+			        } else {
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+			        }
+			    },
+			    failure: function(response) {
+			    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+			    }
+			});			
+ 		});
+		
+		/**
+		 * 선택한 Driver들을 그룹에서 삭제 
+		 */
+		this.down('button[itemId=moveRight]').on('click', function(button) {
+			if(!self.currentDriverGroup) {
+				Ext.Msg.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.driver_group')}));
+				return;				
+			}
+			
+			var selections = self.sub('grouped_drivers_grid').getSelectionModel().getSelection();
+			if(!selections || selections.length == 0) {
+				Ext.Msg.alert(T('msg.none_selected'), "Select the drivers to remove from driver group [" + self.currentDriverGroup + "]");
+				return;
+			}
+
+			var driver_id_to_delete = [];
+			for(var i = 0 ; i < selections.length ; i++) {
+				driver_id_to_delete.push(selections[i].data.id);
+			}	
+
+			Ext.Ajax.request({
+			    url: '/driver_relation/delete',
+			    method : 'POST',
+			    params: {
+			        driver_group_id: self.currentDriverGroup,			        
+			        driver_id : driver_id_to_delete
+			    },
+			    success: function(response) {
+			        var resultObj = Ext.JSON.decode(response.responseText);
+			        
+			        if(resultObj.success) {
+				        self.searchGroupedDrivers();
+				        GreenFleet.msg(T('label.success'), resultObj.msg);				        
+			        } else {
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+			        }
+			    },
+			    failure: function(response) {
+			        Ext.MessageBox.alert(T('label.failure'), response.responseText);
+			    }
+			});			
+		});		
+	},
+	
+	searchAllDrivers : function(searchRemote) {
+				
+		if(searchRemote) {
+			this.sub('all_drivers_grid').store.load();			
+			
+		} else {
+			this.sub('all_drivers_grid').store.clearFilter(true);			
+			var idValue = this.sub('all_drivers_id_filter').getValue();
+			var nameValue = this.sub('all_drivers_name_filter').getValue();
+			
+			if(idValue || nameValue) {
+				this.sub('all_drivers_grid').store.filter([ {
+					property : 'id',
+					value : idValue
+				}, {
+					property : 'name',
+					value : nameValue
+				} ]);
+			}			
+		}		
+	},	
+	
+	searchGroupedDrivers : function() {
+		this.sub('grouped_drivers_pagingtoolbar').moveFirst();
+	},
+	
+	buildDriverGroupList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'grid',
+			store : 'DriverGroupStore',
+			title : T('title.driver_group'),
+			width : 320,
+			columns : [ new Ext.grid.RowNumberer(), 
+			{
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : T('label.group'),
+				width : 100
+			}, {
+				dataIndex : 'desc',
+				text : T('label.desc'),
+				width : 220
+			} ]
+		}
+	},
+
+	buildGroupedDriverList : function(main) {
+		return {
+			xtype : 'panel',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [
+			 	{
+			 		xtype : 'gridpanel',
+			 		itemId : 'grouped_drivers_grid',
+			 		store : 'DriverByGroupStore',
+			 		title : T('title.drivers_by_group'),
+			 		flex : 18.5,
+			 		cls : 'hIndexbarZero',
+			 		selModel : new Ext.selection.CheckboxModel(),
+			 		columns : [ 
+			 		    {	
+			 		    	dataIndex : 'key',
+			 		    	text : 'Key',
+			 		    	hidden : true
+			 		    }, {
+			 		    	dataIndex : 'id',
+			 		    	text : T('label.id')
+			 		    }, {
+			 		    	dataIndex : 'name',
+			 		    	text : T('label.name')			 		    	
+			 		    }, {
+			 		    	dataIndex : 'division',
+			 		    	text : T('label.division'),
+			 		    	type : 'string'
+			 		    }, {
+			 		    	dataIndex : 'title',
+			 		    	text : T('label.title'),
+			 		    	type : 'string'
+			 		    }, {
+			 		    	dataIndex : 'social_id',
+			 		    	text : T('label.social'),
+			 		    	type : 'string'
+			 		    }, {
+							dataIndex : 'phone_no_1',
+							text : T('label.phone_x', {x : 1}),
+							type : 'string'
+						}, {
+							dataIndex : 'phone_no_2',
+							text : T('label.phone_x', {x : 2}),
+							type : 'string'
+						}
+			 		],
+					bbar: {
+						xtype : 'pagingtoolbar',
+						itemId : 'grouped_drivers_pagingtoolbar',
+			            store: 'DriverByGroupStore',
+			            cls : 'pagingtoolbar',
+			            displayInfo: true,
+			            displayMsg: 'Displaying drivers {0} - {1} of {2}',
+			            emptyMsg: "No drivers to display"
+			        }			 		
+			 	},
+			 	{
+			 		xtype : 'panel',
+			 		flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'center',
+						pack : 'center'
+					},			 		
+			 		items : [
+			 		     {
+			 		    	 xtype : 'button',
+			 		    	 itemId : 'moveLeft',
+			 		    	 text : '<<'
+			 		     },
+			 		     {
+			 		    	 xtype : 'label',
+			 		    	 margins: '5 0 5 0'
+			 		     },
+			 		     {
+			 		    	 xtype : 'button',
+			 		    	itemId : 'moveRight',
+			 		    	 text : ">>"
+			 		     }
+			 		]
+			 	},
+			 	{
+			 		xtype : 'gridpanel',
+			 		itemId : 'all_drivers_grid',
+			 		store : 'DriverBriefStore',
+			 		title : T('title.driver_list'),
+			 		flex : 10,
+			 		cls : 'hIndexbarZero',
+			 		autoScroll : true,
+			 		selModel : new Ext.selection.CheckboxModel(),
+			 		columns : [ 
+			 		    {	
+			 		    	dataIndex : 'key',
+			 		    	text : 'Key',
+			 		    	hidden : true
+			 		    }, {
+			 		    	dataIndex : 'image_clip',
+			 		    	text : 'Image',
+			 		    	renderer : function(image_clip) {			 		    		
+				 		   		var imgTag = "<img src='";
+				 				
+				 				if(image_clip) {
+				 					imgTag += "download?blob-key=" + image_clip;
+				 				} else {
+				 					imgTag += "resources/image/bgVehicle.png";
+				 				}
+				 				
+				 				imgTag += "' width='80' height='80'/>";
+				 				return imgTag;
+			 		    	}			 		    	
+			 		    }, {
+			 		    	dataIndex : 'id',
+			 		    	text : T('label.id')
+			 		    }, {
+			 		    	dataIndex : 'name',
+			 		    	text : T('label.name')
+			 		    } 
+			 		],
+					tbar : [ T('label.id'), {
+						xtype : 'textfield',
+						name : 'all_drivers_id_filter',
+						itemId : 'all_drivers_id_filter',
+						hideLabel : true,
+						width : 70
+					}, T('label.name'), {
+						xtype : 'textfield',
+						name : 'all_drivers_name_filter',
+						itemId : 'all_drivers_name_filter',
+						hideLabel : true,
+						width : 70
+					}, ' ', {
+						text : T('button.search'),
+						itemId : 'search_all_drivers'
+					}, ' ', {
+						text : T('button.reset'),
+						itemId : 'search_reset_all_drivers'
+					} ],
+					bbar: {
+						xtype : 'pagingtoolbar',
+						itemId : 'all_drivers_pagingtoolbar',
+			            store: 'DriverBriefStore',
+			            cls : 'pagingtoolbar',
+			            displayInfo: true,
+			            displayMsg: 'Displaying drivers {0} - {1} of {2}',
+			            emptyMsg: "No drivers to display"
+			        }
+			 	}
+			 ]
+		}
+	},
+
+	buildDriverGroupForm : function(main) {
+		return {
+			xtype : 'form',
+			itemId : 'form',
+			bodyPadding : 10,
+			cls : 'hIndexbar',
+			title : T('title.group_details'),
+			height : 170,
+			defaults : {
+				xtype : 'textfield',
+				anchor : '100%'
+			},
+			items : [ {
+				name : 'key',
+				fieldLabel : 'Key',
+				hidden : true,
+				itemId : 'form_driver_group_key'
+			}, {
+				name : 'id',
+				fieldLabel : T('label.group')
+			}, {
+				name : 'desc',
+				fieldLabel : T('label.desc')
+			}, {
+				xtype : 'datefield',
+				name : 'updated_at',
+				disabled : true,
+				fieldLabel : T('label.updated_at'),
+				format : F('datetime')
+			}, {
+				xtype : 'datefield',
+				name : 'created_at',
+				disabled : true,
+				fieldLabel : T('label.updated_at'),
+				format : F('datetime')
+			} ],
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',				
+				confirmMsgSave : T('msg.confirm_save'),				
+				confirmMsgDelete : T('msg.confirm_delete'),				
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
+			} ]
 		}
 	}
 });
@@ -14836,6 +15324,121 @@ Ext.define('GreenFleet.store.MonthStore', {
 	         { "month" : 11 },
 	         { "month" : 12 } ]
 });
+Ext.define('GreenFleet.store.DriverGroupStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+	
+	pageSize : 1000,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'desc',
+		type : 'string'
+	}, {
+		name : 'drivers',
+		type : 'auto'
+	}, {
+		name : 'created_at',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'updated_at',
+		type : 'date',
+		dateFormat:'time'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'driver_group',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
+Ext.define('GreenFleet.store.DriverRelationStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+	
+	pageSize : 1000,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'driver_id',
+		type : 'string'
+	}, {
+		name : 'driver_group_id',
+		type : 'string'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'driver_relation',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total',
+			successProperty : 'success'
+		}
+	}
+});
+Ext.define('GreenFleet.store.DriverByGroupStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : false,
+	
+	pageSize : 1000,
+	
+	fields : [ {
+		name : 'key',
+		type : 'string'
+	}, {
+		name : 'name',
+		type : 'string'
+	}, {
+		name : 'id',
+		type : 'string'
+	}, {
+		name : 'division',
+		type : 'string'
+	}, {
+		name : 'title',
+		type : 'string'
+	}, {
+		name : 'social_id',
+		type : 'string'
+	}, {
+		name : 'phone_no_1',
+		type : 'string'
+	}, {
+		name : 'phone_no_2',
+		type : 'string'
+	}, {
+		name : 'image_clip',
+		type : 'string'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'driver_group/drivers',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total',
+			successProperty : 'success'
+		}
+	}
+});
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller',
 
@@ -14849,7 +15452,8 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore', 
 	           'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 
 	           'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 
-	           'LocationStore', 'AlarmStore', 'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore' ],
+	           'LocationStore', 'AlarmStore', 'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 
+	           'MonthStore', 'DriverGroupStore', 'DriverRelationStore', 'DriverByGroupStore' ],
 
 	models : [ 'Code' ],
 
@@ -14862,7 +15466,8 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
-	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 'dashboard.DriverRunningSummary' ],
+	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 
+	          'dashboard.DriverRunningSummary', 'management.DriverGroup' ],
 
 	init : function() {
 		this.control({

@@ -99,6 +99,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'vehicle_group',
 			closable : true
 		}, {
+			title : T('menu.driver_group'),
+			xtype : 'management_driver_group',
+			itemId : 'driver_group',
+			closable : true			
+		}, {
 			title : T('menu.consumable_code'),
 			xtype : 'management_consumable_code',
 			itemId : 'consumable_code',

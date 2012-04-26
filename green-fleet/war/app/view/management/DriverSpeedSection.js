@@ -337,8 +337,8 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		var columnDataArr = [];
 		var store = this.sub('runstatus_grid').store;
 		store.each(function(record) {
-			// speed 10 ~ 30
-			var spd_10_30 = (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
+			// speed 0 ~ 30
+			var spd_30 = (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
 			// speed 40 ~ 60
 			var spd_40_60 = (record.get('spd_lt40') + record.get('spd_lt50') + record.get('spd_lt60'));
 			// speed 50 ~ 80
@@ -349,7 +349,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
 			
 			var columnData = { 	'month' : record.get('month_str'), 
-								'value1' : spd_10_30, 		'desc1' : '10 ~ 30(km)', 
+								'value1' : spd_30, 			'desc1' : '0 ~ 30(km)', 
 								'value2' : spd_40_60, 		'desc2' : '40 ~ 60(km)',
 								'value3' : spd_70_90, 		'desc3' : '70 ~ 90(km)',
 								'value4' : spd_100_120, 	'desc4' : '100 ~ 120(km)', 
@@ -372,52 +372,61 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	refreshRadarChart : function() {
 		
 		var store = this.sub('runstatus_grid').store;
-		var totalRecordCnt = 0;
-		var spd_10_30 = 0;
-		var spd_40_60 = 0;
-		var spd_70_90 = 0;
-		var spd_100_120 = 0;
-		var spd_over_130 = 0;
+		var spd_10 = 0;
+		var spd_20 = 0;
+		var spd_30 = 0;
+		var spd_40 = 0;
+		var spd_50 = 0;
+		var spd_60 = 0;
+		var spd_70 = 0;
+		var spd_80 = 0;
+		var spd_90 = 0;
+		var spd_100 = 0;
+		var spd_110 = 0;
+		var spd_120 = 0;
+		var spd_130 = 0;
+		var spd_140 = 0;
+		var spd_150 = 0;
+		var spd_160 = 0;
 		
 		store.each(function(record) {
-			
-			if(record.get('driver'))
-				totalRecordCnt += 1;
-			
-			// speed 10 ~ 30
-			spd_10_30 += (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
-
-			// speed 40 ~ 60
-			spd_40_60 += (record.get('spd_lt40') + record.get('spd_lt50') + record.get('spd_lt60'));
-			
-			// speed 50 ~ 80
-			spd_70_90 += (record.get('spd_lt70') + record.get('spd_lt80') + record.get('spd_lt90'));
-			
-			// speed 90 ~ 120
-			spd_100_120 += (record.get('spd_lt90') + record.get('spd_lt100') + record.get('spd_lt110') + record.get('spd_lt120'));
-			
-			// speed 130 ~
-			spd_over_130 += (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
+			spd_10 += record.get('spd_lt10');
+			spd_20 += record.get('spd_lt20');
+			spd_30 += record.get('spd_lt30');
+			spd_40 += record.get('spd_lt40');
+			spd_50 += record.get('spd_lt50');
+			spd_60 += record.get('spd_lt60');
+			spd_70 += record.get('spd_lt70');
+			spd_80 += record.get('spd_lt80');
+			spd_90 += record.get('spd_lt90');
+			spd_100 += record.get('spd_lt100');
+			spd_110 += record.get('spd_lt110');
+			spd_120 += record.get('spd_lt120');
+			spd_130 += record.get('spd_lt130');
+			spd_140 += record.get('spd_lt140');
+			spd_150 += record.get('spd_lt150');
+			spd_160 += record.get('spd_lt160');
 		});
-		
-		spd_10_30 = spd_10_30 / totalRecordCnt;
-		spd_40_60 = spd_40_60 / totalRecordCnt;
-		spd_70_90 = spd_70_90 / totalRecordCnt;
-		spd_100_120 = spd_100_120 / totalRecordCnt;
-		spd_over_130 = spd_over_130 / totalRecordCnt;
-		
-		var radarData = [
-		    { 'name' : '10 ~ 30(km)', 	'value' : spd_10_30 },
-		    { 'name' : '40 ~ 60(km)', 	'value' : spd_40_60 },
-		    { 'name' : '70 ~ 90(km)', 	'value' : spd_70_90 },
-		    { 'name' : '100 ~ 120(km)', 'value' : spd_100_120 },
-		    { 'name' : '130(km) ~ ', 	'value' : spd_over_130 },
-		];
 		
 		var radarStore = Ext.create('Ext.data.JsonStore', {
 			fields : ['name', 'value'],
 			autoDestroy : true,
-			data : radarData
+			data : [ { 'name' : '0~10(km)', 		'value' : spd_10 },
+	                 { 'name' : '10~20(km)', 		'value' : spd_20 },
+	                 { 'name' : '20~30(km)', 		'value' : spd_30 },
+	                 { 'name' : '30~40(km)', 		'value' : spd_40 },
+	                 { 'name' : '40~50(km)', 		'value' : spd_50 },
+	                 { 'name' : '50~60(km)', 		'value' : spd_60 },
+	                 { 'name' : '60~70(km)', 		'value' : spd_70 },
+	                 { 'name' : '70~80(km)', 		'value' : spd_80 },
+	                 { 'name' : '80~90(km)', 		'value' : spd_90 },
+	                 { 'name' : '90~100(km)', 		'value' : spd_100 },
+	                 { 'name' : '100~110(km)', 		'value' : spd_110 },
+	                 { 'name' : '110~120(km)', 		'value' : spd_120 },
+	                 { 'name' : '120~130(km)', 		'value' : spd_130 },
+	                 { 'name' : '130~140(km)', 		'value' : spd_140 },
+	                 { 'name' : '140~150(km)', 		'value' : spd_150 },
+	                 { 'name' : '150(km)~', 		'value' : spd_160 }]
 		});
 		
 		var chartPanel = this.sub('chart_panel');
@@ -522,7 +531,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 					axis: 'left',
 					xField: 'month',
 	                yField: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
-	                title : [ '10 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
+	                title : [ '0 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
 					showInLegend : true,
 					tips : {
 						trackMouse : true,
@@ -594,21 +603,22 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	},
 	
 	createChartData : function(record) {
-		return [  { 'name' : '10~20', 		'value' : record.get('spd_lt10') },
-		          { 'name' : '20~30', 		'value' : record.get('spd_lt20') },
-		          { 'name' : '30~40', 		'value' : record.get('spd_lt30') },
-		          { 'name' : '40~50', 		'value' : record.get('spd_lt40') },
-		          { 'name' : '50~60', 		'value' : record.get('spd_lt50') },
-		          { 'name' : '60~70', 		'value' : record.get('spd_lt60') },
-		          { 'name' : '70~80', 		'value' : record.get('spd_lt70') },
-		          { 'name' : '80~90', 		'value' : record.get('spd_lt80') },
-		          { 'name' : '90~100', 		'value' : record.get('spd_lt90') },
-		          { 'name' : '100~110', 	'value' : record.get('spd_lt100') },
-		          { 'name' : '110~120', 	'value' : record.get('spd_lt110') },
-		          { 'name' : '120~130', 	'value' : record.get('spd_lt120') },
-		          { 'name' : '130~140', 	'value' : record.get('spd_lt130') },
-		          { 'name' : '140~150', 	'value' : record.get('spd_lt140') },
-		          { 'name' : '150~', 		'value' : record.get('spd_lt150') } ];
+		return [ { 'name' : '0~10(km)', 		'value' : record.get('spd_lt10') },
+		         { 'name' : '10~20(km)', 		'value' : record.get('spd_lt20') },
+		         { 'name' : '20~30(km)', 		'value' : record.get('spd_lt30') },
+		         { 'name' : '30~40(km)', 		'value' : record.get('spd_lt40') },
+		         { 'name' : '40~50(km)', 		'value' : record.get('spd_lt50') },
+		         { 'name' : '50~60(km)', 		'value' : record.get('spd_lt60') },
+		         { 'name' : '60~70(km)', 		'value' : record.get('spd_lt70') },
+		         { 'name' : '70~80(km)', 		'value' : record.get('spd_lt80') },
+		         { 'name' : '80~90(km)', 		'value' : record.get('spd_lt90') },
+		         { 'name' : '90~100(km)', 		'value' : record.get('spd_lt100') },
+		         { 'name' : '100~110(km)', 		'value' : record.get('spd_lt110') },
+		         { 'name' : '110~120(km)', 		'value' : record.get('spd_lt120') },
+		         { 'name' : '120~130(km)', 		'value' : record.get('spd_lt130') },
+		         { 'name' : '130~140(km)', 		'value' : record.get('spd_lt140') },
+		         { 'name' : '140~150(km)', 		'value' : record.get('spd_lt150') },
+		         { 'name' : '150(km)~', 		'value' : record.get('spd_lt160') }];
 	},
 	
 	buildRadarByMonth : function(store, width, height) {

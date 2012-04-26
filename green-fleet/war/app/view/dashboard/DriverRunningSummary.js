@@ -148,7 +148,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 					}
 			    }
 			},		        
-			/*T('title.driver_group'),
+			T('title.driver_group'),
 			{
 				xtype : 'combo',
 				itemId : 'combo_driver_group',
@@ -161,8 +161,8 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 						var thisView = combo.up('dashboard_driver_summary');
 						thisView.refresh();						
 					}
-			    }				
-			},*/
+			    }
+			},
 			T('label.period') + ' : ',
 			{
 				xtype : 'combo',
@@ -283,17 +283,21 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		var fromDateStr = this.getFromDateValue();
 		var toDateStr = this.getToDateValue();
 		var chartInfo = this.getChartInfo();
-		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
+		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);		
+		var driverGroup = this.sub('combo_driver_group').getValue();		
 		var store = Ext.getStore('DriverRunStore');
 		var proxy = store.getProxy();
 		proxy.extraParams.select = ['driver', 'month', chartInfo.name];
+		
+		if(driverGroup)
+			proxy.extraParams.driver_group = driverGroup;
 		
 		if(fromDateStr)
 			proxy.extraParams.from_date = fromDateStr;
 		
 		if(toDateStr)
 			proxy.extraParams.to_date = toDateStr;
-				
+		
 		store.load({
 			scope : this,
 			callback : function(records, operation, success) {

@@ -246,6 +246,10 @@
                     "name": "DriverRunningSummary.js"
                 },
                 {
+                    "path": "app/view/management/",
+                    "name": "DriverGroup.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -424,6 +428,18 @@
                 {
                     "path": "app/store/",
                     "name": "MonthStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverGroupStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverRelationStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "DriverByGroupStore.js"
                 },
                 {
                     "path": "app/controller/",

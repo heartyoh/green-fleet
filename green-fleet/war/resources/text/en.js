@@ -15,6 +15,7 @@ T({
 		user : 'User',
 		code : 'Code',		
 		vehicle_group : 'Vehicle Group',
+		driver_group : 'Driver Group',
 		vehicle : 'Vehicle',
 		incident : 'Incident',
 		track : 'Track',
@@ -57,6 +58,9 @@ T({
 		code_group : 'Code Group',
 		vehicle_group : 'Vehicle Group',
 		vehicle_group_list : 'Vehicle Group List',
+		driver_group : 'Driver Group',
+		driver_group_list : 'Driver Group List',
+		drivers_by_group : 'Drivers By Group',
 		group_details : 'Group Details',
 		vehicles_by_group : 'Vehicles By Group',
 		vehicle_list : 'Vehicle List',
@@ -361,6 +365,8 @@ T({
 		failed_to_ajax : 'Ajax communication failed!',
 		invalid_form_values : 'Form fields may not be submitted with invalid values!',
 		select_a_consumable : 'Select a consumable',
-		select_users : 'Enter email addresses of users that you want to send an alarm, separated by , ...'
+		select_users : 'Enter email addresses of users that you want to send an alarm, separated by , ...',
+		none_selected : 'None Selected!',
+		select_x_first : 'Select {x} First!',
 	}
 });

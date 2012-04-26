@@ -120,6 +120,7 @@ public class VehicleRunService extends EntityService {
 
 	@Override
 	protected void addFilter(Query q, String property, String value) {
+		
 		if("from_date".equals(property)) {
 			Date fromDate = DataUtils.toDate(value);
 			q.addFilter("month", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
@@ -153,6 +154,7 @@ public class VehicleRunService extends EntityService {
 		if(!DataUtils.isEmpty(vehicleGroup)) {
 			List<String> vgList = new ArrayList<String>();
 			Iterator<Entity> vgIter = DatastoreUtils.findEntities(this.getCompanyKey(request), "VehicleRelation", DataUtils.newMap("vehicle_group_id", vehicleGroup));
+			
 			while(vgIter.hasNext()) {
 				Entity vg = vgIter.next();
 				vgList.add((String)vg.getProperty("vehicle_id"));

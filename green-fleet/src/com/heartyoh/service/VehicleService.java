@@ -181,7 +181,8 @@ public class VehicleService extends EntityService {
 	}
 	
 	@Override
-	protected void buildQuery(Query q, HttpServletRequest request) {		
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		
 		String vehicleId = request.getParameter("vehicle_id");
 		if(!DataUtils.isEmpty(vehicleId)) {
 			q.addFilter("id", FilterOperator.EQUAL, vehicleId);

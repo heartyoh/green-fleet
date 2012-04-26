@@ -15,6 +15,7 @@ T({
 		user : '사용자',
 		code : '코드',		
 		vehicle_group : '차량 그룹',
+		driver_group : '운전자 그룹',
 		vehicle : '차량',
 		incident : '이상상황',
 		track : '추적',
@@ -57,6 +58,9 @@ T({
 		code_group : '코드 그룹',
 		vehicle_group : '차량 그룹',
 		vehicle_group_list : '차량 그룹 리스트',
+		driver_group : '운전자 그룹',
+		driver_group_list : '운전자 그룹 리스트',
+		drivers_by_group : '그룹별 운전자',
 		group_details : '그룹 상세',
 		vehicles_by_group : '그룹별 차량',
 		vehicle_list : '차량 리스트',
@@ -361,6 +365,8 @@ T({
 		failed_to_ajax : 'Ajax 통신에 실패했습니다!',
 		invalid_form_values : '폼 필드에 유효하지 않은 값이 있습니다',
 		select_a_consumable : '소모품 종류를 선택하세요',
-		select_users : '알람을 보내고자 하는 사용자의 이메일 주소를 ,로 구분하여 입력...'
+		select_users : '알람을 보내고자 하는 사용자의 이메일 주소를 ,로 구분하여 입력...',
+		none_selected : '선택된 항목이 없습니다!',
+		select_x_first : '{x}를 먼저 선택해주세요'
 	}
 });
