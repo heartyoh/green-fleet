@@ -52,7 +52,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc'];
+			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'oos_cnt', 'mnt_cnt'];
 			proxy.extraParams.vehicle = record.data.id;
 			proxy.extraParams.from_date = self.sub('from_date').getValue();
 			proxy.extraParams.to_date = self.sub('to_date').getValue();
@@ -201,6 +201,12 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			}, {
 				header : T('label.fuel_efficiency') + ' (km/l)',
 				dataIndex : 'effcc'
+			}, {
+				header : T('label.outofservice_count'),
+				dataIndex : 'oos_cnt'
+			}, {
+				header : T('label.maintenence_count'),
+				dataIndex : 'mnt_cnt'
 			} ]
 		}],
 
@@ -277,7 +283,9 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 					        { "name" : "run_time", 	"desc" : T('label.run_time'), 			"unit" : "(min)" },
 							{ "name" : "consmpt", 	"desc" : T('label.fuel_consumption'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 	"desc" : T('label.co2_emissions'), 		"unit" : "(g/km)" },
-							{ "name" : "effcc", 	"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" }]
+							{ "name" : "effcc", 	"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 	"desc" : T('label.outofservice_count'), "unit" : "" },
+							{ "name" : "mnt_cnt", 	"desc" : T('label.maintenence_count'), 	"unit" : "" }]
 							//{ "name" : "total", 	"desc" : T('label.total'), 				"unit" : "" }]
 				}),
 				listeners: {

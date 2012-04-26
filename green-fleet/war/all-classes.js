@@ -9548,7 +9548,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc'];
+			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'oos_cnt', 'mnt_cnt'];
 			proxy.extraParams.vehicle = record.data.id;
 			proxy.extraParams.from_date = self.sub('from_date').getValue();
 			proxy.extraParams.to_date = self.sub('to_date').getValue();
@@ -9697,6 +9697,12 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			}, {
 				header : T('label.fuel_efficiency') + ' (km/l)',
 				dataIndex : 'effcc'
+			}, {
+				header : T('label.outofservice_count'),
+				dataIndex : 'oos_cnt'
+			}, {
+				header : T('label.maintenence_count'),
+				dataIndex : 'mnt_cnt'
 			} ]
 		}],
 
@@ -9773,7 +9779,9 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 					        { "name" : "run_time", 	"desc" : T('label.run_time'), 			"unit" : "(min)" },
 							{ "name" : "consmpt", 	"desc" : T('label.fuel_consumption'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 	"desc" : T('label.co2_emissions'), 		"unit" : "(g/km)" },
-							{ "name" : "effcc", 	"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" }]
+							{ "name" : "effcc", 	"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 	"desc" : T('label.outofservice_count'), "unit" : "" },
+							{ "name" : "mnt_cnt", 	"desc" : T('label.maintenence_count'), 	"unit" : "" }]
 							//{ "name" : "total", 	"desc" : T('label.total'), 				"unit" : "" }]
 				}),
 				listeners: {
@@ -10050,6 +10058,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			proxy.extraParams.driver = record.data.id;
 			proxy.extraParams.from_date = self.sub('from_date').getValue();
 			proxy.extraParams.to_date = self.sub('to_date').getValue();
+			proxy.extraParams.select = ['key', 'driver', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -11344,17 +11353,10 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				fields : [ 'id', 'name' ],		        
 				data : [{ "id" : "vehicle_summary", 			"name" : T('report.vehicle_summary') },
 				        { "id" : "driver_summary", 				"name" : T('report.driver_summary') },
-				        //{ "id" : "runtime_by_vehicles", 		"name" : T('report.runtime_by_vehicles') },
-				        //{ "id" : "runtime_by_drivers", 		"name" : T('report.runtime_by_drivers') },
-				        //{ "id" : "rundist_by_vehicles", 		"name" : T('report.rundist_by_vehicles') },
-				        //{ "id" : "rundist_by_drivers", 		"name" : T('report.rundist_by_drivers') },
-				        //{ "id" : "consumption_by_vehicles", 	"name" : T('report.consumption_by_vehicles') },
-				        //{ "id" : "efficiency_by_vehicles", 	"name" : T('report.efficiency_by_vehicles') },
-				        //{ "id" : "co2_emissions_by_vehicles", "name" : T('report.co2_emissions_by_vehicles') },
 				        { "id" : "oprate_by_vehicles", 			"name" : T('report.oprate_by_vehicles') },
 				        { "id" : "oprate_by_drivers", 			"name" : T('report.oprate_by_drivers') },
-				        { "id" : "maint_times", 				"name" : T('report.maint_times') },
-				        { "id" : "breakdown_times", 			"name" : T('report.breakdown_times') },
+				        //{ "id" : "maint_times", 				"name" : T('report.maint_times') },
+				        //{ "id" : "breakdown_times", 			"name" : T('report.breakdown_times') },
 				        { "id" : "vehicle_effcc_rel", 			"name" : T('report.vehicle_effcc_rel') },
 				        { "id" : "driver_effcc_rel", 			"name" : T('report.driver_effcc_rel') },
 				        { "id" : "habit_effcc_rel", 			"name" : T('report.habit_effcc_rel') },
@@ -11568,11 +11570,13 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 	"desc" : T('report.runtime_by_vehicles'), 			"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "run_dist", 	"desc" : T('report.rundist_by_vehicles'), 			"unit" : "(km)" },
-							{ "name" : "consmpt", 	"desc" : T('report.consumption_by_vehicles'), 		"unit" : "(l)" },
-							{ "name" : "co2_emss", 	"desc" : T('report.co2_emissions_by_vehicles'),		"unit" : "(g/km)" },
-							{ "name" : "effcc", 	"desc" : T('report.efficiency_by_vehicles'), 		"unit" : "(km/l)" }]
+					data : [{ "name" : "run_time", 	"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "run_dist", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
+							{ "name" : "effcc", 	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 	"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_cnt", 	"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -11719,7 +11723,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_year' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;
@@ -12274,7 +12278,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_year' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByDriver(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByDriver(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;
@@ -15117,6 +15121,12 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	}, {
 		name : 'effcc',
 		type : 'float'
+	}, {
+		name : 'oos_cnt',
+		type : 'integer'
+	}, {
+		name : 'mnt_cnt',
+		type : 'integer'
 	} ],
 	
 	sorters : [ {

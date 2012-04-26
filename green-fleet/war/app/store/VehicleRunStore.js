@@ -31,6 +31,12 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	}, {
 		name : 'effcc',
 		type : 'float'
+	}, {
+		name : 'oos_cnt',
+		type : 'integer'
+	}, {
+		name : 'mnt_cnt',
+		type : 'integer'
 	} ],
 	
 	sorters : [ {

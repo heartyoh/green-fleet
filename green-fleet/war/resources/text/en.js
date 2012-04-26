@@ -124,13 +124,13 @@ T({
         co2_emissions_by_drivers : 'CO2 Emissions By Drivers',
         oprate_by_vehicles : 'Rate of Operate By Vehicles',
         oprate_by_drivers : 'Rate of Operate By Drivers',
+        oos_cnt_by_vehicles : 'OutOfService Count By Vehicles',
+        mnt_cnt_by_vehicles : 'Maintenence Count By Vehicles',
 		sud_accel_cnt_by_drivers : 'Sudden Accel Count By Drivers',
 		sud_brake_cnt_by_drivers : 'Sudden Brake Count By Drivers',
 		eco_drv_time_by_drivers : 'Eco-Driving Time By Drivers',
 		ovr_spd_time_by_drivers : 'Over Speed Time By Drivers',
 		inc_cnt_by_drivers : 'Incident Count By Drivers',
-        maint_times : 'Maintenence Times',
-        breakdown_times : 'Breakdown Times',
         vehicle_effcc_rel : 'Vehicle-Efficiency Rel.',
         driver_effcc_rel : 'Driver-Efficiency Rel.',
         habit_effcc_rel : 'Driver Habits-Efficiency Rel.',
@@ -342,7 +342,9 @@ T({
 		column : 'Column',
 		radar : 'Radar',
 		speed_section : 'Speed Section',
-		sum : 'Sum'
+		sum : 'Sum',
+		outofservice_count : 'OutOfService Count',
+		maintenence_count : 'Maintenence Count'
 	},
 	
 	format : {

@@ -194,11 +194,13 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 	"desc" : T('report.runtime_by_vehicles'), 			"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "run_dist", 	"desc" : T('report.rundist_by_vehicles'), 			"unit" : "(km)" },
-							{ "name" : "consmpt", 	"desc" : T('report.consumption_by_vehicles'), 		"unit" : "(l)" },
-							{ "name" : "co2_emss", 	"desc" : T('report.co2_emissions_by_vehicles'),		"unit" : "(g/km)" },
-							{ "name" : "effcc", 	"desc" : T('report.efficiency_by_vehicles'), 		"unit" : "(km/l)" }]
+					data : [{ "name" : "run_time", 	"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "run_dist", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
+							{ "name" : "effcc", 	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 	"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_cnt", 	"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -345,7 +347,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_year' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;

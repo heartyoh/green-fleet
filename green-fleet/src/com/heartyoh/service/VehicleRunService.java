@@ -76,6 +76,12 @@ public class VehicleRunService extends EntityService {
 		// 연비 
 		entity.setProperty("effcc", map.get("effcc"));
 		
+		// 고장 횟수
+		entity.setProperty("oos_cnt", DataUtils.toInt(map.get("oos_cnt")));
+		
+		// 정비 횟수 
+		entity.setProperty("mnt_cnt", DataUtils.toInt(map.get("mnt_cnt")));		
+		
 		super.onSave(entity, map, datastore);
 	}
 	

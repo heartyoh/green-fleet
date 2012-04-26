@@ -124,13 +124,13 @@ T({
         co2_emissions_by_drivers : '운전자별 CO2배출량',
         oprate_by_vehicles : '차량별 가동율',
         oprate_by_drivers : '운전자별 가동율',
+        oos_cnt_by_vehicles : '차량별 고장횟수',
+        mnt_cnt_by_vehicles : '차량별 정비횟수',
 		sud_accel_cnt_by_drivers : '운전자별 급가속횟수',
 		sud_brake_cnt_by_drivers : '운전자별 급감속횟수',
 		eco_drv_time_by_drivers : '운전자별 경제운전시간',
 		ovr_spd_time_by_drivers : '운전자별 과속시간',
 		inc_cnt_by_drivers : '운전자별 사고횟수',
-        maint_times : '차량별 정비횟수',
-        breakdown_times : '차량별 고장횟수',
         vehicle_effcc_rel : '차량-연비 상관관계',
         driver_effcc_rel : '운전자-연비 상관관계',
         habit_effcc_rel : '운전자습관-연비 상관관계',
@@ -342,7 +342,9 @@ T({
 		column : '컬럼',
 		radar : '레이더',
 		speed_section : '속도 구간',
-		sum : '합계'
+		sum : '합계',
+		outofservice_count : '고장 횟수',
+		maintenence_count : '정비 횟수'		
 	},
 	
 	format : {
