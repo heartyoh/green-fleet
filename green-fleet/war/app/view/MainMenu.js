@@ -189,6 +189,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'consumable',
 			closable : true
 		}, {
+			title : T('menu.maintenance'),
+			xtype : 'pm_maintenance',
+			itemId : 'maintenance',
+			closable : true
+		}, {
 			title : T('menu.vehicle_health'),
 			xtype : 'dashboard_vehicle_health',
 			itemId : 'vehicle_health',

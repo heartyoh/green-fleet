@@ -441,7 +441,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 	zmainthistory : {
 		xtype : 'tabpanel',
 		autoScroll : true,
-		title : T('title.maintenence_history'),
+		title : T('title.maintenance_history'),
 		flex : 1,
 		cls : 'hIndexbar',
 		layout : 'fit',

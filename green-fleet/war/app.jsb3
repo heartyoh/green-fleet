@@ -250,6 +250,10 @@
                     "name": "DriverGroup.js"
                 },
                 {
+                    "path": "app/view/pm/",
+                    "name": "Maintenance.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },

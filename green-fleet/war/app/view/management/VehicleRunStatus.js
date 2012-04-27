@@ -205,7 +205,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				header : T('label.outofservice_count'),
 				dataIndex : 'oos_cnt'
 			}, {
-				header : T('label.maintenence_count'),
+				header : T('label.maintenance_count'),
 				dataIndex : 'mnt_cnt'
 			} ]
 		}],
@@ -285,8 +285,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 							{ "name" : "co2_emss", 	"desc" : T('label.co2_emissions'), 		"unit" : "(g/km)" },
 							{ "name" : "effcc", 	"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
 							{ "name" : "oos_cnt", 	"desc" : T('label.outofservice_count'), "unit" : "" },
-							{ "name" : "mnt_cnt", 	"desc" : T('label.maintenence_count'), 	"unit" : "" }]
-							//{ "name" : "total", 	"desc" : T('label.total'), 				"unit" : "" }]
+							{ "name" : "mnt_cnt", 	"desc" : T('label.maintenance_count'), 	"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {

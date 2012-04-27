@@ -71,9 +71,12 @@ public class RepairService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
+		this.checkRepairDate(map);
+		// 수리 시간
+		entity.setProperty("repair_time", map.get("repair_time"));
 		// 다음 정비일 
 		entity.setProperty("next_repair_date", map.get("next_repair_date"));
-		// 수리시 주행거리 
+		// 수리시 주행거리
 		entity.setProperty("repair_mileage", map.get("repair_mileage"));
 		// 자동차 정비소  
 		entity.setProperty("repair_shop", map.get("repair_shop"));
@@ -82,7 +85,7 @@ public class RepairService extends EntityService {
 		// 정비 가격 
 		entity.setProperty("cost", map.get("cost"));
 		// 수리 내용 
-		entity.setProperty("content", map.get("content"));		
+		entity.setProperty("content", map.get("content"));
 		// 코멘트 
 		entity.setProperty("comment", map.get("comment"));
 		

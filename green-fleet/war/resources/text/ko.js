@@ -82,7 +82,8 @@ T({
 		consumable_item : '소모품 항목',
 		consumable_change_history : '소모품 교체 이력',
 		vehicle_consumables : '차량 소모품',
-		maintenence_history : '정비 이력',
+		maintenance : '정비',
+		maintenance_history : '정비 이력',
 		vehicle_health : '차량 건강상태',
 		vehicle_age : '차량 연수',		
 		timing_belt_health : '타이밍벨트 상태',
@@ -304,7 +305,13 @@ T({
 		message : '메세지',
 		from_date : '시작일',
 		to_date : '종료일',
-		times : '횟수',		
+		from_time : '시작시간',
+		to_time : '종료시간',
+		times : '횟수',
+		x_from_date : '{x} 시작일',
+		x_to_date : '{x} 종료일',
+		x_from_time : '{x} 시작시간',
+		x_to_time : '{x} 종료시간',
 		phone_x : '전화번호 #{x}',
 		x_id : '{x} 아이디',
 		x_no : '{x} 번호',
@@ -329,7 +336,7 @@ T({
 		state_maint : '정비중',
 		second_s : '초',
 		minute_s : '분',
-		maintenence : '정비',
+		maintenance : '정비',
 		period_always : '기간 항상',
 		period : '기간',
 		chart : '차트',
@@ -344,7 +351,7 @@ T({
 		speed_section : '속도 구간',
 		sum : '합계',
 		outofservice_count : '고장 횟수',
-		maintenence_count : '정비 횟수'		
+		maintenance_count : '정비 횟수'		
 	},
 	
 	format : {

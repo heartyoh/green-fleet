@@ -12,6 +12,9 @@ Ext.define('GreenFleet.store.VehicleImageBriefStore', {
 		name : 'registration_number',
 		type : 'string'
 	}, {
+		name : 'status',
+		type : 'string'
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	} ],
@@ -20,7 +23,7 @@ Ext.define('GreenFleet.store.VehicleImageBriefStore', {
 		type : 'ajax',
 		url : 'vehicle',
 		extraParams : {
-			select : [ 'id', 'registration_number', 'image_clip' ]
+			select : [ 'id', 'registration_number', 'status', 'image_clip' ]
 		},
 		reader : {
 			type : 'json',

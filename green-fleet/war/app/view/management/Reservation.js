@@ -154,7 +154,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			itemId : 'form',
 			bodyPadding : 10,
 			cls : 'hIndexbar',
-			title : 'Reservation Details',
+			title : T('title.reservation_details'),
 			autoScroll : true,
 			flex : 1,
 			defaults : {
