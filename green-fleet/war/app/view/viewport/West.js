@@ -10,6 +10,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 	layout : {
 		type : 'vbox'
 	},
+	
 	items : [ {
 		xtype : 'button',
 		itemId : 'monitor_map',

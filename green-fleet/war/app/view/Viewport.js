@@ -4,6 +4,10 @@ Ext.define('GreenFleet.view.Viewport', {
 	layout : 'border',
 	cls :'wrap',
 
+	initComponent : function() {
+		this.callParent();
+	},
+	
 	defaults : {
 		split : false,
 		collapsible : false

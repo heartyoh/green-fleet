@@ -35,7 +35,8 @@ Ext.define('GreenFleet.view.viewport.North', {
 		}, {
 			xtype : 'tabbar',
 			id : 'menutab',
-			height : 23
+			height : 23,
+			dock : 'top'
 		} ]
 	} ]
 });
