@@ -68,8 +68,9 @@ public class VehicleService extends EntityService {
 	}
 
 	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {		
 		entity.setProperty("manufacturer", map.get("manufacturer"));
+		entity.setProperty("fuel_type", map.get("fuel_type"));
 		entity.setProperty("vehicle_type", map.get("vehicle_type"));
 		entity.setProperty("birth_year", map.get("birth_year"));
 		entity.setProperty("ownership_type", map.get("ownership_type"));

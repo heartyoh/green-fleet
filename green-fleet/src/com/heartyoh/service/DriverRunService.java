@@ -62,19 +62,19 @@ public class DriverRunService extends EntityService {
 		this.checkDate(map);
 		
 		// 주행거리 
-		entity.setProperty("run_dist", map.get("run_dist"));
+		entity.setProperty("run_dist", DataUtils.toDouble(map.get("run_dist")));
 		
 		// 주행시간 
-		entity.setProperty("run_time", map.get("run_time"));
+		entity.setProperty("run_time", DataUtils.toInt(map.get("run_time")));
 		
 		// 연료소모량 
-		entity.setProperty("consmpt", map.get("consmpt"));
+		entity.setProperty("consmpt", DataUtils.toDouble(map.get("consmpt")));
 		
 		// CO2 배출량 
-		entity.setProperty("co2_emss", map.get("co2_emss"));
+		entity.setProperty("co2_emss", DataUtils.toDouble(map.get("co2_emss")));
 		
 		// 연비 
-		entity.setProperty("effcc", map.get("effcc"));
+		entity.setProperty("effcc", DataUtils.toDouble(map.get("effcc")));
 		
 		// 급가속 횟수 
 		entity.setProperty("sud_accel_cnt", DataUtils.toInt(map.get("sud_accel_cnt")));

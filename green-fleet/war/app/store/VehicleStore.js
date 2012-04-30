@@ -18,6 +18,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'manufacturer',
 		type : 'string'
 	}, {
+		name : 'fuel_type',
+		type : 'string'
+	}, {
 		name : 'vehicle_type',
 		type : 'string'
 	}, {

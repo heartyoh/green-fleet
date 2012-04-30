@@ -115,6 +115,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.manufacturer'),
 				type : 'string'
 			}, {
+				dataIndex : 'fuel_type',
+				text : T('label.fuel_type'),
+				type : 'string'
+			}, {
 				dataIndex : 'vehicle_type',
 				text : T('label.x_type', {x: T('label.vehicle')}),
 				type : 'string'
@@ -148,12 +152,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			}, {
 				dataIndex : 'longitude',
 				text : T('label.longitude')
-			}, {
-				dataIndex : 'created_at',
-				text : T('label.created_at'),
-				xtype : 'datecolumn',
-				format : F('datetime'),
-				width : 120
 			}, {
 				dataIndex : 'updated_at',
 				text : T('label.updated_at'),
@@ -235,6 +233,11 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'vehicle_type',
 							group : 'V-Type1',
 							fieldLabel : T('label.x_type', {x : T('label.vehicle')})
+						}, {
+							xtype : 'codecombo',
+							name : 'fuel_type',
+							group : 'V-Fuel',
+							fieldLabel : T('label.fuel_type')
 						}, {
 							xtype : 'filefield',
 							name : 'image_file',

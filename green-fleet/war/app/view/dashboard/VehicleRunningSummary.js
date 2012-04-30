@@ -194,13 +194,15 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 	"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "run_dist", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
-							{ "name" : "consmpt", 	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
-							{ "name" : "effcc", 	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
-							{ "name" : "oos_cnt", 	"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_cnt", 	"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" }]
+					data : [{ "name" : "run_time", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "rate_of_oper", 	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "%" },
+					        { "name" : "run_dist", 		"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 		"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_cnt", 		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_time", 		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -258,7 +260,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			comboChart = 'run_time';
 		}
 		
-		var chartInfo = null;		
+		var chartInfo = null;
 		var chartTypeArr = this.sub('combo_chart').store.data;
 		
 		for(var i = 0 ; i < chartTypeArr.length ; i++) {
@@ -281,7 +283,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		var fromDateStr = this.getFromDateValue();
 		var toDateStr = this.getToDateValue();
 		var chartInfo = this.getChartInfo();
-		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
+		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);		
 		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
 		proxy.extraParams.select = ['vehicle', 'month', chartInfo.name];
@@ -305,6 +307,10 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					var year = record.data.month.getFullYear();
 					var month = record.data.month.getMonth() + 1;
 					var runData = record.get(chartInfo.name);
+					
+					if(chartInfo.name == 'rate_of_oper') {
+						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0; 
+					}
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {

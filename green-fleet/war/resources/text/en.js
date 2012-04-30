@@ -137,6 +137,7 @@ T({
         habit_effcc_rel : 'Driver Habits-Efficiency Rel.',
         incident_effcc_rel : 'Incident-Efficiency Rel.',
         consumable_effcc_rel : 'Consumable-Efficiency Rel.',
+        mnt_time_by_vehicles : 'Maintenance Time By Vehicles',
         by_vehicles : 'By Vehicles',
         by_drivers : 'By Drivers',
         by_years : 'By Year',
@@ -197,6 +198,7 @@ T({
 		reg_no : 'Reg. No.',
 		manufacturer : 'Manufacturer',	
 		ownership : 'Ownership',
+		fuel_type : 'Fuel Type',
 		birth_year : 'Birth Year',
 		status : 'Status',
 		remaining_fuel : 'Remaining Fuel',
@@ -351,7 +353,9 @@ T({
 		speed_section : 'Speed Section',
 		sum : 'Sum',
 		outofservice_count : 'OutOfService Count',
-		maintenance_count : 'Maintenance Count'
+		maintenance_count : 'Maintenance Count',
+		maintenance_time : 'Maintenance Time',
+		rate_of_oper : 'Rate Of Oper.'
 	},
 	
 	format : {

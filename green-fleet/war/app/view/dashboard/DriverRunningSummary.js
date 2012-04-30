@@ -195,6 +195,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ], 
 					data : [{ "name" : "run_time", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "rate_of_oper", 	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
 					        { "name" : "run_dist", 		"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
 							{ "name" : "consmpt", 		"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
@@ -308,6 +309,10 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 					var year = record.data.month.getFullYear();
 					var month = record.data.month.getMonth() + 1;
 					var runData = record.get(chartInfo.name);
+					
+					if(chartInfo.name == 'rate_of_oper') {
+						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0; 
+					}					
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {

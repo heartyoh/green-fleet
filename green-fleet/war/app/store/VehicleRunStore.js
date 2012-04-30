@@ -37,6 +37,9 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	}, {
 		name : 'mnt_cnt',
 		type : 'integer'
+	}, {
+		name : 'mnt_time',
+		type : 'integer'
 	} ],
 	
 	sorters : [ {

@@ -137,6 +137,7 @@ T({
         habit_effcc_rel : '운전자습관-연비 상관관계',
         incident_effcc_rel : '사고-연비 상관관계',
         consumable_effcc_rel : '소모품건강-연비 상관관계',
+        mnt_time_by_vehicles : '차량별 정비시간',
         by_vehicles : '차량 관점',
         by_drivers : '운전자별 관점',
         by_years : '년도 관점',
@@ -197,6 +198,7 @@ T({
 		reg_no : '등록번호',
 		manufacturer : '제조사',	
 		ownership : '소유자',
+		fuel_type : '연료 타입',
 		birth_year : '연식',
 		status : '상태',
 		remaining_fuel : '연료 잔량',
@@ -351,7 +353,9 @@ T({
 		speed_section : '속도 구간',
 		sum : '합계',
 		outofservice_count : '고장 횟수',
-		maintenance_count : '정비 횟수'		
+		maintenance_count : '정비 횟수',
+		maintenance_time : '정비 시간',
+		rate_of_oper : '가동율'
 	},
 	
 	format : {

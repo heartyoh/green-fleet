@@ -63,9 +63,23 @@ public class CheckinDataService extends EntityService {
 
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
-
 		entity.setProperty("distance", doubleProperty(map, "distance"));
 		entity.setProperty("running_time", intProperty(map, "running_time"));
+		entity.setProperty("engine_start_time", SessionUtils.stringToDateTime((String)map.get("engine_start_time")));
+		entity.setProperty("engine_end_time", SessionUtils.stringToDateTime((String)map.get("engine_end_time")));
+		entity.setProperty("average_speed", doubleProperty(map, "average_speed"));
+		entity.setProperty("max_speed", intProperty(map, "max_speed"));
+		entity.setProperty("fuel_consumption", doubleProperty(map, "fuel_consumption"));
+		entity.setProperty("fuel_efficiency", doubleProperty(map, "fuel_efficiency"));
+		entity.setProperty("sudden_accel_count", intProperty(map, "sudden_accel_count"));
+		entity.setProperty("sudden_brake_count", intProperty(map, "sudden_brake_count"));
+		entity.setProperty("idle_time", intProperty(map, "idle_time"));
+		entity.setProperty("eco_driving_time", intProperty(map, "eco_driving_time"));
+		entity.setProperty("over_speed_time", intProperty(map, "over_speed_time"));
+		entity.setProperty("co2_emissions", doubleProperty(map, "co2_emissions"));
+		entity.setProperty("max_cooling_water_temp", doubleProperty(map, "max_cooling_water_temp"));
+		entity.setProperty("avg_battery_volt", doubleProperty(map, "avg_battery_volt"));
+		
 		entity.setProperty("less_than_10km", intProperty(map, "less_than_10km"));
 		entity.setProperty("less_than_20km", intProperty(map, "less_than_20km"));
 		entity.setProperty("less_than_30km", intProperty(map, "less_than_30km"));
@@ -81,22 +95,7 @@ public class CheckinDataService extends EntityService {
 		entity.setProperty("less_than_130km", intProperty(map, "less_than_130km"));
 		entity.setProperty("less_than_140km", intProperty(map, "less_than_140km"));
 		entity.setProperty("less_than_150km", intProperty(map, "less_than_150km"));
-		entity.setProperty("less_than_160km", intProperty(map, "less_than_160km"));
-
-		entity.setProperty("engine_start_time", SessionUtils.stringToDateTime((String)map.get("engine_start_time")));
-		entity.setProperty("engine_end_time", SessionUtils.stringToDateTime((String)map.get("engine_end_time")));
-		entity.setProperty("average_speed", doubleProperty(map, "average_speed"));
-		entity.setProperty("max_speed", intProperty(map, "max_speed"));
-		entity.setProperty("fuel_consumption", doubleProperty(map, "fuel_consumption"));
-		entity.setProperty("fuel_efficiency", doubleProperty(map, "fuel_efficiency"));
-		entity.setProperty("sudden_accel_count", intProperty(map, "sudden_accel_count"));
-		entity.setProperty("sudden_brake_count", intProperty(map, "sudden_brake_count"));
-		entity.setProperty("idle_time", intProperty(map, "idle_time"));
-		entity.setProperty("eco_driving_time", intProperty(map, "eco_driving_time"));
-		entity.setProperty("over_speed_time", intProperty(map, "over_speed_time"));
-		entity.setProperty("co2_emissions", doubleProperty(map, "co2_emissions"));
-		entity.setProperty("max_cooling_water_temp", doubleProperty(map, "max_cooling_water_temp"));
-		entity.setProperty("avg_battery_volt", doubleProperty(map, "avg_battery_volt"));
+		entity.setProperty("less_than_160km", intProperty(map, "less_than_160km"));		
 
 		super.onSave(entity, map, datastore);
 	}
@@ -128,6 +127,34 @@ public class CheckinDataService extends EntityService {
 	@Override
 	protected void saveEntity(Entity checkinObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
+		Transaction txn = datastore.beginTransaction();		
+		try {
+			String monthStr = DataUtils.dateToString(new Date(), "yyyy-MM") + "-01";
+			Entity vehicle = this.adjustVehicleData(checkinObj);
+			Entity vehicleRunSum = this.adjustRunSumData(checkinObj, "VehicleRunSum", "vehicle", (String)checkinObj.getProperty("vehicle_id"), monthStr);
+			Entity driverRunSum = this.adjustRunSumData(checkinObj, "DriverRunSum", "driver", (String)checkinObj.getProperty("driver_id"), monthStr);
+			
+			super.saveEntity(checkinObj, map, datastore);
+			
+			if(vehicle != null)
+				super.saveEntity(vehicle, map, datastore);
+			
+			if(vehicleRunSum != null)
+				super.saveEntity(vehicleRunSum, map, datastore);
+			
+			if(driverRunSum != null)
+				super.saveEntity(driverRunSum, map, datastore);
+			
+			txn.commit();
+			
+		} catch (Exception e) {
+			txn.rollback();
+			throw e;
+		}
+	}
+	
+	private Entity adjustVehicleData(Entity checkinObj) throws Exception {
+		
 		Key vehicleKey = KeyFactory.createKey(checkinObj.getParent(), "Vehicle", (String)checkinObj.getProperty("vehicle_id"));
 		Entity vehicle = DatastoreUtils.findVehicle(vehicleKey);
 
@@ -137,26 +164,55 @@ public class CheckinDataService extends EntityService {
 			double distance = DataUtils.toDouble(checkinObj.getProperty("distance"));
 			vehicle.setProperty("driver_id", checkinObj.getProperty("driver_id"));
 			vehicle.setProperty("terminal_id", checkinObj.getProperty("terminal_id"));
-			vehicle.setProperty("total_distance", totalMileage + distance);			
-
-			// Vehicle 정보 업데이트와 Checkin 정보 업데이트 ...
-			Transaction txn = datastore.beginTransaction();
-			try {
-				super.saveEntity(checkinObj, map, datastore);
-				super.saveEntity(vehicle, map, datastore);
-				txn.commit();
-				
-			} catch (Exception e) {
-				txn.rollback();
-				throw e;
-			}
-		} else {
-			super.saveEntity(checkinObj, map, datastore);
+			vehicle.setProperty("total_distance", totalMileage + distance);
 		}
+		
+		return vehicle;
+	}
+	
+	private Entity adjustRunSumData(Entity checkinObj, String runSumEntityName, String keyWithPropName, String keyValueWithMonth, String monthStr) throws Exception {
+		
+		Key runSumKey = KeyFactory.createKey(checkinObj.getParent(), runSumEntityName, keyValueWithMonth + "@" + monthStr);
+		Entity runSum = DatastoreUtils.findByKey(runSumKey);
+		double cRunDist = 0;
+		int cRunTime = 0;
+		double cConsmpt = 0;
+		double cCo2Emss = 0;
+		double cEffcc = 0;
+		
+		// 체크인 시점에 RunSum 정보를 업데이트한다.
+		if(runSum != null) {
+			cRunDist = DataUtils.toDouble(checkinObj.getProperty("distance"));
+			cRunTime = DataUtils.toInt(checkinObj.getProperty("running_time"));
+			cConsmpt = DataUtils.toDouble(checkinObj.getProperty("fuel_consumption"));
+			cCo2Emss = DataUtils.toDouble(checkinObj.getProperty("co2_emissions"));
+			cEffcc = DataUtils.toDouble(checkinObj.getProperty("fuel_efficiency"));
+		
+		// 체크인 시점에 Vehicle/Driver RunSum 정보가 없다면 생성 ...
+		} else {
+			runSum = new Entity(runSumEntityName, checkinObj.getParent());
+			runSum.setProperty(keyWithPropName, keyValueWithMonth);
+			runSum.setProperty("month", SessionUtils.stringToDate(monthStr));
+		}
+		
+		// RunSum 계산 
+		double sRunDist = DataUtils.toDouble(runSum.getProperty("run_dist"));
+		int sRunTime = DataUtils.toInt(runSum.getProperty("run_time"));
+		double sConsmpt = DataUtils.toDouble(runSum.getProperty("consmpt"));
+		double sCo2Emss = DataUtils.toDouble(runSum.getProperty("co2_emss"));
+		double sEffcc = DataUtils.toDouble(runSum.getProperty("effcc"));
+		
+		runSum.setProperty("run_dist", cRunDist + sRunDist);
+		runSum.setProperty("run_time", cRunTime + sRunTime);
+		runSum.setProperty("consmpt", cConsmpt + sConsmpt);
+		runSum.setProperty("co2_emss", cCo2Emss + sCo2Emss);
+		runSum.setProperty("effcc", cEffcc + sEffcc);
+		return runSum;
 	}
 
 	@Override
 	protected void addFilter(Query q, String property, String value) {
+		
 		if("date".equals(property)) {
 			long dateMillis = DataUtils.toLong(value);
 			if(dateMillis > 1) {
@@ -164,13 +220,14 @@ public class CheckinDataService extends EntityService {
 				q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 				q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
 			}
-		} else {			
+		} else {
 			q.addFilter(property, FilterOperator.EQUAL, value);
 		}
 	}
 	
 	@Override
-	protected void buildQuery(Query q, HttpServletRequest request) {		
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		
 		String vehicleId = request.getParameter("vehicle_id");
 		if(!DataUtils.isEmpty(vehicleId)) {
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
@@ -188,7 +245,6 @@ public class CheckinDataService extends EntityService {
 			
 		} else if(DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
-			
 		}
 	}
 }
