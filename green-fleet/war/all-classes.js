@@ -11630,7 +11630,9 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 							{ "name" : "effcc", 		"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
 							{ "name" : "oos_cnt", 		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
 							{ "name" : "mnt_cnt", 		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_time", 		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) }]
+							{ "name" : "mnt_time", 		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "mttr", 			"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
+							{ "name" : "mtbf", 			"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -11706,12 +11708,13 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	 * 그리드와 차트를 새로 고침 
 	 */
 	refresh : function() {
+		
 		var dataGrid = this.sub('data_grid');
 		var vehicleGroup = this.sub('combo_vehicle_group');
 		var fromDateStr = this.getFromDateValue();
 		var toDateStr = this.getToDateValue();
 		var chartInfo = this.getChartInfo();
-		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);		
+		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
 		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
 		proxy.extraParams.select = ['vehicle', 'month', chartInfo.name];
@@ -11736,8 +11739,22 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					var month = record.data.month.getMonth() + 1;
 					var runData = record.get(chartInfo.name);
 					
+					// 가동율 
 					if(chartInfo.name == 'rate_of_oper') {
-						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0; 
+						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0;
+						
+					// MTTR	
+					} else if('mttr' == chartInfo.name) {
+						var oosCnt = record.data.oos_cnt;
+						var mntTime = record.data.mnt_time;
+						runData = (oosCnt && mntTime) ? (mntTime / oosCnt) : 0;
+						
+					// MTBF
+					} else if('mtbf' == chartInfo.name) {
+						var runTime = record.data.run_time;
+						var mntTime = record.data.mnt_time;
+						var oosCnt = record.data.oos_cnt;
+						runData = oosCnt ? ((runTime - mntTime > 0) ? (runTime - mntTime / oosCnt) : 0) : 0;
 					}
 					
 					var newRecord = null;

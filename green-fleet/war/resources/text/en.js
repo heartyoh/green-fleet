@@ -138,6 +138,8 @@ T({
         incident_effcc_rel : 'Incident-Efficiency Rel.',
         consumable_effcc_rel : 'Consumable-Efficiency Rel.',
         mnt_time_by_vehicles : 'Maintenance Time By Vehicles',
+        mttr_by_vehicles : 'MTTR By Vehicles',
+        mtbf_by_vehicles : 'MTBF By Vehicles',
         by_vehicles : 'By Vehicles',
         by_drivers : 'By Drivers',
         by_years : 'By Year',

@@ -138,6 +138,8 @@ T({
         incident_effcc_rel : '사고-연비 상관관계',
         consumable_effcc_rel : '소모품건강-연비 상관관계',
         mnt_time_by_vehicles : '차량별 정비시간',
+        mttr_by_vehicles : '차량별 평균수리시간',
+        mtbf_by_vehicles : '차량별 평균고장간격',
         by_vehicles : '차량 관점',
         by_drivers : '운전자별 관점',
         by_years : '년도 관점',
