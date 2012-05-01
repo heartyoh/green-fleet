@@ -2,4 +2,4 @@
 *.class
 .sass-cache
 
-green-fleet/.settings
+green-fleet/.settings/*.*
