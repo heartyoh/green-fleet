@@ -43,6 +43,10 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			}, 10000);
 		});
 		
+		this.on('resize', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+		
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 			if(self.sub('autofit').getValue())
