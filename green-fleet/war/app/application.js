@@ -25,7 +25,9 @@ var console = console || {
 	}
 };
 
-Ext.require('GreenFleet.view.Viewport');
+Ext.require(['GreenFleet.view.Viewport',
+             'GreenFleet.controller.ApplicationController', 
+             'GreenFleet.controller.FileController']);
 
 Ext.onReady(function() {
 	Ext.application({
