@@ -198,7 +198,7 @@ public class IncidentService extends EntityService {
 		}
 	}
 
-	@RequestMapping(value = "/incident", method = RequestMethod.GET)
+	@RequestMapping(value = {"/incident", "/m/data/incident.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);

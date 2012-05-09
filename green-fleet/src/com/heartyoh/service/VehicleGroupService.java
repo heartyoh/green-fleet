@@ -77,7 +77,7 @@ public class VehicleGroupService extends EntityService {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = "/vehicle_group", method = RequestMethod.GET)
+	@RequestMapping(value = {"/vehicle_group", "/m/data/vehicle_group.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);

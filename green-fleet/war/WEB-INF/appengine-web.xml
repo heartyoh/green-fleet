@@ -27,6 +27,7 @@
 		<include path="/*.js" />
 		<include path="/*.html" />
 		<include path="/app/**.*" />
+		<include path="/m/**.*" />
 		<include path="/data/**.*" />
 		<include path="/lib/**.*" />
 		<include path="/resources/text/*.js" />

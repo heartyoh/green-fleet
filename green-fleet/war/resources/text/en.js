@@ -357,7 +357,12 @@ T({
 		outofservice_count : 'OutOfService Count',
 		maintenance_count : 'Maintenance Count',
 		maintenance_time : 'Maintenance Time',
-		rate_of_oper : 'Rate Of Oper.'
+		rate_of_oper : 'Rate Of Oper.',
+		refresh_none : 'No Refresh',
+		setting : 'Setting',
+		dockPosition : 'Docking Position',
+		left : 'Left',
+		right : 'Right'
 	},
 	
 	format : {

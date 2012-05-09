@@ -85,7 +85,7 @@ public class DriverService extends EntityService {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = "/driver", method = RequestMethod.GET)
+	@RequestMapping(value = {"/driver", "/m/data/driver.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);

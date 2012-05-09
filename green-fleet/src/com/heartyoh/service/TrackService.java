@@ -139,7 +139,7 @@ public class TrackService extends EntityService {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = "/track", method = RequestMethod.GET)
+	@RequestMapping(value = {"/track", "/m/data/track.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrievex(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);

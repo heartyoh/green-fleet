@@ -81,7 +81,7 @@ public class IncidentLogService extends EntityService {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = "/incident_log", method = RequestMethod.GET)
+	@RequestMapping(value = {"/incident_log", "/m/data/incident_log.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);

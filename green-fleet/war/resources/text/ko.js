@@ -357,7 +357,12 @@ T({
 		outofservice_count : '고장 횟수',
 		maintenance_count : '정비 횟수',
 		maintenance_time : '정비 시간',
-		rate_of_oper : '가동율'
+		rate_of_oper : '가동율',
+		refresh_none : '자동갱신 하지않음',
+		setting : '설정',
+		dockPosition : '현황패널 도킹 위치',
+		left : '왼쪽',
+		right : '오른쪽'
 	},
 	
 	format : {

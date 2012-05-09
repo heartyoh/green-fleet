@@ -24,6 +24,11 @@ public class SecurityService {
 		return "home";
 	}
 
+	@RequestMapping(value = "/m/home", method = RequestMethod.GET)
+	public String m_home() {
+		return "m/home";
+	}
+
 	@RequestMapping(value = "/disabled", method = RequestMethod.GET)
 	public String disabled() {
 		return "disabled";
