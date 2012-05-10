@@ -1,5 +1,5 @@
 Ext.define('GreenFleet.controller.ApplicationController', {
-	extend : 'Ext.app.Controller',
+	extend : 'Ext.app.Controller', 
 
 	requires : [ 'GreenFleet.store.IncidentLogChartStore', 'GreenFleet.view.management.Profile', 'GreenFleet.view.common.ImportPopup' ],
 
