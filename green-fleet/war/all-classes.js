@@ -191,6 +191,21 @@ Ext.define('GreenFleet.view.Viewport', {
 	} ]
 });
 
+Ext.define('GreenFleet.controller.MainController', {
+	extend : 'Ext.app.Controller',
+
+	requires : [],
+
+	refs : [ {
+		ref : 'content',
+		selector : '#content'
+	}, {
+		ref : 'nav',
+		selector : '#nav'
+	} ],
+	control : {}
+});
+
 Ext.define('GreenFleet.store.IncidentLogChartStore', {
 	extend : 'Ext.data.Store',
 
@@ -4981,6 +4996,10 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			}, 10000);
 		});
 		
+		this.on('resize', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+		
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
 			if(self.sub('autofit').getValue())
@@ -9011,11 +9030,6 @@ Ext.define('GreenFleet.view.management.Location', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -9052,7 +9066,7 @@ Ext.define('GreenFleet.view.management.Location', {
 				text : T('label.longitude_max'),
 				type : 'float'					
 			}, {
-				dataIndex : 'desc',
+				dataIndex : 'expl',
 				text : T('label.desc'),
 				type : 'string'					
 			}, {
@@ -9083,7 +9097,16 @@ Ext.define('GreenFleet.view.management.Location', {
 			}, {
 				text : T('button.reset'),
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'LocationStore',
+	            cls : 'pagingtoolbar',
+	            displayInfo: true,
+	            displayMsg: 'Displaying locations {0} - {1} of {2}',
+	            emptyMsg: "No locations to display"
+	        }
 		}
 	},
 
@@ -9101,10 +9124,6 @@ Ext.define('GreenFleet.view.management.Location', {
 				anchor : '100%'
 			},
 			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
-			}, {
 				name : 'name',
 				fieldLabel : T('label.name')
 			}, {
@@ -9156,7 +9175,7 @@ Ext.define('GreenFleet.view.management.Location', {
 					}
 				}
 			}, {
-				name : 'desc',
+				name : 'expl',
 				fieldLabel : T('label.desc')
 			}, {
 				itemId : 'form_lat_lo',
@@ -9238,14 +9257,30 @@ Ext.define('GreenFleet.view.management.Alarm', {
 
 	initComponent : function() {
 		var self = this;
-
 		this.callParent(arguments);
-
 		this.add(this.buildList(this));
 		this.add(this.buildForm(this));
 
 		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
+			
+			var alarmName = record.data.name;
+			Ext.Ajax.request({
+				url : '/alarm/find',
+				method : 'GET',
+				params : { name : alarmName },
+				success : function(response) {
+					var alarmRecord = Ext.JSON.decode(response.responseText);
+					if (alarmRecord.success) {
+						record.data.vehicles = alarmRecord.vehicles;
+						self.sub('form').loadRecord(record);
+					} else {
+						Ext.MessageBox.alert(T('label.failure'), response.responseText);
+					}
+				},
+				failure : function(response) {
+					Ext.MessageBox.alert(T('label.failure'), response.responseText);
+				}
+			});			
 		});
 
 		this.sub('grid').on('render', function(grid) {
@@ -9282,11 +9317,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -9295,16 +9325,12 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				text : T('label.event_type'),
 				type : 'string'
 			}, {
-				dataIndex : 'loc',
-				text : T('label.location'),
+				dataIndex : 'evt_name',
+				text : T('label.event_name'),
 				type : 'string'
 			}, {
 				dataIndex : 'evt_trg',
 				text : T('label.event_trigger'),
-				type : 'string'
-			}, {
-				dataIndex : 'dest',
-				text : T('label.destination'),
 				type : 'string'
 			}, {
 				dataIndex : 'type',
@@ -9315,16 +9341,20 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				text : T('label.period_always'),
 				type : 'boolean'
 			}, {
+				dataIndex : 'enabled',
+				text : T('label.enabled'),
+				type : 'boolean'
+			}, {
 				dataIndex : 'from_date',
 				text : T('label.from_date'),
 				xtype : 'datecolumn',
-				format : F('date'),
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'to_date',
 				text : T('label.to_date'),
 				xtype : 'datecolumn',
-				format : F('date'),
+				format : F('datetime'),
 				width : 120				
 			}, {
 				dataIndex : 'created_at',
@@ -9351,7 +9381,16 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			}, {
 				text : T('button.reset'),
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'AlarmStore',
+	            cls : 'pagingtoolbar',
+	            displayInfo: true,
+	            displayMsg: 'Displaying alarms {0} - {1} of {2}',
+	            emptyMsg: "No alarms to display"
+	        }
 		}
 	},
 	
@@ -9369,10 +9408,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				anchor : '100%'
 			},
 			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
-			}, {
 				name : 'name',
 				fieldLabel : T('label.name'),
 				allowBlank : false
@@ -9382,12 +9417,20 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				name : 'evt_type',
 				group : 'AlarmEventType',
 	            fieldLabel: T('label.event_type'),
+	            allowBank : false,
 				listeners : {
 					change : function(combo, currentValue, beforeValue) {
 						combo.up('form').down('fieldset').setVisible(currentValue == 'location');
 					}
 				}
-	        },			
+	        },
+	        {
+				name : 'enabled',
+				fieldLabel : T('label.enabled'),
+				xtype : 'checkboxfield',
+				flex : 1,
+				checked : true,
+	        },
 			{
 	            xtype:'fieldset',
 	            title: T('label.location'),
@@ -9398,7 +9441,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 	            },
 	            items :[{
 	            	itemId : 'form_location',
-					name : 'loc',
+					name : 'evt_name',
 					fieldLabel : T('label.location'),
 					xtype : 'combo',
 					queryMode : 'local',
@@ -9564,8 +9607,10 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			var proxy = runStatusStore.getProxy();
 			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'oos_cnt', 'mnt_cnt', 'mnt_time'];
 			proxy.extraParams.vehicle = record.data.id;
-			proxy.extraParams.from_date = self.sub('from_date').getValue();
-			proxy.extraParams.to_date = self.sub('to_date').getValue();
+			proxy.extraParams.from_year = self.sub('from_year').getValue();
+			proxy.extraParams.to_year = self.sub('to_year').getValue();
+			proxy.extraParams.from_month = self.sub('from_month').getValue();
+			proxy.extraParams.to_month = self.sub('to_month').getValue();
 			runStatusStore.load({
 				scope : self,
 				callback : function() {					
@@ -9697,14 +9742,8 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			store : 'VehicleRunStore',
 			flex : 1,
 			columns : [ {
-				header : 'Key',
-				dataIndex : 'key',
-				hidden : true
-			}, {
-				dataIndex : 'month',
-				text : T('label.datetime'),
-				xtype:'datecolumn',
-				format:F('date')
+				text : T('label.month'),
+				dataIndex : 'month_str'
 			}, {
 				header : T('label.run_dist') + ' (km)',
 				dataIndex : 'run_dist'
@@ -9772,26 +9811,46 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			},
 			T('label.period') + ' : ',
 			{
-				xtype : 'datefield',
-				name : 'from_date',
-				itemId : 'from_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : Ext.Date.add(new Date(), Ext.Date.YEAR, -1),
-				width : 90
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
 			},
 			' ~ ',
 			{
-				xtype : 'datefield',
-				name : 'to_date',
-				itemId : 'to_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : new Date(),
-				width : 90
-			},		    
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -9887,8 +9946,9 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		
 		store.each(function(record) {
 			var monthStr = record.get('month_str');
-			var mntTime = record.get('mnt_time');			
-			var rateOfOper = mntTime ? ((mntTime / 30 * 24 * 60) * 100) : 0;
+			var runTime = record.get('run_time');	
+			var rateOfOper = runTime ? ((runTime * 100) / (30 * 24 * 60)) : 0;
+			rateOfOper = Ext.util.Format.number(rateOfOper, '0.00');
 			record.data.rate_of_oper = rateOfOper;
 		});
 	},
@@ -10028,14 +10088,13 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['month'],
-	                title: T('label.month'),
-	                label: { renderer: Ext.util.Format.dateRenderer('Y-m') }
+	                fields: ['month_str'],
+	                title: T('label.month')
 				}],
 				series : [{
 					type : chartType,
 					axis: 'left',
-					xField: 'month',
+					xField: 'month_str',
 	                yField: yField,
 					showInLegend : true,
 					tips : {
@@ -10043,7 +10102,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 						width : 140,
 						height : 25,
 						renderer : function(storeItem, item) {
-							this.setTitle(Ext.util.Format.date(storeItem.get('month'), 'Y-m') + ' : ' + storeItem.get(yField) + unit);
+							this.setTitle(storeItem.get('month_str') + ' : ' + storeItem.get(yField) + unit);
 						}
 					},
 					highlight : {
@@ -10118,9 +10177,11 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
 			proxy.extraParams.driver = record.data.id;
-			proxy.extraParams.from_date = self.sub('from_date').getValue();
-			proxy.extraParams.to_date = self.sub('to_date').getValue();
-			proxy.extraParams.select = ['key', 'driver', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
+			proxy.extraParams.from_year = self.sub('from_year').getValue();
+			proxy.extraParams.to_year = self.sub('to_year').getValue();
+			proxy.extraParams.from_month = self.sub('from_month').getValue();
+			proxy.extraParams.to_month = self.sub('to_month').getValue();
+			proxy.extraParams.select = ['driver', 'year', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -10249,11 +10310,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			itemId : 'runstatus_grid',
 			store : 'DriverRunStore',
 			columns : [ {
-				header : 'Key',
-				dataIndex : 'key',
-				hidden : true
-			}, {
-				dataIndex : 'month',
+				dataIndex : 'month_str',
 				text : T('label.datetime'),
 				xtype:'datecolumn',
 				format:F('date')
@@ -10329,26 +10386,46 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			},
 			T('label.period') + ' : ',
 			{
-				xtype : 'datefield',
-				name : 'from_date',
-				itemId : 'from_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : Ext.Date.add(new Date(), Ext.Date.YEAR, -1),
-				width : 90
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
 			},
 			' ~ ',
 			{
-				xtype : 'datefield',
-				name : 'to_date',
-				itemId : 'to_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : new Date(),
-				width : 90
-			},		    
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -10578,14 +10655,13 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['month'],
-	                title: T('label.month'),
-	                label: { renderer: Ext.util.Format.dateRenderer('Y-m') }
+	                fields: ['month_str'],
+	                title: T('label.month')
 				}],
 				series : [{
 					type : chartType,
 					axis: 'left',
-					xField: 'month',
+					xField: 'month_str',
 	                yField: yField,
 					showInLegend : true,
 					tips : {
@@ -10593,7 +10669,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						width : 140,
 						height : 25,
 						renderer : function(storeItem, item) {
-							this.setTitle(Ext.util.Format.date(storeItem.get('month'), 'Y-m') + ' : ' + storeItem.get(yField) + unit);
+							this.setTitle(storeItem.get('month_str') + ' : ' + storeItem.get(yField) + unit);
 						}
 					},
 					highlight : {
@@ -10663,8 +10739,10 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
 			proxy.extraParams.driver = record.data.id;
-			proxy.extraParams.from_date = self.sub('from_date').getValue();
-			proxy.extraParams.to_date = self.sub('to_date').getValue();
+			proxy.extraParams.from_year = self.sub('from_year').getValue();
+			proxy.extraParams.to_year = self.sub('to_year').getValue();
+			proxy.extraParams.from_month = self.sub('from_month').getValue();
+			proxy.extraParams.to_month = self.sub('to_month').getValue();
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -10797,14 +10875,8 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		autoScroll : true,
 		flex : 1,
 		columns : [ {
-			header : 'Key',
-			dataIndex : 'key',
-			hidden : true
-		}, {
-			dataIndex : 'month',
-			text : T('label.datetime'),
-			xtype:'datecolumn',
-			format:F('date')
+			dataIndex : 'month_str',
+			text : T('label.month'),
 		}, {
 			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
@@ -10895,26 +10967,46 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			},
 			T('label.period') + ' : ',
 			{
-				xtype : 'datefield',
-				name : 'from_date',
-				itemId : 'from_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : Ext.Date.add(new Date(), Ext.Date.YEAR, -1),
-				width : 90
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
 			},
 			' ~ ',
 			{
-				xtype : 'datefield',
-				name : 'to_date',
-				itemId : 'to_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : new Date(),
-				width : 90
-			}
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
 		]
 	},
 
@@ -10963,7 +11055,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			// speed 130 ~
 			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
 			
-			var columnData = { 	'month' : record.get('month_str'), 
+			var columnData = { 	'month_str' : record.get('month_str'), 
 								'value1' : spd_30, 			'desc1' : '0 ~ 30(km)', 
 								'value2' : spd_40_60, 		'desc2' : '40 ~ 60(km)',
 								'value3' : spd_70_90, 		'desc3' : '70 ~ 90(km)',
@@ -10973,7 +11065,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		});
 		
 		var columnStore = Ext.create('Ext.data.JsonStore', {
-			fields : ['month', 'value1', 'value2', 'value3', 'value4', 'value5', 'desc1', 'desc2', 'desc3', 'desc4', 'desc5'],
+			fields : ['month_str', 'value1', 'value2', 'value3', 'value4', 'value5', 'desc1', 'desc2', 'desc3', 'desc4', 'desc5'],
 			autoDestroy : true,
 			data : columnDataArr
 		});
@@ -11138,13 +11230,13 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['month'],
+	                fields: ['month_str'],
 	                title: T('label.month'),
 				}],			
 				series : [{
 					type : 'column',
 					axis: 'left',
-					xField: 'month',
+					xField: 'month_str',
 	                yField: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
 	                title : [ '0 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
 					showInLegend : true,
@@ -11554,9 +11646,10 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	        }, {
 				header : T('label.sum'),
 				dataIndex : 'sum',
-				width : 80,
+				width : 100,
 				summaryType: 'sum',
 		        summaryRenderer: function(value) {
+		        	value = Ext.util.Format.number(value, '0.00');
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 	        }]
@@ -11604,10 +11697,20 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				itemId : 'from_year',
 				displayField: 'year',
 			    valueField: 'year',
-			    value : new Date().getFullYear(),
+			    value : new Date().getFullYear() - 1,
 				store : 'YearStore',
 				width : 60				
 			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
 			' ~ ',
 			{
 				xtype : 'combo',
@@ -11619,6 +11722,16 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				store : 'YearStore',
 				width : 60			
 			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},			
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -11627,18 +11740,18 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				displayField: 'desc',
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "%" },
-					        { "name" : "run_dist", 		"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
-							{ "name" : "consmpt", 		"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 		"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
-							{ "name" : "oos_cnt", 		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_cnt", 		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_time", 		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "mttr", 			"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
-							{ "name" : "mtbf", 			"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
+					fields : [ 'name', 'type', 'desc', 'unit' ], 
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "%" },
+					        { "name" : "run_dist", 		"type": "float", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 		"type": "int",		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
+							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -11668,22 +11781,6 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		title : T('label.chart'),
 		flex : 1,
 		autoScroll : true
-	},
-	
-	/**
-	 * From Date
-	 */
-	getFromDateValue : function() {
-		var fromYear = this.sub('from_year').getValue();
-		return fromYear ? fromYear + '-01-01' : null;
-	},
-	
-	/**
-	 * To Date
-	 */
-	getToDateValue : function() {
-		var toYear = this.sub('to_year').getValue();
-		return toYear ? toYear + '-12-31' : null;
 	},
 	
 	/**
@@ -11717,19 +11814,19 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		
 		var dataGrid = this.sub('data_grid');
 		var vehicleGroup = this.sub('combo_vehicle_group');
-		var fromDateStr = this.getFromDateValue();
-		var toDateStr = this.getToDateValue();
-		var chartInfo = this.getChartInfo();
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		var chartInfo = this.getChartInfo();		
 		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
 		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
-		proxy.extraParams.select = ['vehicle', 'month', chartInfo.name];
-		
-		if(fromDateStr)
-			proxy.extraParams.from_date = fromDateStr;
-		
-		if(toDateStr)
-			proxy.extraParams.to_date = toDateStr;
+		//proxy.extraParams.select = ['vehicle', 'month_str', chartInfo.name];
+		proxy.extraParams.from_year = fromYear;
+		proxy.extraParams.from_month = fromMonth;
+		proxy.extraParams.to_year = toYear;
+		proxy.extraParams.to_month = toMonth;
 		
 		if(vehicleGroup.getValue())
 			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
@@ -11741,13 +11838,14 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				var newRecords = [];
 				Ext.each(records, function(record) {
 					var vehicle = record.data.vehicle;
-					var year = record.data.month.getFullYear();
-					var month = record.data.month.getMonth() + 1;
+					var year = record.data.year;
+					var month = record.data.month;
 					var runData = record.get(chartInfo.name);
 					
 					// 가동율 
-					if(chartInfo.name == 'rate_of_oper') {
-						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0;
+					if('rate_of_oper' == chartInfo.name) {
+						var runTime = record.data.run_time;
+						runData = runTime ? ((runTime * 100) / (30 * 60 * 24)) : 0;
 						
 					// MTTR	
 					} else if('mttr' == chartInfo.name) {
@@ -11760,7 +11858,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 						var runTime = record.data.run_time;
 						var mntTime = record.data.mnt_time;
 						var oosCnt = record.data.oos_cnt;
-						runData = oosCnt ? ((runTime - mntTime > 0) ? (runTime - mntTime / oosCnt) : 0) : 0;
+						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;
+					}
+					
+					if(chartInfo.type == 'float') {
+						runData = parseFloat(Ext.util.Format.number(runData, '0.00'));
 					}
 					
 					var newRecord = null;
@@ -11777,17 +11879,24 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					
 					} else {
 						newRecord[monthStr] = runData;
-						if(runData && runData > 0)
+						if(runData && runData > 0) {
 							newRecord['sum'] = newRecord.sum + runData;
+						}
 					}
 				});
+				
+				if(chartInfo.type == 'float') {
+					Ext.each(newRecords, function(nr) {
+						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));
+					});					
+				}
 				
 				dataGrid.store.loadData(newRecords);
 				this.refreshChart(newRecords, chartInfo.desc, chartInfo.unit);
 			}
 		});
 	},
-	
+		
 	/**
 	 * Chart를 새로 생성
 	 */
@@ -11804,7 +11913,9 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? 
+				this.refreshChartByYear(records, width, height, yTitle, unit) : 
+				this.refreshChartByVehicle(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;
@@ -12072,7 +12183,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	            dataIndex: 'driver',
 	            width : 80,
 				summaryType: 'count',
-		        summaryRenderer: function(value) {
+		        summaryRenderer: function(value) {		        	
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 			}, {
@@ -12129,9 +12240,10 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	        }, {
 				header : T('label.sum'),
 				dataIndex : 'sum',
-				width : 80,
+				width : 100,
 				summaryType: 'sum',
 		        summaryRenderer: function(value) {
+		        	value = Ext.util.Format.number(value, '0.00');
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 	        }]
@@ -12179,10 +12291,20 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				itemId : 'from_year',
 				displayField: 'year',
 			    valueField: 'year',
-			    value : new Date().getFullYear(),
+			    value : new Date().getFullYear() - 1,
 				store : 'YearStore',
-				width : 60				
+				width : 60
 			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
 			' ~ ',
 			{
 				xtype : 'combo',
@@ -12194,6 +12316,16 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				store : 'YearStore',
 				width : 60			
 			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},			
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -12202,18 +12334,18 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				displayField: 'desc',
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
-					        { "name" : "run_dist", 		"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
-							{ "name" : "consmpt", 		"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 		"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
-							{ "name" : "sud_accel_cnt", "desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
-							{ "name" : "sud_brake_cnt", "desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
-							{ "name" : "eco_drv_time", 	"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "ovr_spd_time",  "desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "inc_cnt",  		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
+					fields : [ 'name', 'type', 'desc', 'unit' ], 
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
+					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
+							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
+							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
+							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "inc_cnt",  		"type": "int",		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -12246,22 +12378,6 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	},
 	
 	/**
-	 * From Date
-	 */
-	getFromDateValue : function() {
-		var fromYear = this.sub('from_year').getValue();
-		return fromYear ? fromYear + '-01-01' : null;
-	},
-	
-	/**
-	 * To Date
-	 */
-	getToDateValue : function() {
-		var toYear = this.sub('to_year').getValue();
-		return toYear ? toYear + '-12-31' : null;
-	},
-	
-	/**
 	 * 차트 정보
 	 */
 	getChartInfo : function() {
@@ -12290,24 +12406,24 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	 */
 	refresh : function() {
 		var dataGrid = this.sub('data_grid');
-		var fromDateStr = this.getFromDateValue();
-		var toDateStr = this.getToDateValue();
-		var chartInfo = this.getChartInfo();
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		var chartInfo = this.getChartInfo();		
 		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);		
 		var driverGroup = this.sub('combo_driver_group').getValue();		
 		var store = Ext.getStore('DriverRunStore');
 		var proxy = store.getProxy();
-		proxy.extraParams.select = ['driver', 'month', chartInfo.name];
+		//proxy.extraParams.select = ['driver', 'month_str', chartInfo.name];
+		proxy.extraParams.from_year = fromYear;
+		proxy.extraParams.from_month = fromMonth;
+		proxy.extraParams.to_year = toYear;
+		proxy.extraParams.to_month = toMonth;
 		
 		if(driverGroup)
 			proxy.extraParams.driver_group = driverGroup;
-		
-		if(fromDateStr)
-			proxy.extraParams.from_date = fromDateStr;
-		
-		if(toDateStr)
-			proxy.extraParams.to_date = toDateStr;
-		
+				
 		store.load({
 			scope : this,
 			callback : function(records, operation, success) {
@@ -12315,13 +12431,18 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				var newRecords = [];
 				Ext.each(records, function(record) {
 					var driver = record.data.driver;
-					var year = record.data.month.getFullYear();
-					var month = record.data.month.getMonth() + 1;
+					var year = record.data.year;
+					var month = record.data.month;
 					var runData = record.get(chartInfo.name);
 					
 					if(chartInfo.name == 'rate_of_oper') {
-						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0; 
-					}					
+						var runTime = record.data.run_time;
+						runData = runTime ? ((runTime * 100) / (30 * 60 * 24)) : 0;
+					}
+					
+					if(chartInfo.type == 'float') {
+						runData = parseFloat(Ext.util.Format.number(runData, '0.00'));
+					}
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {
@@ -12341,6 +12462,12 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 							newRecord['sum'] = newRecord.sum + runData;
 					}
 				});
+				
+				if(chartInfo.type == 'float') {
+					Ext.each(newRecords, function(nr) {
+						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));
+					});					
+				}				
 				
 				dataGrid.store.loadData(newRecords);
 				this.refreshChart(newRecords, chartInfo.desc, chartInfo.unit);
@@ -14989,7 +15116,7 @@ Ext.define('GreenFleet.store.VehicleGroupStore', {
 
 	autoLoad : true,
 	
-	pageSize : 1000,
+	pageSize : 10,
 	
 	fields : [ {
 		name : 'key',
@@ -15028,7 +15155,7 @@ Ext.define('GreenFleet.store.VehicleRelationStore', {
 
 	autoLoad : true,
 	
-	pageSize : 1000,
+	pageSize : 10,
 	
 	fields : [ {
 		name : 'key',
@@ -15057,7 +15184,7 @@ Ext.define('GreenFleet.store.VehicleByGroupStore', {
 
 	autoLoad : false,
 	
-	pageSize : 1000,
+	pageSize : 10,
 	
 	fields : [ {
 		name : 'key',
@@ -15493,9 +15620,6 @@ Ext.define('GreenFleet.store.LocationStore', {
 		
 	fields : [ 
 		{
-			name : 'key',
-			type : 'string'
-		}, {
 			name : 'name',
 			type : 'string'
 		}, {
@@ -15523,7 +15647,7 @@ Ext.define('GreenFleet.store.LocationStore', {
 			name : 'lng_hi',
 			type : 'float'				
 		}, {
-			name : 'desc',
+			name : 'expl',
 			type : 'string'				
 		}, {
 			name : 'created_at',
@@ -15536,7 +15660,7 @@ Ext.define('GreenFleet.store.LocationStore', {
 		}	
 	],
 
-	pageSize : 1000,
+	pageSize : 20,
 	
 	sorters : [ {
 		property : 'updated_at',		
@@ -15559,35 +15683,26 @@ Ext.define('GreenFleet.store.AlarmStore', {
 	storeId : 'alarm_store',
 	
 	fields : [ 
-		{
-			name : 'key',
-			type : 'string'
-		}, {
+	    {
 			name : 'name',
-			type : 'string'
-		}, {
-			name : 'vehicles',
 			type : 'string'
 		}, {
 			name : 'evt_type',
 			type : 'string'
 		}, {
-			name : 'loc',
+			name : 'evt_name',
 			type : 'string'
-		}, {
-			name : 'rad',
-			type : 'float'
 		}, {
 			name : 'evt_trg',
-			type : 'string'
-		}, {
-			name : 'dest',
 			type : 'string'
 		}, {
 			name : 'type',
 			type : 'string'
 		}, {
 			name : 'always',
+			type : 'boolean'
+		}, {
+			name : 'enabled',
 			type : 'boolean'
 		}, {
 			name : 'from_date',
@@ -15597,6 +15712,12 @@ Ext.define('GreenFleet.store.AlarmStore', {
 			name : 'to_date',
 			type : 'date',
 			dateFormat:'time'
+		}, {
+			name : 'vehicles',
+			type : 'string'
+		}, {
+			name : 'dest',
+			type : 'string'
 		}, {
 			name : 'msg',
 			type : 'string'
@@ -15611,7 +15732,7 @@ Ext.define('GreenFleet.store.AlarmStore', {
 		}
 	],
 
-	pageSize : 1000,
+	pageSize : 20,
 	
 	sorters : [ {
 		property : 'updated_at',	
@@ -15640,9 +15761,11 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		name : 'vehicle',
 		type : 'string'
 	}, {
+		name : 'year',
+		type : 'integer',
+	}, {
 		name : 'month',
-		type : 'date',
-		dateFormat:'time'
+		type : 'integer',		
 	}, {
 		name : 'month_str',
 		type : 'string',
@@ -15673,6 +15796,9 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	} ],
 	
 	sorters : [ {
+		property : 'year',
+		direction : 'ASC'
+	},{
 		property : 'month',
 		direction : 'ASC'
 	} ],
@@ -15693,15 +15819,14 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 	autoLoad : false,
 	
 	fields : [ {
-		name : 'key',
-		type : 'string'
-	}, {
 		name : 'driver',
 		type : 'string'
 	}, {
+		name : 'year',
+		type : 'integer'
+	}, {
 		name : 'month',
-		type : 'date',
-		dateFormat:'time'
+		type : 'integer'
 	}, {
 		name : 'month_str',
 		type : 'string',
@@ -15738,6 +15863,9 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 	} ],
 	
 	sorters : [ {
+		property : 'year',
+		direction : 'ASC'
+	},{
 		property : 'month',
 		direction : 'ASC'
 	} ],	
@@ -15746,7 +15874,7 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 		type : 'ajax',
 		url : 'driver_run',
 		extraParams : {
-			select : [ 'key', 'driver', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt' ]
+			select : [ 'driver', 'year', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt' ]
 		},
 		reader : {
 			type : 'json',
@@ -15761,15 +15889,14 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 	autoLoad : false,
 	
 	fields : [ {
-		name : 'key',
-		type : 'string'
-	}, {
 		name : 'driver',
 		type : 'string'
 	}, {
+		name : 'year',
+		type : 'integer'
+	}, {
 		name : 'month',
-		type : 'date',
-		dateFormat:'time'
+		type : 'integer'
 	}, {
 		name : 'month_str',
 		type : 'string',
@@ -15824,6 +15951,9 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 	} ],
 	
 	sorters : [ {
+		property : 'year',
+		direction : 'ASC'
+	}, {
 		property : 'month',
 		direction : 'ASC'
 	} ],	
@@ -15832,7 +15962,7 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 		type : 'ajax',
 		url : 'driver_run/speed',
 		extraParams : {
-			select : [ 'key', 'driver', 'month', 'spd_lt10', 'spd_lt20', 'spd_lt30', 'spd_lt40', 'spd_lt50', 'spd_lt60', 'spd_lt70', 'spd_lt80', 'spd_lt90', 'spd_lt100', 'spd_lt110', 'spd_lt120', 'spd_lt130', 'spd_lt140', 'spd_lt150', 'spd_lt160' ]
+			select : [ 'driver', 'year', 'month', 'spd_lt10', 'spd_lt20', 'spd_lt30', 'spd_lt40', 'spd_lt50', 'spd_lt60', 'spd_lt70', 'spd_lt80', 'spd_lt90', 'spd_lt100', 'spd_lt110', 'spd_lt120', 'spd_lt130', 'spd_lt140', 'spd_lt150', 'spd_lt160' ]
 		},
 		reader : {
 			type : 'json',
@@ -15950,7 +16080,7 @@ Ext.define('GreenFleet.store.DriverByGroupStore', {
 
 	autoLoad : false,
 	
-	pageSize : 1000,
+	pageSize : 10,
 	
 	fields : [ {
 		name : 'key',

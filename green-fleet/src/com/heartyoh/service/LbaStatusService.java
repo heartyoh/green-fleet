@@ -28,7 +28,10 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchService;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
+import com.heartyoh.model.Alarm;
+import com.heartyoh.model.Location;
 import com.heartyoh.util.CalculatorUtils;
+import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
@@ -54,7 +57,7 @@ public class LbaStatusService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return (String)map.get("vehicle") + "@" + (String)map.get("alarm");
+		return map.get("vehicle") + "@" + map.get("alarm");
 	}
 	
 	@Override
@@ -125,28 +128,30 @@ public class LbaStatusService extends EntityService {
 		Key companyKey = this.getCompanyKey(request);
 		
 		// 1. 모든 alarm을 조회 
-		Iterator<Entity> alarmList = DatastoreUtils.findEntities("Alarm", companyKey, null);
+		Alarm condition = new Alarm(companyKey.getKind(), null);
+		List<Alarm> alarmList = ConnectionManager.getInstance().getDml().selectList(Alarm.class, condition);		
 		List<Entity> lbaStatusList = new ArrayList<Entity>();
 		
 		// 2. 각 alarm에 대해서 유효기간 체크 
-		while(alarmList.hasNext()) {
-			Entity alarm = alarmList.next();
-			boolean always = DataUtils.toBool(alarm.getProperty("always"));
+		for(Alarm alarm : alarmList) {
 			
-			if(always)
+			if(alarm.isAlways())
 				continue; 
 			
 			// Alarm 기준정보로 부터 오늘 날짜로 use 데이터 체크 
-			Date fromDate = DataUtils.toDate(alarm.getProperty("from_date"));
-			Date toDate = DataUtils.toDate(alarm.getProperty("to_date"));			
+			Date fromDate = alarm.getFromDate();
+			Date toDate = alarm.getToDate();
+			
 			if(fromDate == null && toDate == null)
 				continue;
 			
 			// Alarm의 from_date, to_date로 오늘이 유효기간인지 체크 
 			boolean use = DataUtils.between(DataUtils.getToday(), fromDate, toDate);
+			
 			// LbaStatus에 alarm, use 데이터를 찾아 use 데이터를 업데이트 
 			Iterator<Entity> lbaStatuses = DatastoreUtils.findEntities(companyKey, this.getEntityName(), 
-					DataUtils.newMap(new String[] { "alarm", "use" }, new Object[] { alarm.getProperty("name"), !use }));
+					DataUtils.newMap(new String[] { "alarm", "use" }, new Object[] { alarm.getName(), !use }));
+			
 			while(lbaStatuses.hasNext()) {
 				Entity lbaStatus = lbaStatuses.next();
 				lbaStatus.setProperty("use", use);
@@ -154,7 +159,7 @@ public class LbaStatusService extends EntityService {
 			}
 		}
 		
-		// 3. 업데이트된 LbaStatus를 저장...
+		// 3. 업데이트된 LbaStatus를 저장..., FIXME 변경 필요 - 각 alarm 마다 저장 및 커밋하도록 변경 ...
 		if(!lbaStatusList.isEmpty()) {
 			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 			Transaction txn = ds.beginTransaction();
@@ -184,7 +189,7 @@ public class LbaStatusService extends EntityService {
 		
 		Key companyKey = this.getCompanyKey(request);
 		String vehicle = request.getParameter("vehicle");
-		float lattitude = DataUtils.toFloat(request.getParameter("lat"));
+		float latitude = DataUtils.toFloat(request.getParameter("lat"));
 		float longitude = DataUtils.toFloat(request.getParameter("lng"));
 		Date now = new Date();
 		
@@ -200,10 +205,10 @@ public class LbaStatusService extends EntityService {
 		
 		for(Entity lbaStatus : lbaStatuses) {
 			lbaStatus.setProperty("updated_at", now);
-			String event = this.checkEvent(companyKey, lbaStatus, lattitude, longitude);
+			String event = this.checkEvent(companyKey, lbaStatus, latitude, longitude);
 			
 			if(event != null) {
-				Entity alarmHist = this.createAlarmHistory(lbaStatus, event, lattitude, longitude);
+				Entity alarmHist = this.createAlarmHistory(lbaStatus, event, latitude, longitude);
 				prospectiveSearch.match(alarmHist, "AlarmHistory", "", "/prospective/lba_alarm", "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);
 				ds.put(alarmHist);
 			}
@@ -215,25 +220,27 @@ public class LbaStatusService extends EntityService {
 	/**
 	 * LbaStatus 정보로 알람을 보내야 하는지를 체크하고 어떤 이벤트인지 (IN/OUT) 혹은 변화가 없는지(NULL)를 리턴한다.
 	 * 
+	 * @param companyKey
 	 * @param lbaStatus
-	 * @param lattitude
+	 * @param latitude
 	 * @param longitude
 	 * @return event
 	 * @throws
 	 */
-	private String checkEvent(Key companyKey, Entity lbaStatus, float lattitude, float longitude) throws Exception {
+	private String checkEvent(Key companyKey, Entity lbaStatus, float latitude, float longitude) throws Exception {
 		
-		Entity location = DatastoreUtils.findEntity(companyKey, "Location", DataUtils.newMap("name", lbaStatus.getProperty("loc")));
+		Location location = new Location(companyKey.getName(), (String)lbaStatus.getProperty("loc"));
+		location = ConnectionManager.getInstance().getDml().select(location);
 		
 		if(location == null)
 			return null;
 		
 		String evtTrg = (String)lbaStatus.getProperty("evt_trg");
 		String beforeStatus = (String)lbaStatus.getProperty("cur_status");
-		String currentStatus = CalculatorUtils.contains(location, lattitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT;
+		String currentStatus = CalculatorUtils.contains(location, latitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT;
 		lbaStatus.setProperty("cur_status", currentStatus);
-		lbaStatus.setProperty("bef_status", beforeStatus);				
-		return this.getEvent(evtTrg, beforeStatus, currentStatus);		
+		lbaStatus.setProperty("bef_status", beforeStatus);
+		return this.getEvent(evtTrg, beforeStatus, currentStatus);
 	}
 	
 	/**
@@ -270,11 +277,11 @@ public class LbaStatusService extends EntityService {
 	 * 
 	 * @param lbaStatus
 	 * @param eventName
-	 * @param lattitude
+	 * @param latitude
 	 * @param longitude
 	 * @return
 	 */
-	private Entity createAlarmHistory(Entity lbaStatus, String eventName, float lattitude, float longitude) {
+	private Entity createAlarmHistory(Entity lbaStatus, String eventName, float latitude, float longitude) {
 		
 		String vehicle = (String)lbaStatus.getProperty("vehicle");
 		String alarmName = (String)lbaStatus.getProperty("alarm");
@@ -286,10 +293,10 @@ public class LbaStatusService extends EntityService {
 		alarmHistory.setProperty("alarm", alarmName);
 		alarmHistory.setProperty("loc", lbaStatus.getProperty("loc"));
 		alarmHistory.setProperty("datetime", datetimeStr);
-		alarmHistory.setProperty("evt", eventName);
-		alarmHistory.setProperty("lat", lattitude);
-		alarmHistory.setProperty("lng", longitude);
+		alarmHistory.setUnindexedProperty("evt", eventName);
+		alarmHistory.setUnindexedProperty("lat", latitude);
+		alarmHistory.setUnindexedProperty("lng", longitude);
 		alarmHistory.setProperty("send", "N");
 		return alarmHistory;
-	}	
+	}
 }

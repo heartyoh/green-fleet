@@ -53,9 +53,11 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
 			proxy.extraParams.driver = record.data.id;
-			proxy.extraParams.from_date = self.sub('from_date').getValue();
-			proxy.extraParams.to_date = self.sub('to_date').getValue();
-			proxy.extraParams.select = ['key', 'driver', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
+			proxy.extraParams.from_year = self.sub('from_year').getValue();
+			proxy.extraParams.to_year = self.sub('to_year').getValue();
+			proxy.extraParams.from_month = self.sub('from_month').getValue();
+			proxy.extraParams.to_month = self.sub('to_month').getValue();
+			proxy.extraParams.select = ['driver', 'year', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -184,11 +186,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			itemId : 'runstatus_grid',
 			store : 'DriverRunStore',
 			columns : [ {
-				header : 'Key',
-				dataIndex : 'key',
-				hidden : true
-			}, {
-				dataIndex : 'month',
+				dataIndex : 'month_str',
 				text : T('label.datetime'),
 				xtype:'datecolumn',
 				format:F('date')
@@ -264,26 +262,46 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			},
 			T('label.period') + ' : ',
 			{
-				xtype : 'datefield',
-				name : 'from_date',
-				itemId : 'from_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : Ext.Date.add(new Date(), Ext.Date.YEAR, -1),
-				width : 90
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
 			},
 			' ~ ',
 			{
-				xtype : 'datefield',
-				name : 'to_date',
-				itemId : 'to_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : new Date(),
-				width : 90
-			},		    
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -513,14 +531,13 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['month'],
-	                title: T('label.month'),
-	                label: { renderer: Ext.util.Format.dateRenderer('Y-m') }
+	                fields: ['month_str'],
+	                title: T('label.month')
 				}],
 				series : [{
 					type : chartType,
 					axis: 'left',
-					xField: 'month',
+					xField: 'month_str',
 	                yField: yField,
 					showInLegend : true,
 					tips : {
@@ -528,7 +545,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						width : 140,
 						height : 25,
 						renderer : function(storeItem, item) {
-							this.setTitle(Ext.util.Format.date(storeItem.get('month'), 'Y-m') + ' : ' + storeItem.get(yField) + unit);
+							this.setTitle(storeItem.get('month_str') + ' : ' + storeItem.get(yField) + unit);
 						}
 					},
 					highlight : {

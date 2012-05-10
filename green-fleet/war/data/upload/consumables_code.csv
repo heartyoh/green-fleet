@@ -1,6 +1,6 @@
 name,repl_unit,fst_repl_mileage,fst_repl_time,repl_mileage,repl_time,desc
 AirconFilter,Time,0,0,0,6,AirconFilter
-Antifreeze,Time,0,36,0,24,Antifreeze
+Antifreeze,Time,0,0,0,24,Antifreeze
 Battery,MileageTime,0,0,30000,36,Battery
 BrakeOil,MileageTime,0,0,40000,24,BrakeOil
 BrakePad,Mileage,0,0,35000,0,BrakePad

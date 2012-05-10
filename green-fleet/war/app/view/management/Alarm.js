@@ -28,14 +28,30 @@ Ext.define('GreenFleet.view.management.Alarm', {
 
 	initComponent : function() {
 		var self = this;
-
 		this.callParent(arguments);
-
 		this.add(this.buildList(this));
 		this.add(this.buildForm(this));
 
 		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
+			
+			var alarmName = record.data.name;
+			Ext.Ajax.request({
+				url : '/alarm/find',
+				method : 'GET',
+				params : { name : alarmName },
+				success : function(response) {
+					var alarmRecord = Ext.JSON.decode(response.responseText);
+					if (alarmRecord.success) {
+						record.data.vehicles = alarmRecord.vehicles;
+						self.sub('form').loadRecord(record);
+					} else {
+						Ext.MessageBox.alert(T('label.failure'), response.responseText);
+					}
+				},
+				failure : function(response) {
+					Ext.MessageBox.alert(T('label.failure'), response.responseText);
+				}
+			});			
 		});
 
 		this.sub('grid').on('render', function(grid) {
@@ -72,11 +88,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -85,16 +96,12 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				text : T('label.event_type'),
 				type : 'string'
 			}, {
-				dataIndex : 'loc',
-				text : T('label.location'),
+				dataIndex : 'evt_name',
+				text : T('label.event_name'),
 				type : 'string'
 			}, {
 				dataIndex : 'evt_trg',
 				text : T('label.event_trigger'),
-				type : 'string'
-			}, {
-				dataIndex : 'dest',
-				text : T('label.destination'),
 				type : 'string'
 			}, {
 				dataIndex : 'type',
@@ -105,16 +112,20 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				text : T('label.period_always'),
 				type : 'boolean'
 			}, {
+				dataIndex : 'enabled',
+				text : T('label.enabled'),
+				type : 'boolean'
+			}, {
 				dataIndex : 'from_date',
 				text : T('label.from_date'),
 				xtype : 'datecolumn',
-				format : F('date'),
+				format : F('datetime'),
 				width : 120
 			}, {
 				dataIndex : 'to_date',
 				text : T('label.to_date'),
 				xtype : 'datecolumn',
-				format : F('date'),
+				format : F('datetime'),
 				width : 120				
 			}, {
 				dataIndex : 'created_at',
@@ -141,7 +152,16 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			}, {
 				text : T('button.reset'),
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'AlarmStore',
+	            cls : 'pagingtoolbar',
+	            displayInfo: true,
+	            displayMsg: 'Displaying alarms {0} - {1} of {2}',
+	            emptyMsg: "No alarms to display"
+	        }
 		}
 	},
 	
@@ -159,10 +179,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				anchor : '100%'
 			},
 			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
-			}, {
 				name : 'name',
 				fieldLabel : T('label.name'),
 				allowBlank : false
@@ -172,12 +188,20 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				name : 'evt_type',
 				group : 'AlarmEventType',
 	            fieldLabel: T('label.event_type'),
+	            allowBank : false,
 				listeners : {
 					change : function(combo, currentValue, beforeValue) {
 						combo.up('form').down('fieldset').setVisible(currentValue == 'location');
 					}
 				}
-	        },			
+	        },
+	        {
+				name : 'enabled',
+				fieldLabel : T('label.enabled'),
+				xtype : 'checkboxfield',
+				flex : 1,
+				checked : true,
+	        },
 			{
 	            xtype:'fieldset',
 	            title: T('label.location'),
@@ -188,7 +212,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 	            },
 	            items :[{
 	            	itemId : 'form_location',
-					name : 'loc',
+					name : 'evt_name',
 					fieldLabel : T('label.location'),
 					xtype : 'combo',
 					queryMode : 'local',

@@ -5,9 +5,6 @@ Ext.define('GreenFleet.store.LocationStore', {
 		
 	fields : [ 
 		{
-			name : 'key',
-			type : 'string'
-		}, {
 			name : 'name',
 			type : 'string'
 		}, {
@@ -35,7 +32,7 @@ Ext.define('GreenFleet.store.LocationStore', {
 			name : 'lng_hi',
 			type : 'float'				
 		}, {
-			name : 'desc',
+			name : 'expl',
 			type : 'string'				
 		}, {
 			name : 'created_at',
@@ -48,7 +45,7 @@ Ext.define('GreenFleet.store.LocationStore', {
 		}	
 	],
 
-	pageSize : 1000,
+	pageSize : 20,
 	
 	sorters : [ {
 		property : 'updated_at',		

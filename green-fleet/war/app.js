@@ -30,6 +30,7 @@ var console = console || {
 
 Ext.require(['GreenFleet.view.Viewport',
              'GreenFleet.controller.ApplicationController', 
+             'GreenFleet.controller.MainController', 
              'GreenFleet.controller.FileController']);
 
 Ext.onReady(function() {
@@ -37,7 +38,11 @@ Ext.onReady(function() {
 		name : 'GreenFleet',
 		autoCreateViewport : false,
 
-		controllers : [ 'GreenFleet.controller.ApplicationController', 'GreenFleet.controller.FileController' ],
+		controllers : [ 
+		'GreenFleet.controller.ApplicationController', 
+		'GreenFleet.controller.FileController',
+		'GreenFleet.controller.MainController'
+		],
 
 		launch : function() {
 			Ext.create('GreenFleet.view.Viewport').show();

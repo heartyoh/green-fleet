@@ -3,7 +3,7 @@ Ext.define('GreenFleet.store.VehicleByGroupStore', {
 
 	autoLoad : false,
 	
-	pageSize : 1000,
+	pageSize : 10,
 	
 	fields : [ {
 		name : 'key',

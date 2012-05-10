@@ -63,7 +63,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	            dataIndex: 'driver',
 	            width : 80,
 				summaryType: 'count',
-		        summaryRenderer: function(value) {
+		        summaryRenderer: function(value) {		        	
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 			}, {
@@ -120,9 +120,10 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	        }, {
 				header : T('label.sum'),
 				dataIndex : 'sum',
-				width : 80,
+				width : 100,
 				summaryType: 'sum',
 		        summaryRenderer: function(value) {
+		        	value = Ext.util.Format.number(value, '0.00');
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 	        }]
@@ -170,10 +171,20 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				itemId : 'from_year',
 				displayField: 'year',
 			    valueField: 'year',
-			    value : new Date().getFullYear(),
+			    value : new Date().getFullYear() - 1,
 				store : 'YearStore',
-				width : 60				
+				width : 60
 			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
 			' ~ ',
 			{
 				xtype : 'combo',
@@ -185,6 +196,16 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				store : 'YearStore',
 				width : 60			
 			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},			
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -193,18 +214,18 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				displayField: 'desc',
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
-					        { "name" : "run_dist", 		"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
-							{ "name" : "consmpt", 		"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 		"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
-							{ "name" : "sud_accel_cnt", "desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
-							{ "name" : "sud_brake_cnt", "desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
-							{ "name" : "eco_drv_time", 	"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "ovr_spd_time",  "desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "inc_cnt",  		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
+					fields : [ 'name', 'type', 'desc', 'unit' ], 
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
+					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
+							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
+							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
+							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "inc_cnt",  		"type": "int",		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -237,22 +258,6 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	},
 	
 	/**
-	 * From Date
-	 */
-	getFromDateValue : function() {
-		var fromYear = this.sub('from_year').getValue();
-		return fromYear ? fromYear + '-01-01' : null;
-	},
-	
-	/**
-	 * To Date
-	 */
-	getToDateValue : function() {
-		var toYear = this.sub('to_year').getValue();
-		return toYear ? toYear + '-12-31' : null;
-	},
-	
-	/**
 	 * 차트 정보
 	 */
 	getChartInfo : function() {
@@ -281,24 +286,24 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	 */
 	refresh : function() {
 		var dataGrid = this.sub('data_grid');
-		var fromDateStr = this.getFromDateValue();
-		var toDateStr = this.getToDateValue();
-		var chartInfo = this.getChartInfo();
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		var chartInfo = this.getChartInfo();		
 		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);		
 		var driverGroup = this.sub('combo_driver_group').getValue();		
 		var store = Ext.getStore('DriverRunStore');
 		var proxy = store.getProxy();
-		proxy.extraParams.select = ['driver', 'month', chartInfo.name];
+		//proxy.extraParams.select = ['driver', 'month_str', chartInfo.name];
+		proxy.extraParams.from_year = fromYear;
+		proxy.extraParams.from_month = fromMonth;
+		proxy.extraParams.to_year = toYear;
+		proxy.extraParams.to_month = toMonth;
 		
 		if(driverGroup)
 			proxy.extraParams.driver_group = driverGroup;
-		
-		if(fromDateStr)
-			proxy.extraParams.from_date = fromDateStr;
-		
-		if(toDateStr)
-			proxy.extraParams.to_date = toDateStr;
-		
+				
 		store.load({
 			scope : this,
 			callback : function(records, operation, success) {
@@ -306,13 +311,18 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				var newRecords = [];
 				Ext.each(records, function(record) {
 					var driver = record.data.driver;
-					var year = record.data.month.getFullYear();
-					var month = record.data.month.getMonth() + 1;
+					var year = record.data.year;
+					var month = record.data.month;
 					var runData = record.get(chartInfo.name);
 					
 					if(chartInfo.name == 'rate_of_oper') {
-						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0; 
-					}					
+						var runTime = record.data.run_time;
+						runData = runTime ? ((runTime * 100) / (30 * 60 * 24)) : 0;
+					}
+					
+					if(chartInfo.type == 'float') {
+						runData = parseFloat(Ext.util.Format.number(runData, '0.00'));
+					}
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {
@@ -332,6 +342,12 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 							newRecord['sum'] = newRecord.sum + runData;
 					}
 				});
+				
+				if(chartInfo.type == 'float') {
+					Ext.each(newRecords, function(nr) {
+						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));
+					});					
+				}				
 				
 				dataGrid.store.loadData(newRecords);
 				this.refreshChart(newRecords, chartInfo.desc, chartInfo.unit);

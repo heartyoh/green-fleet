@@ -38,7 +38,6 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class DriverGroupService extends EntityService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DriverGroupService.class);

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.heartyoh.model.Location;
 
 /**
  * 각종 계산 함수를 제공하는 유틸리티 클래스 
@@ -315,16 +316,16 @@ public class CalculatorUtils {
 	 * 위치(lattitude, longitude)가 location내에 포함되어 있는지 아닌지를 판단한다. 
 	 * 
 	 * @param location
-	 * @param lattitude
+	 * @param latitude
 	 * @param longitude
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean contains(Entity location, float lattitude, float longitude) throws Exception {		
-		float minLat = DataUtils.toFloat(location.getProperty("lat_lo"));
-		float minLng = DataUtils.toFloat(location.getProperty("lng_lo"));
-		float maxLat = DataUtils.toFloat(location.getProperty("lat_hi"));
-		float maxLng = DataUtils.toFloat(location.getProperty("lng_hi"));		
-		return (lattitude <= maxLat && lattitude >= minLat && longitude <= maxLng && longitude >= minLng);
+	public static boolean contains(Location location, float latitude, float longitude) throws Exception {		
+		float minLat = location.getLatLo();
+		float minLng = location.getLngLo();
+		float maxLat = location.getLatHi();
+		float maxLng = location.getLngHi();		
+		return (latitude <= maxLat && latitude >= minLat && longitude <= maxLng && longitude >= minLng);
 	}
 }

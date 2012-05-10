@@ -22,6 +22,3 @@ curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-18 
 4. Incident Log File 보내기
 curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-13 11:11:11" --form file=@./Event_20120213111111 http://localhost:8888/incident/upload_log
 curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-13 11:11:11" --form file=@./Event_20120213111111 http://green-fleets.appspot.com/incident/upload_log
-
-
-curl --form company=vitizen --form terminal_id=T001 --form "datetime=2012-02-18 21:00:00" --form video_clip=@/Users/heartyoh/Desktop/contents/event_2011_03_24_22_13_37.264 http://192.168.0.76:8080/incident/upload_video

@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.appengine.api.datastore.Entity;
 
@@ -20,6 +23,24 @@ import com.google.appengine.api.datastore.Entity;
  * @author jhnam
  */
 public class DataUtils {
+	
+	/**
+	 * request parameter 정보를 Map으로 변환 
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static Map<String, Object> toMap(HttpServletRequest request) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		@SuppressWarnings("rawtypes")
+		Enumeration e = request.getParameterNames();
+		while (e.hasMoreElements()) {
+			String name = (String) e.nextElement();
+			map.put(name, request.getParameter(name));
+		}
+		return map;
+	}	
 
 	/**
 	 * keys, values를 받아서 Map에 key, value 쌍으로 담아 리턴 
@@ -69,6 +90,22 @@ public class DataUtils {
 	}
 	
 	/**
+	 * range로 list로 변환
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public static List<Object> toListByRange(Object... values) {
+		List<Object> list = new ArrayList<Object>();
+		
+		for(int i = 0 ; i < values.length ; i++) {
+			list.add(values[i]);
+		}
+		
+		return list;
+	}
+	
+	/**
 	 * value에 대한 boolean 평가 
 	 * 
 	 * @param value
@@ -85,7 +122,7 @@ public class DataUtils {
 			Number no = (Number)value;
 			return (no.intValue() > 0) ? true : false;
 		} else {
-			String str = value.toString();			
+			String str = value.toString();
 			return ("on".equalsIgnoreCase(str) || "true".equalsIgnoreCase(str)) ? true : false; 
 		}
 	}

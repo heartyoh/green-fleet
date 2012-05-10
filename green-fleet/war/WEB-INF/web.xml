@@ -20,11 +20,12 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 			<param-value>UTF-8</param-value>
 		</init-param>
 	</filter>
+	
 	<filter-mapping>
 		<filter-name>Request Encoding</filter-name>
 		<servlet-name>dispatcher</servlet-name>
 	</filter-mapping>
-    
+        
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>

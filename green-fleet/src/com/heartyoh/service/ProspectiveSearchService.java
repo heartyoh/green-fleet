@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
+import com.heartyoh.model.Alarm;
 import com.heartyoh.util.AlarmUtils;
+import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
 
 /**
@@ -43,51 +44,52 @@ public class ProspectiveSearchService {
 	@RequestMapping(value = "/prospective/lba_alarm", method = RequestMethod.POST)
 	public void lbaAlarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-	    if (!DataUtils.isEmpty(request.getParameter("document"))) {
-	    	Entity alarmHist = ProspectiveSearchServiceFactory.getProspectiveSearchService().getDocument(request);
-	    	try {
-	    		this.alarm(alarmHist);
-	    		DatastoreServiceFactory.getDatastoreService().put(alarmHist);
-	    		
-	    		if(logger.isInfoEnabled())
-	    			logger.info("Location Based Alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!");
-	    	} catch (Exception e) {
-	    		logger.info("Failed to send location based alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!", e);
-	    	}
-	    }
+	    if (DataUtils.isEmpty(request.getParameter("document")))
+	    	return;
+	    
+    	Entity alarmHist = ProspectiveSearchServiceFactory.getProspectiveSearchService().getDocument(request);
+    	try {
+    		this.alarm(alarmHist);
+    		if(logger.isInfoEnabled())
+    			logger.info("Location Based Alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!");
+    	} catch (Exception e) {
+    		logger.info("Failed to send location based alarm (alarm:" + alarmHist.getProperty("alarm") + ", loc:" + alarmHist.getProperty("loc") + ", vehicle:" + alarmHist.getProperty("vehicle") + ", lat:" + alarmHist.getProperty("lat") + ", lng:" + alarmHist.getProperty("lng") + ") sended!", e);
+    	}
 	}
 	
 	/**
 	 * 알람을 보냄
 	 * 
-	 * @param alarmHistory
-	 * @return
+	 * @param alarmHist
+	 * @throws
 	 */
-	private void alarm(Entity alarmHistory) throws Exception {
+	private void alarm(Entity alarmHist) throws Exception {
 		
-		Entity alarm = DatastoreUtils.findEntity(alarmHistory.getParent(), "Alarm", DataUtils.newMap("name", alarmHistory.getProperty("alarm")));
+		Alarm alarm = new Alarm(alarmHist.getParent().getName(), (String)alarmHist.getProperty("alarm"));
+		alarm = ConnectionManager.getInstance().getDml().select(alarm);
 		
-		if(alarm == null)
+		if(alarm == null || DataUtils.isEmpty(alarm.getDest()))
 			return;
-		
-		String type = (String)alarm.getProperty("type");
-		String[] receivers = DataUtils.toNotNull(alarm.getProperty("dest")).split(",");
-		String eventName = (String)alarmHistory.getProperty("evt");
-		String content = this.convertMessage((String)alarm.getProperty("msg"), alarmHistory);
+				
+		String[] receivers = alarm.getDest().split(",");
+		String type = alarm.getType();
+		String eventName = (String)alarmHist.getProperty("evt");
+		String content = this.convertMessage(alarm.getMsg(), alarmHist);
 		
 		if(GreenFleetConstant.ALARM_MAIL.equalsIgnoreCase(type)) {
 			StringBuffer subject = new StringBuffer();
-			subject.append("Location Based Alarm [").append(alarm.getProperty("name")).append("] : Vehicle [").append(alarmHistory.getProperty("vehicle"));
+			subject.append("Location Based Alarm [").append(alarm.getName()).append("] : Vehicle [").append(alarmHist.getProperty("vehicle"));
 			subject.append(eventName.equals(GreenFleetConstant.LBA_EVENT_IN) ? "] comes in to Location [" : "] comes out from Location [");
-			subject.append(alarm.getProperty("loc")).append("]!\n");
+			subject.append(alarm.getEvtName()).append("]!\n");
 			AlarmUtils.sendMail(null, null, null, receivers, subject.toString(), false, content);
 						
 		} else if(GreenFleetConstant.ALARM_XMPP.equalsIgnoreCase(type)) {
 			AlarmUtils.sendXmppMessage(receivers, content);
 		}
 		
-		alarmHistory.setProperty("type", type);
-		alarmHistory.setProperty("send", "Y");
+		alarmHist.setUnindexedProperty("type", type);
+		alarmHist.setProperty("send", "Y");
+		DatastoreServiceFactory.getDatastoreService().put(alarmHist);
 	}
 	
 	/**

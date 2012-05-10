@@ -32,7 +32,6 @@ import com.heartyoh.util.DatastoreUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class DriverRelationService extends EntityService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DriverRelationService.class);

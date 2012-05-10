@@ -10,9 +10,11 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		name : 'vehicle',
 		type : 'string'
 	}, {
+		name : 'year',
+		type : 'integer',
+	}, {
 		name : 'month',
-		type : 'date',
-		dateFormat:'time'
+		type : 'integer',		
 	}, {
 		name : 'month_str',
 		type : 'string',
@@ -43,6 +45,9 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	} ],
 	
 	sorters : [ {
+		property : 'year',
+		direction : 'ASC'
+	},{
 		property : 'month',
 		direction : 'ASC'
 	} ],

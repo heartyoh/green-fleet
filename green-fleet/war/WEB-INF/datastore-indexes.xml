@@ -55,7 +55,7 @@
         <property name="health_rate" direction="asc"/>
     </datastore-index>
     
-    <datastore-index kind="DriverRunSum" ancestor="true" source="manual">
+    <!--datastore-index kind="DriverRunSum" ancestor="true" source="manual">
         <property name="driver" direction="asc"/>
         <property name="month" direction="asc"/>
     </datastore-index>
@@ -71,5 +71,5 @@
     
     <datastore-index kind="VehicleRunSum" ancestor="true" source="manual">
         <property name="month" direction="asc"/>
-    </datastore-index>
+    </datastore-index-->
 </datastore-indexes>

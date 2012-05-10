@@ -132,7 +132,7 @@ public class UserService extends EntityService {
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public @ResponseBody
-	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {		
 		return super.retrieve(request, response);
 	}
 	

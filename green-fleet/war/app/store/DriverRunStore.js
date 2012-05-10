@@ -4,15 +4,14 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 	autoLoad : false,
 	
 	fields : [ {
-		name : 'key',
-		type : 'string'
-	}, {
 		name : 'driver',
 		type : 'string'
 	}, {
+		name : 'year',
+		type : 'integer'
+	}, {
 		name : 'month',
-		type : 'date',
-		dateFormat:'time'
+		type : 'integer'
 	}, {
 		name : 'month_str',
 		type : 'string',
@@ -49,6 +48,9 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 	} ],
 	
 	sorters : [ {
+		property : 'year',
+		direction : 'ASC'
+	},{
 		property : 'month',
 		direction : 'ASC'
 	} ],	
@@ -57,7 +59,7 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 		type : 'ajax',
 		url : 'driver_run',
 		extraParams : {
-			select : [ 'key', 'driver', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt' ]
+			select : [ 'driver', 'year', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt' ]
 		},
 		reader : {
 			type : 'json',

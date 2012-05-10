@@ -285,11 +285,6 @@ Ext.define('GreenFleet.view.management.Location', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -326,7 +321,7 @@ Ext.define('GreenFleet.view.management.Location', {
 				text : T('label.longitude_max'),
 				type : 'float'					
 			}, {
-				dataIndex : 'desc',
+				dataIndex : 'expl',
 				text : T('label.desc'),
 				type : 'string'					
 			}, {
@@ -357,7 +352,16 @@ Ext.define('GreenFleet.view.management.Location', {
 			}, {
 				text : T('button.reset'),
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'LocationStore',
+	            cls : 'pagingtoolbar',
+	            displayInfo: true,
+	            displayMsg: 'Displaying locations {0} - {1} of {2}',
+	            emptyMsg: "No locations to display"
+	        }
 		}
 	},
 
@@ -375,10 +379,6 @@ Ext.define('GreenFleet.view.management.Location', {
 				anchor : '100%'
 			},
 			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
-			}, {
 				name : 'name',
 				fieldLabel : T('label.name')
 			}, {
@@ -430,7 +430,7 @@ Ext.define('GreenFleet.view.management.Location', {
 					}
 				}
 			}, {
-				name : 'desc',
+				name : 'expl',
 				fieldLabel : T('label.desc')
 			}, {
 				itemId : 'form_lat_lo',

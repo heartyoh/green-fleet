@@ -24,7 +24,6 @@ import com.google.appengine.api.datastore.Entity;
  * 
  * @author jhnam
  */
-@Controller
 public class LocationService extends EntityService {
 
 	private static final Logger logger = LoggerFactory.getLogger(LocationService.class);

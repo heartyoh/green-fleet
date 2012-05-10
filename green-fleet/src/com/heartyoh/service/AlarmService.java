@@ -34,7 +34,6 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class AlarmService extends EntityService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AlarmService.class);

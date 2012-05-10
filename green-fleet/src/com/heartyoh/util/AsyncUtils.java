@@ -20,13 +20,13 @@ public class AsyncUtils {
 	 * 
 	 * @param company
 	 * @param vehicle
-	 * @param lattitude
+	 * @param latitude
 	 * @param longitude
 	 * @throws Exception
 	 */
-	public static void addLbaTaskToQueue(String company, String vehicle, double lattitude, double longitude) throws Exception {
+	public static void addLbaTaskToQueue(String company, String vehicle, double latitude, double longitude) throws Exception {
 		Queue queue = QueueFactory.getQueue("LBAQueue");
-		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicle).param("lat", "" + lattitude).param("lng", "" + longitude));
+		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicle).param("lat", "" + latitude).param("lng", "" + longitude));
 	}
 	
 	/**

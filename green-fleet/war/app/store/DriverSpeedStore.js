@@ -4,15 +4,14 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 	autoLoad : false,
 	
 	fields : [ {
-		name : 'key',
-		type : 'string'
-	}, {
 		name : 'driver',
 		type : 'string'
 	}, {
+		name : 'year',
+		type : 'integer'
+	}, {
 		name : 'month',
-		type : 'date',
-		dateFormat:'time'
+		type : 'integer'
 	}, {
 		name : 'month_str',
 		type : 'string',
@@ -67,6 +66,9 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 	} ],
 	
 	sorters : [ {
+		property : 'year',
+		direction : 'ASC'
+	}, {
 		property : 'month',
 		direction : 'ASC'
 	} ],	
@@ -75,7 +77,7 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 		type : 'ajax',
 		url : 'driver_run/speed',
 		extraParams : {
-			select : [ 'key', 'driver', 'month', 'spd_lt10', 'spd_lt20', 'spd_lt30', 'spd_lt40', 'spd_lt50', 'spd_lt60', 'spd_lt70', 'spd_lt80', 'spd_lt90', 'spd_lt100', 'spd_lt110', 'spd_lt120', 'spd_lt130', 'spd_lt140', 'spd_lt150', 'spd_lt160' ]
+			select : [ 'driver', 'year', 'month', 'spd_lt10', 'spd_lt20', 'spd_lt30', 'spd_lt40', 'spd_lt50', 'spd_lt60', 'spd_lt70', 'spd_lt80', 'spd_lt90', 'spd_lt100', 'spd_lt110', 'spd_lt120', 'spd_lt130', 'spd_lt140', 'spd_lt150', 'spd_lt160' ]
 		},
 		reader : {
 			type : 'json',

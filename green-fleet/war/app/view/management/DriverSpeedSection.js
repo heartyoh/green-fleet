@@ -48,8 +48,10 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
 			proxy.extraParams.driver = record.data.id;
-			proxy.extraParams.from_date = self.sub('from_date').getValue();
-			proxy.extraParams.to_date = self.sub('to_date').getValue();
+			proxy.extraParams.from_year = self.sub('from_year').getValue();
+			proxy.extraParams.to_year = self.sub('to_year').getValue();
+			proxy.extraParams.from_month = self.sub('from_month').getValue();
+			proxy.extraParams.to_month = self.sub('to_month').getValue();
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -182,14 +184,8 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		autoScroll : true,
 		flex : 1,
 		columns : [ {
-			header : 'Key',
-			dataIndex : 'key',
-			hidden : true
-		}, {
-			dataIndex : 'month',
-			text : T('label.datetime'),
-			xtype:'datecolumn',
-			format:F('date')
+			dataIndex : 'month_str',
+			text : T('label.month'),
 		}, {
 			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
@@ -280,26 +276,46 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			},
 			T('label.period') + ' : ',
 			{
-				xtype : 'datefield',
-				name : 'from_date',
-				itemId : 'from_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : Ext.Date.add(new Date(), Ext.Date.YEAR, -1),
-				width : 90
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
 			},
 			' ~ ',
 			{
-				xtype : 'datefield',
-				name : 'to_date',
-				itemId : 'to_date',
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : new Date(),
-				width : 90
-			}
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
 		]
 	},
 
@@ -348,7 +364,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			// speed 130 ~
 			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
 			
-			var columnData = { 	'month' : record.get('month_str'), 
+			var columnData = { 	'month_str' : record.get('month_str'), 
 								'value1' : spd_30, 			'desc1' : '0 ~ 30(km)', 
 								'value2' : spd_40_60, 		'desc2' : '40 ~ 60(km)',
 								'value3' : spd_70_90, 		'desc3' : '70 ~ 90(km)',
@@ -358,7 +374,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		});
 		
 		var columnStore = Ext.create('Ext.data.JsonStore', {
-			fields : ['month', 'value1', 'value2', 'value3', 'value4', 'value5', 'desc1', 'desc2', 'desc3', 'desc4', 'desc5'],
+			fields : ['month_str', 'value1', 'value2', 'value3', 'value4', 'value5', 'desc1', 'desc2', 'desc3', 'desc4', 'desc5'],
 			autoDestroy : true,
 			data : columnDataArr
 		});
@@ -523,13 +539,13 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['month'],
+	                fields: ['month_str'],
 	                title: T('label.month'),
 				}],			
 				series : [{
 					type : 'column',
 					axis: 'left',
-					xField: 'month',
+					xField: 'month_str',
 	                yField: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
 	                title : [ '0 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
 					showInLegend : true,

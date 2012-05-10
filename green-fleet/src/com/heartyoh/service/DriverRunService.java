@@ -31,7 +31,6 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class DriverRunService extends EntityService {
 
 	@Override

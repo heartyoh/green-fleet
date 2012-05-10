@@ -4,35 +4,26 @@ Ext.define('GreenFleet.store.AlarmStore', {
 	storeId : 'alarm_store',
 	
 	fields : [ 
-		{
-			name : 'key',
-			type : 'string'
-		}, {
+	    {
 			name : 'name',
-			type : 'string'
-		}, {
-			name : 'vehicles',
 			type : 'string'
 		}, {
 			name : 'evt_type',
 			type : 'string'
 		}, {
-			name : 'loc',
+			name : 'evt_name',
 			type : 'string'
-		}, {
-			name : 'rad',
-			type : 'float'
 		}, {
 			name : 'evt_trg',
-			type : 'string'
-		}, {
-			name : 'dest',
 			type : 'string'
 		}, {
 			name : 'type',
 			type : 'string'
 		}, {
 			name : 'always',
+			type : 'boolean'
+		}, {
+			name : 'enabled',
 			type : 'boolean'
 		}, {
 			name : 'from_date',
@@ -42,6 +33,12 @@ Ext.define('GreenFleet.store.AlarmStore', {
 			name : 'to_date',
 			type : 'date',
 			dateFormat:'time'
+		}, {
+			name : 'vehicles',
+			type : 'string'
+		}, {
+			name : 'dest',
+			type : 'string'
 		}, {
 			name : 'msg',
 			type : 'string'
@@ -56,7 +53,7 @@ Ext.define('GreenFleet.store.AlarmStore', {
 		}
 	],
 
-	pageSize : 1000,
+	pageSize : 20,
 	
 	sorters : [ {
 		property : 'updated_at',	

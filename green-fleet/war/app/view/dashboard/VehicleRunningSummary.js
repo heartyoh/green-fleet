@@ -120,9 +120,10 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	        }, {
 				header : T('label.sum'),
 				dataIndex : 'sum',
-				width : 80,
+				width : 100,
 				summaryType: 'sum',
 		        summaryRenderer: function(value) {
+		        	value = Ext.util.Format.number(value, '0.00');
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 	        }]
@@ -170,10 +171,20 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				itemId : 'from_year',
 				displayField: 'year',
 			    valueField: 'year',
-			    value : new Date().getFullYear(),
+			    value : new Date().getFullYear() - 1,
 				store : 'YearStore',
 				width : 60				
 			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
 			' ~ ',
 			{
 				xtype : 'combo',
@@ -185,6 +196,16 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				store : 'YearStore',
 				width : 60			
 			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},			
 		    T('label.chart') + ' : ',
 			{
 				xtype : 'combo',
@@ -193,18 +214,18 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				displayField: 'desc',
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "%" },
-					        { "name" : "run_dist", 		"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
-							{ "name" : "consmpt", 		"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 		"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
-							{ "name" : "oos_cnt", 		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_cnt", 		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_time", 		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "mttr", 			"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
-							{ "name" : "mtbf", 			"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
+					fields : [ 'name', 'type', 'desc', 'unit' ], 
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "%" },
+					        { "name" : "run_dist", 		"type": "float", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "oos_cnt", 		"type": "int",		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
+							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
+							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -234,22 +255,6 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		title : T('label.chart'),
 		flex : 1,
 		autoScroll : true
-	},
-	
-	/**
-	 * From Date
-	 */
-	getFromDateValue : function() {
-		var fromYear = this.sub('from_year').getValue();
-		return fromYear ? fromYear + '-01-01' : null;
-	},
-	
-	/**
-	 * To Date
-	 */
-	getToDateValue : function() {
-		var toYear = this.sub('to_year').getValue();
-		return toYear ? toYear + '-12-31' : null;
 	},
 	
 	/**
@@ -283,19 +288,19 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		
 		var dataGrid = this.sub('data_grid');
 		var vehicleGroup = this.sub('combo_vehicle_group');
-		var fromDateStr = this.getFromDateValue();
-		var toDateStr = this.getToDateValue();
-		var chartInfo = this.getChartInfo();
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		var chartInfo = this.getChartInfo();		
 		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
 		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
-		proxy.extraParams.select = ['vehicle', 'month', chartInfo.name];
-		
-		if(fromDateStr)
-			proxy.extraParams.from_date = fromDateStr;
-		
-		if(toDateStr)
-			proxy.extraParams.to_date = toDateStr;
+		//proxy.extraParams.select = ['vehicle', 'month_str', chartInfo.name];
+		proxy.extraParams.from_year = fromYear;
+		proxy.extraParams.from_month = fromMonth;
+		proxy.extraParams.to_year = toYear;
+		proxy.extraParams.to_month = toMonth;
 		
 		if(vehicleGroup.getValue())
 			proxy.extraParams.vehicle_group = vehicleGroup.getValue();
@@ -307,13 +312,14 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				var newRecords = [];
 				Ext.each(records, function(record) {
 					var vehicle = record.data.vehicle;
-					var year = record.data.month.getFullYear();
-					var month = record.data.month.getMonth() + 1;
+					var year = record.data.year;
+					var month = record.data.month;
 					var runData = record.get(chartInfo.name);
 					
 					// 가동율 
-					if(chartInfo.name == 'rate_of_oper') {
-						runData = runData ? (runData / 30 * 60 * 24) * 100 : 0;
+					if('rate_of_oper' == chartInfo.name) {
+						var runTime = record.data.run_time;
+						runData = runTime ? ((runTime * 100) / (30 * 60 * 24)) : 0;
 						
 					// MTTR	
 					} else if('mttr' == chartInfo.name) {
@@ -326,7 +332,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 						var runTime = record.data.run_time;
 						var mntTime = record.data.mnt_time;
 						var oosCnt = record.data.oos_cnt;
-						runData = oosCnt ? ((runTime - mntTime > 0) ? (runTime - mntTime / oosCnt) : 0) : 0;
+						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;
+					}
+					
+					if(chartInfo.type == 'float') {
+						runData = parseFloat(Ext.util.Format.number(runData, '0.00'));
 					}
 					
 					var newRecord = null;
@@ -343,17 +353,24 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					
 					} else {
 						newRecord[monthStr] = runData;
-						if(runData && runData > 0)
+						if(runData && runData > 0) {
 							newRecord['sum'] = newRecord.sum + runData;
+						}
 					}
 				});
+				
+				if(chartInfo.type == 'float') {
+					Ext.each(newRecords, function(nr) {
+						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));
+					});					
+				}
 				
 				dataGrid.store.loadData(newRecords);
 				this.refreshChart(newRecords, chartInfo.desc, chartInfo.unit);
 			}
 		});
 	},
-	
+		
 	/**
 	 * Chart를 새로 생성
 	 */
@@ -370,7 +387,9 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByVehicle(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? 
+				this.refreshChartByYear(records, width, height, yTitle, unit) : 
+				this.refreshChartByVehicle(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;
