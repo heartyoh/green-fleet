@@ -302,6 +302,7 @@ T({
 		address : '주소',
 		alarm : '알람',
 		event_type : '이벤트 타입',
+		event_name : '이벤트',
 		radius : '반경',
 		location_radius : '위치 반경',
 		event_trigger : '이벤트 트리거',

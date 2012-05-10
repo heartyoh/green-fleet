@@ -41,5 +41,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/hibernate-core-3.5.6-Final.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -302,6 +302,7 @@ T({
 		address : 'Address',			
 		alarm : 'Alarm',
 		event_type : 'Event Type',
+		event_name : 'Event',
 		radius : 'Radius',
 		location_radius : 'Loc. Radius',
 		event_trigger : 'Event Trigger',

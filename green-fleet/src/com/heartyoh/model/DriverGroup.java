@@ -17,10 +17,6 @@ public class DriverGroup extends AbstractEntity {
 	 */
 	private Long id;
 	/**
-	 * company
-	 */
-	private String company;	
-	/**
 	 * vehicle group name
 	 */
 	private String name;
@@ -70,14 +66,6 @@ public class DriverGroup extends AbstractEntity {
 	
 	public void setName(String name) {
 		this.name = name;
-	}
-	
-	public String getCompany() {
-		return company;
-	}
-	
-	public void setCompany(String company) {
-		this.company = company;
 	}
 	
 	public String getExpl() {

@@ -7,7 +7,7 @@ CREATE TABLE vehicle_group (
 	created_at DATETIME, 
 	updated_at DATETIME, 
 	PRIMARY KEY(id)
-);
+) DEFAULT CHARSET=utf8;
 
 -- vehicle relation
 CREATE TABLE vehicle_relation (
@@ -16,7 +16,7 @@ CREATE TABLE vehicle_relation (
 	vehicle_id VARCHAR(50) NOT NULL, 
 	group_id BIGINT NOT NULL, 
 	PRIMARY KEY(id)
-);
+) DEFAULT CHARSET=utf8;
 
 -- driver group
 CREATE TABLE driver_group (
@@ -27,7 +27,7 @@ CREATE TABLE driver_group (
 	created_at DATETIME, 
 	updated_at DATETIME, 
 	PRIMARY KEY(id)
-);
+) DEFAULT CHARSET=utf8;
 
 -- driver relation
 CREATE TABLE driver_relation (
@@ -36,7 +36,7 @@ CREATE TABLE driver_relation (
 	driver_id VARCHAR(50) NOT NULL, 
 	group_id BIGINT NOT NULL, 
 	PRIMARY KEY(id)
-);
+) DEFAULT CHARSET=utf8;
 
 -- location
 CREATE TABLE location (
@@ -54,7 +54,7 @@ CREATE TABLE location (
 	created_at 	DATETIME, 
 	updated_at 	DATETIME, 
 	PRIMARY KEY(company, name)
-);
+) DEFAULT CHARSET=utf8;
 
 -- alarm
 CREATE TABLE alarm (
@@ -73,7 +73,7 @@ CREATE TABLE alarm (
 	created_at 	DATETIME, 
 	updated_at 	DATETIME, 
 	PRIMARY KEY(company, name)
-);
+) DEFAULT CHARSET=utf8;
 
 -- alarm & vehicles relation
 CREATE TABLE alarm_vehicle_relation (
@@ -81,7 +81,7 @@ CREATE TABLE alarm_vehicle_relation (
 	alarm_name 	VARCHAR(100) NOT NULL, 
 	vehicle_id 	VARCHAR(50) NOT NULL, 
 	PRIMARY KEY(company, alarm_name, vehicle_id)
-);
+) DEFAULT CHARSET=utf8;
 
 -- vehicle run sum
 CREATE TABLE vehicle_run_sum (
@@ -99,7 +99,7 @@ CREATE TABLE vehicle_run_sum (
 	mnt_cnt INT,
 	mnt_time INT,
 	PRIMARY KEY(company, vehicle, year, month)
-);
+) DEFAULT CHARSET=utf8;
 
 -- driver run sum
 CREATE TABLE driver_run_sum (
@@ -135,4 +135,4 @@ CREATE TABLE driver_run_sum (
 	spd_lt150 INT, 
 	spd_lt160 INT,
 	PRIMARY KEY(company, driver, year, month)
-);
+) DEFAULT CHARSET=utf8;

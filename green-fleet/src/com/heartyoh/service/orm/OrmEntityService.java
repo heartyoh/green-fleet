@@ -5,8 +5,10 @@ package com.heartyoh.service.orm;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -207,21 +209,35 @@ public abstract class OrmEntityService {
 		String[] keys = line.split(",");
 		String company = this.getCompany(request);
 		List<IEntity> list = new ArrayList<IEntity>();
-		Class clz = this.getClass();
+		Class clz = this.getEntityClass();
 		
 		while ((line = br.readLine()) != null) {
 			String[] values = line.split(",");
-			IEntity entity = (IEntity)this.getEntityClass().newInstance();
+			IEntity entity = (IEntity)clz.newInstance();
 			entity.setCompany(company);
 			
 			for (int i = 0; i < keys.length; i++) {
 				String key = keys[i].trim();
 				String value = values[i].trim();
-				
+				Field f = clz.getDeclaredField(ValueUtils.toCamelCase(key, '_'));
+				Class fType = f.getType();
 				String methodName = "set_" + key;
 				methodName = ValueUtils.toCamelCase(methodName, '_');
-				Method m = clz.getMethod(methodName, null);
-				m.invoke(entity, value);
+				Method m = clz.getMethod(methodName, fType);
+				
+				if(fType == float.class || fType == Float.class) {
+					m.invoke(entity, DataUtils.toFloat(value));
+				} else if(fType == int.class || fType == Integer.class) {
+					m.invoke(entity, DataUtils.toInt(value));
+				} else if(fType == long.class || fType == Long.class) {
+					m.invoke(entity, DataUtils.toLong(value));
+				} else if(fType == double.class || fType == Double.class) {
+					m.invoke(entity, DataUtils.toDouble(value));
+				} else if(fType == Date.class) {
+					m.invoke(entity, DataUtils.toDate(value));
+				} else {
+					m.invoke(entity, value);
+				}								
 			}
 
 			entity.beforeSave();
