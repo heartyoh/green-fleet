@@ -60,32 +60,27 @@ public class DriverGroupOrmService extends OrmEntityService {
 	}
 	
 	@RequestMapping(value = "/driver_group/import", method = RequestMethod.POST)
-	public void imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public void imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.imports(request, response);
 	}
 	
 	@RequestMapping(value = "/driver_group/delete", method = RequestMethod.POST)
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.delete(request, response);
 	}
 
-	@RequestMapping(value = "/driver_group", method = RequestMethod.GET)
-	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	@RequestMapping(value = {"/driver_group", "/m/data/driver_group.json"}, method = RequestMethod.GET)
+	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.retrieve(request, response);
 	}	
 	
 	@RequestMapping(value = "/driver_group/save", method = RequestMethod.POST)
-	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.save(request, response);
 	}
 	
 	@RequestMapping(value = "/driver_group/find", method = RequestMethod.POST)
-	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.find(request, response);
 	}
 	

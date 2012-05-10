@@ -38,7 +38,6 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class VehicleGroupService extends EntityService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(VehicleGroupService.class);

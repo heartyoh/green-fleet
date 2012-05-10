@@ -61,34 +61,29 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	
 	@RequestMapping(value = "/vehicle_group/import", method = RequestMethod.POST)
 	public void imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		
 		super.imports(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/delete", method = RequestMethod.POST)
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
 		VehicleGroup group = this.dml.select(VehicleGroup.class, new Long(request.getParameter("key")));
 		this.dml.delete(group);
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().println("{ 'success' : true, 'msg' : 'Vehicle group destroyed!', 'key' : '" + group.getId() + "'}");
 	}
 	
-	@RequestMapping(value = "/vehicle_group", method = RequestMethod.GET)
-	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	@RequestMapping(value = {"/vehicle_group", "/m/data/vehicle_group.json"}, method = RequestMethod.GET)
+	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.retrieve(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/save", method = RequestMethod.POST)
-	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.save(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/find", method = RequestMethod.GET)
-	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		super.find(request, response);
 	}	
 	
