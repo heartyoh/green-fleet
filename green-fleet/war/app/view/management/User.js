@@ -164,14 +164,10 @@ Ext.define('GreenFleet.view.management.User', {
 				{
 					xtype : 'container',
 					width : 300,
-					layout : {
-						type : 'vbox',
-						align : 'stretch'	
-					},
+					layout : 'fit',
 					cls : 'noImage',
 					items : [ {
 						xtype : 'image',
-						height : '100%',
 						itemId : 'image'
 					} ]			    	
 				},

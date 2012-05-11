@@ -219,14 +219,10 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				xtype : 'container',
 				flex : 1,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'	
-				},
+				layout : 'fit',
 				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],				

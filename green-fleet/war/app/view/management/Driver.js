@@ -176,14 +176,10 @@ Ext.define('GreenFleet.view.management.Driver', {
 				{
 					xtype : 'container',
 					flex : 1,
-					layout : {
-						type : 'vbox',
-						align : 'stretch'	
-					},
+					layout : 'fit',
 					cls : 'noImage',
 					items : [ {
 						xtype : 'image',
-						height : '100%',
 						itemId : 'image'
 					} ]
 				}, 			         
