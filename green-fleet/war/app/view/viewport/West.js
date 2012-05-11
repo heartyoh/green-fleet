@@ -15,7 +15,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'monitor_map',
 		cls : 'btnDashboard',
-		html : T('menu.map'),
+		text : T('menu.map'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_map');
 		}
@@ -23,7 +23,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'information',
 		cls : 'btnInfo',
-		html : T('menu.info'),
+		text : T('menu.info'),
 		handler : function() {
 			GreenFleet.doMenu('information');
 		}		
@@ -31,34 +31,34 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'monitor_incident',
 		cls : 'btnIncidentInfo',
-		html : T('menu.incident'),
+		text : T('menu.incident'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_incident');
 		}		
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',
-		html : T('menu.import_data'),
+		text : T('menu.import_data'),
 		handler : function() {
 			GreenFleet.importData();
 		}
 	}, {
 //		xtype : 'button',
 //		cls : 'btnEvent',
-//		html : 'incident log',
+//		text : 'incident log',
 //		handler : function() {
 //			GreenFleet.uploadIncidentLog();
 //		}
 //	}, {
 //		xtype : 'button',
 //		cls : 'btnEvent',
-//		html : 'incident video',
+//		text : 'incident video',
 //		handler : function() {
 //			GreenFleet.uploadIncidentVideo();
 //		}
 //	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : T('menu.export_data')
+		text : T('menu.export_data')
 	} ]
 });

@@ -245,7 +245,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 							}
 						},
 						incident : incident,
-						html : '<a href="#">'
+						text : '<a href="#">'
 								+ incident.get('vehicle_id')
 								+ ', '
 								+ incident.get('driver_id')
@@ -272,7 +272,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 							scope : self
 						},
 						vehicleGroup : record,
-						html : '<a href="#">'
+						text : '<a href="#">'
 								+ record.data.desc
 								+ '<span>('
 								+ record.data.vehicles.length
