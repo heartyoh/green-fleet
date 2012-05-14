@@ -121,7 +121,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		this.on('afterrender', function() {
 			Ext.getStore('VehicleMapStore').on('load',self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);			
-			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
+			Ext.getStore('VehicleGroupCountStore').on('load', self.refreshVehicleGroups, self);
 		});
 		
 		Ext.getStore('RecentIncidentStore').load();
@@ -263,32 +263,54 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		self.sub('vehicle_groups').removeAll();
 		
-		Ext.getStore('VehicleGroupStore').each(function(record) {
+		Ext.getStore('VehicleGroupCountStore').each(function(record) {
 			self.sub('vehicle_groups').add(
 					{
 						xtype : 'button',
 						listeners : {
-							click : self.filterByVehicleGroup,
+							click : self.findVehiclesOnMap,
 							scope : self
 						},
 						vehicleGroup : record,
 						text : '<a href="#">'
-								+ record.data.desc
+								+ record.data.expl
 								+ '<span>('
-								+ record.data.vehicles.length
+								+ record.data.count
 								+ ')</span></a>'
 					});			
 		});
 	},
-
-	filterByVehicleGroup : function(button) {
+	
+	findVehiclesOnMap : function(button) {
+		
+		var self = this;
 		GreenFleet.doMenu('monitor_map');
 		this.sub('search').setValue('');
-
-		var vehicleGroupId = button.vehicleGroup.get('id');
-		var vehicleGroups = Ext.getStore('VehicleGroupStore').findRecord('id', vehicleGroupId);
-		var vehicles = vehicleGroups? vehicleGroups.get('vehicles') : [];
+		var groupName = button.vehicleGroup.get('name');		
 		
+		Ext.Ajax.request({
+			url : '/vehicle_group/vehicles',
+			method : 'GET',
+			params : {
+				vehicle_group_id : groupName,
+				select_mode : 'vehicle_id_only'
+			},
+			success : function(response) {
+				var resultObj = Ext.JSON.decode(response.responseText);
+				if (resultObj.success) {
+					var vehicles = resultObj.items;
+					self.filterByVehicleGroup(vehicles);
+				} else {
+					Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+				}
+			},
+			failure : function(response) {
+				Ext.MessageBox.alert(T('label.failure'), response.responseText);
+			}
+		});		
+	},
+
+	filterByVehicleGroup : function(vehicles) {
 		var vehicleStore = Ext.getStore('VehicleFilteredStore');
 		vehicleStore.clearFilter();
 		vehicleStore.filter([ {

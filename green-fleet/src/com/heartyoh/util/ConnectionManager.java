@@ -3,7 +3,13 @@
  */
 package com.heartyoh.util;
 
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+
 import org.dbist.dml.Dml;
+
+import com.google.appengine.api.rdbms.AppEngineDriver;
 
 /**
  * JdbcConnectionPool
@@ -16,6 +22,8 @@ public class ConnectionManager {
 	 * singleton
 	 */
 	private static ConnectionManager instance;
+	
+	private static Driver driver;
 	/**
 	 * datasource
 	 */
@@ -38,9 +46,22 @@ public class ConnectionManager {
 	}
 	
 	public static ConnectionManager getInstance() {
+		
+		if(instance == null)
+			createInstance();
+		
 		return instance;
 	}
 	
 	private ConnectionManager() {		
-	}	
+	}
+	
+	public Connection getConnection() throws Exception {
+		if(driver == null) {
+			driver = new AppEngineDriver();
+			DriverManager.registerDriver(driver);
+		}
+		
+	    return DriverManager.getConnection("jdbc:google:rdbms://green-fleets-cloudsql:green-fleets/fleet_master", "root", "");
+	}
 }

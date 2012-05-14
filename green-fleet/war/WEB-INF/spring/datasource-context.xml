@@ -12,8 +12,7 @@
 
  	<context:annotation-config />
 	
-    <!-- AOP -->
-	<aop:config>
+	<!--aop:config>
 		<aop:aspect order="1" ref="sqlAspect">
 			<aop:around method="print" pointcut="execution(* org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate.*(..))" />
 		</aop:aspect>
@@ -24,7 +23,6 @@
 		<property name="prettyPrint" value="true" />
 	</bean>
 
-    <!-- JDBC -->
     <bean id="dml" class="org.dbist.dml.impl.DmlJdbc">
 	    <property name="domain" value="fleet_master" />
 	    <property name="preprocessor">
@@ -45,12 +43,8 @@
     </bean>
     
     <bean id="dataSourceJdbc" class="org.apache.commons.dbcp.BasicDataSource">
-    	<!-- 배포시 아래로 변경 -->
-	    <!--property name="driverClassName" value="com.google.appengine.api.rdbms.AppEngineDriver" />
-	    <property name="url" value="jdbc:google:rdbms://green-fleets-cloudsql:green-fleets/fleet_master" /-->
-	    
-	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-	    <property name="url" value="jdbc:mysql://localhost:3306/fleet_master?characterEncoding=UTF-8" />
+	    <property name="driverClassName" value="com.google.appengine.api.rdbms.AppEngineDriver" />
+	    <property name="url" value="jdbc:google:rdbms://green-fleets-cloudsql:green-fleets/fleet_master" />	    
 	    <property name="username" value="root" />
 	    <property name="password" value="" />
 		<property name="maxActive" value="10" />
@@ -61,5 +55,5 @@
     
 	<bean id="connectionManager" class="com.heartyoh.util.ConnectionManager" factory-method="createInstance">
 		<property name="dml" ref="dml" />
-	</bean>    
+	</bean-->    
 </beans>

@@ -26,7 +26,6 @@ import com.heartyoh.model.IEntity;
  * 
  * @author jhnam
  */
-@Controller
 public class DriverRelationOrmService extends OrmEntityService {
 
 	private String[] keyFields = new String[] { "key" };

@@ -216,7 +216,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
 					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },

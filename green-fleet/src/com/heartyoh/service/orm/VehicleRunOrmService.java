@@ -32,7 +32,6 @@ import com.heartyoh.util.DataUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class VehicleRunOrmService extends OrmEntityService {
 
 	private String[] keyFields = new String[] { "company", "vehicle", "year", "month" };

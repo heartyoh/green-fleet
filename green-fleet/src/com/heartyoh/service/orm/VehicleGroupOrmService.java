@@ -36,7 +36,6 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class VehicleGroupOrmService extends OrmEntityService {
 
 	private String[] keyFields = new String[] { "key" };

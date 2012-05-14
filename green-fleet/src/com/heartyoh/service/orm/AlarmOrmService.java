@@ -35,7 +35,6 @@ import com.heartyoh.util.DatastoreUtils;
  * 
  * @author jhnam
  */
-@Controller
 public class AlarmOrmService extends OrmEntityService {
 
 	/**
@@ -226,7 +225,7 @@ public class AlarmOrmService extends OrmEntityService {
 	 * @param vehicles
 	 * @throws Exception
 	 */
-	private void createVehicleRelation(Alarm alarm ,String[] vehicles) throws Exception {
+	private void createVehicleRelation(Alarm alarm, String[] vehicles) throws Exception {
 		
 		List<AlarmVehicleRelation> list = new ArrayList<AlarmVehicleRelation>();
 		for(int i = 0 ; i < vehicles.length ; i++) {

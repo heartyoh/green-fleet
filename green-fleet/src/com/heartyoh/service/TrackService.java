@@ -94,7 +94,7 @@ public class TrackService extends EntityService {
 			throw new Exception("Both of lattitude & longitude values are 0. It might meant to be non stable status of blackbox.");
 		
 		// 위치 기반 서비스 알림 비동기 처리
-		AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLattitude, dblLongitude);
+		// AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLattitude, dblLongitude);
 		
 		entity.setProperty("terminal_id", terminal_id);
 		entity.setProperty("vehicle_id", vehicle_id);

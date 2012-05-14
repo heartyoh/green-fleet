@@ -8,11 +8,11 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'ReservationStore', 'IncidentStore', 'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 
 	           'TrackStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'CheckinDataStore', 
 	           'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore', 'TimeZoneStore', 
-	           'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore', 
-	           'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 
-	           'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 
-	           'LocationStore', 'AlarmStore', 'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 
-	           'MonthStore', 'DriverGroupStore', 'DriverRelationStore', 'DriverByGroupStore' ],
+	           'LanguageCodeStore', 'VehicleGroupStore', 'VehicleByGroupStore', 'VehicleImageBriefStore', 
+	           'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 'RepairStore', 
+	           'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 'LocationStore', 'AlarmStore', 
+	           'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore', 'DriverGroupStore', 
+	           'DriverByGroupStore', 'VehicleGroupCountStore' ],
 
 	models : [ 'Code' ],
 

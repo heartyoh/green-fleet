@@ -371,10 +371,6 @@
                 },
                 {
                     "path": "app/store/",
-                    "name": "VehicleRelationStore.js"
-                },
-                {
-                    "path": "app/store/",
                     "name": "VehicleByGroupStore.js"
                 },
                 {
@@ -443,11 +439,11 @@
                 },
                 {
                     "path": "app/store/",
-                    "name": "DriverRelationStore.js"
+                    "name": "DriverByGroupStore.js"
                 },
                 {
                     "path": "app/store/",
-                    "name": "DriverByGroupStore.js"
+                    "name": "VehicleGroupCountStore.js"
                 },
                 {
                     "path": "app/controller/",

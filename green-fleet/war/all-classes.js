@@ -710,7 +710,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'monitor_map',
 		cls : 'btnDashboard',
-		html : T('menu.map'),
+		text : T('menu.map'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_map');
 		}
@@ -718,7 +718,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'information',
 		cls : 'btnInfo',
-		html : T('menu.info'),
+		text : T('menu.info'),
 		handler : function() {
 			GreenFleet.doMenu('information');
 		}		
@@ -726,35 +726,35 @@ Ext.define('GreenFleet.view.viewport.West', {
 		xtype : 'button',
 		itemId : 'monitor_incident',
 		cls : 'btnIncidentInfo',
-		html : T('menu.incident'),
+		text : T('menu.incident'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_incident');
 		}		
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',
-		html : T('menu.import_data'),
+		text : T('menu.import_data'),
 		handler : function() {
 			GreenFleet.importData();
 		}
 	}, {
 //		xtype : 'button',
 //		cls : 'btnEvent',
-//		html : 'incident log',
+//		text : 'incident log',
 //		handler : function() {
 //			GreenFleet.uploadIncidentLog();
 //		}
 //	}, {
 //		xtype : 'button',
 //		cls : 'btnEvent',
-//		html : 'incident video',
+//		text : 'incident video',
 //		handler : function() {
 //			GreenFleet.uploadIncidentVideo();
 //		}
 //	}, {
 		xtype : 'button',
 		cls : 'btnExport',
-		html : T('menu.export_data')
+		text : T('menu.export_data')
 	} ]
 });
 
@@ -881,7 +881,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 		this.on('afterrender', function() {
 			Ext.getStore('VehicleMapStore').on('load',self.refreshVehicleCounts, self);
 			Ext.getStore('RecentIncidentStore').on('load', self.refreshIncidents, self);			
-			Ext.getStore('VehicleGroupStore').on('load', self.refreshVehicleGroups, self);
+			Ext.getStore('VehicleGroupCountStore').on('load', self.refreshVehicleGroups, self);
 		});
 		
 		Ext.getStore('RecentIncidentStore').load();
@@ -1005,7 +1005,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 							}
 						},
 						incident : incident,
-						html : '<a href="#">'
+						text : '<a href="#">'
 								+ incident.get('vehicle_id')
 								+ ', '
 								+ incident.get('driver_id')
@@ -1023,32 +1023,54 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		self.sub('vehicle_groups').removeAll();
 		
-		Ext.getStore('VehicleGroupStore').each(function(record) {
+		Ext.getStore('VehicleGroupCountStore').each(function(record) {
 			self.sub('vehicle_groups').add(
 					{
 						xtype : 'button',
 						listeners : {
-							click : self.filterByVehicleGroup,
+							click : self.findVehiclesOnMap,
 							scope : self
 						},
 						vehicleGroup : record,
-						html : '<a href="#">'
-								+ record.data.desc
+						text : '<a href="#">'
+								+ record.data.expl
 								+ '<span>('
-								+ record.data.vehicles.length
+								+ record.data.count
 								+ ')</span></a>'
 					});			
 		});
 	},
-
-	filterByVehicleGroup : function(button) {
+	
+	findVehiclesOnMap : function(button) {
+		
+		var self = this;
 		GreenFleet.doMenu('monitor_map');
 		this.sub('search').setValue('');
-
-		var vehicleGroupId = button.vehicleGroup.get('id');
-		var vehicleGroups = Ext.getStore('VehicleGroupStore').findRecord('id', vehicleGroupId);
-		var vehicles = vehicleGroups? vehicleGroups.get('vehicles') : [];
+		var groupName = button.vehicleGroup.get('name');		
 		
+		Ext.Ajax.request({
+			url : '/vehicle_group/vehicles',
+			method : 'GET',
+			params : {
+				vehicle_group_id : groupName,
+				select_mode : 'vehicle_id_only'
+			},
+			success : function(response) {
+				var resultObj = Ext.JSON.decode(response.responseText);
+				if (resultObj.success) {
+					var vehicles = resultObj.items;
+					self.filterByVehicleGroup(vehicles);
+				} else {
+					Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+				}
+			},
+			failure : function(response) {
+				Ext.MessageBox.alert(T('label.failure'), response.responseText);
+			}
+		});		
+	},
+
+	filterByVehicleGroup : function(vehicles) {
 		var vehicleStore = Ext.getStore('VehicleFilteredStore');
 		vehicleStore.clearFilter();
 		vehicleStore.filter([ {
@@ -1606,14 +1628,10 @@ Ext.define('GreenFleet.view.management.Company', {
 			}, {
 				xtype : 'container',
 				flex : 1,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'	
-				},
+				layout : 'fit',
 				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],				
@@ -1796,14 +1814,10 @@ Ext.define('GreenFleet.view.management.User', {
 				{
 					xtype : 'container',
 					width : 300,
-					layout : {
-						type : 'vbox',
-						align : 'stretch'	
-					},
+					layout : 'fit',
 					cls : 'noImage',
 					items : [ {
 						xtype : 'image',
-						height : '100%',
 						itemId : 'image'
 					} ]			    	
 				},
@@ -3336,14 +3350,10 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			}, {
 				xtype : 'container',
 				flex : 1,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'	
-				},
+				layout : 'fit',
 				cls : 'noImage paddingLeft10',
 				items : [ {
 					xtype : 'image',
-					height : '100%',
 					itemId : 'image'
 				} ]
 			} ],
@@ -4170,14 +4180,10 @@ Ext.define('GreenFleet.view.management.Driver', {
 				{
 					xtype : 'container',
 					flex : 1,
-					layout : {
-						type : 'vbox',
-						align : 'stretch'	
-					},
+					layout : 'fit',
 					cls : 'noImage',
 					items : [ {
 						xtype : 'image',
-						height : '100%',
 						itemId : 'image'
 					} ]
 				}, 			         
@@ -6429,6 +6435,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 							{
 								xtype : 'box',
 								cls : 'incidentDetail',
+								flex : 1,
 								itemId : 'video',
 								tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
 										'Your browser does not support the video tag.', '</video>' ]
@@ -12336,7 +12343,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
 					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "%" },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
@@ -15150,35 +15157,6 @@ Ext.define('GreenFleet.store.VehicleGroupStore', {
 		}
 	}
 });
-Ext.define('GreenFleet.store.VehicleRelationStore', {
-	extend : 'Ext.data.Store',
-
-	autoLoad : true,
-	
-	pageSize : 10,
-	
-	fields : [ {
-		name : 'key',
-		type : 'string'
-	}, {
-		name : 'vehicle_id',
-		type : 'string'
-	}, {
-		name : 'vehicle_group_id',
-		type : 'string'
-	} ],
-	
-	proxy : {
-		type : 'ajax',
-		url : 'vehicle_relation',
-		reader : {
-			type : 'json',
-			root : 'items',
-			totalProperty : 'total',
-			successProperty : 'success'
-		}
-	}
-});
 Ext.define('GreenFleet.store.VehicleByGroupStore', {
 	extend : 'Ext.data.Store',
 
@@ -15962,7 +15940,7 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 		type : 'ajax',
 		url : 'driver_run/speed',
 		extraParams : {
-			select : [ 'driver', 'year', 'month', 'spd_lt10', 'spd_lt20', 'spd_lt30', 'spd_lt40', 'spd_lt50', 'spd_lt60', 'spd_lt70', 'spd_lt80', 'spd_lt90', 'spd_lt100', 'spd_lt110', 'spd_lt120', 'spd_lt130', 'spd_lt140', 'spd_lt150', 'spd_lt160' ]
+			select : [ 'driver', 'year', 'month', 'month_str', 'spd_lt10', 'spd_lt20', 'spd_lt30', 'spd_lt40', 'spd_lt50', 'spd_lt60', 'spd_lt70', 'spd_lt80', 'spd_lt90', 'spd_lt100', 'spd_lt110', 'spd_lt120', 'spd_lt130', 'spd_lt140', 'spd_lt150', 'spd_lt160' ]
 		},
 		reader : {
 			type : 'json',
@@ -16046,35 +16024,6 @@ Ext.define('GreenFleet.store.DriverGroupStore', {
 		}
 	}
 });
-Ext.define('GreenFleet.store.DriverRelationStore', {
-	extend : 'Ext.data.Store',
-
-	autoLoad : true,
-	
-	pageSize : 1000,
-	
-	fields : [ {
-		name : 'key',
-		type : 'string'
-	}, {
-		name : 'driver_id',
-		type : 'string'
-	}, {
-		name : 'driver_group_id',
-		type : 'string'
-	} ],
-	
-	proxy : {
-		type : 'ajax',
-		url : 'driver_relation',
-		reader : {
-			type : 'json',
-			root : 'items',
-			totalProperty : 'total',
-			successProperty : 'success'
-		}
-	}
-});
 Ext.define('GreenFleet.store.DriverByGroupStore', {
 	extend : 'Ext.data.Store',
 
@@ -16122,8 +16071,36 @@ Ext.define('GreenFleet.store.DriverByGroupStore', {
 		}
 	}
 });
+Ext.define('GreenFleet.store.VehicleGroupCountStore', {
+	extend : 'Ext.data.Store',
+
+	autoLoad : true,
+	
+	pageSize : 10,
+	
+	fields : [ {
+		name : 'name',
+		type : 'string'
+	}, {
+		name : 'expl',
+		type : 'string'
+	}, {
+		name : 'count',
+		type : 'integer'
+	} ],
+	
+	proxy : {
+		type : 'ajax',
+		url : 'vehicle_group/group_count',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		}
+	}
+});
 Ext.define('GreenFleet.controller.ApplicationController', {
-	extend : 'Ext.app.Controller',
+	extend : 'Ext.app.Controller', 
 
 	requires : [ 'GreenFleet.store.IncidentLogChartStore', 'GreenFleet.view.management.Profile', 'GreenFleet.view.common.ImportPopup' ],
 
@@ -16132,11 +16109,11 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'ReservationStore', 'IncidentStore', 'IncidentByVehicleStore', 'IncidentViewStore', 'IncidentLogStore', 
 	           'TrackStore', 'VehicleTypeStore', 'OwnershipStore', 'VehicleStatusStore', 'CheckinDataStore', 
 	           'TrackByVehicleStore', 'RecentIncidentStore', 'TerminalStore', 'TerminalBriefStore', 'TimeZoneStore', 
-	           'LanguageCodeStore', 'VehicleGroupStore', 'VehicleRelationStore', 'VehicleByGroupStore', 
-	           'VehicleImageBriefStore', 'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 
-	           'RepairStore', 'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 
-	           'LocationStore', 'AlarmStore', 'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 
-	           'MonthStore', 'DriverGroupStore', 'DriverRelationStore', 'DriverByGroupStore' ],
+	           'LanguageCodeStore', 'VehicleGroupStore', 'VehicleByGroupStore', 'VehicleImageBriefStore', 
+	           'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 'RepairStore', 
+	           'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 'LocationStore', 'AlarmStore', 
+	           'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore', 'DriverGroupStore', 
+	           'DriverByGroupStore', 'VehicleGroupCountStore' ],
 
 	models : [ 'Code' ],
 
