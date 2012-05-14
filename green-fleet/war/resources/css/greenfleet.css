@@ -57,7 +57,8 @@
 
 /*tool style*/
 .tool{padding:2px 0 0 0}
-.tool .x-btn-default-small{width:50px;height:55px;padding-top:37px !important;font-size:10px;font-size:/*\**/11px\9;color:#ccc;text-transform:capitalize;text-align:center;border:0;border-bottom:1px solid #474b55}
+.tool .x-btn-default-small .x-btn-inner{font-size:10px;font-size:/*\**/11px\9;color:#ccc;text-transform:capitalize;}
+.tool .x-btn-default-small{width:50px;height:55px;padding-top:37px !important;border:0;border-bottom:1px solid #474b55;text-align:center;}
 .tool .btnDashboard{background:url('../image/iconDashboardOff.png') 10px 9px no-repeat !important;}
 .tool .btnDashboard.x-btn-default-small-over,.tool .btnDashboard.active{background:url('../image/iconDashboardOn.png') no-repeat !important;color:#fff}
 .tool .btnInfo{background:url('../image/iconInfoOff.png') 9px 7px no-repeat !important;}
@@ -112,11 +113,11 @@
 .statusPanel .x-btn-default-small span{font-size:18px;color:#fff}
 .statusPanel .x-btn-default-small-pressed{background-color:#252937;border:1px solid #4e5774}
 .groupPanel,.incidentPanel{padding-bottom:5px}
-.groupPanel a{background:url('../image/dotGray.gif') 8px 50% no-repeat;color:#ccc;padding:1px 0 4px 15px;text-decoration:none;display:block}
+.groupPanel a{background:url('../image/dotGray.gif') 8px 35% no-repeat;color:#ccc !important;padding:1px 0 4px 15px;text-decoration:none;display:block}
 .groupPanel a span,.groupPanel a:hover{color:#fff}
-.incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;background-position/*\**/:8px 10px\9;color:#fff;padding:1px 0 4px 20px;text-decoration:none;display:block}
+.incidentPanel a{background:url('../image/dotRed.png') 8px 4px no-repeat;background-position/*\**/:8px 10px\9;color:#fff !important;padding:1px 0 4px 20px;text-decoration:none;display:block;text-align:left;font-size:12px}
 .incidentPanel a span{display:block;font-size:11px;color:#a5a5a5;}
-.incidentPanel .x-btn-default-small-over a{color:#fff799}
+.incidentPanel .x-btn-default-small-over a{color:#fff799 !important;}
 .incidentPanel .x-btn-default-small-over a span{color:#fff}
 .x-nbr .incidentPanel .x-btn .x-frame-mc{text-align /*\**/:left\9} 
 .summaryBoard .x-btn-default-small{background-image:none;background-color:transparent;border:none}
