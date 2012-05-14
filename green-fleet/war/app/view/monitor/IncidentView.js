@@ -28,7 +28,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				align : 'stretch'
 			},
 			flex : 1,
-			items : [ this.zList]
+			items : [ this.zList ]
 		} ];
 
 		this.callParent(arguments);
@@ -71,7 +71,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
 			var url = '';
 			if (value != null && value.length > 1) {
-				if(value.indexOf('http') == 0)
+				if (value.indexOf('http') == 0)
 					url = 'src=' + value;
 				else
 					url = 'src="download?blob-key=' + value + '"';
@@ -261,7 +261,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			this.getMap().fitBounds(bounds);
 		}
 	},
-	
+
 	getMap : function() {
 		return this.map;
 	},
@@ -299,7 +299,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			xtype : 'displayfield',
 			itemId : 'incident_time',
 			width : 160,
-			fieldLabel : T('label.x_time', {x : T('label.incident')})
+			fieldLabel : T('label.x_time', {
+				x : T('label.incident')
+			})
 		}, {
 			xtype : 'displayfield',
 			name : 'vehicle_id',
@@ -343,109 +345,107 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		},
 		flex : 1,
 		items : [
-		{
-			xtype : 'panel',
-		 // title : T('title.incident_details'),
-			cls : 'paddingAll10 incidentVOD',
-			width : 690,
-			layout : {
-				type : 'vbox',
-				align : 'stretch'
-			},
-			items : [
-			{
-				xtype : 'box',
-				itemId : 'fullscreen',
-				html : '<div class="btnFullscreen"></div>'
-			},
-			{
-				xtype : 'box',
-				cls : 'incidentDetail',
-				flex : 1,
-				itemId : 'video',
-				tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
-						'Your browser does not support the video tag.', '</video>' ]
-			} ]
-		}, {
-			xtype : 'panel',
-			//title : T('title.position_of_incident'),
-			cls : 'backgroundGray borderLeftGray',
-			flex : 1,
-			layout : {
-				type : 'vbox',
-				align : 'stretch'
-			},
-			items : [
-			{
-				xtype : 'box',
-				itemId : 'map',
-				html : '<div class="map"></div>',
-				flex : 3
-			},
-			{
-				xtype : 'chart',
-				itemId : 'chart',
-				flex : 1,
-				legend : {
-					position: 'bottom',
-					itemSpacing:5,
-					padding:0,
-					labelFont : "10px Helvetica, sans-serif",
-					boxStroke:"transparent",
-					boxFill : "transparent"
-				},
-				store : 'IncidentLogStore',
-				axes : [ {
-//					title : T('label.acceleration'),
-					type : 'Numeric',
-					position : 'left',
-					fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
+				{
+					xtype : 'panel',
+					// title : T('title.incident_details'),
+					cls : 'paddingAll10 incidentVOD',
+					width : 690,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'
+					},
+					items : [
+							{
+								xtype : 'box',
+								itemId : 'fullscreen',
+								html : '<div class="btnFullscreen"></div>'
+							},
+							{
+								xtype : 'box',
+								cls : 'incidentDetail',
+								flex : 1,
+								itemId : 'video',
+								tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
+										'Your browser does not support the video tag.', '</video>' ]
+							} ]
 				}, {
-//					title : T('label.acceleration'),
-					type : 'Numeric',
-					position : 'right',
-					fields : [ 'velocity' ]
-				}, {
-//					title : T('label.time'),
-					type : 'Time',
-					position : 'bottom',
-					fields : [ 'datetime' ],
-					dateFormat : 'H:i:s',
-					step : [Ext.Date.SECOND, 1],
-					label: {
-	                    rotate: {
-	                        degrees: 45
-	                    }
-	                }
-				} ],
-				series : [ {
-					type : 'line',
-					xField : 'datetime',
-					yField : 'accelate_x',
-					axis : 'left',
-					smooth : true
-				}, {
-					type : 'line',
-					xField : 'datetime',
-					yField : 'accelate_y',
-					axis : 'left',
-					smooth : true
-				}, {
-					type : 'line',
-					xField : 'datetime',
-					yField : 'accelate_z',
-					axis : 'left',
-					smooth : true
-				}, {
-					type : 'line',
-					xField : 'datetime',
-					yField : 'velocity',
-					axis : 'right',
-					smooth : true
-				} ],
-				flex : 2
-			}]
-		} ]
+					xtype : 'panel',
+					// title : T('title.position_of_incident'),
+					cls : 'backgroundGray borderLeftGray',
+					flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'
+					},
+					items : [ {
+						xtype : 'box',
+						itemId : 'map',
+						html : '<div class="map"></div>',
+						flex : 3
+					}, {
+						xtype : 'chart',
+						itemId : 'chart',
+						flex : 1,
+						legend : {
+							position : 'bottom',
+							itemSpacing : 5,
+							padding : 0,
+							labelFont : "10px Helvetica, sans-serif",
+							boxStroke : "transparent",
+							boxFill : "transparent"
+						},
+						store : 'IncidentLogStore',
+						axes : [ {
+							// title : T('label.acceleration'),
+							type : 'Numeric',
+							position : 'left',
+							fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
+						}, {
+							// title : T('label.acceleration'),
+							type : 'Numeric',
+							position : 'right',
+							fields : [ 'velocity' ]
+						}, {
+							// title : T('label.time'),
+							type : 'Time',
+							position : 'bottom',
+							fields : [ 'datetime' ],
+							dateFormat : 'H:i:s',
+							step : [ Ext.Date.SECOND, 1 ],
+							label : {
+								rotate : {
+									degrees : 45
+								}
+							}
+						} ],
+						series : [ {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'accelate_x',
+							axis : 'left',
+							smooth : true
+						}, {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'accelate_y',
+							axis : 'left',
+							smooth : true
+						}, {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'accelate_z',
+							axis : 'left',
+							smooth : true
+						}, {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'velocity',
+							axis : 'right',
+							smooth : true
+						} ],
+						flex : 2
+					} ]
+				} ]
 	},
 
 	zList : {
@@ -478,7 +478,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 50
 		}, {
 			dataIndex : 'datetime',
-			text : T('label.x_time', {x : T('label.incident')}),
+			text : T('label.x_time', {
+				x : T('label.incident')
+			}),
 			xtype : 'datecolumn',
 			width : 120,
 			format : F('datetime')
@@ -519,17 +521,23 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			width : 80
 		}, {
 			dataIndex : 'impulse_x',
-			text : T('label.impulse_x', {x : 'X'}),
+			text : T('label.impulse_x', {
+				x : 'X'
+			}),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_y',
-			text : T('label.impulse_x', {x : 'Y'}),
+			text : T('label.impulse_x', {
+				x : 'Y'
+			}),
 			type : 'number',
 			width : 80
 		}, {
 			dataIndex : 'impulse_z',
-			text : T('label.impulse_x', {x : 'Z'}),
+			text : T('label.impulse_x', {
+				x : 'Z'
+			}),
 			type : 'number',
 			width : 80
 		}, {
