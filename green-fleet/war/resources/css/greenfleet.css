@@ -90,7 +90,7 @@
 	background:none;background-color:#31343f;border:1px solid #616670;padding-right:25px;width:120px;
 	-webkit-border-radius: 12px;-moz-border-radius: 12px;border-radius: 12px;color:#ccc
 }
-.searchField .x-form-item-body{top:5px}
+.searchField .x-form-item-body{right:5px}
 .searchField .x-form-trigger{background:url('../image/btnSearchIcon.gif') no-repeat;border:none;margin-left:-9px;width:27px}
 .x-boundlist-floating{background-color:#f0f0f0;opacity:0.95;filter:alpha(opacity=95);-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;padding:5px 4px}
 .x-boundlist-floating .x-boundlist-item{background:url('../image/dotGray.gif') 4px 10px no-repeat;border:none;border-bottom:1px solid #dfdfdf;padding:5px 2px 3px 11px}
