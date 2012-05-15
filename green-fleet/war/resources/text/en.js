@@ -81,6 +81,7 @@ T({
 		consumables_parts : 'Consumable Pars',
 		consumable_item : 'Consumable Item',
 		consumable_change_history : 'Consumable Change History',
+		consumable_details : 'Consumable Details',
 		vehicle_consumables : 'Vehicle Consumables',
 		maintenance : 'Maintenance',
 		maintenance_history : 'Maintenance History',

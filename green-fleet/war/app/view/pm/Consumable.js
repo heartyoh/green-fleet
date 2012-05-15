@@ -30,15 +30,15 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					align : 'stretch',
 					type : 'vbox'
 				},
-				items : [ this.zvehicleinfo, this.zconsumables, {
+				items : [ this.zvehicleinfo, {
 					xtype : 'container',
-					flex : 1,
+					flex : 1.8,
 					layout : {
 						type : 'hbox',
 						align : 'stretch'
 					},
-					items : [ this.zconsumable_history, this.zbottom_separator, this.zmainthistory ]
-				} ]
+					items : [ this.zconsumables, this.zcenter_separator, this.zconsumable_form ]
+				}, this.zconsumable_history ]
 			} ]
 		} ],
 
@@ -50,24 +50,11 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			var consumChangeStore = self.sub('consumable_grid').store;
 			consumChangeStore.getProxy().extraParams.vehicle_id = record.data.id;
 			consumChangeStore.load();
-			var repairStore = self.sub('repair_grid').store;
-			repairStore.getProxy().extraParams.vehicle_id = record.data.id;
-			repairStore.load();
-		});
-
-		this.sub('repair_grid').store.on('load', function(store, operation, opt) {
-			var records = [];
-			store.each(function(record) {
-				records.push(record);
-			});
-
-			var repairListView = self.sub('repair_view');
-			if(repairListView)
-				repairListView.refreshRepair(records);
 		});
 
 		this.sub('consumable_grid').on('itemclick', function(grid, record) {
-			self.refreshConsumableHistory(record.data.vehicle_id, record.data.consumable_item);
+			self.sub('consumable_form').loadRecord(record);
+			self.refreshConsumableHistory(record.data.vehicle_id, record.data.consumable_item);			
 		});
 		
 		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
@@ -94,7 +81,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			itemId : 'vehicle_info',
 			store : 'VehicleByHealthStore',
 			title : T('title.vehicle_list'),
-			width : 300,
+			width : 270,
 			autoScroll : true,
 			
 			vehicleList : function(grid, consumable, status) {
@@ -179,7 +166,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						grid.filterVehicleList(grid);
 					}
 				}
-			}, {
+			}, '   ', {
 				xtype : 'fieldcontainer',
 				defaultType : 'checkboxfield',
 				cls : 'paddingLeft5',
@@ -188,7 +175,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					name : 'healthy',
 					inputValue : '1',
 					itemId : 'check_healthy',
-					width : 45,
+					width : 40,
 					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
@@ -199,7 +186,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					name : 'impending',
 					inputValue : '1',
 					itemId : 'check_impending',
-					width : 45,
+					width : 40,
 					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
@@ -210,7 +197,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 					name : 'overdue',
 					inputValue : '1',
 					itemId : 'check_overdue',
-					width : 45,
+					width : 40,
 					checked : true,
 					handler : function(check) {
 						var grid = check.up('grid');
@@ -227,7 +214,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		cls : 'hIndexbarZero',
 		bodyCls : 'paddingAll10',
 		title : T('title.vehicle_details'),
-		height : 122,
+		height : 90,
 		layout : {
 			type : 'hbox',
 			align : 'stretch'
@@ -240,9 +227,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 				fieldLabel : T('label.id'),
 				name : 'id'
 			}, {
-				fieldLabel : T('label.reg_no'),
-				name : 'registration_number'
-			}, {
 				fieldLabel : T('label.health'),
 				name : 'health_status'
 			} ]
@@ -251,17 +235,14 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			flex : 1,
 			defaultType : 'textfield',
 			items : [ {
-				fieldLabel : T('label.type'),
-				name : 'vehicle_type'
+				fieldLabel : T('label.reg_no'),
+				name : 'registration_number'
 			}, {
 				fieldLabel : T('label.total_x', {
 					x : T('label.dist')
 				}),
 				name : 'total_distance',
 				itemId : 'vehicle_mileage'
-			}, {
-				fieldLabel : T('label.birth_year'),
-				name : 'birth_year'
 			} ]
 		} ]
 	},
@@ -281,50 +262,13 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			header : T('label.item'),
 			dataIndex : 'consumable_item'
 		}, {
-			header : T('label.repl_unit'),
-			dataIndex : 'repl_unit'
-		}, {
-			header : T('label.repl_mileage') + " (km)",
-			dataIndex : 'repl_mileage',
-			width : 120
-		}, {
-			header : T('label.repl_time') + ' (month)',
-			dataIndex : 'repl_time',
-			width : 120
-		}, {
-			header : T('label.last_repl_date'),
-			dataIndex : 'last_repl_date',
-			xtype : 'datecolumn',
-			format : F('date'),
-			width : 90
-		}, {
-			header : T('label.miles_last_repl') + ' (km)',
-			dataIndex : 'miles_last_repl',
-			width : 140
-		}, {
-			header : T('label.miles_since_last_repl') + ' (km)',
-			dataIndex : 'miles_since_last_repl',
-			width : 145
-		}, {
-			header : T('label.next_repl_date'),
-			dataIndex : 'next_repl_date',
-			xtype : 'datecolumn',
-			format : F('date'),
-			width : 90
-		}, {
-			header : T('label.next_repl_mileage') + ' (km)',
-			dataIndex : 'next_repl_mileage',
-			width : 130
-		}, {
-			header : T('label.accrued_cost'),
-			dataIndex : 'accrued_cost'
-		}, {
 			header : T('label.health_rate'),
 			dataIndex : 'health_rate',
 			xtype : 'progresscolumn'
 		}, {
 			header : T('label.status'),
 			dataIndex : 'status',
+			align : 'right',
 			renderer : function(value) {
 				if (value)
 					return T('label.' + value);
@@ -389,11 +333,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		} ]
 	},
 
-	zbottom_separator : {
-		xtype : 'panel',
-		width : 5
-	},
-
 	zconsumable_history : {
 		xtype : 'grid',
 		itemId : 'consumable_history_grid',
@@ -425,11 +364,6 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		}, {
 			header : T('label.comment'),
 			dataIndex : 'comment'
-		}, {
-			dataIndex : 'created_at',
-			header : T('label.created_at'),
-			xtype : 'datecolumn',
-			format : F('datetime')
 		} ],
 		listeners : {
 			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
@@ -437,227 +371,64 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			}
 		}
 	},
-
-	zmainthistory : {
-		xtype : 'tabpanel',
-		autoScroll : true,
-		title : T('title.maintenance_history'),
+	
+	zcenter_separator : {
+		xtype : 'panel',
+		width : 5
+	},
+	
+	zconsumable_form : {
+		xtype : 'form',
+		itemId : 'consumable_form',
+		cls : 'hIndexbarZero',
+		bodyPadding : 10,
+		title : T('title.consumable_details'),
 		flex : 1,
-		cls : 'hIndexbar',
-		layout : 'fit',
-		bbar : [ {
-			xtype : 'tbfill'
+		layout : {
+			type : 'vbox',
+			align : 'stretch'
+		},
+		defaults : {
+			xtype : 'textfield',
+			anchor : '100%'
+		},
+		items : [{ name : 'consumable_item',
+			fieldLabel : T('label.item')
 		}, {
-			xtype : 'button',
-			text : T('button.add'),
-			handler : function(btn, event) {
-
-				var thisView = btn.up('pm_consumable');
-				var selModel = thisView.sub('vehicle_info').getSelectionModel();
-				var selVehicleId = '';
-				if (selModel.lastSelected) {
-					selVehicleId = selModel.lastSelected.data.id;
-				}
-
-				var nextRepairDate = new Date();
-				nextRepairDate.setMilliseconds(nextRepairDate.getMilliseconds() + (1000 * 60 * 60 * 24 * 30 * 3));
-
-				var win = new Ext.Window({
-					title : T('title.add_repair'),
-					modal : true,
-					items : [ {
-						xtype : 'form',
-						itemId : 'repair_win',
-						bodyPadding : 10,
-						cls : 'hIndexbar',
-						width : 500,
-						defaults : {
-							xtype : 'textfield',
-							anchor : '100%'
-						},
-						items : [ {
-							xtype : 'fieldset',
-							title : T('label.vehicle'),
-							defaultType : 'textfield',
-							layout : 'anchor',
-							collapsible : true,
-							padding : '10,5,5,5',
-							defaults : {
-								anchor : '100%'
-							},
-							items : [ {
-								name : 'key',
-								fieldLabel : 'Key',
-								hidden : true
-							}, {
-								itemId : 'vehicle_id',
-								name : 'vehicle_id',
-								fieldLabel : T('label.vehicle_id'),
-								value : selVehicleId
-							} ]
-						}, {
-							xtype : 'fieldset',
-							title : T('label.repair'),
-							defaultType : 'textfield',
-							layout : 'anchor',
-							padding : '10,5,5,5',
-							defaults : {
-								anchor : '100%'
-							},
-							items : [ {
-								name : 'repair_date',
-								fieldLabel : T('label.repair_date'),
-								xtype : 'datefield',
-								format : F('date'),
-								value : new Date()
-							}, {
-								name : 'next_repair_date',
-								fieldLabel : T('label.next_repair_date'),
-								xtype : 'datefield',
-								format : F('date'),
-								value : nextRepairDate
-							}, {
-								xtype : 'numberfield',
-								name : 'repair_mileage',
-								fieldLabel : T('label.repair_mileage') + ' (km)',
-								minValue : 0,
-								step : 1000
-							}, {
-								name : 'repair_man',
-								fieldLabel : T('label.repair_man')
-							}, {
-								name : 'repair_shop',
-								fieldLabel : T('label.repair_shop')
-							}, {
-								xtype : 'numberfield',
-								name : 'cost',
-								fieldLabel : T('label.cost'),
-								minValue : 0,
-								step : 1000
-							}, {
-								xtype : 'textarea',
-								name : 'content',
-								fieldLabel : T('label.content')
-							}, {
-								name : 'comment',
-								xtype : 'textarea',
-								fieldLabel : T('label.comment')
-							} ]
-						} ]
-					} ],
-					buttons : [ {
-						text : T('button.save'),
-						handler : function() {
-							var thisWin = this.up('window');
-							var thisForm = thisWin.down('form');
-
-							thisForm.getForm().submit({
-								url : '/repair/save',
-								submitEmptyText : false,
-								waitMsg : T('msg.saving'),
-								success : function(form, action) {
-									if (action.result.success) {
-										GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
-
-										// refresh repair grid & list
-										var repairStore = thisView.sub('repair_grid').store;
-										repairStore.getProxy().extraParams.vehicle_id = selVehicleId;
-										repairStore.load();
-										thisWin.close();
-									} else {
-										Ext.Msg.alert(T('label.failure'), action.result.msg);
-									}
-								},
-								failure : function(form, action) {
-									switch (action.failureType) {
-									case Ext.form.action.Action.CLIENT_INVALID:
-										Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
-										break;
-									case Ext.form.action.Action.CONNECT_FAILURE:
-										Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
-										break;
-									case Ext.form.action.Action.SERVER_INVALID:
-										Ext.Msg.alert(T('label.failure'), action.result.msg);
-									}
-								}
-							});
-						}
-					}, {
-						text : T('button.cancel'),
-						handler : function() {
-							this.up('window').close();
-						}
-					} ]
-				});
-
-				win.show();
-			}
-		} ],
-		items : [
-				{
-					xtype : 'panel',
-					itemId : 'repair_view',
-					title : T('tab.list_view'),
-					autoScroll : true,
-					flex : 1,
-					layout : 'fit',
-					html : "<div class='maintCell'><span>No Data</span>...</div>",
-					refreshRepair : function(records) {
-						var htmlStr = '';
-						Ext.each(records, function(record) {
-							htmlStr += "<div class='maintCell'><span>" + Ext.util.Format.date(record.data.repair_date, 'Y-m-d') + "</span>"
-									+ record.data.content + "</div>";
-						});
-
-						if (htmlStr)
-							this.update(htmlStr);
-						else
-							this.update("<div class='maintCell'><span>No Data</span>...</div>");
-					}
-				}, {
-					xtype : 'grid',
-					itemId : 'repair_grid',
-					title : T('tab.grid_view'),
-					store : 'RepairStore',
-					flex : 1,
-					autoScroll : true,
-					columns : [ {
-						header : 'Key',
-						dataIndex : 'key',
-						hidden : true
-					}, {
-						header : T('label.vehicle_id'),
-						dataIndex : 'vehicle_id',
-						hidden : true
-					}, {
-						header : T('label.repair_date'),
-						dataIndex : 'repair_date',
-						xtype : 'datecolumn',
-						format : F('date')
-					}, {
-						header : T('label.next_repair_date'),
-						dataIndex : 'next_repair_date',
-						xtype : 'datecolumn',
-						format : F('date')
-					}, {
-						header : T('label.repair_mileage') + " (km)",
-						dataIndex : 'repair_mileage',
-						width : 120
-					}, {
-						header : T('label.repair_man'),
-						dataIndex : 'repair_man'
-					}, {
-						header : T('label.repair_shop'),
-						dataIndex : 'repair_shop'
-					}, {
-						header : T('label.cost'),
-						dataIndex : 'cost'
-					}, {
-						header : T('label.content'),
-						dataIndex : 'content',
-						flex : 1
-					} ]
-				} ]
+			name : 'repl_unit',
+			fieldLabel : T('label.repl_unit')
+		}, {
+			name : 'repl_mileage',
+			fieldLabel : T('label.repl_mileage') + " (km)"
+		}, {
+			name : 'repl_time',
+			fieldLabel : T('label.repl_time') + ' (month)'
+		}, {
+			fieldLabel : T('label.last_repl_date'),
+			name : 'last_repl_date',
+			xtype : 'datefield',
+			format : F('date')
+		}, {
+			fieldLabel : T('label.miles_last_repl') + ' (km)',
+			name : 'miles_last_repl'
+		}, {
+			fieldLabel : T('label.miles_since_last_repl') + ' (km)',
+			name : 'miles_since_last_repl'
+		}, {
+			fieldLabel : T('label.next_repl_date'),
+			name : 'next_repl_date',
+			xtype : 'datefield',
+			format : F('date')			
+		}, {
+			fieldLabel : T('label.next_repl_mileage') + ' (km)',
+			name : 'next_repl_mileage'	
+		}, {
+			fieldLabel : T('label.accrued_cost'),
+			name : 'accrued_cost'
+		}, {
+			fieldLabel : T('label.status'),
+			name : 'status'
+		}]		
 	},
 
 	showConsumableStatus : function(selectedRecord) {

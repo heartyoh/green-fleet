@@ -81,6 +81,7 @@ T({
 		consumables_parts : '소모품목',
 		consumable_item : '소모품 항목',
 		consumable_change_history : '소모품 교체 이력',
+		consumable_details : '소모품 상세',
 		vehicle_consumables : '차량 소모품',
 		maintenance : '정비',
 		maintenance_history : '정비 이력',
