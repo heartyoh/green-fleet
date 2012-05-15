@@ -6,6 +6,7 @@ T({
 	},
 	
 	menu : {
+		schedule : 'Schedule',
 		dashboard : 'Dashboard',
 		company : 'Company',
 		vehicle : 'Vehicle',
@@ -107,7 +108,8 @@ T({
 		driver_runstatus : 'Driver RunStatus',
 		driver_speed_section : 'Drivers Speed Section',
 		speed_section_chart : 'Drivers Speed Section Chart',
-		report_list : 'Report List'
+		report_list : 'Report List',
+		schedule : 'Schedule'
 	},
 	
 	report : {

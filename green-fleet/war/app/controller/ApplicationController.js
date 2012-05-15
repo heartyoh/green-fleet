@@ -12,7 +12,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 'RepairStore', 
 	           'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 'LocationStore', 'AlarmStore', 
 	           'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore', 'DriverGroupStore', 
-	           'DriverByGroupStore', 'VehicleGroupCountStore' ],
+	           'DriverByGroupStore', 'VehicleGroupCountStore', 'CalendarStore', 'EventStore' ],
 
 	models : [ 'Code' ],
 
@@ -26,7 +26,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
 	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance' ],
+	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule' ],
 
 	init : function() {
 		this.control({

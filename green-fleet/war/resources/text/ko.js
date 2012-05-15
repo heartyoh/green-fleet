@@ -6,6 +6,7 @@ T({
 	},
 	
 	menu : {
+		schedule : '일정',
 		dashboard : '대쉬보드',
 		company : '회사',
 		vehicle : '차량',
@@ -108,6 +109,7 @@ T({
 		driver_speed_section : '운전자별 속도구간',
 		speed_section_chart : '속도구간 차트',
 		report_list : '리포트 리스트',
+		schedule : '일정'
 	},
 	
 	report : {

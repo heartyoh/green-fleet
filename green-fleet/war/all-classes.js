@@ -1358,6 +1358,14 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'dashboard_report',
 			closable : true
 		} ]
+	}, {
+		text : T('menu.schedule'),
+		submenus : [ {
+			title : T('menu.schedule'),
+			xtype : 'management_schedule',
+			itemId : 'management_schedule',
+			closable : true
+		} ]
 	} ]
 });
 Ext.define('GreenFleet.view.SideMenu', {
@@ -13295,6 +13303,54 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 	}
 	
 });
+Ext.define('GreenFleet.view.management.Schedule', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.management_schedule',
+
+	title : T('titla.alarm'),
+
+	entityUrl : 'task',
+
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */
+	importUrl : 'task/import',
+
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	items : {
+		html : "<div class='listTitle'>" + T('title.schedule') + "</div>"
+	},
+
+	initComponent : function() {
+		var self = this;
+		this.callParent(arguments);
+		var calendarPanel = this.buildCalendar(self);
+		this.add(calendarPanel);
+	},
+	
+	buildCalendar : function(main) {
+		var calendarStore = Ext.getStore('CalendarStore');
+		var eventStore = Ext.getStore('EventStore');
+		eventStore.load();
+		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
+			calendarStore : calendarStore,
+	        eventStore: eventStore,
+	        width: 700,
+	        height: 500
+	    });				
+		return calendar;
+	}
+});
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -15825,6 +15881,65 @@ Ext.define('GreenFleet.store.VehicleGroupCountStore', {
 		}
 	}
 });
+Ext.define('GreenFleet.store.CalendarStore', {
+	extend : 'Extensible.calendar.data.MemoryCalendarStore',
+
+	storeId : 'calendar_store',
+	
+	autoLoad: true,
+	
+	data : {
+        "calendars" : [{
+            "id"    : 1,
+            "title" : "Maintenence",
+            "color" : 2
+        },{
+            "id"    : 2,
+            "title" : "Consumables",
+            "color" : 22
+        },{
+            "id"    : 3,
+            "title" : "Reservation",
+            "color" : 7
+        },{
+            "id"    : 4,
+            "title" : "Task",
+            "color" : 26
+        }]
+    }
+
+});
+Ext.define('GreenFleet.store.EventStore', {
+	extend : 'Extensible.calendar.data.EventStore',
+
+	storeId : 'event_store',
+	
+	autoLoad: true,
+	
+	proxy : {
+		type : 'rest',
+		url : 'task',
+		reader : {
+			type : 'json',
+			root : 'items',
+			totalProperty : 'total'
+		},
+		writer: {
+			url : 'task/save',
+            type: 'json',
+            nameProperty: 'mapping'
+        },
+        
+        listeners: {
+            exception: function(proxy, response, operation, options){
+                var msg = response.message ? response.message : Ext.decode(response.responseText).message;
+                // ideally an app would provide a less intrusive message display
+                Ext.Msg.alert('Server Error', msg);
+            }
+        }		
+	}
+
+});
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller', 
 
@@ -15839,7 +15954,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 'RepairStore', 
 	           'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 'LocationStore', 'AlarmStore', 
 	           'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore', 'DriverGroupStore', 
-	           'DriverByGroupStore', 'VehicleGroupCountStore' ],
+	           'DriverByGroupStore', 'VehicleGroupCountStore', 'CalendarStore', 'EventStore' ],
 
 	models : [ 'Code' ],
 
@@ -15853,7 +15968,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
 	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance' ],
+	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule' ],
 
 	init : function() {
 		this.control({

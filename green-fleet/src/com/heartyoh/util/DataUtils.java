@@ -3,6 +3,7 @@
  */
 package com.heartyoh.util;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -223,6 +224,36 @@ public class DataUtils {
 	}
 	
 	/**
+	 * 문자열을 format에 맞게 Date로 변환 
+	 * 
+	 * @param value
+	 * @param format
+	 * @return
+	 */
+	public static Date toDate(String value, String format) throws Exception {
+		
+		if(isEmpty(value))
+			return null;
+		
+		DateFormat df = (format == null) ? new SimpleDateFormat("yyyy-MM-dd") : new SimpleDateFormat(format);
+		return df.parse(value);
+	}
+	
+	/**
+	 * value를 java.sql.Date 객체로 변환 
+	 * 
+	 * @param value
+	 * @param format
+	 * @return
+	 * @throws
+	 */
+	public static java.sql.Date toSqlDate(String value, String format) throws Exception {
+		
+		Date date = toDate(value, format);
+		return (date == null) ? null : new java.sql.Date(date.getTime());
+	}
+	
+	/**
 	 * 성공여부, 총 개수, 결과 셋 리스트를 결과 셋 Map으로 리턴  
 	 * 
 	 * @param success
@@ -397,5 +428,32 @@ public class DataUtils {
 		}
 		
 		return between;
+	}
+	
+	/**
+	 * 오늘 날짜 기준으로 달력을 만들기 위한 첫번째 날짜와 마지막 날짜를 구하여 리턴 
+	 * 
+	 * @return
+	 */
+	public static Date[] getFirstLastDateOfMonth() {
+		
+		Date[] dates = new Date[2];
+		Calendar cal= Calendar.getInstance();
+		cal.setTime(new Date());
+		int currentMonth = cal.get(Calendar.MONTH);
+		int lastDayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		cal.set(Calendar.DAY_OF_MONTH, 1);		
+		int today = cal.get(Calendar.DAY_OF_WEEK);
+		int firstDay = cal.getActualMinimum(Calendar.DAY_OF_WEEK);
+		cal.add(Calendar.DAY_OF_MONTH, firstDay - today);
+		dates[0] = cal.getTime();
+		
+		cal.set(Calendar.MONTH, currentMonth);
+		cal.set(Calendar.DAY_OF_MONTH, lastDayOfMonth);
+		today = cal.get(Calendar.DAY_OF_WEEK);
+		int lastDay = cal.getActualMaximum(Calendar.DAY_OF_WEEK);
+		cal.add(Calendar.DAY_OF_MONTH, lastDay - today);
+		dates[1] = cal.getTime();
+		return dates;
 	}
 }

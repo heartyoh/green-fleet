@@ -13,8 +13,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -270,4 +272,139 @@ public abstract class JdbcEntityService {
 			logger.error("Failed to close connection!", e);
 		}
 	}
+	
+	/**
+	 * query를 params 파라미터를 적용하여 실행한다. 실행 후 Connection을 닫지 않는다.  
+	 * 
+	 * @param conn
+	 * @param query
+	 * @param params
+	 * @throws Exception
+	 */
+	protected void execute(Connection conn, String query, Map<Integer, Object> params) throws Exception {
+		
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = conn.prepareStatement(query);
+			this.setParameters(pstmt, params);			
+			pstmt.execute();
+		} catch (Exception e) {
+			logger.error("Failed to execute!", e);
+			throw e;
+			
+		} finally {
+			this.closeDB(pstmt);
+		}
+	}
+	
+	/**
+	 * parameter를 설정한다.
+	 * 
+	 * @param pstmt
+	 * @param params 키는 1부터 시작한다. 
+	 * @throws Exception
+	 */
+	private void setParameters(PreparedStatement pstmt, Map<Integer, Object> params) throws Exception {
+		if(params != null && !params.isEmpty()) {
+			for(int i = 1 ; i <= params.size() ; i++) {
+				if(!params.containsKey(i))
+					throw new Exception("[" + i + "]'s Parameter is empty!");				
+				Object value = params.get(i);
+				pstmt.setObject(i, value);
+			}
+		}		
+	}
+	
+	/**
+	 * query를 params 파라미터를 적용하여 쿼리를 실행하여 결과를 Map의 리스트 형태로 리턴한다. 실행 후 Connection은 닫지 않는다.
+	 * 
+	 * @param conn
+	 * @param query
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	protected List<Map<String, Object>> executeQuery(Connection conn, String query, Map<Integer, Object> params) throws Exception {
+		
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			pstmt = conn.prepareStatement(query);
+			this.setParameters(pstmt, params);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				Map<String, Object> record = new HashMap<String, Object>();
+				ResultSetMetaData md = rs.getMetaData();
+				int columnCount = md.getColumnCount();
+				
+				for(int i = 1 ; i <= columnCount ; i++) {
+					String columnName = md.getColumnName(i);
+					Object value = rs.getObject(columnName);
+					record.put(columnName, value);
+				}
+				
+				result.add(record);
+			}
+			
+		} catch (Exception e) {
+			logger.error("Failed to executeQuery!", e);
+			throw e;
+			
+		} finally {
+			this.closeDB(rs, pstmt);
+		}
+		
+		return result;
+	}
+		
+	/**
+	 * query를 params 파라미터를 적용하여 실행한다. 실행 전 Connection을 생성하고 실행 후 닫는다.
+	 *   
+	 * @param query
+	 * @param params
+	 * @throws Exception
+	 */
+	protected void execute(String query, Map<Integer, Object> params) throws Exception {
+		
+		Connection conn = null;		
+		try {
+			conn = this.getConnection();
+			this.execute(conn, query, params);
+			
+		} catch (Exception e) {
+			logger.error("Failed to execute!", e);
+			throw e;
+			
+		} finally {
+			this.closeDB(conn);
+		}
+	}
+	
+	/**
+	 * query를 params 파라미터를 적용하여 쿼리를 실행하여 결과를 Map의 리스트 형태로 리턴한다. 실행 전 Connection을 생성하고 실행 후 Connection은 닫는다. 
+	 * 
+	 * @param query
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	protected List<Map<String, Object>> executeQuery(String query, Map<Integer, Object> params) throws Exception {
+		
+		Connection conn = null;
+		try {
+			conn = this.getConnection();
+			return this.executeQuery(conn, query, params);
+			
+		} catch (Exception e) {
+			logger.error("Failed to execute!", e);
+			throw e;
+			
+		} finally {
+			this.closeDB(conn);
+		}
+	}	
+	
 }

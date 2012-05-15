@@ -212,5 +212,13 @@ Ext.define('GreenFleet.view.MainMenu', {
 			itemId : 'dashboard_report',
 			closable : true
 		} ]
+	}, {
+		text : T('menu.schedule'),
+		submenus : [ {
+			title : T('menu.schedule'),
+			xtype : 'management_schedule',
+			itemId : 'management_schedule',
+			closable : true
+		} ]
 	} ]
 });

@@ -258,6 +258,10 @@
                     "name": "Maintenance.js"
                 },
                 {
+                    "path": "app/view/management/",
+                    "name": "Schedule.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -444,6 +448,14 @@
                 {
                     "path": "app/store/",
                     "name": "VehicleGroupCountStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "CalendarStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "EventStore.js"
                 },
                 {
                     "path": "app/controller/",

@@ -17,6 +17,7 @@
 
 		<link rel="stylesheet" href="resources/css/ext-greenfleet.css"></link>
 		<link rel="stylesheet" href="resources/css/greenfleet.css"></link>
+    	<link rel="stylesheet" href="resources/css/calendar-all.css" />
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>
 		<script src="lib/label/label.js"></script>
@@ -45,8 +46,10 @@
 		<script src="resources/text/<sec:authentication property="principal.language"/>.js"></script>
 		
 		<script src="ext-all.js"></script>
+		
+		<script src="calendar-all.js"></script>
 
-		<script src="app-all.js"></script> 
+		<script src="app-all.js"></script>
 
 	</head>
 	<body>

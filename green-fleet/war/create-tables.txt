@@ -136,3 +136,21 @@ CREATE TABLE driver_run_sum (
 	spd_lt160 INT,
 	PRIMARY KEY(company, driver, year, month)
 ) DEFAULT CHARSET=utf8;
+
+-- task
+CREATE TABLE task (
+	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, 
+	company VARCHAR(50) NOT NULL,
+	title VARCHAR(100) NOT NULL,
+	start_date DATE NOT NULL,
+	end_date DATE NOT NULL,
+	all_day BIT(1),
+	category VARCHAR(20) NOT NULL,	
+	reminder VARCHAR(50),
+	notes VARCHAR(255),
+	loc VARCHAR(255),
+	url VARCHAR(400),
+	rrule VARCHAR(20),
+	PRIMARY KEY(id),
+	INDEX task_idx1 (company, start_date, end_date) 
+) DEFAULT CHARSET=utf8;
