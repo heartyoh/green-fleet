@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,21 +36,6 @@ public class TaskJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.imports("task", request, response);
-	}
-	
-	@RequestMapping(value = "/task/delete", method = RequestMethod.POST)
-	public @ResponseBody
-	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		response.setContentType("text/html; charset=UTF-8");
-		String id = request.getParameter("id");
-		
-		if(DataUtils.isEmpty(id)) {
-			return "{ \"success\" : false, \"msg\" : \"Task id is empty!\" }";
-		} else {
-			super.execute("delete from task where id = " + request.getParameter("id"), null);		
-			return "{ \"success\" : true, \"msg\" : \"Task destroyed!\", \"key\" : \"" + id + "\" }";
-		}
 	}
 
 	@RequestMapping(value = {"/task", "/m/data/task.json"}, method = RequestMethod.GET)
@@ -95,16 +81,11 @@ public class TaskJdbcService extends JdbcEntityService {
 		return this.getResultSet(true, result.size(), result);
 	}
 	
-	@RequestMapping(value = "/task/find", method = RequestMethod.GET)
+	@RequestMapping(value = "/task/{id}", method = RequestMethod.GET)
 	public @ResponseBody
-	String find(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	String find(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		response.setContentType("text/html; charset=UTF-8");
-		String id = request.getParameter("id");
-		
-		if(DataUtils.isEmpty(id)) 
-			return "{ \"success\" : false, \"msg\" : \"Task id is empty!\" }";
-			
+		response.setContentType("text/html; charset=UTF-8");			
 		String query = "select * from task where id = " + id;		
 		List<Map<String, Object>> result = super.executeQuery(query, null);
 		
@@ -119,7 +100,29 @@ public class TaskJdbcService extends JdbcEntityService {
 	
 	@RequestMapping(value = "/task", method = RequestMethod.POST)
 	public @ResponseBody
-	String create(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String mode = request.getParameter("mode");
+		if("create".equalsIgnoreCase(mode)) {
+			return this.create(request, response);
+		} else if("update".equalsIgnoreCase(mode)) {
+			return this.update(request, response); 
+		} else if("destroy".equalsIgnoreCase(mode)) {
+			return this.delete(request, response);
+		} else {
+			return "{\"success\" : false, \"msg\" : \"Parameter [mode] value is empty!\"}";
+		}
+	}
+	
+	/**
+	 * Task 생성
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public String create(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		// {"id":0,"cid":4,"title":"title","start":"2012-05-10T00:00:00","end":"2012-05-10T01:00:00","rrule":"","loc":"location","notes":"notes","url":"web link","ad":true,"rem":"60"}		
 		@SuppressWarnings("rawtypes")
@@ -144,9 +147,15 @@ public class TaskJdbcService extends JdbcEntityService {
 		return "{\"success\" : true, \"msg\" : \"Succeeded to create!\"}";
 	}
 	
-	@RequestMapping(value = "/task", method = RequestMethod.PUT)
-	public @ResponseBody
-	String update(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	/**
+	 * Task 수정 
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public String update(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		// {"id":0,"cid":1,"title":"asdfsa","start":"2012-05-16T00:00:00","end":"2012-05-16T01:00:00","rrule":"","loc":"locations","notes":"notes","url":"web links","ad":false,"rem":"5"," ":0}
 		@SuppressWarnings("rawtypes")
@@ -170,6 +179,24 @@ public class TaskJdbcService extends JdbcEntityService {
 		this.execute(query, params);
 		return "{\"success\" : true, \"msg\" : \"Succeeded to update!\"}";
 	}
+	
+	/**
+	 * Task 삭제 
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		@SuppressWarnings("rawtypes")
+		Map paramMap = this.readPayload(request);
+		Object id = paramMap.get("id");
+		response.setContentType("text/html; charset=UTF-8");
+		super.execute("delete from task where id = " + id, null);
+		return "{ \"success\" : true, \"msg\" : \"Task destroyed!\", \"key\" : \"" + id + "\" }";
+	}	
 	
 	/**
 	 * request의 payload를 읽어 리턴 

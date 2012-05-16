@@ -366,7 +366,9 @@ T({
 		setting : 'Setting',
 		dockPosition : 'Docking Position',
 		left : 'Left',
-		right : 'Right'
+		right : 'Right',
+		grade : 'Grade',
+		eco_drv_index : 'Eco Driving Index'		
 	},
 	
 	format : {

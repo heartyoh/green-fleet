@@ -366,7 +366,9 @@ T({
 		setting : '설정',
 		dockPosition : '현황패널 도킹 위치',
 		left : '왼쪽',
-		right : '오른쪽'
+		right : '오른쪽',
+		grade : '등급',
+		eco_drv_index : '경제운전 지수'
 	},
 	
 	format : {

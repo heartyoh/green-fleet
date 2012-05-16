@@ -10203,8 +10203,31 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		cls : 'hIndexbar',
 		title : T('title.runstatus_chart'),
 		flex : 1,
-		autoScroll : true
+		autoScroll : true,
+		layout : {
+			align : 'stretch',
+			type : 'hbox'
+		}
 	},
+	
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();		
+		
+		if(!height)
+			height = chartContainer.getHeight();		
+		
+		var chartPanel = chartContainer.down('panel');		
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},	
 	
 	refreshChart : function() {
 		
@@ -10300,75 +10323,23 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			fields : ['name', 'value'],
 			autoDestroy : true,
 			data : radarData
+		});
+		
+		var guageStore = Ext.create('Ext.data.JsonStore', {
+			fields : ['name', 'value'],
+			autoDestroy : true,
+			data : [ {'name' : T('label.eco_drv_index'), 'value' : 3 } ]
 		});		
 		
 		var chartPanel = this.sub('chart_panel');
 		var width = chartPanel.getWidth();
 		var height = chartPanel.getHeight();
 		chartPanel.removeAll();
-		var chart = this.buildRadar(radarStore, width, height);
-		chartPanel.add(chart);
-		this.chartPanel = chart;
-	},
-	
-	resizeChart : function(width, height) {
-		
-		var chartContainer = this.sub('chart_panel');
-		
-		if(!width)
-			width = chartContainer.getWidth();		
-		
-		if(!height)
-			height = chartContainer.getHeight();		
-		
-		var chartPanel = chartContainer.down('panel');		
-		chartPanel.setWidth(width - 25);
-		chartPanel.setHeight(height - 45);
-		
-		var chart = chartPanel.down('chart');
-		chart.setWidth(width - 25);
-		chart.setHeight(height - 50);
-	},
-	
-	buildRadar : function(store, width, height) {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 25,
-			height : height - 45,
-			items : [{
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : width - 25,
-				height : height - 50,
-				insetPadding: 20,
-				legend: {
-	                position: 'right'
-	            },
-	            axes: [{
-	                type: 'Radial',
-	                position: 'radial',
-	                label: {
-	                    display: true
-	                }
-	            }],
-	            series: [{
-	                showInLegend: false,
-	                showMarkers: true,
-	                type: 'radar',
-	                xField: 'name',
-	                yField: 'value',
-	                style: {
-	                    opacity: 0.4
-	                },
-	                markerConfig: {
-	                    radius: 3,
-	                    size: 5
-	                }
-	            }]
-			}]
-		};
+		var chart1 = this.buildRadar(radarStore, width, height);
+		var chart2 = this.buildGuageChart(guageStore, width, height);
+		chartPanel.add(chart1);
+		chartPanel.add(chart2);
+		this.chartPanel = chart1;
 	},
 	
 	buildChart : function(chartType, store, yField, yTitle, unit, minValue, width, height) {
@@ -10428,6 +10399,99 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				}]
 			}]
 		}
+	},
+	
+	buildRadar : function(store, width, height) {
+		width = width / 2;
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				insetPadding: 20,
+				legend: {
+	                position: 'bottom'
+	            },
+	            axes: [{
+	                type: 'Radial',
+	                position: 'radial',
+	                label: {
+	                    display: true
+	                }
+	            }],
+	            series: [{
+	                showInLegend: false,
+	                showMarkers: true,
+	                type: 'radar',
+	                xField: 'name',
+	                yField: 'value',
+	                style: {
+	                    opacity: 0.4
+	                },
+	                markerConfig: {
+	                    radius: 3,
+	                    size: 5
+	                },
+	                tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem) { 
+							return this.setTitle(storeItem.data.name + ':' + Ext.util.Format.number(storeItem.data.value, '0.00')); 
+						}
+					},	                
+	            }]
+			}]
+		};
+	},	
+	
+	buildGuageChart : function(store, width, height) {
+		width = width / 2;
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate: true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				insetPadding: 20,
+				legend: {
+	                position: 'bottom'
+	            },
+	            axes: [{
+	                type: 'gauge',
+	                position: 'gauge',
+	                minimum: 0,
+	                maximum: 5,
+	                steps: 5,
+	                margin: -5,
+	                label : {
+	                	display : 'rotate',
+	                	color : '#000',
+	                	field : 'name',
+	                	renderer : function(v) { return T('label.grade') + ' ' + v; }
+	                }
+	            }],
+	            series: [{
+	            	type: 'gauge',
+	                field: 'value',
+	                showInLegend: true,
+	                highlight: true,
+	                donut: 40,
+	                colorSet: ['#3AA8CB', '#fff']
+	            }]
+			}]
+		};		
 	}
 });
 Ext.define('GreenFleet.view.management.DriverSpeedSection', {
@@ -13347,7 +13411,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 	        eventStore: eventStore,
 	        width: 700,
 	        height: 500
-	    });				
+	    });		
 		return calendar;
 	}
 });
@@ -15917,7 +15981,7 @@ Ext.define('GreenFleet.store.EventStore', {
 	autoLoad: true,
 	
 	proxy : {
-		type : 'rest',
+		type : 'ajax',
 		url : 'task',
 		reader : {
 			type : 'json',
@@ -15925,20 +15989,33 @@ Ext.define('GreenFleet.store.EventStore', {
 			totalProperty : 'total'
 		},
 		writer: {
-			url : 'task/save',
+			url : 'task',
             type: 'json',
             nameProperty: 'mapping'
         },
-        
         listeners: {
-            exception: function(proxy, response, operation, options){
-                var msg = response.message ? response.message : Ext.decode(response.responseText).message;
-                // ideally an app would provide a less intrusive message display
-                Ext.Msg.alert('Server Error', msg);
+            exception: function(proxy, response, operation, options) {
+                //var msg = response.message ? response.message : Ext.decode(response.responseText).message;
+                Ext.Msg.alert('Server Error', response.responseText);
             }
-        }		
-	}
-
+        }
+	},
+	
+	listeners: {
+		beforesync: function(options, eOpts) {
+			if(options.destroy) {
+				this.getProxy().extraParams.mode = 'destroy';
+			} 
+			
+			if(options.update) {
+				this.getProxy().extraParams.mode = 'update';
+			}
+			
+			if(options.create) {
+				this.getProxy().extraParams.mode = 'create';
+			}
+        }
+    }
 });
 Ext.define('GreenFleet.controller.ApplicationController', {
 	extend : 'Ext.app.Controller', 

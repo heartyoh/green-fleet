@@ -6,7 +6,7 @@ Ext.define('GreenFleet.store.EventStore', {
 	autoLoad: true,
 	
 	proxy : {
-		type : 'rest',
+		type : 'ajax',
 		url : 'task',
 		reader : {
 			type : 'json',
@@ -14,18 +14,31 @@ Ext.define('GreenFleet.store.EventStore', {
 			totalProperty : 'total'
 		},
 		writer: {
-			url : 'task/save',
+			url : 'task',
             type: 'json',
             nameProperty: 'mapping'
         },
-        
         listeners: {
-            exception: function(proxy, response, operation, options){
-                var msg = response.message ? response.message : Ext.decode(response.responseText).message;
-                // ideally an app would provide a less intrusive message display
-                Ext.Msg.alert('Server Error', msg);
+            exception: function(proxy, response, operation, options) {
+                //var msg = response.message ? response.message : Ext.decode(response.responseText).message;
+                Ext.Msg.alert('Server Error', response.responseText);
             }
-        }		
-	}
-
+        }
+	},
+	
+	listeners: {
+		beforesync: function(options, eOpts) {
+			if(options.destroy) {
+				this.getProxy().extraParams.mode = 'destroy';
+			} 
+			
+			if(options.update) {
+				this.getProxy().extraParams.mode = 'update';
+			}
+			
+			if(options.create) {
+				this.getProxy().extraParams.mode = 'create';
+			}
+        }
+    }
 });

@@ -42,7 +42,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 	        eventStore: eventStore,
 	        width: 700,
 	        height: 500
-	    });				
+	    });		
 		return calendar;
 	}
 });

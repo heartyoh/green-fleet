@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <datastore-indexes autoGenerate="true">
+
     <datastore-index kind="Incident" ancestor="true">
         <property name="confirm" direction="asc" />
         <property name="datetime" direction="desc" />
@@ -18,6 +19,17 @@
         <property name="vehicle_id" direction="asc" />
         <property name="datetime" direction="desc" />
     </datastore-index>
+    
+    <datastore-index kind="Incident" ancestor="true">
+        <property name="driver_id" direction="asc" />
+        <property name="datetime" direction="desc" />
+    </datastore-index>    
+    
+    <datastore-index kind="Incident" ancestor="true" source="auto">
+        <property name="driver_id" direction="asc"/>
+        <property name="vehicle_id" direction="asc"/>
+        <property name="datetime" direction="desc"/>
+    </datastore-index>    
 
     <datastore-index kind="Track" ancestor="true">
         <property name="datetime" direction="desc" />
@@ -55,21 +67,4 @@
         <property name="health_rate" direction="asc"/>
     </datastore-index>
     
-    <!--datastore-index kind="DriverRunSum" ancestor="true" source="manual">
-        <property name="driver" direction="asc"/>
-        <property name="month" direction="asc"/>
-    </datastore-index>
-    
-    <datastore-index kind="DriverRunSum" ancestor="true" source="manual">
-        <property name="month" direction="asc"/>
-    </datastore-index>
-
-    <datastore-index kind="VehicleRunSum" ancestor="true" source="manual">
-        <property name="vehicle" direction="asc"/>
-        <property name="month" direction="asc"/>
-    </datastore-index>
-    
-    <datastore-index kind="VehicleRunSum" ancestor="true" source="manual">
-        <property name="month" direction="asc"/>
-    </datastore-index-->
 </datastore-indexes>
