@@ -8193,6 +8193,9 @@ Ext.define('GreenFleet.view.common.ProgressColumn', {
             
             newWidth = Math.floor(v * me.getWidth(true)); //me = column
             
+            if(newWidth > 120)
+            	newWidth = 120;
+            
 //          Allow a configured renderer to create initial value (And set the other values in the "metadata" argument!)
             v = Ext.isFunction(cfg.renderer) ? cfg.renderer.apply(this, arguments)||v : v; //this = renderer scope
             text = Ext.String.format(me.progressText,Math.round(v*100));
