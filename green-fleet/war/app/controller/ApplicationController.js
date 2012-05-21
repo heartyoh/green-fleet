@@ -26,7 +26,10 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
 	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule' ],
+	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule',
+	          'overview.Overview', 'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 
+	          'portlet.GridI1Portlet', 'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 
+	          'portlet.ChartV2Portlet', 'portlet.CalendarPortlet', 'portlet.GridC1Portlet' ],
 
 	init : function() {
 		this.control({

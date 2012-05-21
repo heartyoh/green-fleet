@@ -6,7 +6,7 @@ Ext.define('GreenFleet.store.VehicleGroupCountStore', {
 	pageSize : 10,
 	
 	fields : [ {
-		name : 'name',
+		name : 'id',
 		type : 'string'
 	}, {
 		name : 'expl',

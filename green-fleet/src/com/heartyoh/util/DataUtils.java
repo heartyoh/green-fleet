@@ -3,6 +3,7 @@
  */
 package com.heartyoh.util;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,6 +63,12 @@ public class DataUtils {
 		return filters;
 	}
 	
+	/**
+	 * Map을 생성하여 key, value를 추가한 뒤 리턴 
+	 * @param key
+	 * @param value
+	 * @return
+	 */
 	public static Map<String, Object> newMap(String key, Object value) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		
@@ -72,6 +79,23 @@ public class DataUtils {
 		return filters;
 	}	
 
+	/**
+	 * value를 순서대로 1 부터 n까지 추가 ...
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static Map<Integer, Object> newParams(Object ... values) {
+		
+		Map<Integer, Object> map = new HashMap<Integer, Object>();
+		
+		for(int i = 1 ; i <= values.length ; i++) {
+			map.put(i, values[i - 1]);
+		}
+		
+		return map;
+	}
+	
 	/**
 	 * array를 List로 변환 
 	 * 
@@ -179,6 +203,37 @@ public class DataUtils {
 	}
 	
 	/**
+	 * strArr의 각 문자의 앞 뒤로 prefix, postfix를 붙이고 배열의 각 문자열 사이에 delimiter를 붙여서 문자열로 합쳐서 리턴 
+	 * 
+	 * @param strArr
+	 * @param prefix
+	 * @param postfix
+	 * @param delimiter
+	 * @return
+	 */
+	public static String concat(String[] strArr, String prefix, String postfix, String delimiter) {
+		
+		if(strArr == null || strArr.length == 0)
+			return null;
+		
+		StringBuffer concatedStr = new StringBuffer();
+		for(int i = 0 ; i < strArr.length ; i++) {
+			if(i > 0)
+				concatedStr.append(delimiter);
+			
+			if(postfix != null)
+				concatedStr.append(prefix);
+			
+			concatedStr.append(strArr[i]);
+			
+			if(postfix != null)
+				concatedStr.append(postfix);
+		}
+		
+		return concatedStr.toString();
+	}
+	
+	/**
 	 * value를 String형으로 변환. null이면 ""를 리턴 
 	 * 
 	 * @param value
@@ -251,6 +306,19 @@ public class DataUtils {
 		
 		Date date = toDate(value, format);
 		return (date == null) ? null : new java.sql.Date(date.getTime());
+	}
+	
+	/**
+	 * value를 Timestamp로 변환 
+	 * 
+	 * @param value
+	 * @param format
+	 * @return
+	 * @throws Exception
+	 */
+	public static Timestamp toTimestamp(String value, String format) throws Exception {		
+		Date date = toDate(value, format);
+		return (date == null) ? null : new Timestamp(date.getTime());
 	}
 	
 	/**

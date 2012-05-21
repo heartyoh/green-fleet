@@ -53,31 +53,25 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		Long id = DataUtils.toLong(request.getParameter("key"));
 		response.setContentType("text/html; charset=UTF-8");
+		String id = request.getParameter("key");
+		Connection conn = null;
 		
 		try {
 			conn = this.getConnection();
-			pstmt1 = conn.prepareStatement("delete from vehicle_relation where group_id = ?");
-			pstmt1.setLong(1, id);
-			pstmt1.execute();
+			Map<Integer, Object> params = DataUtils.newParams(this.getCompany(request), id);
+			super.execute(conn, "delete from vehicle_relation where company = ? and group_id = ?", params);
+			super.execute(conn, "delete from vehicle_group where company = ? and id = ?", params);
 			
-			pstmt2 = conn.prepareStatement("delete from vehicle_group where id = ?");
-			pstmt2.setLong(1, id);
-			pstmt2.execute();
-			
-		} catch (Exception e) {
-			logger.error("Failed to delete Vehicle Group [" + this.getCompany(request) + "," + id + "]!", e);
+		} catch(Exception e) {
+			logger.error("Failed to delete vehicle group [" + id + "]", e);
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + id + "\" }";
 			
 		} finally {
-			super.closeDB(pstmt1, pstmt2, conn);
-		}		
+			super.closeDB(conn);
+		}
 				
-		return "{ \"success\" : true, \"msg\" : \"VehicleGroup destroyed!\", \"key\" : \"" + id + "\" }";
+		return "{ \"success\" : true, \"msg\" : \"Vehicle Group destroyed!\", \"key\" : \"" + id + "\" }";
 	}
 
 	@RequestMapping(value = {"/vehicle_group", "/m/data/vehicle_groups.json"}, method = RequestMethod.GET)
@@ -87,33 +81,34 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		String company = this.getCompany(request);
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		
 		try {
 			conn = this.getConnection();
 			pstmt = conn.prepareStatement("select * from vehicle_group where company = ?");
-			pstmt.setString(1, this.getCompany(request));
-			rs = pstmt.executeQuery();
+			pstmt.setString(1, company);
+			rs = pstmt.executeQuery();		
 		
 			while(rs.next()) {
 				Map<String, Object> record = new HashMap<String, Object>();
-				record.put("key", rs.getLong("id"));
-				record.put("company", rs.getString("company"));
-				record.put("id", rs.getString("name"));
+				String id = rs.getString("id");
+				record.put("key", id);
+				record.put("id", id);
 				record.put("desc", rs.getString("expl"));
 				record.put("created_at", rs.getTimestamp("created_at"));
 				record.put("updated_at", rs.getTimestamp("updated_at"));
 				items.add(record);
 			}
 		} catch (Exception e) {
-			logger.error("Failed to list Vehicle Group [" + this.getCompany(request) + "]", e);
+			logger.error("Failed to list Vehicle Group [" + company + "]", e);
 			return this.getResultSet(false, 0, null);
 			
 		} finally {
 			super.closeDB(rs, pstmt, conn);
 		}
 		
-		return this.getResultSet(true, items.size(), items); 
+		return this.getResultSet(true, items.size(), items);		
 	}
 	
 	@RequestMapping(value = "/vehicle_group/group_count" , method = RequestMethod.GET)
@@ -128,11 +123,11 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 		try {
 			conn = this.getConnection();
 			stmt = conn.createStatement();
-			rs = stmt.executeQuery("select vg.name, vg.expl, count(vr.group_id) from vehicle_relation vr, vehicle_group vg where vr.group_id = vg.id group by vr.group_id");
+			rs = stmt.executeQuery("select vg.id, vg.expl, count(vr.group_id) from vehicle_relation vr, vehicle_group vg where vg.company = '" + this.getCompany(request) + "' and vr.group_id = vg.id group by vr.group_id");
 		
 			while(rs.next()) {
 				Map<String, Object> record = new HashMap<String, Object>();
-				record.put("name", rs.getString(1));
+				record.put("id", rs.getString(1));
 				record.put("expl", rs.getString(2));
 				record.put("count", rs.getInt(3));
 				items.add(record);
@@ -152,25 +147,23 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	Map<String, Object> retrieveVehiclesByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		String company = this.getCompany(request);
+		String selectMode = request.getParameter("select_mode");
+		String groupId = request.getParameter("vehicle_group_id");
+		int page = DataUtils.toInt(request.getParameter("page"));
+		int limit = DataUtils.toInt(request.getParameter("limit"));
+
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		List<String> vehicleIdList = new ArrayList<String>();
-		int total = 0;
-		
-		String company = this.getCompany(request);
-		String groupName = request.getParameter("vehicle_group_id");
-		String selectMode = request.getParameter("select_mode");
-		int page = DataUtils.toInt(request.getParameter("page"));
-		int limit = DataUtils.toInt(request.getParameter("limit"));
 		
 		try {
 			conn = this.getConnection();
 			
 			if(!DataUtils.isEmpty(selectMode) && "vehicle_id_only".equalsIgnoreCase(selectMode)) {
-				pstmt = conn.prepareStatement("select vr.vehicle_id from vehicle_group vg, vehicle_relation vr where vg.id = vr.group_id and vg.company = ? and vg.name = ?");
+				pstmt = conn.prepareStatement("select vehicle_id from vehicle_relation where company = ? and group_id = ?");
 				pstmt.setString(1, company);
-				pstmt.setString(2, groupName);
+				pstmt.setString(2, groupId);
 				rs = pstmt.executeQuery();				
 				List<String> items = new ArrayList<String>();
 				
@@ -178,28 +171,20 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 					items.add(rs.getString("vehicle_id"));
 				}
 				
-				total = vehicleIdList.size();
-				return this.getResultSet(true, total, items);
+				return this.getResultSet(true, items.size(), items);
 				
 			} else {
-				pstmt = conn.prepareStatement("select count(*) from vehicle_group vg, vehicle_relation vr where vg.id = vr.group_id and vg.company = ? and vg.name = ?");
-				pstmt.setString(1, company);
-				pstmt.setString(2, groupName);
-				rs = pstmt.executeQuery();
+				String query = "select count(*) from vehicle_relation where company = ? and group_id = ?";
+				Map<Integer, Object> params = DataUtils.newParams(company, groupId);
+				int total = super.count(query, params);
 				
-				if(rs.next()) {
-					total = rs.getInt(1);
-				}
-				
-				rs.close();
-				pstmt.close();
-			
-				pstmt = conn.prepareStatement("select vr.vehicle_id from vehicle_group vg, vehicle_relation vr where vg.id = vr.group_id and vg.company = ? and vg.name = ? limit ?, ?");
+				pstmt = conn.prepareStatement("select vehicle_id from vehicle_relation where company = ? and group_id = ? limit ?, ?");
 				pstmt.setString(1, company);
-				pstmt.setString(2, groupName);
+				pstmt.setString(2, groupId);
 				pstmt.setInt(3, (page - 1) * limit);
 				pstmt.setInt(4, (page * limit));
-				rs = pstmt.executeQuery();			
+				rs = pstmt.executeQuery();
+				List<String> vehicleIdList = new ArrayList<String>();
 				
 				while(rs.next()) {
 					vehicleIdList.add(rs.getString("vehicle_id"));
@@ -207,9 +192,9 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 				
 				List<Map<String, Object>> items = this.retrieveVehicles(company, vehicleIdList, request.getParameterValues("select"));
 				return this.getResultSet(true, total, items);
-			}		
+			}	
 		} catch (Exception e) {
-			logger.error("Failed to list vehicles by vehicle group [" + groupName + "]", e);
+			logger.error("Failed to list vehicles by vehicle group [" + groupId + "]", e);
 			return this.getResultSet(false, 0, null);
 			
 		} finally {
@@ -221,27 +206,31 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String find(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		response.setContentType("text/html; charset=UTF-8");
+		String company = this.getCompany(request);
+		String id = request.getParameter("key");
+		Map<String, Object> result = new HashMap<String, Object>();		
+		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		Long id = DataUtils.toLong(request.getParameter("key"));
-		Map<String, Object> result = new HashMap<String, Object>();
-		response.setContentType("text/html; charset=UTF-8");
+		ResultSet rs = null;		
 		
 		try {
 			conn = this.getConnection();
-			pstmt = conn.prepareStatement("select * from vehicle_group where id = ?");
-			pstmt.setLong(1, id);
+			pstmt = conn.prepareStatement("select * from vehicle_group where company = ? and id = ?");
+			pstmt.setString(1, company);
+			pstmt.setString(2, id);
 			rs = pstmt.executeQuery();
 		
 			while(rs.next()) {
-				result.put("key", rs.getLong("id"));
-				result.put("company", rs.getString("company"));
-				result.put("id", rs.getString("name"));
+				result.put("key", id);
+				result.put("id", id);
 				result.put("desc", rs.getString("expl"));
 				result.put("created_at", rs.getTimestamp("created_at"));
 				result.put("updated_at", rs.getTimestamp("updated_at"));
+				result.put("success", true);
 			}
+
 		} catch (Exception e) {
 			logger.error("Failed to find vehicle group [" + id + "]", e);
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + id + "\" }";
@@ -250,148 +239,104 @@ public class VehicleGroupJdbcService extends JdbcEntityService {
 			super.closeDB(rs, pstmt, conn);
 		}
 		
-		return new ObjectMapper().writeValueAsString(result);
+		return new ObjectMapper().writeValueAsString(result);		
 	}
 	
 	@RequestMapping(value = "/vehicle_group/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		String key = request.getParameter("key");
+		String company = this.getCompany(request);
+		String id = request.getParameter("key");
 		java.sql.Timestamp now = new java.sql.Timestamp(new java.util.Date().getTime());
 		response.setContentType("text/html; charset=UTF-8");
+		Connection conn = null;
 		
 		try {
 			conn = this.getConnection();
 			
-			if(!DataUtils.isEmpty(key)) {
-				pstmt = conn.prepareStatement("update vehicle_group set name = ?, expl = ?, updated_at = ? where id = ?");
-				pstmt.setString(1, request.getParameter("id"));
-				pstmt.setString(2, request.getParameter("desc"));
-				pstmt.setTimestamp(3, now);
-				pstmt.setLong(4, DataUtils.toLong(key));
+			if(!DataUtils.isEmpty(id)) {
+				Map<Integer, Object> params = DataUtils.newParams(request.getParameter("desc"), now, company, id);
+				this.execute("update vehicle_group set expl = ?, updated_at = ? where company = ? and id = ?", params);
 				
 			} else {
-				pstmt = conn.prepareStatement("insert into vehicle_group (company, name, expl, created_at, updated_at) values (?, ?, ?, ?, ?)");
-				pstmt.setString(1, this.getCompany(request));
-				pstmt.setString(2, request.getParameter("id"));
-				pstmt.setString(3, request.getParameter("desc"));
-				pstmt.setTimestamp(4, now);
-				pstmt.setTimestamp(5, now);
-			}
-			
-			pstmt.execute();
+				Map<Integer, Object> params = DataUtils.newParams(company, request.getParameter("id"), request.getParameter("desc"), now, now);
+				this.execute("insert into vehicle_group(company, id, expl, created_at, updated_at) values (?, ?, ?, ?, ?)", params);				
+			}			
 						
 		} catch (Exception e) {
 			logger.error("Failed to save vehicle group", e);
 			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
 			
 		} finally {
-			super.closeDB(pstmt, conn);
+			super.closeDB(conn);
 		}
 		
-		return "{\"success\" : true, \"msg\" : \"Succeeded to save!\"}";
+		return "{\"success\" : true, \"msg\" : \"Succeeded to save!\"}";		
 	}
 	
 	@RequestMapping(value = "/vehicle_relation/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String saveRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		PreparedStatement pstmt3 = null;
-		ResultSet rs = null;
+		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
+		
+		if(vehicleIdArr == null || vehicleIdArr.length == 0)
+			return "{\"success\" : false, \"msg\" : \"No vehicle selected to save!\"}";
 		
 		String company = this.getCompany(request);
-		String groupName = request.getParameter("vehicle_group_id");
-		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
+		String groupId = request.getParameter("vehicle_group_id");		
 		response.setContentType("text/html; charset=UTF-8");
+
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		
 		try {
 			conn = this.getConnection();
-			
-			pstmt1 = conn.prepareStatement("select id from vehicle_group where company = ? and name = ?");
-			pstmt1.setString(1, company);
-			pstmt1.setString(2, groupName);
-			rs = pstmt1.executeQuery();
-			long groupId = 0;
-			
-			if(rs.next()) {
-				groupId = rs.getLong("id");
-			} else {
-				throw new Exception("Vehicle group name [" + groupName + "] Not Found!");
-			}
-			
-			pstmt2 = conn.prepareStatement("delete from vehicle_relation where company = ? and group_id = ?");
-			pstmt2.setString(1, company);
-			pstmt2.setLong(2, groupId);
-			pstmt2.execute();
-			
-			pstmt3 = conn.prepareStatement("insert into vehicle_relation(company, vehicle_id, group_id) values (?, ?, ?)");
+			// TODO 이미 있는 Relation 정보면 insert문에서 제외 필요 
+			pstmt = conn.prepareStatement("insert into vehicle_relation(company, vehicle_id, group_id) values (?, ?, ?)");
 			for(int i = 0 ; i < vehicleIdArr.length ; i++) {				
-				pstmt3.setString(1, company);
-				pstmt3.setString(2, vehicleIdArr[i]);
-				pstmt3.setLong(3, groupId);
-				pstmt3.addBatch();
-			}
-			
-			pstmt3.executeBatch();
+				pstmt.setString(1, company);
+				pstmt.setString(2, vehicleIdArr[i]);
+				pstmt.setString(3, groupId);
+				pstmt.addBatch();
+			}			
+			pstmt.executeBatch();
 			
 		} catch (Exception e) {
 			logger.error("Failed to save vehicle group relation", e);
 			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
 			
 		} finally {
-			super.closeDB(rs, pstmt1, pstmt2, pstmt3, conn);
-		}
+			super.closeDB(rs, pstmt, conn);
+		}		
 		
-		return "{\"success\" : true, \"msg\" : \"Succeeded to save relation!\"}";
+		return "{\"success\" : true, \"msg\" : \"Succeeded to save relation!\"}";		
 	}
 	
 	@RequestMapping(value = "/vehicle_relation/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String deleteRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+				
+		response.setContentType("text/html; charset=UTF-8");
 		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
 		
 		if(vehicleIdArr == null || vehicleIdArr.length == 0)
 			return "{\"success\" : false, \"msg\" : \"No vehicle selected to delete!\"}";
 		
-		String company = this.getCompany(request);
-		String groupName = request.getParameter("vehicle_group_id");		
-		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		response.setContentType("text/html; charset=UTF-8");
-		
 		try {
-			conn = this.getConnection();
-			StringBuffer vehicleIds = new StringBuffer();
-			for(int i = 0 ; i < vehicleIdArr.length ; i++) {
-				if(i > 0)
-					vehicleIds.append(",");
-				
-				vehicleIds.append("'").append(vehicleIdArr[i]).append("'");
-			}
-			
-			pstmt = conn.prepareStatement("delete from vehicle_relation where company = ? and group_id = (select id from vehicle_group where company = ? and name = ?) and vehicle_id in (" + vehicleIds.toString() + ")");
-			pstmt.setString(1, company);
-			pstmt.setString(2, company);
-			pstmt.setString(3, groupName);
-			pstmt.execute();
+			String vehicleIds = DataUtils.concat(vehicleIdArr, "'", "'", ",");
+			Map<Integer, Object> params = DataUtils.newParams(this.getCompany(request), request.getParameter("vehicle_group_id"));
+			String query = "delete from vehicle_relation where company = ? and group_id = ? and vehicle_id in (" + vehicleIds + ")";
+			super.execute(query, params);
 			
 		} catch (Exception e) {
 			logger.error("Failed to delete vehicle relation", e);
-			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
-			
-		} finally {
-			super.closeDB(pstmt, conn);
-		}		
+			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";			
+		} 	
 		
-		return "{\"success\" : true, \"msg\" : \"Succeeded to delete relation!\"}";
+		return "{\"success\" : true, \"msg\" : \"Succeeded to delete relation!\"}";		
 	}
 	
 	/**

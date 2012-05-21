@@ -13,6 +13,14 @@ Ext.define('GreenFleet.view.viewport.West', {
 	
 	items : [ {
 		xtype : 'button',
+		itemId : 'overview',
+		cls : 'btnDashboard',
+		text : T('menu.overview'),
+		handler : function() {
+			GreenFleet.doMenu('overview');
+		}
+	}, {
+		xtype : 'button',
 		itemId : 'monitor_map',
 		cls : 'btnDashboard',
 		text : T('menu.map'),

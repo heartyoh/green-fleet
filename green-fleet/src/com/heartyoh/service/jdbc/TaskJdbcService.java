@@ -4,6 +4,7 @@
 package com.heartyoh.service.jdbc;
 
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,11 +66,17 @@ public class TaskJdbcService extends JdbcEntityService {
 			if(map.containsKey("category"))
 				map.put("cid", map.remove("category"));
 			
-			if(map.containsKey("start_date"))
-				map.put("start", map.remove("start_date"));
+			if(map.containsKey("start_date")) {
+				Timestamp ts = (Timestamp)map.remove("start_date");
+				String fromTimeStr = DataUtils.dateToString(new Date(ts.getTime()), "yyyy-MM-dd HH:mm:ss");
+				map.put("start", fromTimeStr);
+			}
 			
-			if(map.containsKey("end_date"))
-				map.put("end", map.remove("end_date"));
+			if(map.containsKey("end_date")) {
+				Timestamp ts = (Timestamp)map.remove("end_date");
+				String toTimeStr = DataUtils.dateToString(new Date(ts.getTime()), "yyyy-MM-dd HH:mm:ss");				
+				map.put("end", toTimeStr);
+			}
 			
 			if(map.containsKey("all_day"))
 				map.put("ad", map.remove("all_day"));
@@ -131,10 +138,8 @@ public class TaskJdbcService extends JdbcEntityService {
 		Map<Integer, Object> params = new HashMap<Integer, Object>();
 		params.put(1, this.getCompany(request));
 		params.put(2, paramMap.get("title"));
-		java.sql.Date startDate = DataUtils.toSqlDate((String)paramMap.get("start"), "yyyy-MM-dd'T'HH:mm:ss");
-		java.sql.Date endDate = DataUtils.toSqlDate((String)paramMap.get("end"), "yyyy-MM-dd'T'HH:mm:ss");
-		params.put(3, startDate);
-		params.put(4, endDate);
+		params.put(3, DataUtils.toTimestamp((String)paramMap.get("start"), "yyyy-MM-dd'T'HH:mm:ss"));
+		params.put(4, DataUtils.toTimestamp((String)paramMap.get("end"), "yyyy-MM-dd'T'HH:mm:ss"));
 		boolean allDay = DataUtils.toBool(paramMap.get("ad"));
 		params.put(5, allDay);
 		params.put(6, paramMap.get("cid"));
@@ -163,10 +168,8 @@ public class TaskJdbcService extends JdbcEntityService {
 		String query = "update task set title=?, start_date=?, end_date=?, all_day=?, category=?, reminder=?, notes=?, loc=?, url=?, rrule=? where id = ?";
 		Map<Integer, Object> params = new HashMap<Integer, Object>();
 		params.put(1, paramMap.get("title"));		
-		java.sql.Date startDate = DataUtils.toSqlDate((String)paramMap.get("start"), "yyyy-MM-dd'T'HH:mm:ss");
-		java.sql.Date endDate = DataUtils.toSqlDate((String)paramMap.get("end"), "yyyy-MM-dd'T'HH:mm:ss");		
-		params.put(2, startDate);
-		params.put(3, endDate);
+		params.put(2, DataUtils.toTimestamp((String)paramMap.get("start"), "yyyy-MM-dd'T'HH:mm:ss"));
+		params.put(3, DataUtils.toTimestamp((String)paramMap.get("end"), "yyyy-MM-dd'T'HH:mm:ss"));
 		boolean allDay = DataUtils.toBool(paramMap.get("ad"));
 		params.put(4, allDay);
 		params.put(5, paramMap.get("cid"));

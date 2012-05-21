@@ -34,7 +34,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		
 		dashboardStore.load({
 			scope : this,
-			callback: function(records, operation, success) {				
+			callback: function(records, operation, success) {
 				var healthRecord = this.findRecord(records, "health");
 				var ageRecord = this.findRecord(records, "age");
 				var mileageRecord = this.findRecord(records, "mileage");
@@ -44,7 +44,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 				this.addChartToRow(row2, T('title.vehicle_age'), ageRecord);
 				row2.add(this.buildEmptyChart());
 			}
-		});		
+		});
 	},
 	
 	addHealthChartToRow : function(row, title, record) {

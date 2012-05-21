@@ -576,6 +576,7 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 		var self = this;
 
+		Ext.getCmp('menutab').getComponent('overview').hide();
 		Ext.getCmp('menutab').getComponent('monitor_map').hide();
 		Ext.getCmp('menutab').getComponent('information').hide();
 		Ext.getCmp('menutab').getComponent('monitor_incident').hide();
@@ -592,6 +593,25 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	},
 
 	items : [ {
+		xtype : 'overview',
+		itemId : 'overview',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
+	},{
 		xtype : 'monitor_map',
 		itemId : 'monitor_map',
 		listeners : {
@@ -707,6 +727,14 @@ Ext.define('GreenFleet.view.viewport.West', {
 	},
 	
 	items : [ {
+		xtype : 'button',
+		itemId : 'overview',
+		cls : 'btnDashboard',
+		text : T('menu.overview'),
+		handler : function() {
+			GreenFleet.doMenu('overview');
+		}
+	}, {
 		xtype : 'button',
 		itemId : 'monitor_map',
 		cls : 'btnDashboard',
@@ -1046,13 +1074,13 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		GreenFleet.doMenu('monitor_map');
 		this.sub('search').setValue('');
-		var groupName = button.vehicleGroup.get('name');		
+		var groupId = button.vehicleGroup.get('id');		
 		
 		Ext.Ajax.request({
 			url : '/vehicle_group/vehicles',
 			method : 'GET',
 			params : {
-				vehicle_group_id : groupName,
+				vehicle_group_id : groupId,
 				select_mode : 'vehicle_id_only'
 			},
 			success : function(response) {
@@ -7068,7 +7096,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 		
 		dashboardStore.load({
 			scope : this,
-			callback: function(records, operation, success) {				
+			callback: function(records, operation, success) {
 				var healthRecord = this.findRecord(records, "health");
 				var ageRecord = this.findRecord(records, "age");
 				var mileageRecord = this.findRecord(records, "mileage");
@@ -7078,7 +7106,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 				this.addChartToRow(row2, T('title.vehicle_age'), ageRecord);
 				row2.add(this.buildEmptyChart());
 			}
-		});		
+		});
 	},
 	
 	addHealthChartToRow : function(row, title, record) {
@@ -8969,7 +8997,7 @@ Ext.define('GreenFleet.view.management.Location', {
 	}	
 });
 Ext.define('GreenFleet.view.management.Alarm', {
-	extend : 'Ext.container.Container',
+	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.management_alarm',
 
@@ -13372,7 +13400,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 
 	alias : 'widget.management_schedule',
 
-	title : T('titla.alarm'),
+	title : T('titla.schedule'),
 
 	entityUrl : 'task',
 
@@ -13409,12 +13437,1095 @@ Ext.define('GreenFleet.view.management.Schedule', {
 		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
 			calendarStore : calendarStore,
 	        eventStore: eventStore,
-	        width: 700,
-	        height: 500
+	        flex : 1
 	    });		
 		return calendar;
 	}
 });
+Ext.define('GreenFleet.view.overview.Overview', {
+	
+	extend : 'Ext.Container',
+	
+	alias : 'widget.overview',
+	
+	id : 'overview',
+    
+	layout: {
+        type: 'border',
+        padding: '0 5 5 5'
+    },
+    
+	initComponent : function() {
+		this.items = [{		    
+		    id: 'overview-header',
+		    region: 'north',
+		    xtype : 'box',
+			cls : 'pageTitle',
+			html : '<h1>' + T('menu.overview') + '</h1>',
+			height : 35		    
+		}, {
+            xtype: 'container',
+            region: 'center',
+            layout: 'border',
+            items: [ this.zwest, this.zportal()] //, this.zeast ]
+		}];
+		this.callParent(arguments);
+		var self = this;
+	},
+	
+	zwest : {
+        id: 'overview-vehicle-group',
+        xtype : 'grid_vg1_portlet',
+        region: 'west',
+        animCollapse: true,
+        width: 280,
+        minWidth: 150,
+        maxWidth: 310,
+        split: true,
+        collapsible: true
+	},
+	
+	zeast :  {
+        id: 'overview-driver-group',
+        xtype : 'grid_dg1_portlet',
+        region: 'east',
+        animCollapse: true,
+        width: 280,
+        minWidth: 150,
+        maxWidth: 310,
+        split: true,
+        collapsible: true
+	},
+	
+	zportal : function() {
+		
+		return {
+	        id: 'overview-portal',
+	        xtype: 'portalpanel',
+	        region: 'center',
+	        items: [{
+	            id: 'col-1',
+	            items: [{
+	                id: 'portlet-1-1',
+	                title: T('title.running_distance'),
+	                tools: this.getTools(),
+	                height : 230,
+	                items : {
+	                	xtype : 'chart_v1_portlet',
+	                	height : 230,
+	                	chartType : 'mileage'
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-1-2',
+	                title: T('title.schedule'),
+	                tools: this.getTools(),
+	                height : 300,
+	                items : {
+	                	xtype : 'calendar_portlet',
+	                	height : 300
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }]
+	        },{
+	            id: 'col-2',
+	            items: [{
+	                id: 'portlet-2-1',
+	                title: T('title.vehicle_health'),
+	                tools: this.getTools(),
+	                height : 230,
+	                items : {
+	                	xtype : 'chart_v1_portlet',
+	                	height : 230,
+	                	chartType : 'health'
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            },{
+	                id: 'portlet-2-2',
+	                title : T('portlet.latest_incident_x', {x : '5'}),
+	                tools: this.getTools(),
+	                height : 300,
+	                items: {
+	                	xtype : 'grid_i1_portlet',
+	                	height : 300
+	                },	                
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }]
+	        },{
+	            id: 'col-3',
+	            items: [{
+	                id: 'portlet-3-1',
+	                title: T('title.vehicle_age'),
+	                tools: this.getTools(),
+	                height : 230,
+	                items : {
+	                	xtype : 'chart_v1_portlet',
+	                	height : 230,
+	                	chartType : 'age'
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-3-2',
+	                title: T('portlet.upcomming_x_replacement', {x : T('label.consumable_item')}),
+	                tools: this.getTools(),
+	                items : {
+	                	xtype : 'grid_c1_portlet',
+	                	height : 300	                	
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }]
+	        }]
+		};
+	},
+	
+	getTools: function() {
+        return [{
+            xtype: 'tool',
+            type: 'gear',
+            handler: function(e, target, panelHeader, tool) {
+                var portlet = panelHeader.ownerCt;
+                portlet.items.items[0].reload();
+            }
+        }];
+    },
+        
+    onPortletClose: function(portlet) {
+    	GreenFleet.msg('Close', "'" + portlet.title + "' was removed");
+    }
+});
+
+/**
+ * @class GreenFleet.view.portlet.Portlet
+ * @extends Ext.panel.Panel
+ * A {@link Ext.panel.Panel Panel} class that is managed by {@link GreenFleet.view.portlet.Portlet}.
+ */
+Ext.define('GreenFleet.view.portlet.Portlet', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.portlet',
+    layout: 'fit',
+    anchor: '100%',
+    frame: true,
+    closable: true,
+    collapsible: true,
+    animCollapse: true,
+    draggable: {
+        moveOnDrag: false    
+    },
+    cls: 'x-portlet',
+
+    // Override Panel's default doClose to provide a custom fade out effect
+    // when a portlet is removed from the portal
+    doClose: function() {
+        if (!this.closing) {
+            this.closing = true;
+            this.el.animate({
+                opacity: 0,
+                callback: function(){
+                    this.fireEvent('close', this);
+                    this[this.closeAction]();
+                },
+                scope: this
+            });
+        }
+    }
+});
+/**
+ * @class GreenFleet.view.portlet.PortalPanel
+ * @extends Ext.panel.Panel
+ * A {@link Ext.panel.Panel Panel} class used for providing drag-drop-enabled portal layouts.
+ */
+Ext.define('GreenFleet.view.portlet.PortalPanel', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.portalpanel',
+    cls: 'x-portal',
+    bodyCls: 'x-portal-body',
+    defaultType: 'portalcolumn',
+    autoScroll: true,
+    manageHeight: false,
+
+    initComponent : function() {
+        var me = this;
+
+        // Implement a Container beforeLayout call from the layout to this Container
+        this.layout = {
+            type : 'column'
+        };
+        this.callParent();
+
+        this.addEvents({
+            validatedrop: true,
+            beforedragover: true,
+            dragover: true,
+            beforedrop: true,
+            drop: true
+        });
+    },
+
+    // Set columnWidth, and set first and last column classes to allow exact CSS targeting.
+    beforeLayout: function() {
+        var items = this.layout.getLayoutItems(),
+            len = items.length,
+            firstAndLast = ['x-portal-column-first', 'x-portal-column-last'],
+            i, item, last;
+
+        for (i = 0; i < len; i++) {
+            item = items[i];
+            item.columnWidth = 1 / len;
+            last = (i == len-1);
+
+            if (!i) { // if (first)
+                if (last) {
+                    item.addCls(firstAndLast);
+                } else {
+                    item.addCls('x-portal-column-first');
+                    item.removeCls('x-portal-column-last');
+                }
+            } else if (last) {
+                item.addCls('x-portal-column-last');
+                item.removeCls('x-portal-column-first');
+            } else {
+                item.removeCls(firstAndLast);
+            }
+        }
+
+        return this.callParent(arguments);
+    },
+
+    // private
+    initEvents : function(){
+        this.callParent();
+        this.dd = Ext.create('GreenFleet.view.portlet.PortalDropZone', this, this.dropConfig);
+    },
+
+    // private
+    beforeDestroy : function() {
+        if (this.dd) {
+            this.dd.unreg();
+        }
+        this.callParent();
+    }
+});
+
+/**
+ * @class GreenFleet.view.portlet.PortalColumn
+ * @extends Ext.container.Container
+ * A layout column class used internally be {@link GreenFleet.view.portlet.PortalPanel}.
+ */
+Ext.define('GreenFleet.view.portlet.PortalColumn', {
+    extend: 'Ext.container.Container',
+    alias: 'widget.portalcolumn',
+    layout: 'anchor',
+    defaultType: 'portlet',
+    cls: 'x-portal-column'
+
+    // This is a class so that it could be easily extended
+    // if necessary to provide additional behavior.
+});
+/**
+ * @class GreenFleet.view.portlet.PortalDropZone
+ * @extends Ext.dd.DropTarget
+ * Internal class that manages drag/drop for {@link GreenFleet.view.portlet.PortalPanel}.
+ */
+Ext.define('GreenFleet.view.portlet.PortalDropZone', {
+    extend: 'Ext.dd.DropTarget',
+
+    constructor: function(portal, cfg) {
+        this.portal = portal;
+        Ext.dd.ScrollManager.register(portal.body);
+        this.superclass.constructor.call(this, portal.body, cfg);
+        portal.body.ddScrollConfig = this.ddScrollConfig;
+    },
+
+    ddScrollConfig: {
+        vthresh: 50,
+        hthresh: -1,
+        animate: true,
+        increment: 200
+    },
+
+    createEvent: function(dd, e, data, col, c, pos) {
+        return {
+            portal: this.portal,
+            panel: data.panel,
+            columnIndex: col,
+            column: c,
+            position: pos,
+            data: data,
+            source: dd,
+            rawEvent: e,
+            status: this.dropAllowed
+        };
+    },
+
+    notifyOver: function(dd, e, data) {
+        var xy = e.getXY(),
+            portal = this.portal,
+            proxy = dd.proxy;
+
+        // case column widths
+        if (!this.grid) {
+            this.grid = this.getGrid();
+        }
+
+        // handle case scroll where scrollbars appear during drag
+        var cw = portal.body.dom.clientWidth;
+        if (!this.lastCW) {
+            // set initial client width
+            this.lastCW = cw;
+        } else if (this.lastCW != cw) {
+            // client width has changed, so refresh layout & grid calcs
+            this.lastCW = cw;
+            //portal.doLayout();
+            this.grid = this.getGrid();
+        }
+
+        // determine column
+        var colIndex = 0,
+            colRight = 0,
+            cols = this.grid.columnX,
+            len = cols.length,
+            cmatch = false;
+
+        for (len; colIndex < len; colIndex++) {
+            colRight = cols[colIndex].x + cols[colIndex].w;
+            if (xy[0] < colRight) {
+                cmatch = true;
+                break;
+            }
+        }
+        // no match, fix last index
+        if (!cmatch) {
+            colIndex--;
+        }
+
+        // find insert position
+        var overPortlet, pos = 0,
+            h = 0,
+            match = false,
+            overColumn = portal.items.getAt(colIndex),
+            portlets = overColumn.items.items,
+            overSelf = false;
+
+        len = portlets.length;
+
+        for (len; pos < len; pos++) {
+            overPortlet = portlets[pos];
+            h = overPortlet.el.getHeight();
+            if (h === 0) {
+                overSelf = true;
+            } else if ((overPortlet.el.getY() + (h / 2)) > xy[1]) {
+                match = true;
+                break;
+            }
+        }
+
+        pos = (match && overPortlet ? pos : overColumn.items.getCount()) + (overSelf ? -1 : 0);
+        var overEvent = this.createEvent(dd, e, data, colIndex, overColumn, pos);
+
+        if (portal.fireEvent('validatedrop', overEvent) !== false && portal.fireEvent('beforedragover', overEvent) !== false) {
+
+            // make sure proxy width is fluid in different width columns
+            proxy.getProxy().setWidth('auto');
+            if (overPortlet) {
+                dd.panelProxy.moveProxy(overPortlet.el.dom.parentNode, match ? overPortlet.el.dom : null);
+            } else {
+                dd.panelProxy.moveProxy(overColumn.el.dom, null);
+            }
+
+            this.lastPos = {
+                c: overColumn,
+                col: colIndex,
+                p: overSelf || (match && overPortlet) ? pos : false
+            };
+            this.scrollPos = portal.body.getScroll();
+
+            portal.fireEvent('dragover', overEvent);
+            return overEvent.status;
+        } else {
+            return overEvent.status;
+        }
+
+    },
+
+    notifyOut: function() {
+        delete this.grid;
+    },
+
+    notifyDrop: function(dd, e, data) {
+        delete this.grid;
+        if (!this.lastPos) {
+            return;
+        }
+        var c = this.lastPos.c,
+            col = this.lastPos.col,
+            pos = this.lastPos.p,
+            panel = dd.panel,
+            dropEvent = this.createEvent(dd, e, data, col, c, pos !== false ? pos : c.items.getCount());
+
+        if (this.portal.fireEvent('validatedrop', dropEvent) !== false && 
+            this.portal.fireEvent('beforedrop', dropEvent) !== false) {
+
+            Ext.suspendLayouts();
+            
+            // make sure panel is visible prior to inserting so that the layout doesn't ignore it
+            panel.el.dom.style.display = '';
+            dd.panelProxy.hide();
+            dd.proxy.hide();
+
+            if (pos !== false) {
+                c.insert(pos, panel);
+            } else {
+                c.add(panel);
+            }
+
+            Ext.resumeLayouts(true);
+
+            this.portal.fireEvent('drop', dropEvent);
+
+            // scroll position is lost on drop, fix it
+            var st = this.scrollPos.top;
+            if (st) {
+                var d = this.portal.body.dom;
+                setTimeout(function() {
+                    d.scrollTop = st;
+                },
+                10);
+            }
+        }
+        
+        delete this.lastPos;
+        return true;
+    },
+
+    // internal cache of body and column coords
+    getGrid: function() {
+        var box = this.portal.body.getBox();
+        box.columnX = [];
+        this.portal.items.each(function(c) {
+            box.columnX.push({
+                x: c.el.getX(),
+                w: c.el.getWidth()
+            });
+        });
+        return box;
+    },
+
+    // unregister the dropzone from ScrollManager
+    unreg: function() {
+        Ext.dd.ScrollManager.unregister(this.portal.body);
+        GreenFleet.view.portlet.PortalDropZone.superclass.unreg.call(this);
+    }
+});
+
+Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
+	
+    extend: 'Ext.grid.Panel',
+    
+    alias: 'widget.grid_i1_portlet',    
+        
+    stripeRows: true,
+    
+    columnLines: true,
+    
+    store : Ext.create('Ext.data.ArrayStore', {
+		fields: [ { name : 'datetime', type : 'date', dateFormat:'time' }, 
+		          { name : 'vehicle_id', type : 'string' },
+		          { name : 'driver_id', type : 'string' } ], data: []}),
+    
+    columns: [{
+        text     : T('label.datetime'),
+        sortable : true,
+        dataIndex: 'datetime',
+		xtype : 'datecolumn',
+		format : F('datetime'),
+		width : 110
+    },{
+        text     : T('label.vehicle'),
+        width    : 70,
+        sortable : true,
+        dataIndex: 'vehicle_id'
+    },{
+        text     : T('label.driver'),
+        width    : 70,
+        sortable : true,
+        dataIndex: 'driver_id'
+    }],
+    
+    initComponent: function() {
+    	var self = this;
+        this.callParent(arguments);        
+        this.reload();
+    },
+    
+    reload : function() {
+    	var self = this;
+    	this.setLoading(true);
+    	Ext.Ajax.request({
+		    url: '/incident',
+		    method : 'GET',
+		    params : { page : 1, limit : 5 },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+					self.store.loadData(records);
+					Ext.defer(function() {self.setLoading(false);}, 100);
+					
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});     	
+    }
+});
+
+Ext.define('GreenFleet.view.portlet.GridVG1Portlet', {
+    extend: 'Ext.panel.Panel',
+    
+    alias: 'widget.grid_vg1_portlet',
+        
+    layout : {
+        type: 'accordion',
+        animate: true
+    },
+    
+    animCollapse: true,
+    
+    split: true,
+    
+    collapsible: true,
+    
+    year : null,
+    
+    month : null,
+    
+    initComponent : function() {
+    	this.callParent(arguments);
+    	if(!this.year) {
+    		var today = new Date();
+    		this.year = today.getFullYear();
+    		this.month = today.getMonth() + 1;
+    	} 
+    	this.title = '차량 그룹별 운행 정보 [' + this.year + '-' + this.month + ']';
+    	this.addVehicleGroupTab(this);
+    },
+    
+    addVehicleGroupTab : function(main) {
+    	Ext.getStore('VehicleGroupStore').load({
+    		scope : main,
+    		callback: function(records, operation, success) {    			
+    			Ext.each(records, function(record) {
+    				var idx = 0;
+    				var accTab = {
+    					items : main.addVehicleGroupContent(main, record),
+			            title : record.data.desc,
+			            autoScroll : true,
+			            border : true,
+			            iconCls : 'nav',
+			            isLoaded : false,
+			            seqOrder : idx++,
+			            listeners: {
+			            	expand : function(pnl) {
+			            		if(!pnl.isLoaded) {
+			            			main.loadData(main, pnl.items.items[0].store, record);
+			            			pnl.isLoaded = true;
+			            		}
+							}
+						}
+    				};
+    				
+    				main.add(accTab);    				
+    				if(idx == 1) {
+    					main.loadData(main, accTab.items.store, record);
+    					accTab.isLoaded = true;
+    				}
+    			});
+    	    }	
+    	});
+    },
+    
+    addVehicleGroupContent : function(main, record) {    	
+    	var content = {
+    		xtype : 'gridpanel',
+            store: Ext.create('Ext.data.Store', {
+    			fields : [ 'vehicle_id', 'run_time', 'run_dist', 'consmpt' ], 
+    			data : []
+    		}),
+            stripeRows: true,
+            columnLines: true,
+            columns: [{
+                text   : T('label.vehicle'),
+                width    : 60,
+                sortable : true,
+                dataIndex: 'vehicle_id'
+            },{
+                text   : T('label.run_time'),
+                width    : 70,
+                sortable : true,
+                renderer : function(val) {
+                	return val + ' (' + T('label.minute_s') + ')';
+                },
+                dataIndex: 'run_time'
+            },{
+                text   : T('label.run_dist'),
+                width    : 70,
+                sortable : true,
+                renderer : function(val) {
+                	return val + ' (km)';
+                },
+                dataIndex: 'run_dist'
+            },{
+                text   : T('label.fuel_consumption'),
+                width    : 70,
+                sortable : true,
+                renderer : function(val) {
+                	return val + ' (l)';
+                },
+                dataIndex: 'consmpt'            	
+            }]
+    	};
+    	
+    	return content;
+    },
+    
+    loadData : function(main, store, record) {
+    	
+		Ext.Ajax.request({
+		    url: '/report/vehicle_group',
+		    method : 'GET',
+		    params: {
+		        group_id: record.data.id,			        
+		        report_type : 'run_summary',
+		        year : main.year,
+		        month : main.month
+		    },
+		    success: function(response) {
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        if(resultObj.success) {
+		        	var runDataArr = resultObj.items;
+		        	var total = { 'vehicle_id' : 'Toatl', 'run_time' : 0, 'run_dist' : 0, 'consmpt' : 0 };
+		        	Ext.each(runDataArr, function(runData) {
+		        		total.run_time += runData.run_time;
+		        		total.run_dist += runData.run_dist;
+		        		total.consmpt += runData.consmpt;
+		        	}) ;
+		        	runDataArr.push(total);
+		        	store.loadData(runDataArr);		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+    }
+});
+
+Ext.define('GreenFleet.view.portlet.GridDG1Portlet', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.grid_dg1_portlet',
+    title : '운전자 그룹별 정보',
+    layout : {
+        type: 'accordion',
+        animate: true
+    },
+    animCollapse: true,
+    split: true,
+    collapsible: true,    
+    initComponent : function() {
+    	this.callParent(arguments);
+    	this.addDriverGroupTab(this);
+    },
+    
+    addDriverGroupTab : function(main) {
+    	Ext.getStore('DriverGroupStore').load({
+    		scope : main,
+    		callback: function(records, operation, success) {
+    			Ext.each(records, function(record) {
+    				main.add({
+			        	html: main.addDriverGroupContent(main, record),
+			            title: record.data.desc,
+			            autoScroll: true,
+			            border: true,
+			            iconCls: 'nav'
+    				});
+    			});
+    	    }	
+    	});
+    },
+    
+    addDriverGroupContent : function(main, record) {
+    	return "<div>" + record.data.desc + " 그룹 차량 운행 정보 서머리</div>";
+    }
+});
+
+Ext.define('GreenFleet.view.portlet.ChartV1Portlet', {
+
+	extend: 'Ext.panel.Panel',
+    
+	alias: 'widget.chart_v1_portlet',
+	
+	chartType : 'health',
+	
+	chartPanel : null,
+	
+    initComponent: function() {
+    	var self = this;
+        this.callParent(arguments);
+        this.chartPanel = this.healthChart();
+        this.add(this.chartPanel);
+        this.reload();
+    },
+    
+    reload : function() {
+    	var self = this;
+    	this.setLoading(true);
+    	Ext.Ajax.request({
+		    url: '/dashboard/health/vehicle',
+		    method : 'GET',
+		    params : { health_type : self.chartType },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+					var healthRecord = self.findRecord(records, self.chartType);
+					self.chartPanel.items[0].store.loadData(healthRecord.summary);
+					Ext.defer(function() {self.setLoading(false);}, 100);
+					
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});    	
+    },
+    
+	findRecord : function(records, chartType) {
+		for(var i = 0 ; i < records.length ; i++) {
+			if(records[i].name == chartType)
+				return records[i];
+		}
+		return null;
+	},
+	
+    healthChart : function() {
+    	var self = this;
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			height : self.height - 5,
+			items : [{
+				xtype: 'chart',
+		        animate: true,
+		        store: Ext.create('Ext.data.ArrayStore', {
+					fields: [ {
+				        name : 'name', type : 'string',
+				        convert : function(value, record) {
+				        	if(self.chartType == 'health')
+				        		return T('label.' + value);
+				        	else
+				        		return value;
+				        }
+					},  'value'], data: []}),
+				width : 245,
+				height : self.height - 20,
+		        shadow: false,
+		        legend: {
+		            position: 'bottom',
+		            labelFont : '6px',
+		            boxStroke : '#cfcfcf'
+		        },
+		        insetPadding: 10,
+		        theme: 'Base:gradients',
+		        series: [{
+		            type: 'pie',
+		            field: 'value',
+		            showInLegend: true,
+		            donut: false,
+		            tips: {
+		              trackMouse: true,
+		              width: 140,
+		              height: 25,
+		              renderer: function(storeItem, item) {
+		            	  var total = 0;
+		            	  self.chartPanel.items[0].store.each(function(rec) {
+		            		  total += rec.get('value');
+		            	  });
+		            	  var name = storeItem.get('name');
+		            	  var count = storeItem.get('value');
+		            	  var percent = Math.round(count / total * 100);
+		            	  this.setTitle(name + ' : ' + count + '(' + percent + '%)');
+		              }
+		            },
+		            highlight: {
+		              segment: {
+		                margin: 5
+		              }
+		            },
+		            label: {
+		                field: 'name',
+		                display: 'rotate',
+		                contrast: true,
+		                font: '10px Arial'
+		            }
+		        }]
+			}]
+		}
+	}
+});
+
+Ext.define('GreenFleet.view.portlet.ChartV2Portlet', {
+
+	extend: 'Ext.panel.Panel',
+    
+	alias: 'widget.chart_v2_portlet',
+	
+	chartType : 'mileage',
+	
+	chartPanel : null,
+	
+	store : Ext.create('Ext.data.ArrayStore', {
+				fields: [ {
+			        name : 'name', type : 'string',
+			        convert : function(value, record) {
+			        	return T('label.' + value);
+			        }
+				},  'value'], data: []}),
+	
+    initComponent: function() {
+    	var self = this;
+        this.callParent(arguments);
+        this.chartPanel = this.healthChart();
+        this.add(this.chartPanel);
+        this.reload();
+    },
+    
+    reload : function() {    	
+    	var self = this;
+    	this.setLoading(true);
+    	Ext.Ajax.request({
+		    url: '/dashboard/health/vehicle',
+		    method : 'GET',
+		    params : { health_type : self.chartType },
+		    success: function(response) {
+		    	alert("instance-id : " + self.id + ", chart-id " + self.chartPanel.id + ", chart type : " + self.chartType);
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        if(resultObj.success) {
+		        	if(resultObj.health_type != self.chartType)
+		        		return;
+		        	
+		        	var records = resultObj.items;		        	
+					var healthRecord = self.findRecord(records, self.chartType);
+					self.store.loadData(healthRecord.summary);
+					Ext.defer(function() {self.setLoading(false);}, 100);
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+    	
+		/*var healthStore = Ext.create('GreenFleet.store.DashboardVehicleStore');    	
+		healthStore.load({
+			scope : self,
+			callback: function(records, operation, success) {
+				var healthRecord = self.findRecord(records, 'health');
+				self.store.loadData(healthRecord.data.summary);
+				Ext.defer(function() {self.setLoading(false);}, 100);
+			}
+		});*/
+    },
+    
+	findRecord : function(records, chartType) {
+		for(var i = 0 ; i < records.length ; i++) {
+			if(records[i].name == chartType)
+				return records[i];
+		}
+		return null;
+	},
+	
+    healthChart : function() {
+    	var self = this;
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			height : self.height - 5,
+			items : [{
+				xtype: 'chart',
+		        animate: true,
+		        store: this.store,
+				width : 245,
+				height : self.height - 20,
+		        shadow: false,
+		        legend: {
+		            position: 'bottom',
+		            labelFont : '6px',
+		            boxStroke : '#cfcfcf'
+		        },
+		        insetPadding: 10,
+		        theme: 'Base:gradients',
+		        series: [{
+		            type: 'pie',
+		            field: 'value',
+		            showInLegend: true,
+		            donut: false,
+		            tips: {
+		              trackMouse: true,
+		              width: 140,
+		              height: 25,
+		              renderer: function(storeItem, item) {
+		            	  var total = 0;
+		            	  self.store.each(function(rec) {
+		            		  total += rec.get('value');
+		            	  });
+		            	  var name = storeItem.get('name');
+		            	  var count = storeItem.get('value');
+		            	  var percent = Math.round(count / total * 100);
+		            	  this.setTitle(name + ' : ' + count + '(' + percent + '%)');
+		              }
+		            },
+		            highlight: {
+		              segment: {
+		                margin: 5
+		              }
+		            },
+		            label: {
+		                field: 'name',
+		                display: 'rotate',
+		                contrast: true,
+		                font: '10px Arial'
+		            }
+		        }]
+			}]
+		}
+	}
+});
+
+Ext.define('GreenFleet.view.portlet.CalendarPortlet', {
+	
+	extend : 'Ext.panel.Panel',
+
+	alias : 'widget.calendar_portlet',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	initComponent : function() {
+		var self = this;
+		this.callParent(arguments);
+		var calendarPanel = this.buildCalendar(self);
+		this.add(calendarPanel);
+	},
+	
+	buildCalendar : function(main) {
+		var calendarStore = Ext.getStore('CalendarStore');
+		var eventStore = Ext.getStore('EventStore');
+		eventStore.load();
+		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
+			calendarStore : calendarStore,
+	        eventStore: eventStore,
+	        flex : 1,
+	        readOnly : true,
+			showDayView : false,
+			showMultiDayView : false,
+			showMonthView : false,
+			showMultiWeekView : false
+	    });		
+		return calendar;
+	}
+});
+Ext.define('GreenFleet.view.portlet.GridC1Portlet', {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.grid_c1_portlet',    
+    store : Ext.create('Ext.data.ArrayStore', {
+		fields: [ {name : 'vehicle_id', type : 'string' }, 
+		          {name : 'consumable_item', type : 'string' },
+		          {name : 'health_rate', type : 'float' },
+		          {name : 'status', type : 'string' } ], data: []}),
+    stripeRows: true,
+    columnLines: true,
+    columns: [{
+        text     : T('label.vehicle'),
+        width    : 50,
+        sortable : true,
+        dataIndex: 'vehicle_id'
+    },{
+        text     : T('label.consumable_item'),
+        width    : 100,
+        sortable : true,
+        dataIndex: 'consumable_item'
+    },{
+        text     : T('label.health_rate'),
+        width    : 60,
+        sortable : true,
+        dataIndex: 'health_rate',
+        renderer : function(val) {
+        	return (Ext.util.Format.number(val * 100, '00')) + ('%');
+        }
+    },{
+        text     : T('label.status'),
+        width    : 70,
+        sortable : true,
+        dataIndex: 'status',
+        renderer : function(val) {
+        	return T('label.' + val);
+        }
+    }],
+    initComponent: function() {
+    	var self = this;
+        this.callParent(arguments);        
+        this.reload();
+    },
+    reload : function() {
+    	var self = this;
+    	this.setLoading(true);
+    	Ext.Ajax.request({
+		    url: '/vehicle_consumable/by_health_rate',
+		    method : 'GET',
+		    params : { health_rate : 0.98 },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+					self.store.loadData(records);
+					Ext.defer(function() {self.setLoading(false);}, 100);
+					
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});    	
+    },    
+});
+
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -15925,7 +17036,7 @@ Ext.define('GreenFleet.store.VehicleGroupCountStore', {
 	pageSize : 10,
 	
 	fields : [ {
-		name : 'name',
+		name : 'id',
 		type : 'string'
 	}, {
 		name : 'expl',
@@ -16045,7 +17156,10 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
 	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
 	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule' ],
+	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule',
+	          'overview.Overview', 'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 
+	          'portlet.GridI1Portlet', 'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 
+	          'portlet.ChartV2Portlet', 'portlet.CalendarPortlet', 'portlet.GridC1Portlet' ],
 
 	init : function() {
 		this.control({

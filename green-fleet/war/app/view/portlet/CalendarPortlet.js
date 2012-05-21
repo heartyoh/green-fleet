@@ -1,29 +1,12 @@
-Ext.define('GreenFleet.view.management.Schedule', {
-	extend : 'Ext.container.Container',
+Ext.define('GreenFleet.view.portlet.CalendarPortlet', {
+	
+	extend : 'Ext.panel.Panel',
 
-	alias : 'widget.management_schedule',
-
-	title : T('titla.schedule'),
-
-	entityUrl : 'task',
-
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
-	importUrl : 'task/import',
-
-	afterImport : function() {
-		this.sub('grid').store.load();
-		this.sub('form').getForm().reset();
-	},
+	alias : 'widget.calendar_portlet',
 
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
-	},
-
-	items : {
-		html : "<div class='listTitle'>" + T('title.schedule') + "</div>"
 	},
 
 	initComponent : function() {
@@ -40,7 +23,12 @@ Ext.define('GreenFleet.view.management.Schedule', {
 		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
 			calendarStore : calendarStore,
 	        eventStore: eventStore,
-	        flex : 1
+	        flex : 1,
+	        readOnly : true,
+			showDayView : false,
+			showMultiDayView : false,
+			showMonthView : false,
+			showMultiWeekView : false
 	    });		
 		return calendar;
 	}

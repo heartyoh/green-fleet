@@ -367,14 +367,30 @@ public class ConsumableService extends HistoricEntityService {
 		}
 	}
 	
+	@RequestMapping(value = "/vehicle_consumable/by_health_rate", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> upcommingReplaceList(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		Key companyKey = this.getCompanyKey(request);
+		String healthRateStr = request.getParameter("health_rate");
+		List<Entity> consumables = this.findConsumablesToReplace(companyKey, DataUtils.toFloat(healthRateStr));
+		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+		String[] selects = new String[] { "vehicle_id", "consumable_item", "status", "health_rate" };
+		for(Entity consumable : consumables) {
+			Map<String, Object> item = SessionUtils.cvtEntityToMap(consumable, selects);
+			items.add(item);
+		}		
+		return this.packResultDataset(true, consumables.size(), items);
+	}
+	
 	@RequestMapping(value = "/vehicle_consumable/alarm", method = RequestMethod.GET)
 	public @ResponseBody
 	String alarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Key companyKey = this.getCompanyKey(request);
 		
-		// 1. 오늘 기준으로 앞 뒤로 하루를 주어 소모품 교체 리스트를 조회 
-		List<Entity> consumables = this.findConsumablesToReplace(companyKey);
+		// 조건은 health rate가 0.98 이상인 것들 대상으로 조회 
+		List<Entity> consumables = this.findConsumablesToReplace(companyKey, 0.98f);
 		
 		if(DataUtils.isEmpty(consumables))
 			return this.getResultMsg(true, "No consumable to replace exist!");
@@ -543,12 +559,15 @@ public class ConsumableService extends HistoricEntityService {
 	 * @param companyKey
 	 * @return
 	 */
-	private List<Entity> findConsumablesToReplace(Key companyKey) {
+	private List<Entity> findConsumablesToReplace(Key companyKey, float healthRate) {
+		
+		if(healthRate == 0)
+			healthRate = 0.98f;
 		
 		Query q = new Query(this.getEntityName());
 		q.setAncestor(companyKey);
 		
-		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, 0.98f);
+		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, healthRate);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		

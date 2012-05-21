@@ -274,6 +274,65 @@ public abstract class JdbcEntityService {
 	}
 	
 	/**
+	 * query, param으로 카운트를 조회하여 리턴, connection은 닫지 않고 리턴 
+	 *  
+	 * @param conn
+	 * @param query count query
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	protected int count(Connection conn, String query, Map<Integer, Object> params) throws Exception {
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int count = 0;
+		
+		try {
+			pstmt = conn.prepareStatement(query);
+			this.setParameters(pstmt, params);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				count = rs.getInt(1);
+			}
+			
+		} catch (Exception e) {
+			logger.error("Failed to executeQuery!", e);
+			throw e;
+			
+		} finally {
+			this.closeDB(rs, pstmt);
+		}
+		
+		return count;
+	}
+	
+	/**
+	 * query, param으로 카운트를 조회하여 리턴, connection을 새로 얻어서 실행 후 닫고 리턴 
+	 * 
+	 * @param query
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	protected int count(String query, Map<Integer, Object> params) throws Exception {
+		
+		Connection conn = null;
+		try {
+			conn = this.getConnection();
+			return this.count(conn, query, params);
+			
+		} catch (Exception e) {
+			logger.error("Failed to execute!", e);
+			throw e;
+			
+		} finally {
+			this.closeDB(conn);
+		}		
+	}
+	
+	/**
 	 * query를 params 파라미터를 적용하여 실행한다. 실행 후 Connection을 닫지 않는다.  
 	 * 
 	 * @param conn
@@ -369,7 +428,7 @@ public abstract class JdbcEntityService {
 	 */
 	protected void execute(String query, Map<Integer, Object> params) throws Exception {
 		
-		Connection conn = null;		
+		Connection conn = null;
 		try {
 			conn = this.getConnection();
 			this.execute(conn, query, params);

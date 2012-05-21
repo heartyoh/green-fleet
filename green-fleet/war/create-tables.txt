@@ -1,41 +1,37 @@
 -- vehicle group
 CREATE TABLE vehicle_group (
-	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, 
 	company VARCHAR(50) NOT NULL, 
-	name VARCHAR(50) NOT NULL, 
+	id VARCHAR(50) NOT NULL, 
 	expl VARCHAR(2000), 
 	created_at DATETIME, 
 	updated_at DATETIME, 
-	PRIMARY KEY(id)
+	PRIMARY KEY(company, id)
 ) DEFAULT CHARSET=utf8;
 
 -- vehicle relation
 CREATE TABLE vehicle_relation (
-	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, 
 	company VARCHAR(50) NOT NULL, 
 	vehicle_id VARCHAR(50) NOT NULL, 
-	group_id BIGINT NOT NULL, 
-	PRIMARY KEY(id)
+	group_id VARCHAR(50) NOT NULL, 
+	PRIMARY KEY(company, vehicle_id, group_id)
 ) DEFAULT CHARSET=utf8;
 
 -- driver group
 CREATE TABLE driver_group (
-	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, 
 	company VARCHAR(50) NOT NULL, 
-	name VARCHAR(50) NOT NULL, 
+	id VARCHAR(50) NOT NULL, 
 	expl VARCHAR(2000), 
 	created_at DATETIME, 
 	updated_at DATETIME, 
-	PRIMARY KEY(id)
+	PRIMARY KEY(company, id)
 ) DEFAULT CHARSET=utf8;
 
 -- driver relation
 CREATE TABLE driver_relation (
-	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, 
 	company VARCHAR(50) NOT NULL, 
 	driver_id VARCHAR(50) NOT NULL, 
-	group_id BIGINT NOT NULL, 
-	PRIMARY KEY(id)
+	group_id VARCHAR(50) NOT NULL,
+	PRIMARY KEY(company, driver_id, group_id)
 ) DEFAULT CHARSET=utf8;
 
 -- location
@@ -142,8 +138,8 @@ CREATE TABLE task (
 	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, 
 	company VARCHAR(50) NOT NULL,
 	title VARCHAR(100) NOT NULL,
-	start_date DATE NOT NULL,
-	end_date DATE NOT NULL,
+	start_date DATETIME NOT NULL,
+	end_date DATETIME NOT NULL,
 	all_day BIT(1),
 	category VARCHAR(20) NOT NULL,	
 	reminder VARCHAR(50),

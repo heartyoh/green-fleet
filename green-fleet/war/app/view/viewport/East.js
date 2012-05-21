@@ -286,13 +286,13 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var self = this;
 		GreenFleet.doMenu('monitor_map');
 		this.sub('search').setValue('');
-		var groupName = button.vehicleGroup.get('name');		
+		var groupId = button.vehicleGroup.get('id');		
 		
 		Ext.Ajax.request({
 			url : '/vehicle_group/vehicles',
 			method : 'GET',
 			params : {
-				vehicle_group_id : groupName,
+				vehicle_group_id : groupId,
 				select_mode : 'vehicle_id_only'
 			},
 			success : function(response) {

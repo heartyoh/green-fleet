@@ -70,7 +70,7 @@ public class VehicleRunSumJdbcService extends JdbcEntityService {
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("vehicle_group"))) {
-			query.append(" and vehicle in (select vehicle_id from vehicle_relation where group_id = (select id from vehicle_group where company = ? and name= ?))");
+			query.append(" and vehicle in (select vehicle_id from vehicle_relation where company = ? and group_id = ?)");
 			queryParams.put(++idx, company);
 			queryParams.put(++idx, request.getParameter("vehicle_group"));
 		}

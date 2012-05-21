@@ -40,6 +40,7 @@ Ext.define('GreenFleet.view.viewport.Center', {
 
 		var self = this;
 
+		Ext.getCmp('menutab').getComponent('overview').hide();
 		Ext.getCmp('menutab').getComponent('monitor_map').hide();
 		Ext.getCmp('menutab').getComponent('information').hide();
 		Ext.getCmp('menutab').getComponent('monitor_incident').hide();
@@ -56,6 +57,25 @@ Ext.define('GreenFleet.view.viewport.Center', {
 	},
 
 	items : [ {
+		xtype : 'overview',
+		itemId : 'overview',
+		listeners : {
+			activate : function(item) {
+				var west = Ext.getCmp('west');
+				var tab = west.getComponent(item.itemId);
+				tab.addClass('active');
+
+				var menutab = Ext.getCmp('menutab');
+				var tab = menutab.getComponent(item.itemId);
+				menutab.setActiveTab(tab);
+			},
+			deactivate : function(item) {
+				var menutab = Ext.getCmp('west');
+				var tab = menutab.getComponent(item.itemId);
+				tab.removeCls('active');
+			}
+		}
+	},{
 		xtype : 'monitor_map',
 		itemId : 'monitor_map',
 		listeners : {

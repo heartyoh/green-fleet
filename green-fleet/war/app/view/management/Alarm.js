@@ -1,5 +1,5 @@
 Ext.define('GreenFleet.view.management.Alarm', {
-	extend : 'Ext.container.Container',
+	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.management_alarm',
 

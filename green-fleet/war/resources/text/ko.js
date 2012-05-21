@@ -6,6 +6,7 @@ T({
 	},
 	
 	menu : {
+		overview : '개요',
 		schedule : '일정',
 		dashboard : '대쉬보드',
 		company : '회사',
@@ -146,7 +147,12 @@ T({
         by_vehicles : '차량 관점',
         by_drivers : '운전자별 관점',
         by_years : '년도 관점',
-	},	
+	},
+	
+	portlet : {
+		latest_incident_x : '최근 {x}건 사고 이력',
+		upcomming_x_replacement : '교체 {x} 리스트',
+	},
 	
 	tab : {
 		info_by_vehicle : '차량별 정보',

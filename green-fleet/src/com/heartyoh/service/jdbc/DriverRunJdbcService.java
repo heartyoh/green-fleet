@@ -74,7 +74,7 @@ public class DriverRunJdbcService extends JdbcEntityService {
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("driver_group"))) {
-			query.append(" and driver in (select driver_id from driver_relation where group_id = (select id from driver_group where company = ? and name= ?))");
+			query.append(" and driver in (select driver_id from driver_relation where company = ? and group_id = ?)");
 			queryParams.put(++idx, company);
 			queryParams.put(++idx, request.getParameter("driver_group"));
 		}

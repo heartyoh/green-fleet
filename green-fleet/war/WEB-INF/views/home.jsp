@@ -16,8 +16,9 @@
 		<title>Green Fleet</title>
 
 		<link rel="stylesheet" href="resources/css/ext-greenfleet.css"></link>
-		<link rel="stylesheet" href="resources/css/greenfleet.css"></link>
+		<link rel="stylesheet" href="resources/css/greenfleet.css"/>
     	<link rel="stylesheet" href="resources/css/calendar-all.css" />
+    	<link rel="stylesheet" href="resources/css/greenfleet-portal.css" />
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>
 		<script src="lib/label/label.js"></script>

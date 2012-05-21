@@ -6,6 +6,7 @@ T({
 	},
 	
 	menu : {
+		overview : 'Overview',
 		schedule : 'Schedule',
 		dashboard : 'Dashboard',
 		company : 'Company',
@@ -147,6 +148,11 @@ T({
         by_drivers : 'By Drivers',
         by_years : 'By Year',
 	},
+	
+	portlet : {
+		latest_incident_x : 'Latest Incident ({x} count)',
+		upcomming_x_replacement : 'Upcomming {x} replacement'
+	},	
 	
 	tab : {
 		info_by_vehicle : 'Information By Vehicle',

@@ -6,6 +6,7 @@ package com.heartyoh.service.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,31 +52,25 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		Long id = DataUtils.toLong(request.getParameter("key"));
 		response.setContentType("text/html; charset=UTF-8");
+		String id = request.getParameter("key");		
+		Connection conn = null;
 		
 		try {
 			conn = this.getConnection();
-			pstmt1 = conn.prepareStatement("delete from driver_relation where group_id = ?");
-			pstmt1.setLong(1, id);
-			pstmt1.execute();
+			Map<Integer, Object> params = DataUtils.newParams(this.getCompany(request), id);
+			super.execute(conn, "delete from driver_relation where company = ? and group_id = ?", params);
+			super.execute(conn, "delete from driver_group where company = ? and id = ?", params);
 			
-			pstmt2 = conn.prepareStatement("delete from driver_group where id = ?");
-			pstmt2.setLong(1, id);
-			pstmt2.execute();
-			
-		} catch (Exception e) {
-			logger.error("Failed to delete Driver Group [" + this.getCompany(request) + "," + id + "]!", e);
+		} catch(Exception e) {
+			logger.error("Failed to delete driver group [" + id + "]", e);
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + id + "\" }";
 			
 		} finally {
-			super.closeDB(pstmt1, pstmt2, conn);
-		}		
+			super.closeDB(conn);
+		}
 				
-		return "{ \"success\" : true, \"msg\" : \"DriverGroup destroyed!\", \"key\" : \"" + id + "\" }";
+		return "{ \"success\" : true, \"msg\" : \"Driver Group destroyed!\", \"key\" : \"" + id + "\" }";
 	}
 
 	@RequestMapping(value = {"/driver_group", "/m/data/driver_group.json"}, method = RequestMethod.GET)
@@ -85,25 +80,27 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		String company = this.getCompany(request);
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		
 		try {
 			conn = this.getConnection();
 			pstmt = conn.prepareStatement("select * from driver_group where company = ?");
-			pstmt.setString(1, this.getCompany(request));
+			pstmt.setString(1, company);
 			rs = pstmt.executeQuery();		
 		
 			while(rs.next()) {
-				Map<String, Object> record = new HashMap<String, Object>();				
-				record.put("key", rs.getLong("id"));
-				record.put("id", rs.getString("name"));
+				Map<String, Object> record = new HashMap<String, Object>();
+				String id = rs.getString("id");
+				record.put("key", id);
+				record.put("id", id);
 				record.put("desc", rs.getString("expl"));
 				record.put("created_at", rs.getTimestamp("created_at"));
 				record.put("updated_at", rs.getTimestamp("updated_at"));
 				items.add(record);
 			}
 		} catch (Exception e) {
-			logger.error("Failed to list Driver Group [" + this.getCompany(request) + "]", e);
+			logger.error("Failed to list Driver Group [" + company + "]", e);
 			return this.getResultSet(false, 0, null);
 			
 		} finally {
@@ -113,48 +110,73 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 		return this.getResultSet(true, items.size(), items); 
 	}
 	
+	@RequestMapping(value = "/driver_group/group_count" , method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> groupCount(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
+		
+		try {
+			conn = this.getConnection();
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery("select vg.id, vg.expl, count(vr.group_id) from driver_relation vr, driver_group vg where vg.company = '" + this.getCompany(request) + "' and vr.group_id = vg.id group by vr.group_id");
+		
+			while(rs.next()) {
+				Map<String, Object> record = new HashMap<String, Object>();
+				record.put("id", rs.getString(1));
+				record.put("expl", rs.getString(2));
+				record.put("count", rs.getInt(3));
+				items.add(record);
+			}
+		} catch (Exception e) {
+			logger.error("Failed to list Driver Group Count", e);
+			return this.getResultSet(false, 0, null);
+			
+		} finally {
+			super.closeDB(rs, stmt, conn);
+		}
+		
+		return this.getResultSet(true, items.size(), items); 		
+	}	
+	
 	@RequestMapping(value = "/driver_group/drivers", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieveDriversByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		String company = this.getCompany(request);
+		String groupId = request.getParameter("driver_group_id");
+		int page = DataUtils.toInt(request.getParameter("page"));
+		int limit = DataUtils.toInt(request.getParameter("limit"));
+		int total = 0;
+		List<Map<String, Object>> items = null;
+		List<String> driverIdList = new ArrayList<String>();
+
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		List<Map<String, Object>> items = null;		
-		List<String> driverIdList = new ArrayList<String>();		
-		int total = 0;
-		
-		String company = this.getCompany(request);
-		String groupName = request.getParameter("driver_group_id");
-		int page = DataUtils.toInt(request.getParameter("page"));
-		int limit = DataUtils.toInt(request.getParameter("limit"));
 		
 		try {
 			conn = this.getConnection();
-			pstmt = conn.prepareStatement("select count(*) from driver_group vg, driver_relation vr where vg.id = vr.group_id and vg.company = ? and vg.name = ?");
-			pstmt.setString(1, company);
-			pstmt.setString(2, groupName);			
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				total = rs.getInt(1);
-			}
+			String query = "select count(*) from driver_relation where company = ? and group_id = ?";
+			Map<Integer, Object> params = DataUtils.newParams(company, groupId);
+			total = super.count(query, params);
 			
-			rs.close();
-			pstmt.close();			
-			
-			pstmt = conn.prepareStatement("select vr.driver_id from driver_group vg, driver_relation vr where vg.id = vr.group_id and vg.company = ? and vg.name = ? limit ?, ?");
+			pstmt = conn.prepareStatement("select driver_id from driver_relation where company = ? and group_id = ? limit ?, ?");
 			pstmt.setString(1, company);
-			pstmt.setString(2, groupName);
+			pstmt.setString(2, groupId);
 			pstmt.setInt(3, (page - 1) * limit);
 			pstmt.setInt(4, (page * limit));
-			rs = pstmt.executeQuery();			
+			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
 				driverIdList.add(rs.getString("driver_id"));
 			}
 						
 		} catch (Exception e) {
-			logger.error("Failed to list drivers by driver group [" + groupName + "]", e);
+			logger.error("Failed to list drivers by driver group [" + groupId + "]", e);
 			return this.getResultSet(false, 0, null);
 			
 		} finally {
@@ -169,27 +191,31 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String find(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		response.setContentType("text/html; charset=UTF-8");
+		String company = this.getCompany(request);
+		String id = request.getParameter("key");
+		Map<String, Object> result = new HashMap<String, Object>();		
+		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		Long id = DataUtils.toLong(request.getParameter("key"));
-		Map<String, Object> result = new HashMap<String, Object>();
-		response.setContentType("text/html; charset=UTF-8");
+		ResultSet rs = null;		
 		
 		try {
 			conn = this.getConnection();
-			pstmt = conn.prepareStatement("select * from driver_group where id = ?");
-			pstmt.setLong(1, id);
+			pstmt = conn.prepareStatement("select * from driver_group where company = ? and id = ?");
+			pstmt.setString(1, company);
+			pstmt.setString(2, id);
 			rs = pstmt.executeQuery();
 		
 			while(rs.next()) {
-				result.put("key", rs.getLong("id"));
-				result.put("company", rs.getString("company"));
-				result.put("id", rs.getString("name"));
+				result.put("key", id);
+				result.put("id", id);
 				result.put("desc", rs.getString("expl"));
 				result.put("created_at", rs.getTimestamp("created_at"));
 				result.put("updated_at", rs.getTimestamp("updated_at"));
+				result.put("success", true);
 			}
+
 		} catch (Exception e) {
 			logger.error("Failed to find driver group [" + id + "]", e);
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + id + "\" }";
@@ -204,40 +230,31 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 	@RequestMapping(value = "/driver_group/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		String key = request.getParameter("key");
+				
+		String company = this.getCompany(request);
+		String id = request.getParameter("key");		
 		java.sql.Timestamp now = new java.sql.Timestamp(new java.util.Date().getTime());
 		response.setContentType("text/html; charset=UTF-8");
+		Connection conn = null;
 		
 		try {
-			conn = this.getConnection();
+			conn = this.getConnection();			
 			
-			if(!DataUtils.isEmpty(key)) {
-				pstmt = conn.prepareStatement("update driver_group set name = ?, expl = ?, updated_at = ? where id = ?");
-				pstmt.setString(1, request.getParameter("id"));
-				pstmt.setString(2, request.getParameter("desc"));
-				pstmt.setTimestamp(3, now);
-				pstmt.setLong(4, DataUtils.toLong(key));
+			if(!DataUtils.isEmpty(id)) {
+				Map<Integer, Object> params = DataUtils.newParams(request.getParameter("desc"), now, company, id);
+				this.execute("update driver_group set expl = ?, updated_at = ? where company = ? and id = ?", params);
 				
 			} else {
-				pstmt = conn.prepareStatement("insert into driver_group(company, name, expl, created_at, updated_at) values (?, ?, ?, ?, ?)");
-				pstmt.setString(1, this.getCompany(request));
-				pstmt.setString(2, request.getParameter("id"));
-				pstmt.setString(3, request.getParameter("desc"));
-				pstmt.setTimestamp(4, now);
-				pstmt.setTimestamp(5, now);
-			}
-			
-			pstmt.execute();
+				Map<Integer, Object> params = DataUtils.newParams(company, request.getParameter("id"), request.getParameter("desc"), now, now);
+				this.execute("insert into driver_group(company, id, expl, created_at, updated_at) values (?, ?, ?, ?, ?)", params);				
+			}			
 						
 		} catch (Exception e) {
 			logger.error("Failed to save driver group", e);
 			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
 			
 		} finally {
-			super.closeDB(pstmt, conn);
+			super.closeDB(conn);
 		}
 		
 		return "{\"success\" : true, \"msg\" : \"Succeeded to save!\"}";
@@ -247,53 +264,37 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String saveRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		PreparedStatement pstmt3 = null;
-		ResultSet rs = null;
+		String[] driverIdArr = request.getParameterValues("driver_id");
+		
+		if(driverIdArr == null || driverIdArr.length == 0)
+			return "{\"success\" : false, \"msg\" : \"No driver selected to save!\"}";
 		
 		String company = this.getCompany(request);
-		String groupName = request.getParameter("driver_group_id");
-		String[] driverIdArr = request.getParameterValues("driver_id");
+		String groupId = request.getParameter("driver_group_id");		
 		response.setContentType("text/html; charset=UTF-8");
+
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		
 		try {
 			conn = this.getConnection();
-			
-			pstmt1 = conn.prepareStatement("select id from driver_group where company = ? and name = ?");
-			pstmt1.setString(1, company);
-			pstmt1.setString(2, groupName);
-			rs = pstmt1.executeQuery();
-			long groupId = 0;
-			
-			if(rs.next()) {
-				groupId = rs.getLong("id");
-			} else {
-				throw new Exception("Vehicle group name [" + groupName + "] Not Found!");
-			}
-			
-			pstmt2 = conn.prepareStatement("delete from driver_relation where company = ? and group_id = ?");
-			pstmt2.setString(1, company);
-			pstmt2.setLong(2, groupId);
-			pstmt2.execute();
-			
-			pstmt3 = conn.prepareStatement("insert into driver_relation(company, driver_id, group_id) values (?, ?, ?)");
+			// TODO 이미 있는 Relation 정보면 insert문에서 제외 필요 
+			pstmt = conn.prepareStatement("insert into driver_relation(company, driver_id, group_id) values (?, ?, ?)");
 			for(int i = 0 ; i < driverIdArr.length ; i++) {				
-				pstmt3.setString(1, company);
-				pstmt3.setString(2, driverIdArr[i]);
-				pstmt3.setLong(3, groupId);
-				pstmt3.addBatch();
-			}
-			
-			pstmt3.executeBatch();
+				pstmt.setString(1, company);
+				pstmt.setString(2, driverIdArr[i]);
+				pstmt.setString(3, groupId);
+				pstmt.addBatch();
+			}			
+			pstmt.executeBatch();
 			
 		} catch (Exception e) {
 			logger.error("Failed to save driver group relation", e);
 			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
 			
 		} finally {
-			super.closeDB(rs, pstmt1, pstmt2, pstmt3, conn);
+			super.closeDB(rs, pstmt, conn);
 		}		
 		
 		return "{\"success\" : true, \"msg\" : \"Succeeded to save relation!\"}";
@@ -303,41 +304,22 @@ public class DriverGroupJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String deleteRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		response.setContentType("text/html; charset=UTF-8");
 		String[] driverIdArr = request.getParameterValues("driver_id");
 		
 		if(driverIdArr == null || driverIdArr.length == 0)
 			return "{\"success\" : false, \"msg\" : \"No driver selected to delete!\"}";
 		
-		String company = this.getCompany(request);
-		String groupName = request.getParameter("driver_group_id");		
-		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		response.setContentType("text/html; charset=UTF-8");
-		
 		try {
-			conn = this.getConnection();
-			StringBuffer driverIds = new StringBuffer();
-			for(int i = 0 ; i < driverIdArr.length ; i++) {
-				if(i > 0)
-					driverIds.append(",");
-				
-				driverIds.append("'").append(driverIdArr[i]).append("'");
-			}
-			
-			pstmt = conn.prepareStatement("delete from driver_relation where company = ? and group_id = (select id from driver_group where company = ? and name = ?) and driver_id in (" + driverIds.toString() + ")");
-			pstmt.setString(1, company);
-			pstmt.setString(2, company);
-			pstmt.setString(3, groupName);
-			pstmt.execute();
+			String driverIds = DataUtils.concat(driverIdArr, "'", "'", ",");
+			Map<Integer, Object> params = DataUtils.newParams(this.getCompany(request), request.getParameter("driver_group_id"));
+			String query = "delete from driver_relation where company = ? and group_id = ? and driver_id in (" + driverIds + ")";
+			super.execute(query, params);
 			
 		} catch (Exception e) {
 			logger.error("Failed to delete driver relation", e);
-			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
-			
-		} finally {
-			super.closeDB(pstmt, conn);
-		}		
+			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";			
+		} 	
 		
 		return "{\"success\" : true, \"msg\" : \"Succeeded to delete relation!\"}";
 	}	

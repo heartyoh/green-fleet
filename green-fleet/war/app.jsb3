@@ -262,6 +262,54 @@
                     "name": "Schedule.js"
                 },
                 {
+                    "path": "app/view/overview/",
+                    "name": "Overview.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "Portlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "PortalPanel.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "PortalColumn.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "PortalDropZone.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "GridI1Portlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "GridVG1Portlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "GridDG1Portlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "ChartV1Portlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "ChartV2Portlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "CalendarPortlet.js"
+                },
+                {
+                    "path": "app/view/portlet/",
+                    "name": "GridC1Portlet.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
