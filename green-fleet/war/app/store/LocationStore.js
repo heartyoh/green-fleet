@@ -3,8 +3,10 @@ Ext.define('GreenFleet.store.LocationStore', {
 
 	storeId : 'location_store',
 		
-	fields : [ 
-		{
+	fields : [ {
+			name : 'key',
+			type : 'string' 
+	    }, {
 			name : 'name',
 			type : 'string'
 		}, {

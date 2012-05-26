@@ -5,6 +5,9 @@ Ext.define('GreenFleet.store.AlarmStore', {
 	
 	fields : [ 
 	    {
+			name : 'key',
+			type : 'string'	          
+	    }, {
 			name : 'name',
 			type : 'string'
 		}, {
@@ -27,12 +30,12 @@ Ext.define('GreenFleet.store.AlarmStore', {
 			type : 'boolean'
 		}, {
 			name : 'from_date',
-			type : 'date',
-			dateFormat:'time'
+			type : 'string',
+			//dateFormat:'time'
 		}, {
 			name : 'to_date',
-			type : 'date',
-			dateFormat:'time'
+			type : 'string',
+			//dateFormat:'time'
 		}, {
 			name : 'vehicles',
 			type : 'string'

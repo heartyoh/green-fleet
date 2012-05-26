@@ -25,6 +25,21 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class ReportJdbcService extends JdbcEntityService {
 
+	/**
+	 * key names
+	 */
+	private static final String TABLE_NAME = "report";	
+	
+	@Override
+	protected String getTableName() {
+		return TABLE_NAME;
+	}
+	
+	@Override
+	protected Map<String, String> getColumnSvcFieldMap() {
+		return null;
+	}
+
 	@RequestMapping(value = "/report/vehicle_group", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> vehicleGroupSummary(HttpServletRequest request, HttpServletResponse response) throws Exception {

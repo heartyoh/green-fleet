@@ -29,17 +29,35 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class DriverRunJdbcService extends JdbcEntityService {
 	
+	/**
+	 * key names
+	 */
+	private static final String TABLE_NAME = "driver_run_sum";	
+	/**
+	 * select columns
+	 */
 	private static String[] SELECT_COLUMNS = new String[] { 
-							"driver", "year", "month", "month_str", "run_time", "run_dist", 
-							"consmpt", "co2_emss", "effcc", "sud_accel_cnt", "sud_brake_cnt", "eco_drv_time", 
-							"ovr_spd_time", "inc_cnt", "spd_lt10", "spd_lt20", "spd_lt30", "spd_lt40", 
-							"spd_lt50", "spd_lt60", "spd_lt70", "spd_lt80", "spd_lt90", "spd_lt100", 
-							"spd_lt110", "spd_lt120", "spd_lt130", "spd_lt140", "spd_lt150", "spd_lt160" };
+		"driver", "year", "month", "month_str", "run_time", "run_dist", 
+		"consmpt", "co2_emss", "effcc", "sud_accel_cnt", "sud_brake_cnt", "eco_drv_time", 
+		"ovr_spd_time", "inc_cnt", "spd_lt10", "spd_lt20", "spd_lt30", "spd_lt40", 
+		"spd_lt50", "spd_lt60", "spd_lt70", "spd_lt80", "spd_lt90", "spd_lt100", 
+		"spd_lt110", "spd_lt120", "spd_lt130", "spd_lt140", "spd_lt150", "spd_lt160" };	
+	
+	
+	@Override
+	protected String getTableName() {
+		return TABLE_NAME;
+	}
+	
+	@Override
+	protected Map<String, String> getColumnSvcFieldMap() {		
+		return null;
+	}
 
 	@RequestMapping(value = "/driver_run/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		return super.imports("driver_run_sum", request, response);
+		return super.imports(request, response);
 	}
 	
 	@RequestMapping(value = {"/driver_run", "/m/data/driver_run.json"}, method = RequestMethod.GET)

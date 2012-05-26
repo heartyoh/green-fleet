@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,39 +40,48 @@ import com.heartyoh.util.DatastoreUtils;
 @Controller
 public class AlarmJdbcService extends JdbcEntityService {
 	
+	/**
+	 * 
+	 */
 	private static final Logger logger = LoggerFactory.getLogger(AlarmJdbcService.class);
+	/**
+	 * key names
+	 */
+	private static final String TABLE_NAME = "alarm";
+	
+	@Override
+	protected String getTableName() {
+		return TABLE_NAME;
+	}
+	
+	@Override
+	protected Map<String, String> getColumnSvcFieldMap() {
+		return null;
+	}
 
 	@RequestMapping(value = "/alarm/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		return super.imports("alarm", request, response);
+		return super.imports(request, response);
 	}
 	
 	@RequestMapping(value = "/alarm/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
+		response.setContentType(CONTENT_TYPE);
 		String company = this.getCompany(request);
-		String name = request.getParameter("name");
-		response.setContentType("text/html; charset=UTF-8");
+		String name = request.getParameter("name");		
+		Connection conn = null;
 		
 		try {
 			conn = this.getConnection();
-			
+			Map<Integer, Object> params = DataUtils.newParams(company, name);
 			// 1. alarm 삭제 
-			pstmt1 = conn.prepareStatement("delete from alarm where company = ? and name = ?");
-			pstmt1.setString(1, company);
-			pstmt1.setString(2, name);
-			pstmt1.execute();
+			super.execute(conn, "delete from alarm where company = ? and name = ?", params);
 			
 			// 2. alarm & vehicle relation 삭제 
-			pstmt2 = conn.prepareStatement("delete from alarm_vehicle_relation where company = ? and alarm_name = ?");
-			pstmt2.setString(1, company);
-			pstmt2.setString(2, name);
-			pstmt2.execute();
+			super.execute(conn, "delete from alarm_vehicle_relation where company = ? and alarm_name = ?", params);
 			
 			// 3. lba status 삭제
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -84,7 +92,7 @@ public class AlarmJdbcService extends JdbcEntityService {
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + name + "\" }";
 			
 		} finally {
-			super.closeDB(pstmt1, pstmt2, conn);
+			super.closeDB(conn);
 		}		
 				
 		return "{ \"success\" : true, \"msg\" : \"Alarm destroyed!\", \"key\" : \"" + name + "\" }";
@@ -93,132 +101,50 @@ public class AlarmJdbcService extends JdbcEntityService {
 	@RequestMapping(value = {"/alarm", "/m/data/alarm.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		int total = 0;
-		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
-		String company = this.getCompany(request);
-		int page = DataUtils.toInt(request.getParameter("page"));
-		int limit = DataUtils.toInt(request.getParameter("limit"));
-		
-		try {
-			conn = this.getConnection();
-			pstmt = conn.prepareStatement("select count(*) from alarm where company = ?");
-			pstmt.setString(1, company);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				total = rs.getInt(1);
-			}
-			
-			rs.close();
-			pstmt.close();
-			
-			pstmt = conn.prepareStatement("select * from alarm where company = ? limit ?, ?");
-			pstmt.setString(1, company);
-			pstmt.setInt(2, (page - 1) * limit);
-			pstmt.setInt(3, page * limit);
-			rs = pstmt.executeQuery();
-		
-			while(rs.next()) {
-				Map<String, Object> record = new HashMap<String, Object>();
-				record.put("name", rs.getString("name"));
-				record.put("type", rs.getString("type"));
-				record.put("evt_type", rs.getString("evt_type"));
-				record.put("evt_name", rs.getString("evt_name"));
-				record.put("evt_trg", rs.getString("evt_trg"));
-				record.put("always", rs.getBoolean("always"));
-				record.put("enabled", rs.getBoolean("enabled"));
-				record.put("from_date", rs.getDate("from_date"));
-				record.put("to_date", rs.getDate("to_date"));
-				record.put("dest", rs.getString("dest"));
-				record.put("msg", rs.getString("msg"));
-				record.put("created_at", rs.getTimestamp("created_at"));
-				record.put("updated_at", rs.getTimestamp("updated_at"));
-				items.add(record);
-			}
-		} catch (Exception e) {
-			logger.error("Failed to list alarm [" + company + "]", e);
-			return this.getResultSet(false, 0, null);
-			
-		} finally {
-			super.closeDB(rs, pstmt, conn);
-		}
-		
-		return this.getResultSet(true, total, items); 
+		Map<String, Object> params = super.parseFilters(request.getParameter("filter"));
+		params.put("company", this.getCompany(request));		
+		return super.retrieve(false, params, request, response);		
 	}
 	
 	@RequestMapping(value = "/alarm/find", method = RequestMethod.GET)
 	public @ResponseBody
 	String find(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		response.setContentType(CONTENT_TYPE);
 		String company = this.getCompany(request);
 		String name = request.getParameter("name");
-		Map<String, Object> record = new HashMap<String, Object>();
-		response.setContentType("text/html; charset=UTF-8");
+		Connection conn = null;
 		
 		try {
 			conn = this.getConnection();
-			pstmt = conn.prepareStatement("select * from alarm where company = ? and name = ?");
-			pstmt.setString(1, company);
-			pstmt.setString(2, name);
-			rs = pstmt.executeQuery();
-		
-			if(rs.next()) {
-				record.put("name", rs.getString("name"));
-				record.put("type", rs.getString("type"));
-				record.put("evt_type", rs.getString("evt_type"));
-				record.put("evt_name", rs.getString("evt_name"));
-				record.put("evt_trg", rs.getString("evt_trg"));
-				record.put("always", rs.getBoolean("always"));
-				record.put("enabled", rs.getBoolean("enabled"));
-				record.put("from_date", rs.getDate("from_date"));
-				record.put("to_date", rs.getDate("to_date"));
-				record.put("dest", rs.getString("dest"));
-				record.put("msg", rs.getString("msg"));
-				record.put("created_at", rs.getTimestamp("created_at"));
-				record.put("updated_at", rs.getTimestamp("updated_at"));
-				record.put("success", true);
+
+			Map<Integer, Object> params = DataUtils.newParams(company, name);
+			String query = "select * from alarm where company = ? and name = ?";
+			Map<String, Object> record = this.executeSingleQuery(conn, query, params);
+						
+			if(record.isEmpty()) {
+				return "{ \"success\" : false, \"msg\" : \"Not found alarm!\", \"key\" : \"" + name + "\" }";
 			}
 			
-			pstmt.close();
-			rs.close();
+			query = "select vehicle_id from alarm_vehicle_relation where company = ? and alarm_name = ?";
+			List<Map<String, Object>> vehicleIds = this.executeQuery(conn, query, params);				
+			StringBuffer vehicleIdStr = new StringBuffer();
+			int idx = 0;
 			
-			if(!record.isEmpty()) {
-				pstmt = conn.prepareStatement("select vehicle_id from alarm_vehicle_relation where company = ? and alarm_name = ?");
-				pstmt.setString(1, company);
-				pstmt.setString(2, name);
-				rs = pstmt.executeQuery();
-				StringBuffer vehicleIds = new StringBuffer();
-				boolean isFirst = true;
-				
-				while(rs.next()) {
-					if(isFirst) {
-						isFirst = false;
-					} else {
-						vehicleIds.append(",");
-					}
-					
-					vehicleIds.append(rs.getString(1));
-				}
-				
-				record.put("vehicles", vehicleIds.toString());
-			}
+			for(Map<String, Object> vehicleMap : vehicleIds)
+				vehicleIdStr.append(idx++ == 0 ? "" : ",").append(vehicleMap.get("vehicle_id"));
+			
+			record.put("vehicles", vehicleIdStr.toString());
+			record.put("success", true);
+			return new ObjectMapper().writeValueAsString(record);
 			
 		} catch (Exception e) {
 			logger.error("Failed to find alarm [" + name + "]", e);
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + name + "\" }";
 			
 		} finally {
-			super.closeDB(rs, pstmt, conn);
-		}
-		
-		return new ObjectMapper().writeValueAsString(record);
+			super.closeDB(conn);
+		}		
 	}
 	
 	@RequestMapping(value = "/alarm/save", method = RequestMethod.POST)
@@ -233,7 +159,7 @@ public class AlarmJdbcService extends JdbcEntityService {
 		String company = this.getCompany(request);
 		String name = request.getParameter("name");
 		java.sql.Timestamp now = new java.sql.Timestamp(new java.util.Date().getTime());
-		response.setContentType("text/html; charset=UTF-8");
+		response.setContentType(CONTENT_TYPE);
 		
 		try {
 			conn = this.getConnection();
@@ -253,8 +179,12 @@ public class AlarmJdbcService extends JdbcEntityService {
 			
 			String fromDateStr = request.getParameter("from_date");
 			String toDateStr = request.getParameter("to_date");
-			java.sql.Date fromDate = DataUtils.isEmpty(fromDateStr) ? null : new java.sql.Date(DataUtils.toDate(fromDateStr).getTime());
-			java.sql.Date toDate = DataUtils.isEmpty(fromDateStr) ? null : new java.sql.Date(DataUtils.toDate(toDateStr).getTime());
+			
+			Date fromUtilDate = DataUtils.isEmpty(fromDateStr) ? null : DataUtils.toDate(fromDateStr);
+			Date toUtilDate = DataUtils.isEmpty(fromDateStr) ? null : DataUtils.toDate(toDateStr);
+			
+			java.sql.Date fromDate = fromUtilDate == null ? null : new java.sql.Date(fromUtilDate.getTime());
+			java.sql.Date toDate = toUtilDate == null ? null : new java.sql.Date(toUtilDate.getTime());
 			
 			// 2. alarm 생성 || 수정 
 			if(!createMode) {
@@ -392,8 +322,13 @@ public class AlarmJdbcService extends JdbcEntityService {
 		lbaStatus.setProperty("evt_trg", alarm.get("evt_trg"));
 		lbaStatus.setProperty("bef_status", "");
 		lbaStatus.setProperty("cur_status", "");
+		
 		// always가 체크되어 있으면 true 아니면 오늘이 from_date, to_date 사이에 있는지 확인 
-		boolean use = (Boolean)alarm.get("always") ? true : DataUtils.between(DataUtils.getToday(), (java.sql.Date)alarm.get("from_date"), (java.sql.Date)alarm.get("to_date"));
+		Date fromDate = (Date)alarm.get("from_date");
+		java.sql.Date sqlFromDate = (fromDate == null) ? null : new java.sql.Date(fromDate.getTime());
+		Date toDate = (Date)alarm.get("to_date");
+		java.sql.Date sqlToDate = (toDate == null) ? null : new java.sql.Date(toDate.getTime());
+		boolean use = (Boolean)alarm.get("always") ? true : DataUtils.between(DataUtils.getToday(), sqlFromDate, sqlToDate);
 		lbaStatus.setProperty("use", use);
 		return lbaStatus;
 	}	
@@ -419,5 +354,5 @@ public class AlarmJdbcService extends JdbcEntityService {
 			keysToDel.add(lbaStatus.getKey());
 		
 		datastore.delete(keysToDel);
-	}	
+	}
 }

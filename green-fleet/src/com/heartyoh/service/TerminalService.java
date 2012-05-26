@@ -24,7 +24,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.SessionUtils;
 
-@Controller
+
 public class TerminalService extends EntityService {
 	private static final Logger logger = LoggerFactory.getLogger(TerminalService.class);
 

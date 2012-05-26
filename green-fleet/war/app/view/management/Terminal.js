@@ -104,8 +104,8 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			}, {
 				dataIndex : 'buying_date',
 				text : T('label.x_date', {x : T('label.buying')}),
-				xtype : 'datecolumn',
-				format : F('date'),
+				//xtype : 'datecolumn',
+				//format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'comment',

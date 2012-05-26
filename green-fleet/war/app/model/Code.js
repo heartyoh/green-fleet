@@ -3,6 +3,6 @@ Ext.define('GreenFleet.model.Code', {
     
     fields: [
         {name: 'code', type: 'string'},
-        {name: 'desc', type: 'number'}
+        {name: 'desc', type: 'string'}
     ]
 });

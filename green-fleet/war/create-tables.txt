@@ -34,6 +34,22 @@ CREATE TABLE driver_relation (
 	PRIMARY KEY(company, driver_id, group_id)
 ) DEFAULT CHARSET=utf8;
 
+-- driver
+CREATE TABLE driver (
+	company VARCHAR(50) NOT NULL,
+	id VARCHAR(50) NOT NULL, 
+	name VARCHAR(50) NOT NULL, 
+	division VARCHAR(50),
+	title VARCHAR(50),
+	social_id VARCHAR(50),
+	phone_no_1 VARCHAR(50),
+	phone_no_2 VARCHAR(50),
+	image_clip VARCHAR(1000),
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(company, id)
+) DEFAULT CHARSET=utf8;
+
 -- location
 CREATE TABLE location (
 	company 	VARCHAR(50) NOT NULL, 
@@ -149,4 +165,79 @@ CREATE TABLE task (
 	rrule VARCHAR(20),
 	PRIMARY KEY(id),
 	INDEX task_idx1 (company, start_date, end_date) 
+) DEFAULT CHARSET=utf8;
+
+-- terminal
+CREATE TABLE terminal (
+	company VARCHAR(50) NOT NULL,
+	id VARCHAR(50) NOT NULL, 
+	serial_no VARCHAR(50) NOT NULL, 
+	buying_date DATE,
+	comment VARCHAR(1000),	
+	image_clip VARCHAR(1000),
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(company, id)
+) DEFAULT CHARSET=utf8;
+
+-- code
+CREATE TABLE common_code (
+	company VARCHAR(50) NOT NULL,	 
+	code_group VARCHAR(50) NOT NULL, 
+	code VARCHAR(50) NOT NULL,
+	expl VARCHAR(2000),
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(company, code_group, code)
+) DEFAULT CHARSET=utf8;
+
+-- consumable_code
+CREATE TABLE consumable_code (
+	company VARCHAR(50) NOT NULL,	 
+	name VARCHAR(50) NOT NULL, 
+	expl VARCHAR(2000),
+	fst_repl_mileage INT,
+	fst_repl_time INT,
+	repl_mileage INT,
+	repl_time INT,
+	repl_unit VARCHAR(30),
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(company, name)
+) DEFAULT CHARSET=utf8;
+		
+-- vehicle
+CREATE TABLE vehicle (
+	company VARCHAR(50) NOT NULL,	 
+	id VARCHAR(50) NOT NULL,
+	driver_id VARCHAR(50),
+	terminal_id VARCHAR(50),
+	reg_no VARCHAR(100) NOT NULL, 
+	manufacturer VARCHAR(2000),
+	vehicle_type VARCHAR(50),
+	fuel_type VARCHAR(50),
+	birth_year INT,
+	ownership_type VARCHAR(50),
+	status VARCHAR(30),
+	health_status VARCHAR(30),
+	run_dist FLOAT(9,1),
+	remain_fuel FLOAT(7,1),
+	lat FLOAT(11,7),
+	lng FLOAT(11,7),
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(company, id)
+) DEFAULT CHARSET=utf8;
+
+CREATE TABLE modules (
+	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
+	name VARCHAR(40) NOT NULL, 
+	category VARCHAR(250),
+	alias VARCHAR(120),
+	description VARCHAR(1000),
+	license VARCHAR(100),
+	version VARCHAR(40),
+	privileged BIT(1),
+	file_path VARCHAR(1000),
+	PRIMARY KEY(id)
 ) DEFAULT CHARSET=utf8;

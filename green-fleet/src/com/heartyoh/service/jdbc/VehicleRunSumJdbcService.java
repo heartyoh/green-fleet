@@ -30,22 +30,42 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class VehicleRunSumJdbcService extends JdbcEntityService {
 
-	private static String[] SELECT_COLUMNS = new String[] { "vehicle", "year", "month", "month_str", "run_time", "run_dist", "consmpt", "co2_emss", "effcc", "oos_cnt", "mnt_cnt", "mnt_time" };
+	/**
+	 * key names
+	 */
+	private static final String TABLE_NAME = "vehicle_run_sum";	
+	/**
+	 * select columns
+	 */
+	private static String[] SELECT_COLUMNS = new String[] { 
+		"vehicle", "year", "month", "month_str", "run_time", 
+		"run_dist", "consmpt", "co2_emss", "effcc", "oos_cnt", 
+		"mnt_cnt", "mnt_time" };	
 	
+	@Override
+	protected String getTableName() {
+		return TABLE_NAME;
+	}
+	
+	@Override
+	protected Map<String, String> getColumnSvcFieldMap() {
+		return null;
+	}
+
 	@RequestMapping(value = "/vehicle_run/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		return super.imports("vehicle_run_sum", request, response);
+		return super.imports(request, response);
 	}
 	
 	@RequestMapping(value = {"/vehicle_run", "/m/data/vehicle_run.json"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		String company = this.getCompany(request);
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		String company = this.getCompany(request);
+		ResultSet rs = null;		
 		
 		int idx = 0;
 		Map<Integer, Object> queryParams = new HashMap<Integer, Object>();
@@ -103,14 +123,7 @@ public class VehicleRunSumJdbcService extends JdbcEntityService {
 			return this.getResultSet(false, 0, null);
 			
 		} finally {
-			if(rs != null)
-				rs.close();
-			
-			if(pstmt != null)
-				pstmt.close();
-						
-			if(conn != null)
-				conn.close();
+			super.closeDB(rs, pstmt, conn);
 		}		
 		
 		return this.getResultSet(true, items.size(), items);

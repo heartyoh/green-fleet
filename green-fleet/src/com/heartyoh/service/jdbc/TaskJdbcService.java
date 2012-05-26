@@ -31,12 +31,25 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class TaskJdbcService extends JdbcEntityService {
 
-	//private static final Logger logger = LoggerFactory.getLogger(TaskJdbcService.class);
+	/**
+	 * key names
+	 */
+	private static final String TABLE_NAME = "task";	
 	
+	@Override
+	protected String getTableName() {
+		return TABLE_NAME;
+	}
+	
+	@Override
+	protected Map<String, String> getColumnSvcFieldMap() {		
+		return null;
+	}
+
 	@RequestMapping(value = "/task/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		return super.imports("task", request, response);
+		return super.imports(request, response);
 	}
 
 	@RequestMapping(value = {"/task", "/m/data/task.json"}, method = RequestMethod.GET)
@@ -92,7 +105,7 @@ public class TaskJdbcService extends JdbcEntityService {
 	public @ResponseBody
 	String find(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		response.setContentType("text/html; charset=UTF-8");			
+		response.setContentType(CONTENT_TYPE);			
 		String query = "select * from task where id = " + id;		
 		List<Map<String, Object>> result = super.executeQuery(query, null);
 		
@@ -196,7 +209,7 @@ public class TaskJdbcService extends JdbcEntityService {
 		@SuppressWarnings("rawtypes")
 		Map paramMap = this.readPayload(request);
 		Object id = paramMap.get("id");
-		response.setContentType("text/html; charset=UTF-8");
+		response.setContentType(CONTENT_TYPE);
 		super.execute("delete from task where id = " + id, null);
 		return "{ \"success\" : true, \"msg\" : \"Task destroyed!\", \"key\" : \"" + id + "\" }";
 	}	

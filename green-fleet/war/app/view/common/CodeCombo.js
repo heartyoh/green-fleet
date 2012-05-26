@@ -18,7 +18,6 @@ Ext.define('GreenFleet.view.common.CodeCombo', {
     initComponent : function() {
     	this.store = Ext.getStore('CodeStore').substore(this.group);
     	this.emptyText = this.fieldLabel;
-
     	this.callParent();
     },
 	

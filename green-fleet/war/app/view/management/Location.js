@@ -1,4 +1,4 @@
-Ext.define('GreenFleet.view.management.Location', {
+	Ext.define('GreenFleet.view.management.Location', {
 	extend : 'Ext.container.Container',
 
 	alias : 'widget.management_location',
@@ -7,9 +7,6 @@ Ext.define('GreenFleet.view.management.Location', {
 
 	entityUrl : 'location',
 
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
 	importUrl : 'location/import',
 
 	afterImport : function() {
@@ -285,6 +282,10 @@ Ext.define('GreenFleet.view.management.Location', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -379,6 +380,10 @@ Ext.define('GreenFleet.view.management.Location', {
 				anchor : '100%'
 			},
 			items : [ {
+				name : 'key',
+				fieldLabel : 'Key',
+				hidden : true
+			}, {
 				name : 'name',
 				fieldLabel : T('label.name')
 			}, {

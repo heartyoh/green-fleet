@@ -7,9 +7,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 
 	entityUrl : 'alarm',
 
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
 	importUrl : 'alarm/import',
 
 	afterImport : function() {
@@ -88,6 +85,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
+				dataIndex : 'kye',
+				type : 'string',
+				hidden : true
+			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -119,13 +120,13 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				dataIndex : 'from_date',
 				text : T('label.from_date'),
 				xtype : 'datecolumn',
-				format : F('datetime'),
+				format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'to_date',
 				text : T('label.to_date'),
 				xtype : 'datecolumn',
-				format : F('datetime'),
+				format : F('date'),
 				width : 120				
 			}, {
 				dataIndex : 'created_at',
@@ -179,6 +180,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				anchor : '100%'
 			},
 			items : [ {
+				name : 'key',
+				hidden : true
+			},
+			{
 				name : 'name',
 				fieldLabel : T('label.name'),
 				allowBlank : false

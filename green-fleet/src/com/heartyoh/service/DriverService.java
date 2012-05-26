@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 
-@Controller
+
 public class DriverService extends EntityService {
 	private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 

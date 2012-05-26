@@ -16,8 +16,9 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		type : 'string'
 	}, {
 		name : 'buying_date',
-		type : 'date',
-		dateFormat:'time'
+		type : 'string'
+		//type : 'date',
+		//dateFormat:'time'
 	}, {
 		name : 'comment',
 		type : 'string'

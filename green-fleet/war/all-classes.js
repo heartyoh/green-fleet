@@ -530,7 +530,7 @@ Ext.define('GreenFleet.model.Code', {
     
     fields: [
         {name: 'code', type: 'string'},
-        {name: 'desc', type: 'number'}
+        {name: 'desc', type: 'string'}
     ]
 });
 
@@ -3272,8 +3272,8 @@ Ext.define('GreenFleet.view.management.Terminal', {
 			}, {
 				dataIndex : 'buying_date',
 				text : T('label.x_date', {x : T('label.buying')}),
-				xtype : 'datecolumn',
-				format : F('date'),
+				//xtype : 'datecolumn',
+				//format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'comment',
@@ -6721,7 +6721,6 @@ Ext.define('GreenFleet.view.common.CodeCombo', {
     initComponent : function() {
     	this.store = Ext.getStore('CodeStore').substore(this.group);
     	this.emptyText = this.fieldLabel;
-
     	this.callParent();
     },
 	
@@ -8515,7 +8514,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 	
 });
 
-Ext.define('GreenFleet.view.management.Location', {
+	Ext.define('GreenFleet.view.management.Location', {
 	extend : 'Ext.container.Container',
 
 	alias : 'widget.management_location',
@@ -8524,9 +8523,6 @@ Ext.define('GreenFleet.view.management.Location', {
 
 	entityUrl : 'location',
 
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
 	importUrl : 'location/import',
 
 	afterImport : function() {
@@ -8802,6 +8798,10 @@ Ext.define('GreenFleet.view.management.Location', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -8896,6 +8896,10 @@ Ext.define('GreenFleet.view.management.Location', {
 				anchor : '100%'
 			},
 			items : [ {
+				name : 'key',
+				fieldLabel : 'Key',
+				hidden : true
+			}, {
 				name : 'name',
 				fieldLabel : T('label.name')
 			}, {
@@ -9008,9 +9012,6 @@ Ext.define('GreenFleet.view.management.Alarm', {
 
 	entityUrl : 'alarm',
 
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
 	importUrl : 'alarm/import',
 
 	afterImport : function() {
@@ -9089,6 +9090,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
+				dataIndex : 'kye',
+				type : 'string',
+				hidden : true
+			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
 				type : 'string'
@@ -9120,13 +9125,13 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				dataIndex : 'from_date',
 				text : T('label.from_date'),
 				xtype : 'datecolumn',
-				format : F('datetime'),
+				format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'to_date',
 				text : T('label.to_date'),
 				xtype : 'datecolumn',
-				format : F('datetime'),
+				format : F('date'),
 				width : 120				
 			}, {
 				dataIndex : 'created_at',
@@ -9180,6 +9185,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				anchor : '100%'
 			},
 			items : [ {
+				name : 'key',
+				hidden : true
+			},
+			{
 				name : 'name',
 				fieldLabel : T('label.name'),
 				allowBlank : false
@@ -15902,8 +15911,9 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		type : 'string'
 	}, {
 		name : 'buying_date',
-		type : 'date',
-		dateFormat:'time'
+		type : 'string'
+		//type : 'date',
+		//dateFormat:'time'
 	}, {
 		name : 'comment',
 		type : 'string'
@@ -16556,8 +16566,10 @@ Ext.define('GreenFleet.store.LocationStore', {
 
 	storeId : 'location_store',
 		
-	fields : [ 
-		{
+	fields : [ {
+			name : 'key',
+			type : 'string' 
+	    }, {
 			name : 'name',
 			type : 'string'
 		}, {
@@ -16622,6 +16634,9 @@ Ext.define('GreenFleet.store.AlarmStore', {
 	
 	fields : [ 
 	    {
+			name : 'key',
+			type : 'string'	          
+	    }, {
 			name : 'name',
 			type : 'string'
 		}, {
@@ -16644,12 +16659,12 @@ Ext.define('GreenFleet.store.AlarmStore', {
 			type : 'boolean'
 		}, {
 			name : 'from_date',
-			type : 'date',
-			dateFormat:'time'
+			type : 'string',
+			//dateFormat:'time'
 		}, {
 			name : 'to_date',
-			type : 'date',
-			dateFormat:'time'
+			type : 'string',
+			//dateFormat:'time'
 		}, {
 			name : 'vehicles',
 			type : 'string'
