@@ -310,6 +310,22 @@
                     "name": "GridC1Portlet.js"
                 },
                 {
+                    "path": "app/view/management/",
+                    "name": "Report.js"
+                },
+                {
+                    "path": "app/view/common/",
+                    "name": "MultiSelect.js"
+                },
+                {
+                    "path": "app/view/common/",
+                    "name": "ItemSelector.js"
+                },
+                {
+                    "path": "app/view/common/",
+                    "name": "UserSelector.js"
+                },
+                {
                     "path": "app/store/",
                     "name": "CompanyStore.js"
                 },
@@ -504,6 +520,10 @@
                 {
                     "path": "app/store/",
                     "name": "EventStore.js"
+                },
+                {
+                    "path": "app/store/",
+                    "name": "ReportStore.js"
                 },
                 {
                     "path": "app/controller/",

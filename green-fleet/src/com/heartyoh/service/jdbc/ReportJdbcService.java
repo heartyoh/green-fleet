@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.heartyoh.util.DataUtils;
 
@@ -25,19 +26,44 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class ReportJdbcService extends JdbcEntityService {
 
-	/**
-	 * key names
-	 */
-	private static final String TABLE_NAME = "report";	
-	
 	@Override
 	protected String getTableName() {
-		return TABLE_NAME;
+		return "report";
 	}
-	
+
 	@Override
 	protected Map<String, String> getColumnSvcFieldMap() {
 		return null;
+	}
+
+	@RequestMapping(value = "/report/import", method = RequestMethod.POST)
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
+		return super.imports(request, response);
+	}
+	
+	@RequestMapping(value = "/report/delete", method = RequestMethod.POST)
+	public @ResponseBody
+	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.delete(request, response);
+	}
+	
+	@RequestMapping(value = {"/report", "/m/data/report.json"}, method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return super.retrieve(true, DataUtils.newMap("company", this.getCompany(request)), request, response);
+	}
+	
+	@RequestMapping(value = "/report/find", method = RequestMethod.GET)
+	public @ResponseBody
+	String find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.find(request, response);
+	}
+	
+	@RequestMapping(value = "/report/save", method = RequestMethod.POST)
+	public @ResponseBody
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return super.save(request, response);
 	}
 
 	@RequestMapping(value = "/report/vehicle_group", method = RequestMethod.GET)

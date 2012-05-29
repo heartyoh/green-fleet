@@ -12,7 +12,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 'RepairStore', 
 	           'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 'LocationStore', 'AlarmStore', 
 	           'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore', 'DriverGroupStore', 
-	           'DriverByGroupStore', 'VehicleGroupCountStore', 'CalendarStore', 'EventStore' ],
+	           'DriverByGroupStore', 'VehicleGroupCountStore', 'CalendarStore', 'EventStore', 'ReportStore' ],
 
 	models : [ 'Code' ],
 
@@ -29,7 +29,8 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule',
 	          'overview.Overview', 'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 
 	          'portlet.GridI1Portlet', 'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 
-	          'portlet.ChartV2Portlet', 'portlet.CalendarPortlet', 'portlet.GridC1Portlet' ],
+	          'portlet.ChartV2Portlet', 'portlet.CalendarPortlet', 'portlet.GridC1Portlet', 'management.Report',
+	          'common.MultiSelect', 'common.ItemSelector', 'common.UserSelector'],
 
 	init : function() {
 		this.control({

@@ -3,6 +3,10 @@
  */
 package com.heartyoh.service;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -118,18 +122,49 @@ public class LbaStatusService extends EntityService {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/lba_status/update_use", method = RequestMethod.GET)
+	@RequestMapping(value = "/lba_status/update_use", method = RequestMethod.GET)	
 	public void updateUse(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		if(logger.isInfoEnabled())
 			logger.info("LbaStatus update_use started!");
 		
 		// 0. company key 추출 
-		Key companyKey = this.getCompanyKey(request);
+		Key companyKey = this.getCompanyKey(request);	
 		
 		// 1. 모든 alarm을 조회 
-		Alarm condition = new Alarm(companyKey.getKind(), null);
-		List<Alarm> alarmList = ConnectionManager.getInstance().getDml().selectList(Alarm.class, condition);		
+		List<Alarm> alarmList = this.findAlarms(companyKey);
+		
+		// 2. 유효기간 체크 
+		List<Entity> lbaStatusList = this.checkAvailablePeriod(companyKey, alarmList);
+		
+		// 3. 업데이트된 LbaStatus를 저장..., FIXME 변경 필요 - 각 alarm 마다 저장 및 커밋하도록 변경 ...
+		if(!lbaStatusList.isEmpty()) {
+			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+			Transaction txn = ds.beginTransaction();
+			
+			try {
+				ds.put(lbaStatusList);
+				txn.commit();
+
+				if(logger.isInfoEnabled())
+					logger.info("LbaStatus update_use finished!");
+			
+			} catch(Exception e) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	/**
+	 * 유효기간 체크 
+	 * 
+	 * @param companyKey
+	 * @param alarmList
+	 * @return
+	 * @throws Exception
+	 */
+	private List<Entity> checkAvailablePeriod(Key companyKey, List<Alarm> alarmList) throws Exception {
+		
 		List<Entity> lbaStatusList = new ArrayList<Entity>();
 		
 		// 2. 각 alarm에 대해서 유효기간 체크 
@@ -159,22 +194,137 @@ public class LbaStatusService extends EntityService {
 			}
 		}
 		
-		// 3. 업데이트된 LbaStatus를 저장..., FIXME 변경 필요 - 각 alarm 마다 저장 및 커밋하도록 변경 ...
-		if(!lbaStatusList.isEmpty()) {
-			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-			Transaction txn = ds.beginTransaction();
-			
-			try {
-				ds.put(lbaStatusList);
-				txn.commit();
-
-				if(logger.isInfoEnabled())
-					logger.info("LbaStatus update_use finished!");
-			
-			} catch(Exception e) {
-				txn.rollback();
+		return lbaStatusList;
+	}
+	
+	/**
+	 * company정보로 모든 alarm을 조회 
+	 * 
+	 * @param companyKey
+	 * @return
+	 * @throws Exception
+	 */
+	private List<Alarm> findAlarms(Key companyKey) throws Exception {
+		
+		List<Alarm> alarmList = new ArrayList<Alarm>();
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;		
+		
+		try {
+			conn = ConnectionManager.getInstance().getConnection();
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery("select * from alarm where company = '" + companyKey.getName() + "'");
+			while(rs.next()) {
+				Alarm alarm = new Alarm(companyKey.getName(), rs.getString("name"));
+				alarm.setAlways(rs.getBoolean("always"));
+				java.sql.Date fromDate = rs.getDate("from_date");
+				java.sql.Date toDate = rs.getDate("to_date");
+				
+				if(fromDate != null)
+					alarm.setFromDate(new Date(fromDate.getTime()));
+				
+				if(toDate != null)
+					alarm.setToDate(new Date(toDate.getTime()));				
+				
+				alarmList.add(alarm);
 			}
+			
+		} catch (Exception e) {
+			logger.error("Failed to find alarms!", e);
+			throw e;
+			
+		} finally {
+			this.closeConnection(rs, stmt, conn);
 		}
+				
+		return alarmList;
+	}
+	
+	/* orm의 경우 
+	private List<Alarm> findAlarms(Key companyKey) throws Exception {
+		Alarm alarm = new Alarm(companyKey.getName(), null);
+		List<Alarm> alarmList = ConnectionManager.getInstance().getDml().selectList(Alarm.class, alarm);
+		return alarmList;
+	}*/	
+	
+	/**
+	 * company, locationName으로 location 조회 
+	 * 
+	 * @param company
+	 * @param locationName
+	 * @return
+	 * @throws Exception
+	 */	
+	private Location findLocation(String company, String locationName) throws Exception {
+		
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;		
+		Location location = null;
+		
+		try {
+			conn = ConnectionManager.getInstance().getConnection();
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery("select * from location where company = '" + company + "' and name = '" + locationName + "'");
+			if(rs.next()) {
+				location = new Location(company, locationName);
+				location.setLatHi(rs.getFloat("lat_hi"));
+				location.setLatLo(rs.getFloat("lat_lo"));
+				location.setLngHi(rs.getFloat("lng_hi"));
+				location.setLngLo(rs.getFloat("lng_lo"));
+			}
+			
+		} catch (Exception e) {
+			logger.error("Failed to find alarms!", e);
+			throw e;
+			
+		} finally {
+			this.closeConnection(rs, stmt, conn);
+		}
+		
+		return location;
+	}
+	
+	/**
+	 * orm 경우 : company, locationName으로 location 조회 
+	 * 
+	 * @param company
+	 * @param locationName
+	 * @return
+	 * @throws Exception
+	 */
+	/*private Location findLocation(String company, String locationName) throws Exception {
+		Location location = new Location(company, locationName);
+		location = ConnectionManager.getInstance().getDml().select(location);
+		return location;
+	}*/	
+	
+	/**
+	 * connection close
+	 * 
+	 * @param rs
+	 * @param stmt
+	 * @param conn
+	 */
+	private void closeConnection(ResultSet rs, Statement stmt, Connection conn) {
+		if(rs != null)
+			try {
+				rs.close();
+			} catch (SQLException e) {
+			}
+		
+		if(stmt != null)
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+			}
+		
+		if(conn != null)
+			try {
+				conn.close();
+			} catch (SQLException e) {
+			}
 	}
 	
 	/**
@@ -229,8 +379,7 @@ public class LbaStatusService extends EntityService {
 	 */
 	private String checkEvent(Key companyKey, Entity lbaStatus, float latitude, float longitude) throws Exception {
 		
-		Location location = new Location(companyKey.getName(), (String)lbaStatus.getProperty("loc"));
-		location = ConnectionManager.getInstance().getDml().select(location);
+		Location location = this.findLocation(companyKey.getName(), (String)lbaStatus.getProperty("loc"));
 		
 		if(location == null)
 			return null;
@@ -242,7 +391,7 @@ public class LbaStatusService extends EntityService {
 		lbaStatus.setProperty("bef_status", beforeStatus);
 		return this.getEvent(evtTrg, beforeStatus, currentStatus);
 	}
-	
+		
 	/**
 	 * evtTrg, beforeStatus, currentStatus
 	 * 

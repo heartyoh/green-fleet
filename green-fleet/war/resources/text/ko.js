@@ -38,7 +38,8 @@ T({
 		alarm : '알람',
 		vehicle_runstatus : '차량별 운행현황',
 		driver_runstatus : '운전자별 운행현황',
-		driver_speed_section : '운전자별 속도구간'
+		driver_speed_section : '운전자별 속도구간',
+		report : '리포트'
 	},
 	
 	title : {
@@ -110,6 +111,7 @@ T({
 		driver_speed_section : '운전자별 속도구간',
 		speed_section_chart : '속도구간 차트',
 		report_list : '리포트 리스트',
+		report_details : '리포트 상세',
 		schedule : '일정'
 	},
 	
@@ -315,7 +317,7 @@ T({
 		radius : '반경',
 		location_radius : '위치 반경',
 		event_trigger : '이벤트 트리거',
-		destination : '알람 대상',
+		send_to : '보내기 대상',
 		message : '메세지',
 		from_date : '시작일',
 		to_date : '종료일',
@@ -374,7 +376,13 @@ T({
 		left : '왼쪽',
 		right : '오른쪽',
 		grade : '등급',
-		eco_drv_index : '경제운전 지수'
+		eco_drv_index : '경제운전 지수',
+		report_code : '리포트 코드',
+		cycle : '보고 주기',
+		daily : '일별',
+		weekly : '주별',
+		monthly : '월별',
+		yearly : '년별'		
 	},
 	
 	format : {

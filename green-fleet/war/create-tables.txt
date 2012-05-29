@@ -229,15 +229,16 @@ CREATE TABLE vehicle (
 	PRIMARY KEY(company, id)
 ) DEFAULT CHARSET=utf8;
 
-CREATE TABLE modules (
-	id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	name VARCHAR(40) NOT NULL, 
-	category VARCHAR(250),
-	alias VARCHAR(120),
-	description VARCHAR(1000),
-	license VARCHAR(100),
-	version VARCHAR(40),
-	privileged BIT(1),
-	file_path VARCHAR(1000),
-	PRIMARY KEY(id)
+-- report
+CREATE TABLE report (
+	company VARCHAR(50) NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	daily BIT(1),
+	weekly BIT(1),
+	monthly BIT(1),
+	send_to VARCHAR(4000) NOT NULL,
+	expl VARCHAR(4000),	
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(company, name)
 ) DEFAULT CHARSET=utf8;

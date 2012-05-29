@@ -118,6 +118,11 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_alarm',
 			itemId : 'alarm',
 			closable : true
+		}, {
+			title : T('menu.report'),
+			xtype : 'management_report',
+			itemId : 'management_report',
+			closable : true
 		} ]
 	}, {
 		text : T('menu.vehicle'),

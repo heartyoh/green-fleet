@@ -238,10 +238,10 @@ Ext.define('GreenFleet.view.management.Alarm', {
 		            fieldLabel: T('label.event_trigger'),
 		            allowBlank : false		            
 	            }]
-	        },			
+	        },
 	        {
 				name : 'dest',
-				fieldLabel : T('label.destination'),
+				fieldLabel : T('label.send_to'),
 				emptyText : T('msg.select_users'),
 				allowBlank : false
 			}, {

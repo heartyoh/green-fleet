@@ -252,21 +252,21 @@ public abstract class JdbcEntityService {
 			HttpServletResponse response) throws Exception {
 
 		Map<Integer, Object> params = new HashMap<Integer, Object>();
-		List<String> keyColumns = this.getPrimaryKeys(this.getTableName());
+		String tableName = this.getTableName();
+		List<String> keyColumns = this.getPrimaryKeys(tableName);
+		Map<String, Integer> columnInfo = this.getColumnInfo(tableName);
 		Map<String, String> colSvcFieldMap = this.getColumnSvcFieldMap();
-		StringBuffer query = new StringBuffer("delete from "
-				+ this.getTableName());
+		StringBuffer query = new StringBuffer("delete from ").append(this.getTableName());
 
 		for (int i = 0; i < keyColumns.size(); i++) {
 			String keyColumn = keyColumns.get(i);
-			query.append((i == 0) ? " where " : " and ").append(keyColumn)
-					.append(" = ?");
+			query.append((i == 0) ? " where " : " and ");
+			query.append(keyColumn).append(" = ?");
 
 			if ("company".equalsIgnoreCase(keyColumn))
 				params.put(i + 1, this.getCompany(request));
 			else {
-				params.put(i + 1, this.getColumnMappingValue(keyColumn,
-						colSvcFieldMap, request));
+				params.put(i + 1, this.getColumnMappingValue(keyColumn, columnInfo, colSvcFieldMap, request));
 			}
 		}
 
@@ -303,22 +303,22 @@ public abstract class JdbcEntityService {
 	public String find(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
+		String tableName = this.getTableName();
 		Map<Integer, Object> params = new HashMap<Integer, Object>();
+		Map<String, Integer> columnInfo = this.getColumnInfo(tableName);
 		Map<String, String> colSvcFieldMap = this.getColumnSvcFieldMap();
-		List<String> keyColumns = this.getPrimaryKeys(this.getTableName());
-		StringBuffer query = new StringBuffer("select * from "
-				+ this.getTableName());
+		List<String> keyColumns = this.getPrimaryKeys(tableName);
+		StringBuffer query = new StringBuffer("select * from ").append(tableName);
 
 		for (int i = 0; i < keyColumns.size(); i++) {
 			String keyColumn = keyColumns.get(i);
-			query.append((i == 0) ? " where " : " and ").append(keyColumn)
-					.append(" = ?");
+			query.append((i == 0) ? " where " : " and ");
+			query.append(keyColumn).append(" = ?");
 
 			if ("company".equalsIgnoreCase(keyColumn))
 				params.put(i + 1, this.getCompany(request));
 			else
-				params.put(i + 1, this.getColumnMappingValue(keyColumn,
-						colSvcFieldMap, request));
+				params.put(i + 1, this.getColumnMappingValue(keyColumn, columnInfo, colSvcFieldMap, request));
 		}
 
 		response.setContentType(CONTENT_TYPE);
@@ -328,15 +328,13 @@ public abstract class JdbcEntityService {
 		try {
 			conn = this.getConnection();
 			this.onBeforeFind(conn, queryStr, params, request, response);
-			Map<String, Object> item = this.executeSingleQuery(conn, queryStr,
-					params);
+			Map<String, Object> item = this.executeSingleQuery(conn, queryStr, params);
 			this.onAfterFind(conn, item, request, response);
 			return new ObjectMapper().writeValueAsString(item);
 
 		} catch (Exception e) {
 			return "{ \"success\" : false, \"msg\" : \"Failed to find "
-					+ this.getTableName() + "! Reason - " + e.getMessage()
-					+ "\" }";
+					+ tableName + "! Reason - " + e.getMessage() + "\" }";
 
 		} finally {
 			this.closeDB(conn);
@@ -430,8 +428,7 @@ public abstract class JdbcEntityService {
 		while (columnNames.hasNext()) {
 			String columnName = columnNames.next();
 			query.append((idx++ > 0) ? "," : "").append(columnName);
-			params.put(idx,
-					this.getSqlParamValue(columnName, colSvcFieldMap, request));
+			params.put(idx, this.getSqlParamValue(columnName, columnInfo, colSvcFieldMap, request));
 		}
 
 		query.append(") values (");
@@ -623,10 +620,8 @@ public abstract class JdbcEntityService {
 					|| "created_at".equalsIgnoreCase(columnName))
 				continue;
 
-			query.append((idx++ > 0) ? "," : "").append(columnName)
-					.append(" = ?");
-			params.put(idx,
-					this.getSqlParamValue(columnName, colSvcFieldMap, request));
+			query.append((idx++ > 0) ? "," : "").append(columnName).append(" = ?");
+			params.put(idx,this.getSqlParamValue(columnName, columnInfo, colSvcFieldMap, request));
 		}
 
 		query.append(" where ");
@@ -650,24 +645,22 @@ public abstract class JdbcEntityService {
 	 * insert or update에 필요한 파라미터 값을 추출한다.
 	 * 
 	 * @param columnName
+	 * @param columnInfo
 	 * @param colSvcFieldMap
 	 * @param request
 	 * @return
 	 */
-	private Object getSqlParamValue(String columnName,
+	private Object getSqlParamValue(String columnName, Map<String, Integer> columnInfo,
 			Map<String, String> colSvcFieldMap, HttpServletRequest request) {
 
-		Object manualMappingValue = this.manualColumnValueMapping(columnName,
-				request);
+		Object manualMappingValue = this.manualColumnValueMapping(columnName, request);
 
-		// company, created_at, updated_at 등의 정보는 request로 부터 뽑을 수 없으므로 매뉴얼
-		// 매핑한다.
+		// company, created_at, updated_at 등의 정보는 request로 부터 뽑을 수 없으므로 매뉴얼 매핑한다.
 		if (manualMappingValue != null) {
 			return manualMappingValue;
-			// table 컬럼명으로 request로 부터 데이터를 뽑아 매핑한다.
+		// table 컬럼명으로 request로 부터 데이터를 뽑아 매핑한다.
 		} else {
-			return this.getColumnMappingValue(columnName, colSvcFieldMap,
-					request);
+			return this.getColumnMappingValue(columnName, columnInfo, colSvcFieldMap, request);
 		}
 	}
 
@@ -676,23 +669,20 @@ public abstract class JdbcEntityService {
 	 * 명과 서비스 필드명이 다른 것을 고려하여 다르다면 colSvcFieldMap에서 매핑된 정보로 request에서 정보를 추출
 	 * 
 	 * @param columnName
+	 * @param columnInfo
 	 * @param colSvcFieldMap
 	 * @param request
 	 * @return
 	 */
-	protected Object getColumnMappingValue(String columnName,
+	protected Object getColumnMappingValue(String columnName, Map<String, Integer> columnInfo,
 			Map<String, String> colSvcFieldMap, HttpServletRequest request) {
+				
+		// 컬럼명이 columnInfo에 존재하는지 않으면 colSvcFieldMap에서 찾음 
+		if(columnInfo.containsKey(columnName))
+			columnName = this.getColumnNameForQuery(colSvcFieldMap, columnName);
 
-		// table 컬럼명으로 request로 부터 데이터를 뽑아 매핑한다.
-		Object value = request.getParameter(columnName);
-
-		// 값이 없다면 colSvcFieldMap에서 매핑된 정보로 request에서 정보를 추출
-		if (value == null && colSvcFieldMap != null
-				&& colSvcFieldMap.containsKey(columnName)) {
-			value = request.getParameter(colSvcFieldMap.get(columnName));
-		}
-
-		return value;
+		String value = request.getParameter(columnName);
+		return this.convertValueByType(columnInfo.get(columnName), value);
 	}
 
 	/**
@@ -797,8 +787,10 @@ public abstract class JdbcEntityService {
 			List<Sorter> sorters, int start, int limit) throws Exception {
 
 		String tableName = this.getTableName();
+		Map<String, Integer> columnInfo = this.getColumnInfo(tableName);
+		Map<String, String> columnSvcFieldMap = this.getColumnSvcFieldMap();
+		
 		StringBuffer query = new StringBuffer("select ");
-
 		if (selectCols == null || selectCols.length == 0) {
 			query.append(" * from ").append(tableName);
 		} else {
@@ -814,9 +806,9 @@ public abstract class JdbcEntityService {
 
 			while (keyNames.hasNext()) {
 				String keyName = keyNames.next();
-				query.append((idx == 1) ? " where " : " and ").append(keyName)
-						.append(" = ? ");
-				queryParams.put(idx++, conditions.get(keyName));
+				queryParams.put(idx, conditions.get(keyName));
+				keyName = (columnInfo.containsKey(keyName)) ? keyName : this.getColumnNameForQuery(columnSvcFieldMap, keyName);
+				query.append((idx++ == 1) ? " where " : " and ").append(keyName).append(" = ? ");
 			}
 		}
 
@@ -824,8 +816,7 @@ public abstract class JdbcEntityService {
 			query.append("order by ");
 			for (int i = 0; i < sorters.size(); i++) {
 				Sorter sorter = sorters.get(i);
-				query.append(i == 0 ? "" : " ,").append(sorter.getProperty())
-						.append(" ").append(sorter.getDirection());
+				query.append(i == 0 ? "" : " ,").append(sorter.getProperty()).append(" ").append(sorter.getDirection());
 			}
 		}
 
@@ -1060,6 +1051,9 @@ public abstract class JdbcEntityService {
 			List<Map<String, Object>> items, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
+		if(items == null)
+			return;
+		
 		Map<String, String> columnSvcFieldMap = this.getColumnSvcFieldMap();
 
 		for (Map<String, Object> item : items) {
@@ -1472,31 +1466,41 @@ public abstract class JdbcEntityService {
 		for (int i = 0; i < selectCols.length; i++) {
 			// 클라이언트로 부터 넘어온 select 필드가 실제 테이블의 컬럼명과 일치하는지 비교, 일치하면 OK
 			if (columnInfo.containsKey(selectCols[i])) {
-				selectPhase.append(selectPhase.length() == 0 ? "" : ",")
-						.append(selectCols[i]);
+				selectPhase.append(selectPhase.length() == 0 ? "" : ",").append(selectCols[i]);
 
-				// 일치하지 않으면 서비스 명으로 매핑테이블을 조회, 여기에 매핑되는 값이 있다면 매핑되는 컬럼명이 select
-				// 절에 추가되고 그렇지 않으면 빠진다.
+			// 일치하지 않으면 서비스 명으로 매핑테이블을 조회, 여기에 매핑되는 값이 있다면 매핑되는 컬럼명이 select 절에 추가되고 그렇지 않으면 빠진다.
 			} else {
-				if (columnSvcFieldMap != null
-						&& columnSvcFieldMap.containsValue(selectCols[i])) {
-					Iterator<String> columnIter = columnSvcFieldMap.keySet()
-							.iterator();
-					while (columnIter.hasNext()) {
-						String columnName = columnIter.next();
-						String svcFiled = columnSvcFieldMap.get(columnName);
-						if (svcFiled.equals(selectCols[i])) {
-							selectPhase.append(
-									selectPhase.length() == 0 ? "" : ",")
-									.append(columnName);
-							break;
-						}
-					}
-				}
+				String columnName = getColumnNameForQuery(columnSvcFieldMap, selectCols[i]);
+				if(columnName != null)
+					selectPhase.append(selectPhase.length() == 0 ? "" : ",").append(columnName);
 			}
 		}
 
 		return selectPhase.toString();
+	}
+	
+	/**
+	 * 서비스 필드명으로 매핑된 column명을 찾아 리턴 
+	 * 
+	 * @param columnSvcFieldMap
+	 * @param serviceFieldName
+	 * @return
+	 */
+	private String getColumnNameForQuery(Map<String, String> columnSvcFieldMap, String serviceFieldName) {
+		
+		if(columnSvcFieldMap == null || !columnSvcFieldMap.containsValue(serviceFieldName))
+			return serviceFieldName;
+		
+		Iterator<String> columnIter = columnSvcFieldMap.keySet().iterator();
+		while (columnIter.hasNext()) {
+			String columnName = columnIter.next();
+			String svcFiled = columnSvcFieldMap.get(columnName);
+			if (svcFiled.equals(serviceFieldName)) {
+				return columnName;
+			}
+		}
+		
+		return serviceFieldName;
 	}
 
 	/**
@@ -1508,7 +1512,7 @@ public abstract class JdbcEntityService {
 	 */
 	protected Object convertValueByType(int type, String value) {
 
-		if (type == Types.BIT || type == Types.BOOLEAN) {
+		if (type == Types.BIT || type == Types.BOOLEAN) {			
 			return DataUtils.toBool(value);
 		} else if (type == Types.DATE) {
 			Date d = DataUtils.toDate(value);

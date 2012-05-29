@@ -234,3 +234,11 @@ span.mapTipID{
 .x-window-header-default-top{box-shadow:none;background:url('../image/bgTab.gif') repeat-x;}
 .x-window-header-text-default{color:#fff;font-size:13px;font-weight:bold}
 .x-window-default{border-color:#5F7291;background-color:#6982aa;padding:3px;box-shadow:none}
+
+/* item selector */
+.x-form-itemselector-top {background-image: url(../image/iconArrowTop.gif);}
+.x-form-itemselector-up {background-image: url(../image/iconArrowUp.gif);}
+.x-form-itemselector-add {background-image: url(../image/iconArrowRight.gif);}
+.x-form-itemselector-remove {background-image: url(../image/iconArrowLeft.gif);}
+.x-form-itemselector-down {background-image: url(../image/iconArrowDown.gif);}
+.x-form-itemselector-bottom {background-image: url(../image/iconArrowBottom.gif);}

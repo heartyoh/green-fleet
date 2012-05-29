@@ -62,5 +62,8 @@ Ext.define('GreenFleet.store.CodeGroupStore', {
 	}, {
 		group : 'LocationEvent',
 		desc : 'Location Event'
+	}, {
+		group : 'ReportType',
+		desc : 'Report Type'
 	} ]
 });

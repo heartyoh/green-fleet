@@ -325,7 +325,7 @@ public class CalculatorUtils {
 		float minLat = location.getLatLo();
 		float minLng = location.getLngLo();
 		float maxLat = location.getLatHi();
-		float maxLng = location.getLngHi();		
+		float maxLng = location.getLngHi();
 		return (latitude <= maxLat && latitude >= minLat && longitude <= maxLng && longitude >= minLng);
 	}
 }

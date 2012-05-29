@@ -38,7 +38,8 @@ T({
 		alarm : 'Alarm',
 		vehicle_runstatus : 'Vehicle RunStatus',
 		driver_runstatus : 'Driver RunSatus',
-		driver_speed_section : 'Drivers Speed Section'
+		driver_speed_section : 'Drivers Speed Section',
+		report : 'Report'
 	},
 	
 	title : {
@@ -110,7 +111,8 @@ T({
 		driver_speed_section : 'Drivers Speed Section',
 		speed_section_chart : 'Drivers Speed Section Chart',
 		report_list : 'Report List',
-		schedule : 'Schedule'
+		report_details : 'Report Details',
+		schedule : 'Schedule',		
 	},
 	
 	report : {
@@ -315,7 +317,7 @@ T({
 		radius : 'Radius',
 		location_radius : 'Loc. Radius',
 		event_trigger : 'Event Trigger',
-		destination : 'Destination',
+		send_to : 'Send to',
 		message : 'Message',
 		from_date : 'From Date',
 		to_date : 'To Date',
@@ -374,7 +376,13 @@ T({
 		left : 'Left',
 		right : 'Right',
 		grade : 'Grade',
-		eco_drv_index : 'Eco Driving Index'		
+		eco_drv_index : 'Eco Driving Index'	,
+		report_code : 'Report Code',
+		cycle : 'Report Cycle',
+		daily : 'Daily',
+		weekly : 'Weekly',
+		monthly : 'Monthly',
+		yearly : 'Yearly'
 	},
 	
 	format : {
