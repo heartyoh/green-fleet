@@ -1,6 +1,8 @@
 package com.heartyoh.security.service;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,15 +15,30 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 @Controller
 public class SecurityService {
+	Pattern pattern = Pattern.compile("Android|iPhone|iPad");
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String landing() {
-		return "home";
+	public String landing(HttpServletRequest request) {
+		String userAgent = request.getHeader("user-agent");
+		
+		Matcher match = pattern.matcher(userAgent);
+		if(match.find()) {
+			return "redirect:/m/home";
+		} else {
+			return "home";
+		}
 	}
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
-	public String home() {
-		return "home";
+	public String home(HttpServletRequest request) {
+		String userAgent = request.getHeader("user-agent");
+		
+		Matcher match = pattern.matcher(userAgent);
+		if(match.find()) {
+			return "redirect:/m/home";
+		} else {
+			return "home";
+		}
 	}
 
 	@RequestMapping(value = "/m/home", method = RequestMethod.GET)
