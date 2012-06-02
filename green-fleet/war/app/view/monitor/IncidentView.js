@@ -51,7 +51,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
 
 			self.getLogStore().on('load', function(store, records, success) {
-				self.refreshTrack();
+				if(success)
+					self.refreshTrack();
 			});
 		});
 

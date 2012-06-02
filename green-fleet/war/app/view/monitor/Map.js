@@ -11,7 +11,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	},
 
 	initComponent : function() {
-		this.items = [ this.ztitle, this.zmap ];
+		this.items = [ this.ztitle(), this.zmap ];
 		
 		this.callParent();
 		
@@ -28,7 +28,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			
 			vehicleFilteredStore.on('datachanged', function() {
 				if(self.isVisible()) {
-					self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
+					self.refreshMap(vehicleFilteredStore, GreenFleet.setting.get('autofit'));
 				}
 			});
 			
@@ -49,17 +49,22 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
-			if(self.sub('autofit').getValue())
+			if(GreenFleet.setting.get('autofit'))
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), true);
 		});
 		
-		this.sub('autofit').on('change', function(check, newValue) {
-			if(newValue)
+		this.down('[itemId=autofit]').on('change', function(check, newValue) {
+			if(newValue) {
+				GreenFleet.setting.set('autofit', newValue);
+				
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
+			}
 		});
 
-		this.sub('refreshterm').on('change', function(combo, newValue) {
+		this.down('[itemId=refreshterm]').on('change', function(combo, newValue) {
 			if(newValue) {
+				GreenFleet.setting.set('refreshTerm', newValue);
+
 				clearInterval(interval);
 				interval = setInterval(function() {
 					vehicleMapStore.load();
@@ -172,69 +177,71 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		}
 	},
 	
-	ztitle : {
-		xtype : 'container',
-		cls :'pageTitle',
-		height: 35,
-		layout : {
-			type : 'hbox',
-			align : 'stretch'
-		},
-		items : [{
-			flex : 1,
-			html : '<h1>' + T('title.map') + '</h1>'
-		}, {
-			xtype : 'combo',
-			valueField : 'value',
-			displayField : 'display',
-			value : 10,
-			width : 180,
-			labelWidth : 110,
-			labelAlign : 'right',
-			labelSeparator : '',
-			store : Ext.create('Ext.data.Store', {
-				data : [{
-					value : 3,
-					display : '3' + T('label.second_s')
-				}, {
-					value : 5,
-					display : '5' + T('label.second_s')
-				}, {
-					value : 10,
-					display : '10' + T('label.second_s')
-				}, {
-					value : 30,
-					display : '30' + T('label.second_s')
-				}, {
-					value : 60,
-					display : '1' + T('label.minute_s')
-				}, {
-					value : 300,
-					display : '5' + T('label.minute_s')
-				}],
-				fields : [
-					'value', 'display'
-				]
-			}),
-			queryMode : 'local',
-			fieldLabel : T('label.refreshterm'),
-			itemId : 'refreshterm'
-		}, {
-			xtype : 'checkboxgroup',
-			width : 80,
-			defaults : {
-				boxLabelAlign : 'before',
-				width : 80,
-				checked : true,
-				labelWidth : 60,
-				labelAlign : 'right',
-				labelSeparator : ''
+	ztitle : function() {
+		return {
+			xtype : 'container',
+			cls :'pageTitle',
+			height: 35,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
 			},
 			items : [{
-				fieldLabel : T('label.autofit'),
-				itemId : 'autofit'
+				flex : 1,
+				html : '<h1>' + T('title.map') + '</h1>'
+			}, {
+				xtype : 'combo',
+				valueField : 'value',
+				displayField : 'display',
+				value : GreenFleet.setting.get('refreshTerm'),
+				width : 180,
+				labelWidth : 110,
+				labelAlign : 'right',
+				labelSeparator : '',
+				store : Ext.create('Ext.data.Store', {
+					data : [{
+						value : 3,
+						display : '3' + T('label.second_s')
+					}, {
+						value : 5,
+						display : '5' + T('label.second_s')
+					}, {
+						value : 10,
+						display : '10' + T('label.second_s')
+					}, {
+						value : 30,
+						display : '30' + T('label.second_s')
+					}, {
+						value : 60,
+						display : '1' + T('label.minute_s')
+					}, {
+						value : 300,
+						display : '5' + T('label.minute_s')
+					}],
+					fields : [
+						'value', 'display'
+					]
+				}),
+				queryMode : 'local',
+				fieldLabel : T('label.refreshterm'),
+				itemId : 'refreshterm'
+			}, {
+				xtype : 'checkboxgroup',
+				width : 80,
+				defaults : {
+					boxLabelAlign : 'before',
+					width : 80,
+					checked : GreenFleet.setting.get('autofit'),
+					labelWidth : 60,
+					labelAlign : 'right',
+					labelSeparator : ''
+				},
+				items : [{
+					fieldLabel : T('label.autofit'),
+					itemId : 'autofit'
+				}]
 			}]
-		}]
+		};
 	},
 	
 	zmap : {
