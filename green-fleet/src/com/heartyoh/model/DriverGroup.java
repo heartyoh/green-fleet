@@ -13,13 +13,9 @@ import java.util.Date;
 public class DriverGroup extends AbstractEntity {
 
 	/**
-	 * auto increment id
+	 * vehicle group id
 	 */
-	private Long id;
-	/**
-	 * vehicle group name
-	 */
-	private String name;
+	private String id;
 	/**
 	 * vehicle group explanation
 	 */
@@ -43,29 +39,21 @@ public class DriverGroup extends AbstractEntity {
 	 * 생성자 
 	 * 
 	 * @param company
-	 * @param name
+	 * @param id
 	 * @param expl
 	 */
-	public DriverGroup(String company, String name, String expl) {
+	public DriverGroup(String company, String id, String expl) {
 		this.company = company;
-		this.name = name;
+		this.id = id;
 		this.expl = expl;
 	}
 	
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	public String getExpl() {
@@ -94,10 +82,11 @@ public class DriverGroup extends AbstractEntity {
 	
 	@Override
 	public void beforeSave() {
-		if(this.id == null) {
+		if(this.createdAt == null) {
 			this.createdAt = new Date();
-			this.updatedAt = this.createdAt;
-		} else {
+		} 
+		
+		if(this.updatedAt == null) {
 			this.updatedAt = new Date();
 		}		
 	}
@@ -112,4 +101,8 @@ public class DriverGroup extends AbstractEntity {
 		this.updatedAt = new Date();
 	}
 	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.id;
+	}	
 }

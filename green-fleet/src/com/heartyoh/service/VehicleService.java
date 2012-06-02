@@ -29,7 +29,7 @@ import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
-@Controller
+
 public class VehicleService extends EntityService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);

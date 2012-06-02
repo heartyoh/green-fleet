@@ -205,5 +205,10 @@ public class Alarm extends AbstractEntity {
 	public void beforeUpdate() {
 		if(this.updatedAt == null)
 			this.updatedAt = new Date();
-	}	
+	}
+
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.name;
+	}
 }

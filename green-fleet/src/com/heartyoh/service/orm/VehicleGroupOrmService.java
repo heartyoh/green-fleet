@@ -4,41 +4,42 @@
 package com.heartyoh.service.orm;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.dbist.dml.Order;
 import org.dbist.dml.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.IEntity;
 import com.heartyoh.model.VehicleGroup;
 import com.heartyoh.model.VehicleRelation;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
-import com.heartyoh.util.SessionUtils;
 
 /**
  * VehicleGroup Service
  * 
  * @author jhnam
  */
+@Controller
 public class VehicleGroupOrmService extends OrmEntityService {
 
-	private String[] keyFields = new String[] { "key" };
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(VehicleGroupOrmService.class);
+	/**
+	 * 
+	 */
+	private static final String[] KEY_FIELDS = new String[] { "company", "group_id" };
 			
 	@Override
 	public Class<?> getEntityClass() {
@@ -47,7 +48,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	
 	@Override
 	public String[] getKeyFields() {
-		return this.keyFields;
+		return KEY_FIELDS;
 	}
 	
 	@Override
@@ -59,84 +60,99 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	}
 	
 	@RequestMapping(value = "/vehicle_group/import", method = RequestMethod.POST)
-	public void imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-		super.imports(request, response);
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
+		return super.imports(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/delete", method = RequestMethod.POST)
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		VehicleGroup group = this.dml.select(VehicleGroup.class, new Long(request.getParameter("key")));
-		this.dml.delete(group);
-		response.setContentType("text/html; charset=UTF-8");
-		response.getWriter().println("{ 'success' : true, 'msg' : 'Vehicle group destroyed!', 'key' : '" + group.getId() + "'}");
+	public @ResponseBody
+	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return this.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/vehicle_group", "/m/data/vehicle_group.json"}, method = RequestMethod.GET)
-	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.retrieve(request, response);
+	@RequestMapping(value = {"/vehicle_group", "/m/data/vehicle_group"}, method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.retrieve(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/save", method = RequestMethod.POST)
-	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.save(request, response);
+	public @ResponseBody
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.save(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/find", method = RequestMethod.GET)
-	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.find(request, response);
+	public @ResponseBody
+	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.find(request, response);
+	}
+	
+	@RequestMapping(value = "/vehicle_group/group_count" , method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> groupCount(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		try {
+			String query = "select vg.id, vg.expl, count(vr.group_id) count from vehicle_relation vr, vehicle_group vg where vg.company = :company and vr.group_id = vg.id group by vr.group_id";
+			Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
+			@SuppressWarnings("rawtypes")
+			List<Map> items = this.dml.selectListBySql(query, params, Map.class, 0, 0);
+			return this.getResultSet(true, items.size(), items);
+		} catch (Exception e) {
+			return this.getResultSet(true, 0, null);
+		}
 	}	
 	
 	@RequestMapping(value = "/vehicle_group/vehicles", method = RequestMethod.GET)
-	public void vehiclesByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody
+	Map<String, Object> vehiclesByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		response.setContentType(CONTENT_TYPE);
 		String company = this.getCompany(request);
-		String groupName = request.getParameter("vehicle_group_id");
+		String groupId = request.getParameter("vehicle_group_id");
 		int page = DataUtils.toInt(request.getParameter("page"));
 		int limit = DataUtils.toInt(request.getParameter("limit"));
-		Long groupId = this.getVehicleGroupId(company, groupName);		
 		
-		// 1. VehicleRelation테이블에서 vehicle_group_id로 vehicle_id를 조회 
-		Query query = new Query();
-		query.addField("vehicle_id");
-		query.addFilter("company", company).addFilter("group_id", groupId);
+		try {
+			// 1. driver relation 총 개수 
+			String sql = "select count(*) from vehicle_relation where company = :company and group_id = :group_id";
+			Query query = new Query();
+			query.addFilter("company", company).addFilter("group_id", groupId);
+			int totalCount = this.dml.selectSize(VehicleRelation.class, query);
 		
-		// 2. 총 카운트  
-		int total = this.dml.selectSize(VehicleRelation.class, query);
+			// 2. driver 조회 
+			sql = "select v.* from vehicle v, vehicle_relation vr where v.id = vr.vehicle_id and vr.company = :company and vr.group_id = :group_id order by v.id asc";
+			Map<String, Object> params = DataUtils.newMap("company", company);
+			params.put("group_id", groupId);
+			@SuppressWarnings("rawtypes")
+			List<Map> items = this.dml.selectListBySql(sql, params, Map.class, page - 1, limit);
+			
+			// 3. 결과 생성 
+			return this.getResultSet(true, totalCount, items);
+			
+		} catch (Exception e) {
+			logger.error("Failed to get vehicles by vehicle group!", e);
+			return this.getResultSet(true, 0, null);
+		}		
+	}
+	
+	@RequestMapping(value = "/vehicle_group/vehicle_ids", method = RequestMethod.GET)
+	public @ResponseBody 
+	Map<String, Object> vehicleIdListByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		// 3. 페이징하여 VehicleRelation 리스트 조회 
-		query.setPageIndex(page - 1);
-		query.setPageSize(limit);
-		List<Order> orderList = new ArrayList<Order>();
-		orderList.add(new Order("vehicle_id", true));
-		query.setOrder(orderList);
-		List<VehicleRelation> relationList = this.dml.selectList(VehicleRelation.class, query);
-		
-		// 4. vehicle을 조회를 위해 검색 조건 vehicleId 리스트를 생성 
-		List<String> vehicleIdList = new ArrayList<String>();		
-		for(VehicleRelation relation : relationList) {
-			vehicleIdList.add(relation.getVehicleId());
-		}
-				
-		// 5. Vehicle 테이블에서 vehicle_id로 vehicle list 조회, 결과 생성 	
-		List<Map<String, Object>> items = this.retrieveVehicles(company, vehicleIdList, request.getParameterValues("select"));
-		Map<String, Object> result = this.getResultSet(true, total, items);
-		response.setContentType("text/html; charset=UTF-8");
-		response.getWriter().println(new ObjectMapper().writeValueAsString(result));
+		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
+		params.put("group_id", request.getParameter("group_id"));
+		String sql = "select vehicle_id from vehicle_relation where company = :company and group_id = :group_id";
+		List<String> items = this.dml.selectListBySql(sql, params, String.class, 0, 0);
+		return this.getResultSet(true, items.size(), items);		
 	}
 	
 	@Override
 	protected Map<String, Object> convertItem(HttpServletRequest request, IEntity entity) {
 		
-		// TODO view에서 변경 필요 (DB : id, company, name, expl, created_at, updated_at ==> View : key, company, id, desc, created_at, updated_at)
 		VehicleGroup group = (VehicleGroup)entity;
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("key", group.getId());
-		map.put("company", group.getCompany());
-		map.put("id", group.getName());
-		map.put("expl", group.getExpl());
+		Map<String, Object> map = group.toMap(null);
 		map.put("desc", group.getExpl());
-		map.put("created_at", group.getCreatedAt());
-		map.put("updated_at", group.getUpdatedAt());
 		return map;
 	}
 	
@@ -144,7 +160,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
 		
 		VehicleGroup group = (VehicleGroup)entity;
-		group.setName(request.getParameter("id"));
+		group.setId(request.getParameter("id"));
 		group.setExpl(request.getParameter("desc"));		
 		group.beforeUpdate();
 		return group;
@@ -155,63 +171,97 @@ public class VehicleGroupOrmService extends OrmEntityService {
 		
 		if(entity == null) {
 			String company = this.getCompany(request);
-			String name = request.getParameter("id");
+			String id = request.getParameter("id");
 			String expl = request.getParameter("desc");
-			entity = new VehicleGroup(company, name, expl);
+			entity = new VehicleGroup(company, id, expl);
 		}
 		
 		entity.beforeCreate();
 		return entity;
 	}
 	
-	/**
-	 * vehicleIdList내에 포함된 vehicleId로 실제 vehicle을 조회 
-	 * 
-	 * @param company
-	 * @param vehicleIdList
-	 * @param selects
-	 * @return
-	 * @throws Exception
-	 */
-	private List<Map<String, Object>> retrieveVehicles(String company, List<String> vehicleIdList, String[] selects) 
-	throws Exception {
+	@RequestMapping(value = "/vehicle_relation/delete", method = RequestMethod.POST)
+	public @ResponseBody
+	String deleteRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
+		response.setContentType("text/html; charset=UTF-8");
+		String company = this.getCompany(request);
+		String groupId = request.getParameter("vehicle_group_id");
+		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
+		Query query = new Query();
+		query.addFilter("company", company).addFilter("group_id", groupId).addFilter("vehicle_id", vehicleIdArr);
 		
-		if(!vehicleIdList.isEmpty()) {
-			Key companyKey = KeyFactory.createKey("Company", company);
+		try {
+			List<VehicleRelation> relations = this.dml.selectList(VehicleRelation.class, query);
+		
+			if(!relations.isEmpty())
+				this.dml.deleteBatch(relations);
+		
+			return "{ \"success\" : true, \"msg\" : \"Vehicle group destroyed!\", \"key\" : \"" + groupId + "\" }";
 			
-			if(!vehicleIdList.isEmpty()) {
-				Iterator<Entity> vehilces = 
-						DatastoreUtils.findEntities(companyKey, "Vehicle", DataUtils.newMap("id", vehicleIdList));
-				while (vehilces.hasNext()) {
-					Entity vehicle = vehilces.next();
-					items.add(SessionUtils.cvtEntityToMap(vehicle, selects));
-				}
+		} catch (Exception e) {
+			return "{ \"success\" : false, \"msg\" : \"Failed to destroyed vehicle group " + e.getMessage() + "\", \"key\" : \"" + groupId + "\" }";
+		}		
+	}
+	
+	@RequestMapping(value = "/vehicle_relation/save", method = RequestMethod.POST)
+	public @ResponseBody
+	String saveRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		response.setContentType("text/html; charset=UTF-8");
+		String company = this.getCompany(request);
+		String groupId = request.getParameter("driver_group_id");
+		String[] vehicleIdArr = request.getParameterValues("driver_id");		
+		
+		try {
+			List<VehicleRelation> oldRelations = this.findVehicleRelations(company, groupId, vehicleIdArr);
+			List<VehicleRelation> newRelations = new ArrayList<VehicleRelation>();
+		
+			for(int i = 0 ; i < vehicleIdArr.length ; i++) {
+				if(!this.existVehicleRelation(oldRelations, vehicleIdArr[i]))			
+					newRelations.add(new VehicleRelation(company, groupId, vehicleIdArr[i]));
 			}
+			
+			this.dml.insertBatch(newRelations);
+			
+		} catch(Exception e) {
+			return "{\"success\" : false, \"msg\" : \"Failed to save - " + e.getMessage() + "\"}";
 		}
 		
-		return items;
+		return "{\"success\" : true, \"msg\" : \"Succeeded to save!\"}";
 	}
 	
 	/**
-	 * company, vehicle group name으로 VehicleGroup을 찾아서 id를 리턴한다. 
+	 * vehicle relation 정보를 조회 
 	 * 
 	 * @param company
-	 * @param groupName
+	 * @param groupId
+	 * @param vehicleIdArr
 	 * @return
 	 * @throws Exception
 	 */
-	private Long getVehicleGroupId(String company, String groupName) throws Exception {
-		
-		Query q = new Query();
-		q.addFilter("company", company).addFilter("name", groupName);
-		VehicleGroup group = this.dml.select(VehicleGroup.class, q);
-		
-		if(group == null)
-			throw new Exception("VehicleGroup (company : " + company + ", name : " + groupName + ") Not Found!");
-		
-		return group.getId();
+	private List<VehicleRelation> findVehicleRelations(String company, String groupId, String[] vehicleIdArr) throws Exception {
+		// TODO 체크 
+		Query query = new Query();
+		query.addFilter("company", company).addFilter("group_id", groupId).addFilter("vehicle_id", vehicleIdArr);
+		return this.dml.selectList(VehicleRelation.class, query);
 	}
-
+	
+	/**
+	 * relations에 driverId가 존재하는지 체크 
+	 * 
+	 * @param relations
+	 * @param vehicleId
+	 * @return
+	 */
+	private boolean existVehicleRelation(List<VehicleRelation> relations, String vehicleId) {
+		
+		for(VehicleRelation rel : relations) {
+			if(rel.getVehicleId().equalsIgnoreCase(vehicleId)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

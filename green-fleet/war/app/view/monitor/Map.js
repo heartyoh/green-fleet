@@ -80,7 +80,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				zoom : 10,
 				maxZoom : 19,
 				minZoom : 3,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			});
 		}
@@ -135,7 +135,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var driver = record.get('driver_id');
 			var driverRecord = Ext.getStore('DriverBriefStore').findRecord('id', driver);
 			
-			var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			var latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
 			
 			var marker = new google.maps.Marker({
 				position : latlng,
@@ -167,7 +167,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		}, this);
 		
 		if(!bounds) {
-			this.getMap().setCenter(new google.maps.LatLng(System.props.lattitude, System.props.longitude));
+			this.getMap().setCenter(new google.maps.LatLng(System.props.lat, System.props.lng));
 		} else if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
 			this.getMap().setCenter(bounds.getNorthEast());
 		} else if(autofit){ // 자동 스케일 조정 경우 

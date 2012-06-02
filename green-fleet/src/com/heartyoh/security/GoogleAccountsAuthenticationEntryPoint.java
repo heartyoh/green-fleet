@@ -17,8 +17,8 @@ public class GoogleAccountsAuthenticationEntryPoint implements AuthenticationEnt
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
 			throws IOException, ServletException {
 		UserService userService = UserServiceFactory.getUserService();
-
-		response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
+		String loginUrl = userService.createLoginURL(request.getRequestURI());
+		response.sendRedirect(loginUrl);
 	}
 
 }

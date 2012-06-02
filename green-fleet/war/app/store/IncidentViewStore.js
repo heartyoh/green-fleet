@@ -26,10 +26,10 @@ Ext.define('GreenFleet.store.IncidentViewStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',

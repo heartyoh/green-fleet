@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dbist.dml.Dml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -19,12 +20,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.heartyoh.util.AsyncUtils;
+import com.heartyoh.model.Vehicle;
+import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -73,28 +73,28 @@ public class TrackService extends EntityService {
 		String terminal_id = (String) map.get("terminal_id");
 		String vehicle_id = (String) map.get("vehicle_id");
 		String driver_id = (String) map.get("driver_id");
-		String lattitude = (String) map.get("lattitude");
-		String longitude = (String) map.get("longitude");
-		String velocity = (String) map.get("velocity");
+		String velocity = (String) map.get("velocity");		
+		String lat = map.containsKey("lat") ? (String) map.get("lat") : "0";		
+		String lng = map.containsKey("lng") ? (String) map.get("lng") : "0";		
 
-		double dblLattitude = 0;
-		double dblLongitude = 0;
+		double dblLat = 0;
+		double dblLng = 0;
 		
-		if (!DataUtils.isEmpty(lattitude)) {
-			dblLattitude = Double.parseDouble(lattitude);
-			entity.setProperty("lattitude", dblLattitude);
+		if (!DataUtils.isEmpty(lat)) {
+			dblLat = Double.parseDouble(lat);
+			entity.setProperty("lat", dblLat);
 		}
 		
-		if (!DataUtils.isEmpty(longitude)) {
-			dblLongitude = Double.parseDouble(longitude);
-			entity.setProperty("longitude", dblLongitude);
+		if (!DataUtils.isEmpty(lng)) {
+			dblLng = Double.parseDouble(lng);
+			entity.setProperty("lng", dblLng);
 		}
 		
-		if(dblLattitude == 0 && dblLongitude == 0)
-			throw new Exception("Both of lattitude & longitude values are 0. It might meant to be non stable status of blackbox.");
+		if(dblLat == 0 && dblLng == 0)
+			throw new Exception("Both of latitude & longitude values are 0. It might meant to be non stable status of blackbox.");
 		
 		// 위치 기반 서비스 알림 비동기 처리
-		// AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLattitude, dblLongitude);
+		// AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLatitude, dblLongitude);
 		
 		entity.setProperty("terminal_id", terminal_id);
 		entity.setProperty("vehicle_id", vehicle_id);
@@ -107,18 +107,17 @@ public class TrackService extends EntityService {
 	@Override
 	protected void saveEntity(Entity trackObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		Key vehicleKey = KeyFactory.createKey(trackObj.getParent(), "Vehicle", (String)trackObj.getProperty("vehicle_id"));
-		Entity vehicle = DatastoreUtils.findVehicle(vehicleKey);
-
-		if(vehicle != null) {			
-			vehicle.setProperty("lattitude", trackObj.getProperty("lattitude"));
-			vehicle.setProperty("longitude", trackObj.getProperty("longitude"));
-			vehicle.setProperty("driver_id", trackObj.getProperty("driver_id"));
-			vehicle.setProperty("terminal_id", trackObj.getProperty("terminal_id"));			
-			super.saveEntity(vehicle, map, datastore);
+		Dml dml = ConnectionManager.getInstance().getDml();
+		Vehicle vehicle = new Vehicle(trackObj.getParent().getName(), (String)trackObj.getProperty("vehicle_id"));
+		vehicle = dml.select(vehicle);
+		
+		if(vehicle != null) {
+			vehicle.setLat(DataUtils.toFloat(trackObj.getProperty("lat")));
+			vehicle.setLng(DataUtils.toFloat(trackObj.getProperty("lng")));
+			dml.update(vehicle);
 		}
 		
-		super.saveEntity(trackObj, map, datastore);
+		datastore.put(trackObj);
 	}
 
 	@RequestMapping(value = "/track/import", method = RequestMethod.POST)
@@ -139,12 +138,12 @@ public class TrackService extends EntityService {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = {"/track", "/m/data/track.json"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/track", "/m/data/track"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrievex(HttpServletRequest request, HttpServletResponse response) {
-		return super.retrieve(request, response);
+		return super.retrieve(request, response);		
 	}
-
+	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		

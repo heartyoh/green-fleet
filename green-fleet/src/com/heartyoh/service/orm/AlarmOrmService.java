@@ -4,7 +4,6 @@
 package com.heartyoh.service.orm;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,35 +11,30 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.dbist.dml.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.Alarm;
 import com.heartyoh.model.AlarmVehicleRelation;
 import com.heartyoh.model.IEntity;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
 
 /**
  * Alarm 관리 서비스
  * 
  * @author jhnam
  */
+@Controller
 public class AlarmOrmService extends OrmEntityService {
 
 	/**
 	 * key fields
 	 */
-	private String[] keyFields = new String[] { "company", "name" };
+	private static final String[] KEY_FILEDS = new String[] { "company", "name" };
 	
 	@Override
 	public Class<?> getEntityClass() {
@@ -49,7 +43,7 @@ public class AlarmOrmService extends OrmEntityService {
 
 	@Override
 	public String[] getKeyFields() {
-		return this.keyFields;
+		return KEY_FILEDS;
 	}
 
 	@Override
@@ -61,40 +55,47 @@ public class AlarmOrmService extends OrmEntityService {
 	}
 
 	@RequestMapping(value = "/alarm/import", method = RequestMethod.POST)
-	public void imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.imports(request, response);
+	public @ResponseBody 
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.imports(request, response);
 	}
 	
 	@RequestMapping(value = "/alarm/delete", method = RequestMethod.POST)
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.delete(request, response);
+	public @ResponseBody
+	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = "/alarm", method = RequestMethod.GET)
-	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.retrieveByPaging(request, response);
+	@RequestMapping(value = {"/alarm", "/m/data/alarm"}, method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.retrieveByPaging(request, response);
 	}
 	
 	@RequestMapping(value = "/alarm/save", method = RequestMethod.POST)
-	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.save(request, response);
+	public @ResponseBody
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.save(request, response);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/alarm/find", method = RequestMethod.GET)
-	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody
+	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		response.setContentType("text/html; charset=UTF-8");
 		String company = this.getCompany(request);
 		String name = request.getParameter("name");
-		String query = "select * from alarm where company = :company and name = :name";
-		Map<String, Object> paramMap = DataUtils.newMap(new String[] { "company", "name" }, new Object[] { company, name } );
-		@SuppressWarnings("rawtypes")
-		Map result = this.dml.selectBySql(query, paramMap, Map.class);
-		result.put("vehicles", this.findVehicleRelation(company, name));
-		result.put("success", true);
-		response.setContentType("text/html; charset=UTF-8");
-		response.getWriter().println(new ObjectMapper().writeValueAsString(result));		
-	}
+		
+		try {
+			Map<String, Object> item = super.find(request, response);
+			item.put("success", true);
+			item.put("vehicles", this.findVehicleRelation(company, name));
+			return item;
+			
+		} catch(Exception e) {
+			return DataUtils.newMap(new String[] { "result", "msg" }, new Object[] { false, "Failed to find -" + e.getMessage() }); 
+		}
+ 	}
 	
 	@Override
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
@@ -136,8 +137,8 @@ public class AlarmOrmService extends OrmEntityService {
 		this.deleteVehicleRelation(alarm);
 		
 		// 3. lba status 삭제 
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		this.deleteLbaStatus(datastore, alarm);
+		//DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		//this.deleteLbaStatus(datastore, alarm);
 		return alarm;
 	}
 	
@@ -152,7 +153,7 @@ public class AlarmOrmService extends OrmEntityService {
 		this.saveVehicleRelation(alarm, vehicles);
 		
 		// 3. save lba status 
-		this.saveLbaStatus(alarm, vehicles);	
+		//this.saveLbaStatus(alarm, vehicles);	
 		return alarm;
 	}
 	
@@ -244,13 +245,13 @@ public class AlarmOrmService extends OrmEntityService {
 	 * @param vehicles
 	 * @throws Exception
 	 */
-	private void saveLbaStatus(Alarm alarm, String[] vehicles) throws Exception {
+	/*private void saveLbaStatus(Alarm alarm, String[] vehicles) throws Exception {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();		
 		// Alarm 저장하기 전에 Alarm과 관계된 LbaStatus 정보를 추가 또는 갱신한다. lbaStatus 삭제 후 재 생성 
 		this.deleteLbaStatus(datastore, alarm);
 		this.createLbaStatus(datastore, alarm, vehicles);
-	}
+	}*/
 	
 	/**
 	 * Alarm과 관련된 LbaStatus 리스트를 생성 
@@ -260,7 +261,7 @@ public class AlarmOrmService extends OrmEntityService {
 	 * @param vehicles
 	 * @throws Exception
 	 */
-	private void createLbaStatus(DatastoreService datastore, Alarm alarm, String[] vehicles) throws Exception {
+	/*private void createLbaStatus(DatastoreService datastore, Alarm alarm, String[] vehicles) throws Exception {
 		
 		Key companyKey = KeyFactory.createKey("Company", alarm.getCompany());
 		List<Entity> lbaStatusList = new ArrayList<Entity>();
@@ -273,7 +274,7 @@ public class AlarmOrmService extends OrmEntityService {
 		}
 		
 		datastore.put(lbaStatusList);
-	}
+	}*/
 	
 	/**
 	 * LbaStatus Entity를 생성 
@@ -283,7 +284,7 @@ public class AlarmOrmService extends OrmEntityService {
 	 * @param vehicle
 	 * @return
 	 */
-	private Entity newLbaStatus(Key companyKey, Alarm alarm, String vehicle) {
+	/*private Entity newLbaStatus(Key companyKey, Alarm alarm, String vehicle) {
 		
 		Entity lbaStatus = new Entity(KeyFactory.createKey(companyKey, "LbaStatus", vehicle + "@" + alarm.getName()));
 		lbaStatus.setProperty("vehicle", vehicle);
@@ -296,7 +297,7 @@ public class AlarmOrmService extends OrmEntityService {
 		boolean use = alarm.isAlways() ? true : DataUtils.between(DataUtils.getToday(), alarm.getFromDate(), alarm.getToDate());
 		lbaStatus.setProperty("use", use);
 		return lbaStatus;
-	}	
+	}*/
 	
 	/**
 	 * Alarm과 관련된 LbaStatus를 찾아 삭제 
@@ -305,7 +306,7 @@ public class AlarmOrmService extends OrmEntityService {
 	 * @param alarm
 	 * @throws Exception
 	 */
-	private void deleteLbaStatus(DatastoreService datastore, Alarm alarm) throws Exception {
+	/*private void deleteLbaStatus(DatastoreService datastore, Alarm alarm) throws Exception {
 		
 		Key companyKey = KeyFactory.createKey("Company", alarm.getCompany());
 		List<Entity> lbaStatusList = DatastoreUtils.findEntityList(companyKey, "LbaStatus", DataUtils.newMap("alarm", alarm.getName()));
@@ -318,6 +319,6 @@ public class AlarmOrmService extends OrmEntityService {
 			keysToDel.add(lbaStatus.getKey());
 		
 		datastore.delete(keysToDel);
-	}
+	}*/
 	
 }

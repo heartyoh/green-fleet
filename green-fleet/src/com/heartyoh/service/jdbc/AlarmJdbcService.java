@@ -37,11 +37,11 @@ import com.heartyoh.util.DatastoreUtils;
  * 
  * @author jhnam
  */
-@Controller
+
 public class AlarmJdbcService extends JdbcEntityService {
 	
 	/**
-	 * 
+	 * logger
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(AlarmJdbcService.class);
 	/**

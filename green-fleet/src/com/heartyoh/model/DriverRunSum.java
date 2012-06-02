@@ -395,5 +395,10 @@ public class DriverRunSum extends AbstractEntity {
 
 	public void setSpdLt160(int spdLt160) {
 		this.spdLt160 = spdLt160;
+	}
+	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.driver + "@" + this.year + "@" + this.month;
 	}	
 }

@@ -155,6 +155,100 @@ Ext.define('GreenFleet.mixin.Import', function() {
 		uploadIncidentVideo : uploadIncidentVideo
 	};
 }());
+Ext.define('GreenFleet.mixin.Setting', function() {
+	var defaultSettings = [{
+		id : 'autofit',
+		value : false
+	}, {
+		id : 'refreshTerm',
+		value : 10
+	}, {
+		id : 'navBarHide',
+		value : false
+	}, {
+		id : 'auto_max_zoom',
+		value : 16
+	}];
+	
+	Ext.define('GreenFleet.mixin.Setting.Model', {
+	    extend: 'Ext.data.Model',
+        fields: [{
+			name : 'id',
+			type : 'string'
+		}, {
+			name : 'value',
+			type : 'auto'
+		}],
+        proxy: {
+            type: 'localstorage',
+            id  : 'greenfleet-settings'
+        }
+	});
+
+	var store = Ext.create('Ext.data.Store', {
+		model : 'GreenFleet.mixin.Setting.Model',
+		autoSync : true
+	});
+	
+	function getLocalSetting(name) {
+		var record = store.getById(name);
+		if(record)
+			return record.get('value');
+		else
+			return null;
+	};
+	
+	function setLocalSetting(name, value) {
+		var record = store.getById(name);
+		var old;
+		if(!record) {
+			var set = Ext.create('GreenFleet.mixin.Setting.Model', {
+				id : name,
+				value : undefined
+			});
+			store.add(set);
+			record = store.getById(name);
+		}
+
+		record.set('value', value);
+		record.commit();
+		
+		return old;
+	};
+	
+	Ext.define('GreenFleet.mixin.Setting.Inner', {
+		mixins: ['Ext.util.Observable'],
+		
+		set : function(id, val) {
+			var old = setLocalSetting(id, val);
+			this.fireEvent(id, val, old);
+		},
+		
+		get : function(id) {
+			return getLocalSetting(id);
+		}
+	});
+	
+	store.on('load', function(store, records) {
+		for(var i = 0;i < defaultSettings.length;i++) {
+			if(!store.getById(defaultSettings[i].id)) {
+				setLocalSetting(defaultSettings[i].id, defaultSettings[i].value);
+			}
+		}
+	});
+	
+	try {
+		store.load();
+	} catch(e) {
+		/* 잘못된 형식의 local cache인 경우 로컬스토리지를 클리어시킴 */
+		store.getProxy().clear();
+		store.load();
+	}
+
+	return {
+		setting : Ext.create('GreenFleet.mixin.Setting.Inner')
+	}
+}());
 Ext.define('GreenFleet.view.Viewport', {
 	extend : 'Ext.container.Viewport',
 
@@ -1077,11 +1171,10 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var groupId = button.vehicleGroup.get('id');		
 		
 		Ext.Ajax.request({
-			url : '/vehicle_group/vehicles',
+			url : '/vehicle_group/vehicle_ids',
 			method : 'GET',
 			params : {
-				vehicle_group_id : groupId,
-				select_mode : 'vehicle_id_only'
+				group_id : groupId
 			},
 			success : function(response) {
 				var resultObj = Ext.JSON.decode(response.responseText);
@@ -2846,9 +2939,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	title : T('title.vehicle'),
 
 	entityUrl : 'vehicle',
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */ 
+	
 	importUrl : 'vehicle/import',
 	
 	afterImport : function() {
@@ -2955,6 +3046,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.manufacturer'),
 				type : 'string'
 			}, {
+				dataIndex : 'vehicle_model',
+				text : T('label.vehicle_model'),
+				type : 'string'
+			}, {
 				dataIndex : 'fuel_type',
 				text : T('label.fuel_type'),
 				type : 'string'
@@ -2987,10 +3082,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.remaining_fuel'),
 				type : 'string'
 			}, {
-				dataIndex : 'lattitude',
-				text : T('label.lattitude')
+				dataIndex : 'lat',
+				text : T('label.latitude')
 			}, {
-				dataIndex : 'longitude',
+				dataIndex : 'lng',
 				text : T('label.longitude')
 			}, {
 				dataIndex : 'updated_at',
@@ -3064,6 +3159,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'registration_number',
 							fieldLabel : T('label.reg_no')
 						}, {
+							name : 'vehicle_model',
+							fieldLabel : T('label.vehicle_model')
+						}, {
 							xtype : 'codecombo',
 							name : 'manufacturer',
 							group : 'V-Maker',
@@ -3117,19 +3215,23 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
 						}, {
+							xtype : 'combo',
 							name : 'driver_id',
-							fieldLabel : T('label.driver'),
-							disabled : true
+							queryMode : 'local',
+							store : 'DriverBriefStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : T('label.driver')
 						}, {
 							name : 'terminal_id',
 							fieldLabel : T('label.terminal'),
 							disabled : true
 						}, {
-							name : 'lattitude',
-							fieldLabel : T('label.lattitude'),
+							name : 'lat',
+							fieldLabel : T('label.latitude'),
 							disabled : true
 						}, {
-							name : 'longitude',
+							name : 'lng',
 							fieldLabel : T('label.longitude'),
 							disabled : true
 						}, {
@@ -3275,6 +3377,10 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				text : T('label.x_no', {x : T('label.serial')}),
 				type : 'string'
 			}, {
+				dataIndex : 'vehicle_id',
+				text : T('label.vehicle'),
+				type : 'string'
+			}, {				
 				dataIndex : 'buying_date',
 				text : T('label.x_date', {x : T('label.buying')}),
 				//xtype : 'datecolumn',
@@ -3354,6 +3460,14 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				}, {
 					name : 'serial_no',
 					fieldLabel : T('label.x_no', {x : T('label.serial')})
+				}, {
+					xtype : 'combo',
+					name : 'vehicle_id',
+					queryMode : 'local',
+					store : 'VehicleBriefStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : T('label.vehicle')
 				}, {
 					xtype : 'datefield',
 					name : 'buying_date',
@@ -3458,8 +3572,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.down('#search').on('click', function() {
-//			self.sub('grid').store.load();
-			self.sub('grid').search();
+			self.search();
 		});
 
 	},
@@ -3468,10 +3581,10 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		this.sub('grid').store.load({
 			filters : [ {
 				property : 'vehicle_id',
-				value : self.sub('vehicle_filter').getSubmitValue()
+				value : this.sub('vehicle_filter').getSubmitValue()
 			}, {
 				property : 'reserved_date',
-				value : self.sub('reserved_date_filter').getSubmitValue()
+				value : this.sub('reserved_date_filter').getSubmitValue()
 			} ],
 			callback : callback
 		});
@@ -3757,11 +3870,11 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : T('label.terminal'),
 				type : 'string'
 			}, {
-				dataIndex : 'lattitude',
-				text : T('label.lattitude'),
+				dataIndex : 'lat',
+				text : T('label.latitude'),
 				type : 'number'
 			}, {
-				dataIndex : 'longitude',
+				dataIndex : 'lng',
 				text : T('label.longitude'),
 				type : 'number'
 			}, {
@@ -3925,11 +4038,11 @@ Ext.define('GreenFleet.view.management.Incident', {
 							fieldLabel : T('label.terminal')
 						}, {
 							xtype : 'textfield',
-							name : 'lattitude',
-							fieldLabel : T('label.lattitude')
+							name : 'lat',
+							fieldLabel : T('label.latitude')
 						}, {
 							xtype : 'textfield',
-							name : 'longitude',
+							name : 'lng',
 							fieldLabel : T('label.longitude')
 						}, {
 							xtype : 'textfield',
@@ -4414,11 +4527,11 @@ Ext.define('GreenFleet.view.management.Track', {
 				format : F('datetime'),
 				width : 120
 			}, {
-				dataIndex : 'lattitude',
-				text : T('label.lattitude'),
+				dataIndex : 'lat',
+				text : T('label.latitude'),
 				type : 'number'
 			}, {
-				dataIndex : 'longitude',
+				dataIndex : 'lng',
 				text : T('label.longitude'),
 				type : 'number'
 			}, {
@@ -4527,10 +4640,10 @@ Ext.define('GreenFleet.view.management.Track', {
 				fieldLabel : T('label.datetime'),
 				format : F('datetime')
 			}, {
-				name : 'lattitude',
-				fieldLabel : T('label.lattitude')
+				name : 'lat',
+				fieldLabel : T('label.latitude')
 			}, {
-				name : 'longitude',
+				name : 'lng',
 				fieldLabel : T('label.longitude')
 			}, {
 				name : 'velocity',
@@ -5011,7 +5124,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 	},
 
 	initComponent : function() {
-		this.items = [ this.ztitle, this.zmap ];
+		this.items = [ this.ztitle(), this.zmap ];
 		
 		this.callParent();
 		
@@ -5028,7 +5141,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			
 			vehicleFilteredStore.on('datachanged', function() {
 				if(self.isVisible()) {
-					self.refreshMap(vehicleFilteredStore, self.sub('autofit').getValue());
+					self.refreshMap(vehicleFilteredStore, GreenFleet.setting.get('autofit'));
 				}
 			});
 			
@@ -5049,17 +5162,22 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		
 		this.on('activate', function() {
 			google.maps.event.trigger(self.getMap(), 'resize');
-			if(self.sub('autofit').getValue())
+			if(GreenFleet.setting.get('autofit'))
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), true);
 		});
 		
-		this.sub('autofit').on('change', function(check, newValue) {
-			if(newValue)
+		this.down('[itemId=autofit]').on('change', function(check, newValue) {
+			if(newValue) {
+				GreenFleet.setting.set('autofit', newValue);
+				
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
+			}
 		});
 
-		this.sub('refreshterm').on('change', function(combo, newValue) {
+		this.down('[itemId=refreshterm]').on('change', function(combo, newValue) {
 			if(newValue) {
+				GreenFleet.setting.set('refreshTerm', newValue);
+
 				clearInterval(interval);
 				interval = setInterval(function() {
 					vehicleMapStore.load();
@@ -5075,7 +5193,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 				zoom : 10,
 				maxZoom : 19,
 				minZoom : 3,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			});
 		}
@@ -5130,7 +5248,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			var driver = record.get('driver_id');
 			var driverRecord = Ext.getStore('DriverBriefStore').findRecord('id', driver);
 			
-			var latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			var latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
 			
 			var marker = new google.maps.Marker({
 				position : latlng,
@@ -5162,7 +5280,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		}, this);
 		
 		if(!bounds) {
-			this.getMap().setCenter(new google.maps.LatLng(System.props.lattitude, System.props.longitude));
+			this.getMap().setCenter(new google.maps.LatLng(System.props.lat, System.props.lng));
 		} else if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
 			this.getMap().setCenter(bounds.getNorthEast());
 		} else if(autofit){ // 자동 스케일 조정 경우 
@@ -5172,69 +5290,71 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		}
 	},
 	
-	ztitle : {
-		xtype : 'container',
-		cls :'pageTitle',
-		height: 35,
-		layout : {
-			type : 'hbox',
-			align : 'stretch'
-		},
-		items : [{
-			flex : 1,
-			html : '<h1>' + T('title.map') + '</h1>'
-		}, {
-			xtype : 'combo',
-			valueField : 'value',
-			displayField : 'display',
-			value : 10,
-			width : 180,
-			labelWidth : 110,
-			labelAlign : 'right',
-			labelSeparator : '',
-			store : Ext.create('Ext.data.Store', {
-				data : [{
-					value : 3,
-					display : '3' + T('label.second_s')
-				}, {
-					value : 5,
-					display : '5' + T('label.second_s')
-				}, {
-					value : 10,
-					display : '10' + T('label.second_s')
-				}, {
-					value : 30,
-					display : '30' + T('label.second_s')
-				}, {
-					value : 60,
-					display : '1' + T('label.minute_s')
-				}, {
-					value : 300,
-					display : '5' + T('label.minute_s')
-				}],
-				fields : [
-					'value', 'display'
-				]
-			}),
-			queryMode : 'local',
-			fieldLabel : T('label.refreshterm'),
-			itemId : 'refreshterm'
-		}, {
-			xtype : 'checkboxgroup',
-			width : 80,
-			defaults : {
-				boxLabelAlign : 'before',
-				width : 80,
-				checked : true,
-				labelWidth : 60,
-				labelAlign : 'right',
-				labelSeparator : ''
+	ztitle : function() {
+		return {
+			xtype : 'container',
+			cls :'pageTitle',
+			height: 35,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
 			},
 			items : [{
-				fieldLabel : T('label.autofit'),
-				itemId : 'autofit'
+				flex : 1,
+				html : '<h1>' + T('title.map') + '</h1>'
+			}, {
+				xtype : 'combo',
+				valueField : 'value',
+				displayField : 'display',
+				value : GreenFleet.setting.get('refreshTerm'),
+				width : 180,
+				labelWidth : 110,
+				labelAlign : 'right',
+				labelSeparator : '',
+				store : Ext.create('Ext.data.Store', {
+					data : [{
+						value : 3,
+						display : '3' + T('label.second_s')
+					}, {
+						value : 5,
+						display : '5' + T('label.second_s')
+					}, {
+						value : 10,
+						display : '10' + T('label.second_s')
+					}, {
+						value : 30,
+						display : '30' + T('label.second_s')
+					}, {
+						value : 60,
+						display : '1' + T('label.minute_s')
+					}, {
+						value : 300,
+						display : '5' + T('label.minute_s')
+					}],
+					fields : [
+						'value', 'display'
+					]
+				}),
+				queryMode : 'local',
+				fieldLabel : T('label.refreshterm'),
+				itemId : 'refreshterm'
+			}, {
+				xtype : 'checkboxgroup',
+				width : 80,
+				defaults : {
+					boxLabelAlign : 'before',
+					width : 80,
+					checked : GreenFleet.setting.get('autofit'),
+					labelWidth : 60,
+					labelAlign : 'right',
+					labelSeparator : ''
+				},
+				items : [{
+					fieldLabel : T('label.autofit'),
+					itemId : 'autofit'
+				}]
 			}]
-		}]
+		};
 	},
 	
 	zmap : {
@@ -5526,10 +5646,10 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.remaining_fuel'),
 		type : 'string'
 	}, {
-		dataIndex : 'lattitude',
-		text : T('label.lattitude')
+		dataIndex : 'lat',
+		text : T('label.latitude')
 	}, {
-		dataIndex : 'longitude',
+		dataIndex : 'lng',
 		text : T('label.longitude')
 	}, {
 		dataIndex : 'created_at',
@@ -5655,7 +5775,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				zoom : 10,
 				minZoom : 3,
 				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
@@ -5672,8 +5792,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 //						vehicle_id : self.getVehicle(),
 //						driver_id : self.getDriver(),
 //						terminal_id : self.getTerminal(),
-//						lattitude : e.latLng.lat(),
-//						longitude : e.latLng.lng()
+//						lat : e.latLng.lat(),
+//						lng : e.latLng.lng()
 //					},
 //					success : function(resp, opts) {
 //						var path = self.getTrackLine().getPath();
@@ -5740,11 +5860,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var location = record.get('location');
 			if (location == null || location.length == 0) {
-				var lattitude = record.get('lattitude');
-				var longitude = record.get('longitude');
+				var lat = record.get('lat');
+				var lng = record.get('lng');
 
-				if (lattitude !== undefined && longitude !== undefined) {
-					var latlng = new google.maps.LatLng(lattitude, longitude);
+				if (lat !== undefined && lng !== undefined) {
+					var latlng = new google.maps.LatLng(lat, lng);
 
 					geocoder = new google.maps.Geocoder();
 					geocoder.geocode({
@@ -5888,8 +6008,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		var latlng;
 
 		this.getTrackStore().each(function(record) {
-			var lat = record.get('lattitude');
-			var lng = record.get('longitude');
+			var lat = record.get('lat');
+			var lng = record.get('lng');
 
 			if(lat !== 0 || lng !== 0) {
 				latlng = new google.maps.LatLng(lat, lng);
@@ -5903,12 +6023,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		if (path.getLength() === 0) {
 			var record = this.getForm().getRecord();
-			var lat = record.get('lattitude');
-			var lng = record.get('longitude');
+			var lat = record.get('lat');
+			var lng = record.get('lng');
 			var defaultLatlng = null;
 			
 			if(lat === 0 && lng === 0) {
-				defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+				defaultLatlng = new google.maps.LatLng(System.props.lat, System.props.lng);
 			} else {
 				defaultLatlng = new google.maps.LatLng(lat, lng);
 			}
@@ -6136,14 +6256,15 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				zoom : 12,
 				minZoom : 3,
 				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
 			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
 
 			self.getLogStore().on('load', function(store, records, success) {
-				self.refreshTrack();
+				if(success)
+					self.refreshTrack();
 			});
 		});
 
@@ -6301,9 +6422,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		var incident = this.getIncident();
 		var location = null;
 		if (!incident)
-			location = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			location = new google.maps.LatLng(System.props.lat, System.props.lng);
 		else
-			location = new google.maps.LatLng(incident.get('lattitude'), incident.get('longitude'));
+			location = new google.maps.LatLng(incident.get('lat'), incident.get('lng'));
 
 		this.getMap().setCenter(location);
 
@@ -6336,7 +6457,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		var latlng;
 
 		this.getLogStore().each(function(record) {
-			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
 			path.push(latlng);
 			if (!bounds)
 				bounds = new google.maps.LatLngBounds(latlng, latlng);
@@ -6592,12 +6713,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			type : 'string',
 			width : 80
 		}, {
-			dataIndex : 'lattitude',
-			text : T('label.lattitude'),
+			dataIndex : 'lat',
+			text : T('label.latitude'),
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'longitude',
+			dataIndex : 'lng',
 			text : T('label.longitude'),
 			type : 'number',
 			width : 80
@@ -8571,7 +8692,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 		
 		this.sub('map').on('afterrender', function(mapbox) {
 			self.setGeocoder(new google.maps.Geocoder());
-			var center = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			var center = new google.maps.LatLng(System.props.lat, System.props.lng);
 			var options = {
 				zoom : 10,
 				minZoom : 3,
@@ -8670,7 +8791,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 	refreshLocation : function(center, radius) {		
 		this.refreshMap(center, radius);
 		// 폼 위도, 경도에 추가	
-		this.sub('form_lattitude').setValue(center.lat());
+		this.sub('form_latitude').setValue(center.lat());
 		this.sub('form_longitude').setValue(center.lng());		
 	},	
 	
@@ -8816,7 +8937,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 				type : 'string'
 			}, {
 				dataIndex : 'lat',
-				text : T('label.lattitude'),
+				text : T('label.latitude'),
 				type : 'float'
 			}, {
 				dataIndex : 'lng',
@@ -8828,7 +8949,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 				type : 'int'
 			}, {
 				dataIndex : 'lat_lo',
-				text : T('label.lattitude_min'),
+				text : T('label.latitude_min'),
 				type : 'float'
 			}, {
 				dataIndex : 'lng_lo',
@@ -8836,7 +8957,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 				type : 'float'					
 			}, {
 				dataIndex : 'lat_hi',
-				text : T('label.lattitude_max'),
+				text : T('label.latitude_max'),
 				type : 'float'
 			}, {
 				dataIndex : 'lng_hi',
@@ -8934,10 +9055,10 @@ Ext.define('GreenFleet.view.form.RepairForm', {
                     }
                 ]
 			}, {
-				itemId : 'form_lattitude',
+				itemId : 'form_latitude',
 				name : 'lat',
 				xtype : 'textfield',
-				fieldLabel : T('label.lattitude')
+				fieldLabel : T('label.latitude')
 			}, {
 				itemId : 'form_longitude',
 				name : 'lng',
@@ -8961,7 +9082,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 			}, {
 				itemId : 'form_lat_lo',
 				name : 'lat_lo',
-				fieldLabel : T('label.lattitude_min')
+				fieldLabel : T('label.latitude_min')
 			}, {
 				itemId : 'form_lng_lo',
 				name : 'lng_lo',
@@ -8969,7 +9090,7 @@ Ext.define('GreenFleet.view.form.RepairForm', {
 			}, {
 				itemId : 'form_lat_hi',
 				name : 'lat_hi',
-				fieldLabel : T('label.lattitude_max')
+				fieldLabel : T('label.latitude_max')
 			}, {
 				itemId : 'form_lng_hi',
 				name : 'lng_hi',
@@ -15870,6 +15991,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'manufacturer',
 		type : 'string'
 	}, {
+		name : 'vehicle_model',
+		type : 'string'
+	}, {
 		name : 'fuel_type',
 		type : 'string'
 	}, {
@@ -15897,16 +16021,16 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'remaining_fuel',
 		type : 'float'
 	}, {
-		name : 'lattitude',
-		type : 'float'
-	}, {
 		name : 'driver_id',
 		type : 'string'
 	}, {
 		name : 'terminal_id',
 		type : 'string'
 	}, {
-		name : 'longitude',
+		name : 'lat',
+		type : 'float'			
+	}, {
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'location',
@@ -15952,10 +16076,10 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'location',
@@ -15966,7 +16090,7 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
 		type : 'ajax',
 		url : 'vehicle',
 		extraParams : {
-			select : [ 'id', 'registration_number', 'status', 'driver_id', 'lattitude', 'longitude' ]
+			select : [ 'id', 'registration_number', 'status', 'driver_id', 'lat', 'lng' ]
 		},
 		reader : {
 			type : 'json',
@@ -16006,10 +16130,10 @@ Ext.define('GreenFleet.store.VehicleFilteredStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'location',
@@ -16219,10 +16343,10 @@ Ext.define('GreenFleet.store.IncidentStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',
@@ -16310,10 +16434,10 @@ Ext.define('GreenFleet.store.IncidentByVehicleStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',
@@ -16401,10 +16525,10 @@ Ext.define('GreenFleet.store.IncidentViewStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',
@@ -16491,10 +16615,10 @@ Ext.define('GreenFleet.store.IncidentLogStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',
@@ -16559,10 +16683,10 @@ Ext.define('GreenFleet.store.TrackStore', {
 		type : 'date',
 		dateFormat : 'time'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',
@@ -16820,10 +16944,10 @@ Ext.define('GreenFleet.store.TrackByVehicleStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'number'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'number'
 	}, {
 		name : 'created_at',
@@ -16879,13 +17003,13 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
         type: 'string'
     },
     {
-        name: 'lattitude',
+        name: 'lat',
         type: 'float'
     },
     {
-        name: 'longitude',
+        name: 'lng',
         type: 'float'
-    },
+    },    
     {
         name: 'velocity',
         type: 'float'
@@ -16985,6 +17109,9 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		type : 'string'
 		//type : 'date',
 		//dateFormat:'time'
+	}, {
+		name : 'vehicle_id',
+		type : 'string'
 	}, {
 		name : 'comment',
 		type : 'string'

@@ -59,8 +59,8 @@ public class IncidentLogService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		entity.setProperty("datetime", SessionUtils.stringToDateTime((String) map.get("datetime")));
-		entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
-		entity.setProperty("longitude", doubleProperty(map, "longitude"));
+		entity.setProperty("lat", doubleProperty(map, "lat"));
+		entity.setProperty("lng", doubleProperty(map, "lng"));
 		entity.setProperty("velocity", doubleProperty(map, "velocity"));
 		entity.setProperty("accelate_x", doubleProperty(map, "accelate_x"));
 		entity.setProperty("accelate_y", doubleProperty(map, "accelate_y"));

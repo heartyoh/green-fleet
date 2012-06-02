@@ -119,11 +119,11 @@ Ext.define('GreenFleet.view.management.Incident', {
 				text : T('label.terminal'),
 				type : 'string'
 			}, {
-				dataIndex : 'lattitude',
-				text : T('label.lattitude'),
+				dataIndex : 'lat',
+				text : T('label.latitude'),
 				type : 'number'
 			}, {
-				dataIndex : 'longitude',
+				dataIndex : 'lng',
 				text : T('label.longitude'),
 				type : 'number'
 			}, {
@@ -287,11 +287,11 @@ Ext.define('GreenFleet.view.management.Incident', {
 							fieldLabel : T('label.terminal')
 						}, {
 							xtype : 'textfield',
-							name : 'lattitude',
-							fieldLabel : T('label.lattitude')
+							name : 'lat',
+							fieldLabel : T('label.latitude')
 						}, {
 							xtype : 'textfield',
-							name : 'longitude',
+							name : 'lng',
 							fieldLabel : T('label.longitude')
 						}, {
 							xtype : 'textfield',

@@ -26,7 +26,7 @@ import com.heartyoh.util.DataUtils;
  * @author jhnam
  *
  */
-@Controller
+
 public class DriverRunJdbcService extends JdbcEntityService {
 	
 	/**

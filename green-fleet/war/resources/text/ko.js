@@ -223,11 +223,11 @@ T({
 		cooling_water : '냉각수',
 		timing_belt : '타이밍벨트',
 		spark_plug : '점화플러그',		
-		lattitude : '위도',
+		latitude : '위도',
 		longitude : '경도',
-		lattitude_min : '최소 위도',
+		latitude_min  : '최소 위도',
 		longitude_min : '최소 경도',
-		lattitude_max : '최대 위도',
+		latitude_max  : '최대 위도',
 		longitude_max : '최대 경도',
 		driver : '운전자',
 		vehicle : '차량',
@@ -382,7 +382,8 @@ T({
 		daily : '일별',
 		weekly : '주별',
 		monthly : '월별',
-		yearly : '년별'		
+		yearly : '년별',
+		vehicle_model : '차량 모델'
 	},
 	
 	format : {

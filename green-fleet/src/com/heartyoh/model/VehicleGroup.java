@@ -15,13 +15,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class VehicleGroup extends AbstractEntity {
 
 	/**
-	 * auto increment id
+	 * vehicle group id
 	 */
-	private Long id;
-	/**
-	 * vehicle group name
-	 */
-	private String name;
+	private String id;
 	/**
 	 * vehicle group explanation
 	 */
@@ -45,29 +41,21 @@ public class VehicleGroup extends AbstractEntity {
 	 * 생성자 
 	 * 
 	 * @param company
-	 * @param name
+	 * @param id
 	 * @param expl
 	 */
-	public VehicleGroup(String company, String name, String expl) {
+	public VehicleGroup(String company, String id, String expl) {
 		this.company = company;
-		this.name = name;
+		this.id = id;
 		this.expl = expl;
 	}
 	
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
 	}
 	
 	public String getExpl() {
@@ -119,4 +107,8 @@ public class VehicleGroup extends AbstractEntity {
 		return new ObjectMapper().writeValueAsString(this);
 	}
 	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.id;
+	}	
 }

@@ -24,10 +24,10 @@ Ext.define('GreenFleet.store.TrackStore', {
 		type : 'date',
 		dateFormat : 'time'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'velocity',

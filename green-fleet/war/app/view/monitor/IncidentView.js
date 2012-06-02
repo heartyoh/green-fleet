@@ -44,7 +44,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 				zoom : 12,
 				minZoom : 3,
 				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
@@ -210,9 +210,9 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		var incident = this.getIncident();
 		var location = null;
 		if (!incident)
-			location = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			location = new google.maps.LatLng(System.props.lat, System.props.lng);
 		else
-			location = new google.maps.LatLng(incident.get('lattitude'), incident.get('longitude'));
+			location = new google.maps.LatLng(incident.get('lat'), incident.get('lng'));
 
 		this.getMap().setCenter(location);
 
@@ -245,7 +245,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		var latlng;
 
 		this.getLogStore().each(function(record) {
-			latlng = new google.maps.LatLng(record.get('lattitude'), record.get('longitude'));
+			latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
 			path.push(latlng);
 			if (!bounds)
 				bounds = new google.maps.LatLngBounds(latlng, latlng);
@@ -501,12 +501,12 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			type : 'string',
 			width : 80
 		}, {
-			dataIndex : 'lattitude',
-			text : T('label.lattitude'),
+			dataIndex : 'lat',
+			text : T('label.latitude'),
 			type : 'number',
 			width : 80
 		}, {
-			dataIndex : 'longitude',
+			dataIndex : 'lng',
 			text : T('label.longitude'),
 			type : 'number',
 			width : 80

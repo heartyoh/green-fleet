@@ -102,6 +102,10 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				text : T('label.x_no', {x : T('label.serial')}),
 				type : 'string'
 			}, {
+				dataIndex : 'vehicle_id',
+				text : T('label.vehicle'),
+				type : 'string'
+			}, {				
 				dataIndex : 'buying_date',
 				text : T('label.x_date', {x : T('label.buying')}),
 				//xtype : 'datecolumn',
@@ -181,6 +185,14 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				}, {
 					name : 'serial_no',
 					fieldLabel : T('label.x_no', {x : T('label.serial')})
+				}, {
+					xtype : 'combo',
+					name : 'vehicle_id',
+					queryMode : 'local',
+					store : 'VehicleBriefStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : T('label.vehicle')
 				}, {
 					xtype : 'datefield',
 					name : 'buying_date',

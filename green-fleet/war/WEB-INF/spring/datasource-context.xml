@@ -12,11 +12,19 @@
 
  	<context:annotation-config />
 	
-	<!--aop:config>
+	<aop:config>
 		<aop:aspect order="1" ref="sqlAspect">
 			<aop:around method="print" pointcut="execution(* org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate.*(..))" />
 		</aop:aspect>
 	</aop:config>
+	
+	<bean id="dataSourceJdbc" class="com.heartyoh.datasource.GfDataSource">
+		<property name="loginTimeout" value="10" />
+		<property name="driverClassName" value="com.google.appengine.api.rdbms.AppEngineDriver" />
+		<property name="connectionUrl" value="jdbc:google:rdbms://green-fleets-cloudsql:green-fleets/fleet_master" />
+		<property name="user" value="root" />
+		<property name="password" value="" />
+	</bean>
 	
 	<bean id="sqlAspect" class="org.dbist.aspect.SqlAspect">
 		<property name="enabled" value="true" />
@@ -42,10 +50,9 @@
      	<constructor-arg name="dataSource" index="0" ref="dataSourceJdbc" />
     </bean>
     
-    <bean id="dataSourceJdbc" class="org.apache.commons.dbcp.BasicDataSource">
+    <!--bean id="dataSourceJdbc" class="com.heartyoh.datasource.GfDataSource">
 	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-	    <property name="url" value="jdbc:mysql://localhost:3306/fleet_master?characterEncoding=UTF-8" />
-    
+	    <property name="url" value="jdbc:mysql://localhost:3306/fleet_master?characterEncoding=UTF-8" />    
 	    <property name="driverClassName" value="com.google.appengine.api.rdbms.AppEngineDriver" />
 	    <property name="url" value="jdbc:google:rdbms://green-fleets-cloudsql:green-fleets/fleet_master" />	    
 	    <property name="username" value="root" />
@@ -53,10 +60,11 @@
 		<property name="maxActive" value="10" />
 		<property name="initialSize" value="5" />
 		<property name="minIdle" value="5" />
-		<property name="maxWait" value="5000" />
-    </bean>
+		<property name="maxWait" value="5000"/>
+    </bean-->
     
 	<bean id="connectionManager" class="com.heartyoh.util.ConnectionManager" factory-method="createInstance">
 		<property name="dml" ref="dml" />
-	</bean-->    
+		<property name="dataSource" ref="dataSourceJdbc" />
+	</bean>
 </beans>

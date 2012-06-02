@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dbist.dml.Dml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -20,13 +21,13 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.AlarmUtils;
+import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -79,11 +80,11 @@ public class IncidentService extends EntityService {
 		if (map.get("vehicle_id") != null)
 			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		if (map.get("driver_id") != null)
-			entity.setProperty("driver_id", stringProperty(map, "driver_id"));
-		if (map.get("lattitude") != null)
-			entity.setProperty("lattitude", doubleProperty(map, "lattitude"));
-		if (map.get("longitude") != null)
-			entity.setProperty("longitude", doubleProperty(map, "longitude"));
+			entity.setProperty("driver_id", stringProperty(map, "driver_id"));		
+		if (map.get("lat") != null)
+			entity.setProperty("lat", doubleProperty(map, "lat"));		
+		if (map.get("lng") != null)
+			entity.setProperty("lng", doubleProperty(map, "lng"));		
 		if (map.get("velocity") != null)
 			entity.setProperty("velocity", doubleProperty(map, "velocity"));
 		if (map.get("impulse_abs") != null)
@@ -106,23 +107,23 @@ public class IncidentService extends EntityService {
 			entity.setProperty("confirm", booleanProperty(map, "confirm"));
 		}
 
-		super.onSave(entity, map, datastore);
-		
+		super.onSave(entity, map, datastore);		
 		datastore.put(entity);
 		
 		/*
 		 * 관련 차량의 정보를 가져온다.
 		 */
-		Key vehicleKey = KeyFactory.createKey(entity.getParent(), "Vehicle", (String)entity.getProperty("vehicle_id"));
-		Entity vehicle = DatastoreUtils.findByKey(vehicleKey);
-
-		if(vehicle == null)
-			return;
+		Dml dml = ConnectionManager.getInstance().getDml();
+		Vehicle vehicle = new Vehicle(entity.getParent().getName(), (String)entity.getProperty("vehicle_id"));
+		vehicle = dml.select(vehicle);
 		
-		boolean confirmed = (entity.getProperty("confirm") == null) ? false : ((Boolean)entity.getProperty("confirm")).booleanValue();
+		if(vehicle == null)
+			return;		
+		
+		boolean confirmed = DataUtils.toBool(entity.getProperty("confirm"));
 		if(!confirmed) {
-			vehicle.setProperty("status", "Incident");
-			datastore.put(vehicle);
+			vehicle.setStatus("Incident");
+			dml.update(vehicle);
 			// 사고 알람 
 			AlarmUtils.alarmIncidents(vehicle, entity);
 			return;
@@ -135,20 +136,20 @@ public class IncidentService extends EntityService {
 		 */
 		Query q = new Query("Incident");
 		q.setAncestor(entity.getParent());
-		q.addFilter("vehicle_id", FilterOperator.EQUAL, (String)vehicle.getProperty("id"));
+		q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle.getId());
 		q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);		
 		PreparedQuery pq = datastore.prepare(q);
 		int incidentsCount = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 
 		if(incidentsCount > 0) {
-			vehicle.setProperty("status", "Incident");
+			vehicle.setStatus("Incident");			
 			// 사고 알람 
 			AlarmUtils.alarmIncidents(vehicle, entity);
 		} else {
-			vehicle.setProperty("status", "Running");
+			vehicle.setStatus("Running");
 		}
 
-		datastore.put(vehicle);
+		dml.update(vehicle);
 	}
 
 	@RequestMapping(value = "/incident/import", method = RequestMethod.POST)

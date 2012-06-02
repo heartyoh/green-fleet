@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
  * 
  * @author jhnam
  */
-@Controller
 public class ConsumableCodeJdbcService extends JdbcEntityService {
 	/**
 	 * key names

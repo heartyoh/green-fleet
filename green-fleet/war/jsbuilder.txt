@@ -5,12 +5,12 @@ $ sencha build -p ./app.jsb3 -d . -v
 curl 로 form으로 포스트하기
 
 1. Frequent Data 보내기
-curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-13 11:13:11&lattitude=36.76&longitude=127.00&velocity=100" http://localhost:8888/track/save
-curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-13 11:14:11&lattitude=36.76&longitude=127.00&velocity=100" http://green-fleets.appspot.com/track/save
+curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-13 11:13:11&lat=36.76&lng=127.00&velocity=100" http://localhost:8888/track/save
+curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-13 11:14:11&lat=36.76&lng=127.00&velocity=100" http://green-fleets.appspot.com/track/save
 
 2. Incident Data 보내기
-curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-13 11:11:11&lattitude=36.78&longitude=127.01&velocity=100&impulse_abs=121&impulse_x=30&impulse_y=34&impulse_z=45&impulse_threshold=100&obd_connected=true&engine_temp=123&engine_temp_threshold=150" http://localhost:8888/incident/save
-curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-18 21:00:00&lattitude=36.78&longitude=127.01&velocity=100&impulse_abs=121&impulse_x=30&impulse_y=34&impulse_z=45&impulse_threshold=100&obd_connected=true&engine_temp=123&engine_temp_threshold=150" http://green-fleets.appspot.com/incident/save
+curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-13 11:11:11&lat=36.78&lng=127.01&velocity=100&impulse_abs=121&impulse_x=30&impulse_y=34&impulse_z=45&impulse_threshold=100&obd_connected=true&engine_temp=123&engine_temp_threshold=150" http://localhost:8888/incident/save
+curl --data "company=vitizen&terminal_id=T001&vehicle_id=V001&driver_id=D001&datetime=2012-02-18 21:00:00&lat=36.78&lng=127.01&velocity=100&impulse_abs=121&impulse_x=30&impulse_y=34&impulse_z=45&impulse_threshold=100&obd_connected=true&engine_temp=123&engine_temp_threshold=150" http://green-fleets.appspot.com/incident/save
 
 curl 로 멀티파트로 포스트하기
 

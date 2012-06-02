@@ -25,6 +25,13 @@ public interface IEntity {
 	public void setCompany(String company);
 	
 	/**
+	 * entity의 unique value를 리턴 
+	 * 
+	 * @return
+	 */
+	public String getUniqueValue();	
+	
+	/**
 	 * 생성, 수정 전에 ...
 	 */
 	public void beforeSave();
