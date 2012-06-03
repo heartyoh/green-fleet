@@ -223,11 +223,11 @@ T({
 		cooling_water : 'Cooling Water',
 		timing_belt : 'Timing Belt',
 		spark_plug : 'Spark Plug',		
-		lattitude : 'Lattitude',
+		latitude : 'Latitude',
 		longitude : 'Longitude',
-		lattitude_min : 'Min. Lat.',
+		latitude_min  : 'Min. Lat.',
 		longitude_min : 'Min. Lng',
-		lattitude_max : 'Max. Lat',
+		latitude_max  : 'Max. Lat',
 		longitude_max : 'Max. Lng',		
 		driver : 'Driver',
 		vehicle : 'Vehicle',
@@ -382,7 +382,8 @@ T({
 		daily : 'Daily',
 		weekly : 'Weekly',
 		monthly : 'Monthly',
-		yearly : 'Yearly'
+		yearly : 'Yearly',
+		vehicle_model : 'Vehicle Model'
 	},
 	
 	format : {

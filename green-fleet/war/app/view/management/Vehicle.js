@@ -6,9 +6,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	title : T('title.vehicle'),
 
 	entityUrl : 'vehicle',
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */ 
+	
 	importUrl : 'vehicle/import',
 	
 	afterImport : function() {
@@ -115,6 +113,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.manufacturer'),
 				type : 'string'
 			}, {
+				dataIndex : 'vehicle_model',
+				text : T('label.vehicle_model'),
+				type : 'string'
+			}, {
 				dataIndex : 'fuel_type',
 				text : T('label.fuel_type'),
 				type : 'string'
@@ -147,10 +149,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.remaining_fuel'),
 				type : 'string'
 			}, {
-				dataIndex : 'lattitude',
-				text : T('label.lattitude')
+				dataIndex : 'lat',
+				text : T('label.latitude')
 			}, {
-				dataIndex : 'longitude',
+				dataIndex : 'lng',
 				text : T('label.longitude')
 			}, {
 				dataIndex : 'updated_at',
@@ -224,6 +226,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'registration_number',
 							fieldLabel : T('label.reg_no')
 						}, {
+							name : 'vehicle_model',
+							fieldLabel : T('label.vehicle_model')
+						}, {
 							xtype : 'codecombo',
 							name : 'manufacturer',
 							group : 'V-Maker',
@@ -277,19 +282,23 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
 						}, {
+							xtype : 'combo',
 							name : 'driver_id',
-							fieldLabel : T('label.driver'),
-							disabled : true
+							queryMode : 'local',
+							store : 'DriverBriefStore',
+							displayField : 'id',
+							valueField : 'id',
+							fieldLabel : T('label.driver')
 						}, {
 							name : 'terminal_id',
 							fieldLabel : T('label.terminal'),
 							disabled : true
 						}, {
-							name : 'lattitude',
-							fieldLabel : T('label.lattitude'),
+							name : 'lat',
+							fieldLabel : T('label.latitude'),
 							disabled : true
 						}, {
-							name : 'longitude',
+							name : 'lng',
 							fieldLabel : T('label.longitude'),
 							disabled : true
 						}, {

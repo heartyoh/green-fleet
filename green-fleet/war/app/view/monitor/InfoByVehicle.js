@@ -55,10 +55,10 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.remaining_fuel'),
 		type : 'string'
 	}, {
-		dataIndex : 'lattitude',
-		text : T('label.lattitude')
+		dataIndex : 'lat',
+		text : T('label.latitude')
 	}, {
-		dataIndex : 'longitude',
+		dataIndex : 'lng',
 		text : T('label.longitude')
 	}, {
 		dataIndex : 'created_at',

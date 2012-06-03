@@ -1,13 +1,12 @@
 package com.heartyoh.service;
 
 import java.util.Date;
+
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,8 +27,11 @@ import com.heartyoh.util.SessionUtils;
 @Controller
 public class CheckinDataService extends EntityService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(CheckinDataService.class);
-
+	/**
+	 * 키가 되는 시간 정보 컬럼 
+	 */
+	private static final String KEY_TIME_COLUMN = "engine_end_time";
+	
 	@Override
 	protected String getEntityName() {
 		return "CheckinData";
@@ -40,21 +42,41 @@ public class CheckinDataService extends EntityService {
 		return true;
 	}
 
+	private Date parseDate(String timeStr, int timezone) {
+		if(DataUtils.isEmpty(timeStr))
+			return null;
+		
+		return SessionUtils.stringToDateTime(timeStr, DEFAULT_DATE_TIME_FORMAT, timezone);
+	}
+	
+	/**
+	 * create, update 전에 request map으로 부터 문자열 시간 정보를 모두 타임존 적용하여 Date로 바꾼다.
+	 */
+	@Override
+	protected void adjustRequestMap(DatastoreService datastore, Map<String, Object> map) throws Exception {
+		String datetimeStr = (String)map.remove("datetime");
+		String engineStartTimeStr = (String)map.remove("engine_start_time");
+		String engineEndTimeStr = (String)map.remove(KEY_TIME_COLUMN);
+		
+		Entity company = datastore.get((Key)map.get("_company_key"));
+		String timezoneStr = (String)company.getProperty("timezone");
+		int timezone = Integer.parseInt(timezoneStr);
+		
+		map.put("datetime", this.parseDate(datetimeStr, timezone));
+		map.put("engine_start_time", this.parseDate(engineStartTimeStr, timezone));
+		map.put(KEY_TIME_COLUMN, this.parseDate(engineEndTimeStr, timezone));
+	}	
+	
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		return map.get("terminal_id") + "@" + map.get("datetime");
+		String engineEndTimeStr = DataUtils.dateToString((Date)map.get(KEY_TIME_COLUMN), DEFAULT_DATE_TIME_FORMAT);
+		return map.get("terminal_id") + "@" + engineEndTimeStr;
 	}
 
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		Entity company = datastore.get((Key)map.get("_company_key"));
-
-		String terminal_id = (String) map.get("terminal_id");
-		String datetime = (String) map.get("datetime");
-
-		entity.setProperty("terminal_id", terminal_id);
-		entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime, null, Integer.parseInt((String)company.getProperty("timezone"))));
-
+		entity.setProperty("terminal_id", map.get("terminal_id"));
+		entity.setProperty(KEY_TIME_COLUMN, map.get(KEY_TIME_COLUMN));
 		super.onCreate(entity, map, datastore);
 	}
 
@@ -63,39 +85,40 @@ public class CheckinDataService extends EntityService {
 
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
-		entity.setProperty("distance", doubleProperty(map, "distance"));
-		entity.setProperty("running_time", intProperty(map, "running_time"));
-		entity.setProperty("engine_start_time", SessionUtils.stringToDateTime((String)map.get("engine_start_time")));
-		entity.setProperty("engine_end_time", SessionUtils.stringToDateTime((String)map.get("engine_end_time")));
-		entity.setProperty("average_speed", doubleProperty(map, "average_speed"));
-		entity.setProperty("max_speed", intProperty(map, "max_speed"));
-		entity.setProperty("fuel_consumption", doubleProperty(map, "fuel_consumption"));
-		entity.setProperty("fuel_efficiency", doubleProperty(map, "fuel_efficiency"));
-		entity.setProperty("sudden_accel_count", intProperty(map, "sudden_accel_count"));
-		entity.setProperty("sudden_brake_count", intProperty(map, "sudden_brake_count"));
-		entity.setProperty("idle_time", intProperty(map, "idle_time"));
-		entity.setProperty("eco_driving_time", intProperty(map, "eco_driving_time"));
-		entity.setProperty("over_speed_time", intProperty(map, "over_speed_time"));
-		entity.setProperty("co2_emissions", doubleProperty(map, "co2_emissions"));
-		entity.setProperty("max_cooling_water_temp", doubleProperty(map, "max_cooling_water_temp"));
-		entity.setProperty("avg_battery_volt", doubleProperty(map, "avg_battery_volt"));
+		entity.setProperty("engine_start_time", map.get("engine_start_time"));
+		entity.setProperty("datetime", map.get("datetime"));
 		
-		entity.setProperty("less_than_10km", intProperty(map, "less_than_10km"));
-		entity.setProperty("less_than_20km", intProperty(map, "less_than_20km"));
-		entity.setProperty("less_than_30km", intProperty(map, "less_than_30km"));
-		entity.setProperty("less_than_40km", intProperty(map, "less_than_40km"));
-		entity.setProperty("less_than_50km", intProperty(map, "less_than_50km"));
-		entity.setProperty("less_than_60km", intProperty(map, "less_than_60km"));
-		entity.setProperty("less_than_70km", intProperty(map, "less_than_70km"));
-		entity.setProperty("less_than_80km", intProperty(map, "less_than_80km"));
-		entity.setProperty("less_than_90km", intProperty(map, "less_than_90km"));
-		entity.setProperty("less_than_100km", intProperty(map, "less_than_100km"));
-		entity.setProperty("less_than_110km", intProperty(map, "less_than_110km"));
-		entity.setProperty("less_than_120km", intProperty(map, "less_than_120km"));
-		entity.setProperty("less_than_130km", intProperty(map, "less_than_130km"));
-		entity.setProperty("less_than_140km", intProperty(map, "less_than_140km"));
-		entity.setProperty("less_than_150km", intProperty(map, "less_than_150km"));
-		entity.setProperty("less_than_160km", intProperty(map, "less_than_160km"));		
+		entity.setUnindexedProperty("distance", doubleProperty(map, "distance"));
+		entity.setUnindexedProperty("running_time", intProperty(map, "running_time"));
+		entity.setUnindexedProperty("average_speed", doubleProperty(map, "average_speed"));
+		entity.setUnindexedProperty("max_speed", intProperty(map, "max_speed"));
+		entity.setUnindexedProperty("fuel_consumption", doubleProperty(map, "fuel_consumption"));
+		entity.setUnindexedProperty("fuel_efficiency", doubleProperty(map, "fuel_efficiency"));
+		entity.setUnindexedProperty("sudden_accel_count", intProperty(map, "sudden_accel_count"));
+		entity.setUnindexedProperty("sudden_brake_count", intProperty(map, "sudden_brake_count"));
+		entity.setUnindexedProperty("idle_time", intProperty(map, "idle_time"));
+		entity.setUnindexedProperty("eco_driving_time", intProperty(map, "eco_driving_time"));
+		entity.setUnindexedProperty("over_speed_time", intProperty(map, "over_speed_time"));
+		entity.setUnindexedProperty("co2_emissions", doubleProperty(map, "co2_emissions"));
+		entity.setUnindexedProperty("max_cooling_water_temp", doubleProperty(map, "max_cooling_water_temp"));
+		entity.setUnindexedProperty("avg_battery_volt", doubleProperty(map, "avg_battery_volt"));
+		
+		entity.setUnindexedProperty("less_than_10km", intProperty(map, "less_than_10km"));
+		entity.setUnindexedProperty("less_than_20km", intProperty(map, "less_than_20km"));
+		entity.setUnindexedProperty("less_than_30km", intProperty(map, "less_than_30km"));
+		entity.setUnindexedProperty("less_than_40km", intProperty(map, "less_than_40km"));
+		entity.setUnindexedProperty("less_than_50km", intProperty(map, "less_than_50km"));
+		entity.setUnindexedProperty("less_than_60km", intProperty(map, "less_than_60km"));
+		entity.setUnindexedProperty("less_than_70km", intProperty(map, "less_than_70km"));
+		entity.setUnindexedProperty("less_than_80km", intProperty(map, "less_than_80km"));
+		entity.setUnindexedProperty("less_than_90km", intProperty(map, "less_than_90km"));
+		entity.setUnindexedProperty("less_than_100km", intProperty(map, "less_than_100km"));
+		entity.setUnindexedProperty("less_than_110km", intProperty(map, "less_than_110km"));
+		entity.setUnindexedProperty("less_than_120km", intProperty(map, "less_than_120km"));
+		entity.setUnindexedProperty("less_than_130km", intProperty(map, "less_than_130km"));
+		entity.setUnindexedProperty("less_than_140km", intProperty(map, "less_than_140km"));
+		entity.setUnindexedProperty("less_than_150km", intProperty(map, "less_than_150km"));
+		entity.setUnindexedProperty("less_than_160km", intProperty(map, "less_than_160km"));		
 
 		super.onSave(entity, map, datastore);
 	}
@@ -217,8 +240,8 @@ public class CheckinDataService extends EntityService {
 			long dateMillis = DataUtils.toLong(value);
 			if(dateMillis > 1) {
 				Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
-				q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
-				q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+				q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+				q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
 			}
 		} else {
 			q.addFilter(property, FilterOperator.EQUAL, value);
@@ -237,14 +260,14 @@ public class CheckinDataService extends EntityService {
 		String toDateStr = request.getParameter("to_date");
 		
 		if(!DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
-			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
-			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
+			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
 			
 		} else if(!DataUtils.isEmpty(fromDateStr) && DataUtils.isEmpty(toDateStr)) {
-			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
+			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
 			
 		} else if(DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
-			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
 		}
 	}
 }

@@ -37,7 +37,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				zoom : 10,
 				minZoom : 3,
 				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lattitude, System.props.longitude),
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
 				mapTypeId : google.maps.MapTypeId.ROADMAP
 			};
 
@@ -54,8 +54,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 //						vehicle_id : self.getVehicle(),
 //						driver_id : self.getDriver(),
 //						terminal_id : self.getTerminal(),
-//						lattitude : e.latLng.lat(),
-//						longitude : e.latLng.lng()
+//						lat : e.latLng.lat(),
+//						lng : e.latLng.lng()
 //					},
 //					success : function(resp, opts) {
 //						var path = self.getTrackLine().getPath();
@@ -122,11 +122,11 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var location = record.get('location');
 			if (location == null || location.length == 0) {
-				var lattitude = record.get('lattitude');
-				var longitude = record.get('longitude');
+				var lat = record.get('lat');
+				var lng = record.get('lng');
 
-				if (lattitude !== undefined && longitude !== undefined) {
-					var latlng = new google.maps.LatLng(lattitude, longitude);
+				if (lat !== undefined && lng !== undefined) {
+					var latlng = new google.maps.LatLng(lat, lng);
 
 					geocoder = new google.maps.Geocoder();
 					geocoder.geocode({
@@ -270,8 +270,8 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		var latlng;
 
 		this.getTrackStore().each(function(record) {
-			var lat = record.get('lattitude');
-			var lng = record.get('longitude');
+			var lat = record.get('lat');
+			var lng = record.get('lng');
 
 			if(lat !== 0 || lng !== 0) {
 				latlng = new google.maps.LatLng(lat, lng);
@@ -285,12 +285,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		if (path.getLength() === 0) {
 			var record = this.getForm().getRecord();
-			var lat = record.get('lattitude');
-			var lng = record.get('longitude');
+			var lat = record.get('lat');
+			var lng = record.get('lng');
 			var defaultLatlng = null;
 			
 			if(lat === 0 && lng === 0) {
-				defaultLatlng = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+				defaultLatlng = new google.maps.LatLng(System.props.lat, System.props.lng);
 			} else {
 				defaultLatlng = new google.maps.LatLng(lat, lng);
 			}

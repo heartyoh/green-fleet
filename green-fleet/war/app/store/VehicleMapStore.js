@@ -18,10 +18,10 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
 		name : 'driver_id',
 		type : 'string'
 	}, {
-		name : 'lattitude',
+		name : 'lat',
 		type : 'float'
 	}, {
-		name : 'longitude',
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'location',
@@ -32,7 +32,7 @@ Ext.define('GreenFleet.store.VehicleMapStore', {
 		type : 'ajax',
 		url : 'vehicle',
 		extraParams : {
-			select : [ 'id', 'registration_number', 'status', 'driver_id', 'lattitude', 'longitude' ]
+			select : [ 'id', 'registration_number', 'status', 'driver_id', 'lat', 'lng' ]
 		},
 		reader : {
 			type : 'json',

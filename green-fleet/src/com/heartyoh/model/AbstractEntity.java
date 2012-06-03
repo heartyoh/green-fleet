@@ -25,6 +25,12 @@ public abstract class AbstractEntity implements IEntity {
 	protected String company;
 	
 	/**
+	 * 해당 엔티티를 대표하는 유니크한 문자열을 값에서 추출하여 리턴 
+	 * 일반적으로 company@id (or name) 형식으로 한다. 
+	 */
+	public abstract String getUniqueValue();
+	
+	/**
 	 * company를 리턴 
 	 * 
 	 * @return
@@ -108,6 +114,7 @@ public abstract class AbstractEntity implements IEntity {
 			}
 		}
 		
+		result.put("key", this.getUniqueValue());
 		return result;
 	}
 	

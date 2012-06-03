@@ -1,4 +1,4 @@
-id,reg_no,manufacturer,fuel_type,vehicle_type,birth_year,ownership_type,status,run_dist,remain_fuel,health_status
+id,registration_number,manufacturer,fuel_type,vehicle_type,birth_year,ownership_type,status,total_distance,remaining_fuel,health_status
 V001, 가 1234, Audi         ,D,F,1998,A,Running  ,256000 ,5 ,Impending
 V002, 가 1235, Kia          ,D,F,1998,A,Running  ,220500 ,40,Impending
 V003, 가 1236, Samsung      ,G,F,1999,A,Idle     ,187000 ,50,Healthy

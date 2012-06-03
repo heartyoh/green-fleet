@@ -22,12 +22,14 @@ import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.MessageType;
 import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+import com.heartyoh.model.Vehicle;
 
 
 /**
@@ -403,13 +405,13 @@ public class AlarmUtils {
 	 * @param incidnet
 	 * @throws Exception
 	 */
-	public static void alarmIncidents(Entity vehicle, Entity incident) throws Exception {
+	public static void alarmIncidents(Vehicle vehicle, Entity incident) throws Exception {
 		
 		if(vehicle == null)
 			return;
 		
 		// 1. companyKey 조회 
-		Key companyKey = vehicle.getKey().getParent();
+		Key companyKey = KeyFactory.createKey("Company", vehicle.getCompany());
 		
 		// 2. 관리자 리스트를 조회
 		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
@@ -427,7 +429,7 @@ public class AlarmUtils {
 		
 		Entity company = DatastoreUtils.findByKey(companyKey);
 		String timeStr = DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm", company);
-		String msg = "[Incident] Please check out vehicle (id : " + vehicle.getProperty("id") + ", reg no. : " + vehicle.getProperty("registration_number") + ") accident! Event occurrence time : " + timeStr;		
+		String msg = "[Incident] Please check out vehicle (id : " + vehicle.getId() + ", reg no. : " + vehicle.getRegistrationNumber() + ") accident! Event occurrence time : " + timeStr;		
 
 		AlarmUtils.sendXmppMessage(receiverEmails, msg);
 		

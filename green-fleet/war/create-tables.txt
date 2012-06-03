@@ -109,7 +109,28 @@ CREATE TABLE vehicle_run_sum (
 	effcc FLOAT(5,2),
 	oos_cnt INT,
 	mnt_cnt INT,
-	mnt_time INT,
+	inc_cnt INT,
+	mnt_time INT,	
+	sud_accel_cnt INT,
+	sud_brake_cnt INT,
+	eco_drv_time INT,
+	ovr_spd_time INT,
+	spd_lt10 INT, 
+	spd_lt20 INT, 
+	spd_lt30 INT, 
+	spd_lt40 INT, 
+	spd_lt50 INT, 
+	spd_lt60 INT, 
+	spd_lt70 INT, 
+	spd_lt80 INT, 
+	spd_lt90 INT, 
+	spd_lt100 INT, 
+	spd_lt110 INT, 
+	spd_lt120 INT, 
+	spd_lt130 INT, 
+	spd_lt140 INT, 
+	spd_lt150 INT, 
+	spd_lt160 INT,	
 	PRIMARY KEY(company, vehicle, year, month)
 ) DEFAULT CHARSET=utf8;
 
@@ -171,7 +192,8 @@ CREATE TABLE task (
 CREATE TABLE terminal (
 	company VARCHAR(50) NOT NULL,
 	id VARCHAR(50) NOT NULL, 
-	serial_no VARCHAR(50) NOT NULL, 
+	serial_no VARCHAR(50) NOT NULL,
+	vehicle_id VARCHAR(50), 
 	buying_date DATE,
 	comment VARCHAR(1000),	
 	image_clip VARCHAR(1000),
@@ -193,7 +215,7 @@ CREATE TABLE common_code (
 
 -- consumable_code
 CREATE TABLE consumable_code (
-	company VARCHAR(50) NOT NULL,	 
+	company VARCHAR(50) NOT NULL,
 	name VARCHAR(50) NOT NULL, 
 	expl VARCHAR(2000),
 	fst_repl_mileage INT,
@@ -208,22 +230,24 @@ CREATE TABLE consumable_code (
 		
 -- vehicle
 CREATE TABLE vehicle (
-	company VARCHAR(50) NOT NULL,	 
+	company VARCHAR(50) NOT NULL,
 	id VARCHAR(50) NOT NULL,
 	driver_id VARCHAR(50),
 	terminal_id VARCHAR(50),
-	reg_no VARCHAR(100) NOT NULL, 
+	registration_number VARCHAR(100) NOT NULL, 
 	manufacturer VARCHAR(2000),
+	vehicle_model VARCHAR(50),
 	vehicle_type VARCHAR(50),
 	fuel_type VARCHAR(50),
 	birth_year INT,
 	ownership_type VARCHAR(50),
 	status VARCHAR(30),
 	health_status VARCHAR(30),
-	run_dist FLOAT(9,1),
-	remain_fuel FLOAT(7,1),
+	total_distance FLOAT(9,1),
+	remaining_fuel FLOAT(7,1),
 	lat FLOAT(11,7),
 	lng FLOAT(11,7),
+	image_clip VARCHAR(1000),
 	created_at DATETIME, 
 	updated_at DATETIME,
 	PRIMARY KEY(company, id)

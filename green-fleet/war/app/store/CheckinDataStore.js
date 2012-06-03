@@ -128,7 +128,7 @@ Ext.define('GreenFleet.store.CheckinDataStore', {
 	} ],
 	
 	sorters : [ {
-		property : 'datetime',
+		property : 'engine_end_time',
 		direction : 'DESC'
 	} ],	
 	

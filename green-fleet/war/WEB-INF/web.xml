@@ -59,6 +59,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 	
+    <filter>
+        <filter-name>datasourceFilter</filter-name>
+        <filter-class>com.heartyoh.servlet.filter.DatasourceFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>datasourceFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>	
+	
 	<servlet>
 		<servlet-name>XMPPMessageServlet</servlet-name>
 		<servlet-class>com.heartyoh.service.XMPPMessageServlet</servlet-class>	

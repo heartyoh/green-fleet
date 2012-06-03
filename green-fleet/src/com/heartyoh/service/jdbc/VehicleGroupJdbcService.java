@@ -36,7 +36,7 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-@Controller
+
 public class VehicleGroupJdbcService extends JdbcEntityService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(VehicleGroupJdbcService.class);

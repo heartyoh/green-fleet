@@ -25,7 +25,7 @@ import com.heartyoh.model.Sorter;
  * 
  * @author jhnam
  */
-@Controller
+
 public class CodeJdbcService extends JdbcEntityService {
 	
 	/**

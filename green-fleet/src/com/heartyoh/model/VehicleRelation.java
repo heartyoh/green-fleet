@@ -11,17 +11,13 @@ package com.heartyoh.model;
 public class VehicleRelation extends AbstractEntity {
 
 	/**
-	 * unique id
-	 */
-	private Long id;
-	/**
 	 * vehicle id
 	 */
 	private String vehicleId;
 	/**
 	 * vehicle group id
 	 */
-	private Long groupId;
+	private String groupId;
 	
 	/**
 	 * 기본 생성자 
@@ -36,18 +32,10 @@ public class VehicleRelation extends AbstractEntity {
 	 * @param groupId
 	 * @param vehicleId
 	 */
-	public VehicleRelation(String company, Long groupId, String vehicleId) {
+	public VehicleRelation(String company, String groupId, String vehicleId) {
 		this.company = company;
 		this.groupId = groupId;
 		this.vehicleId = vehicleId;
-	}
-	
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
 	}
 	
 	public String getVehicleId() {
@@ -58,11 +46,16 @@ public class VehicleRelation extends AbstractEntity {
 		this.vehicleId = vehicleId;
 	}
 	
-	public Long getGroupId() {
+	public String getGroupId() {
 		return groupId;
 	}
 	
-	public void setGroupId(Long groupId) {
+	public void setGroupId(String groupId) {
 		this.groupId = groupId;
 	}
+	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.groupId + "@" + this.vehicleId;
+	}		
 }

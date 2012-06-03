@@ -37,8 +37,8 @@
 		
 		var System = System || {};
 		System.props = {
-			lattitude : 37.55,
-			longitude : 126.97
+			lat : 37.55,
+			lng : 126.97
 		};
 
 		initLocalization(this);

@@ -46,8 +46,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.down('#search').on('click', function() {
-//			self.sub('grid').store.load();
-			self.sub('grid').search();
+			self.search();
 		});
 
 	},
@@ -56,10 +55,10 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		this.sub('grid').store.load({
 			filters : [ {
 				property : 'vehicle_id',
-				value : self.sub('vehicle_filter').getSubmitValue()
+				value : this.sub('vehicle_filter').getSubmitValue()
 			}, {
 				property : 'reserved_date',
-				value : self.sub('reserved_date_filter').getSubmitValue()
+				value : this.sub('reserved_date_filter').getSubmitValue()
 			} ],
 			callback : callback
 		});

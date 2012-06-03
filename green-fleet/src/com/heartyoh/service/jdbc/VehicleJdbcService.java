@@ -32,14 +32,6 @@ public class VehicleJdbcService extends JdbcEntityService {
 	 * key names
 	 */
 	private static final String TABLE_NAME = "vehicle";	
-	/**
-	 * table column - service field map
-	 */
-	private static Map<String, String> COLUMN_SVC_FIELD_MAP;
-	/**
-	 * service field - table column map
-	 */
-	private static Map<String, String> SVC_COLUMN_FIELD_MAP;
 	
 	@Override
 	protected String getTableName() {
@@ -47,38 +39,9 @@ public class VehicleJdbcService extends JdbcEntityService {
 	}
 	
 	@Override
-	protected Map<String, String> getColumnSvcFieldMap() {
-		
-		if(COLUMN_SVC_FIELD_MAP == null) {
-			COLUMN_SVC_FIELD_MAP = new HashMap<String, String>();
-			COLUMN_SVC_FIELD_MAP.put("reg_no", "registration_number");
-			COLUMN_SVC_FIELD_MAP.put("run_dist", "total_distance");
-			COLUMN_SVC_FIELD_MAP.put("remain_fuel", "remaining_fuel");
-			COLUMN_SVC_FIELD_MAP.put("lat", "lattitude");
-			COLUMN_SVC_FIELD_MAP.put("lng", "longitude");
-		}
-		
-		return COLUMN_SVC_FIELD_MAP;
+	protected Map<String, String> getColumnSvcFieldMap() {		
+		return null;
 	}
-
-	/**
-	 * service field - column map
-	 * 
-	 * @return
-	 */
-	protected Map<String, String> getSvcFieldColumnMap() {
-		
-		if(SVC_COLUMN_FIELD_MAP == null) {
-			SVC_COLUMN_FIELD_MAP = new HashMap<String, String>();
-			SVC_COLUMN_FIELD_MAP.put("registration_number", "reg_no");
-			SVC_COLUMN_FIELD_MAP.put("total_distance", "run_dist");
-			SVC_COLUMN_FIELD_MAP.put("remaining_fuel", "remain_fuel");
-			SVC_COLUMN_FIELD_MAP.put("lattitude", "lat");
-			SVC_COLUMN_FIELD_MAP.put("longitude", "lng");			
-		}
-		
-		return SVC_COLUMN_FIELD_MAP;
-	}	
 
 	@RequestMapping(value = "/vehicle/import", method = RequestMethod.POST)
 	public @ResponseBody
@@ -154,7 +117,6 @@ public class VehicleJdbcService extends JdbcEntityService {
 	 */
 	private List<Map<String, Object>> findVehicles(Map<String, String> consumablesMap, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Map<String, String> svcColumnMap = this.getSvcFieldColumnMap();
 		String[] selectCols = request.getParameterValues("select");
 		StringBuffer query = new StringBuffer("select ");
 		
@@ -164,7 +126,7 @@ public class VehicleJdbcService extends JdbcEntityService {
 			for(int i = 0 ; i < selectCols.length ; i++) {
 				String column = selectCols[i];
 				query.append(i == 0 ? "" : ",");
-				query.append(svcColumnMap.containsKey(column) ? svcColumnMap.get(column) : column);				
+				query.append(column);				
 			}
 		}		
 		query.append(" from vehicle where company = '");

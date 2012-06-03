@@ -18,6 +18,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'manufacturer',
 		type : 'string'
 	}, {
+		name : 'vehicle_model',
+		type : 'string'
+	}, {
 		name : 'fuel_type',
 		type : 'string'
 	}, {
@@ -45,16 +48,16 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'remaining_fuel',
 		type : 'float'
 	}, {
-		name : 'lattitude',
-		type : 'float'
-	}, {
 		name : 'driver_id',
 		type : 'string'
 	}, {
 		name : 'terminal_id',
 		type : 'string'
 	}, {
-		name : 'longitude',
+		name : 'lat',
+		type : 'float'			
+	}, {
+		name : 'lng',
 		type : 'float'
 	}, {
 		name : 'location',

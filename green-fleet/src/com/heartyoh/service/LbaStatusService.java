@@ -339,8 +339,8 @@ public class LbaStatusService extends EntityService {
 		
 		Key companyKey = this.getCompanyKey(request);
 		String vehicle = request.getParameter("vehicle");
-		float latitude = DataUtils.toFloat(request.getParameter("lat"));
-		float longitude = DataUtils.toFloat(request.getParameter("lng"));
+		float lat = DataUtils.toFloat(request.getParameter("lat"));
+		float lng = DataUtils.toFloat(request.getParameter("lng"));
 		Date now = new Date();
 		
 		// Vehicle로 현재 활성화 상태인 LbaStatus를 찾아서 각각의 현재 상태와 이전 상태를 업데이트 해준다. 
@@ -355,10 +355,10 @@ public class LbaStatusService extends EntityService {
 		
 		for(Entity lbaStatus : lbaStatuses) {
 			lbaStatus.setProperty("updated_at", now);
-			String event = this.checkEvent(companyKey, lbaStatus, latitude, longitude);
+			String event = this.checkEvent(companyKey, lbaStatus, lat, lng);
 			
 			if(event != null) {
-				Entity alarmHist = this.createAlarmHistory(lbaStatus, event, latitude, longitude);
+				Entity alarmHist = this.createAlarmHistory(lbaStatus, event, lat, lng);
 				prospectiveSearch.match(alarmHist, "AlarmHistory", "", "/prospective/lba_alarm", "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);
 				ds.put(alarmHist);
 			}
@@ -372,12 +372,12 @@ public class LbaStatusService extends EntityService {
 	 * 
 	 * @param companyKey
 	 * @param lbaStatus
-	 * @param latitude
-	 * @param longitude
+	 * @param lat
+	 * @param lng
 	 * @return event
 	 * @throws
 	 */
-	private String checkEvent(Key companyKey, Entity lbaStatus, float latitude, float longitude) throws Exception {
+	private String checkEvent(Key companyKey, Entity lbaStatus, float lat, float lng) throws Exception {
 		
 		Location location = this.findLocation(companyKey.getName(), (String)lbaStatus.getProperty("loc"));
 		
@@ -386,7 +386,7 @@ public class LbaStatusService extends EntityService {
 		
 		String evtTrg = (String)lbaStatus.getProperty("evt_trg");
 		String beforeStatus = (String)lbaStatus.getProperty("cur_status");
-		String currentStatus = CalculatorUtils.contains(location, latitude, longitude) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT;
+		String currentStatus = CalculatorUtils.contains(location, lat, lng) ? GreenFleetConstant.LBA_EVENT_IN : GreenFleetConstant.LBA_EVENT_OUT;
 		lbaStatus.setProperty("cur_status", currentStatus);
 		lbaStatus.setProperty("bef_status", beforeStatus);
 		return this.getEvent(evtTrg, beforeStatus, currentStatus);
@@ -426,11 +426,11 @@ public class LbaStatusService extends EntityService {
 	 * 
 	 * @param lbaStatus
 	 * @param eventName
-	 * @param latitude
-	 * @param longitude
+	 * @param lat
+	 * @param lng
 	 * @return
 	 */
-	private Entity createAlarmHistory(Entity lbaStatus, String eventName, float latitude, float longitude) {
+	private Entity createAlarmHistory(Entity lbaStatus, String eventName, float lat, float lng) {
 		
 		String vehicle = (String)lbaStatus.getProperty("vehicle");
 		String alarmName = (String)lbaStatus.getProperty("alarm");
@@ -443,8 +443,8 @@ public class LbaStatusService extends EntityService {
 		alarmHistory.setProperty("loc", lbaStatus.getProperty("loc"));
 		alarmHistory.setProperty("datetime", datetimeStr);
 		alarmHistory.setUnindexedProperty("evt", eventName);
-		alarmHistory.setUnindexedProperty("lat", latitude);
-		alarmHistory.setUnindexedProperty("lng", longitude);
+		alarmHistory.setUnindexedProperty("lat", lat);
+		alarmHistory.setUnindexedProperty("lng", lng);
 		alarmHistory.setProperty("send", "N");
 		return alarmHistory;
 	}

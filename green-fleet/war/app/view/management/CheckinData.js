@@ -34,40 +34,18 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			self.sub('form').loadRecord(record);
 		});
 
-		this.sub('grid').on('render', function(grid) {
-//			grid.store.load();
-		});
-
-		this.sub('vehicle_filter').on('change', function(field, value) {
-//			self.search();
-		});
-
-		this.sub('driver_filter').on('change', function(field, value) {
-//			self.search();
-		});
-
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
 			self.sub('driver_filter').setValue('');
 		});
 
 		this.down('#search').on('click', function() {
-//			self.sub('grid').store.load();
 			self.search();
 		});
 		
 	},
 
 	search : function(callback) {
-//		self.sub('grid').store.clearFilter();
-//
-//		self.sub('grid').store.filter([ {
-//			property : 'vehicle_filter',
-//			value : self.sub('vehicle_filter').getValue()
-//		}, {
-//			property : 'driver_filter',
-//			value : self.sub('driver_filter').getValue()
-//		} ]);
 		this.sub('grid').store.load({
 			filters : [ {
 				property : 'vehicle_id',

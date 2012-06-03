@@ -289,11 +289,10 @@ Ext.define('GreenFleet.view.viewport.East', {
 		var groupId = button.vehicleGroup.get('id');		
 		
 		Ext.Ajax.request({
-			url : '/vehicle_group/vehicles',
+			url : '/vehicle_group/vehicle_ids',
 			method : 'GET',
 			params : {
-				vehicle_group_id : groupId,
-				select_mode : 'vehicle_id_only'
+				group_id : groupId
 			},
 			success : function(response) {
 				var resultObj = Ext.JSON.decode(response.responseText);

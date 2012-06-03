@@ -47,11 +47,16 @@
     
     <datastore-index kind="CheckinData" ancestor="true" source="manual">
         <property name="vehicle_id" direction="asc"/>
-        <property name="datetime" direction="desc"/>
+        <property name="engine_end_time" direction="desc"/>
+    </datastore-index>
+    
+    <datastore-index kind="CheckinData" ancestor="true" source="manual">
+        <property name="driver_id" direction="asc"/>
+        <property name="engine_end_time" direction="desc"/>
     </datastore-index>
         
 	<datastore-index kind="CheckinData" ancestor="true" source="manual">
-        <property name="datetime" direction="desc"/>
+        <property name="engine_end_time" direction="desc"/>
     </datastore-index>
     
     <datastore-index kind="Repair" ancestor="true" source="manual">

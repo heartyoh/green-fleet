@@ -50,7 +50,7 @@
 		
 		this.sub('map').on('afterrender', function(mapbox) {
 			self.setGeocoder(new google.maps.Geocoder());
-			var center = new google.maps.LatLng(System.props.lattitude, System.props.longitude);
+			var center = new google.maps.LatLng(System.props.lat, System.props.lng);
 			var options = {
 				zoom : 10,
 				minZoom : 3,
@@ -149,7 +149,7 @@
 	refreshLocation : function(center, radius) {		
 		this.refreshMap(center, radius);
 		// 폼 위도, 경도에 추가	
-		this.sub('form_lattitude').setValue(center.lat());
+		this.sub('form_latitude').setValue(center.lat());
 		this.sub('form_longitude').setValue(center.lng());		
 	},	
 	
@@ -295,7 +295,7 @@
 				type : 'string'
 			}, {
 				dataIndex : 'lat',
-				text : T('label.lattitude'),
+				text : T('label.latitude'),
 				type : 'float'
 			}, {
 				dataIndex : 'lng',
@@ -307,7 +307,7 @@
 				type : 'int'
 			}, {
 				dataIndex : 'lat_lo',
-				text : T('label.lattitude_min'),
+				text : T('label.latitude_min'),
 				type : 'float'
 			}, {
 				dataIndex : 'lng_lo',
@@ -315,7 +315,7 @@
 				type : 'float'					
 			}, {
 				dataIndex : 'lat_hi',
-				text : T('label.lattitude_max'),
+				text : T('label.latitude_max'),
 				type : 'float'
 			}, {
 				dataIndex : 'lng_hi',
@@ -413,10 +413,10 @@
                     }
                 ]
 			}, {
-				itemId : 'form_lattitude',
+				itemId : 'form_latitude',
 				name : 'lat',
 				xtype : 'textfield',
-				fieldLabel : T('label.lattitude')
+				fieldLabel : T('label.latitude')
 			}, {
 				itemId : 'form_longitude',
 				name : 'lng',
@@ -440,7 +440,7 @@
 			}, {
 				itemId : 'form_lat_lo',
 				name : 'lat_lo',
-				fieldLabel : T('label.lattitude_min')
+				fieldLabel : T('label.latitude_min')
 			}, {
 				itemId : 'form_lng_lo',
 				name : 'lng_lo',
@@ -448,7 +448,7 @@
 			}, {
 				itemId : 'form_lat_hi',
 				name : 'lat_hi',
-				fieldLabel : T('label.lattitude_max')
+				fieldLabel : T('label.latitude_max')
 			}, {
 				itemId : 'form_lng_hi',
 				name : 'lng_hi',

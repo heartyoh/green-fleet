@@ -224,4 +224,8 @@ public class Location extends AbstractEntity {
 			this.updatedAt = new Date();
 	}
 	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.name;
+	}	
 }

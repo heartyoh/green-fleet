@@ -182,4 +182,8 @@ public class VehicleRunSum extends AbstractEntity {
 		this.mntTime = mntTime;
 	}	
 	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.vehicle + "@" + this.year + "@" + this.month;
+	}	
 }

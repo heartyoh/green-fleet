@@ -313,19 +313,19 @@ public class CalculatorUtils {
 	}
 	
 	/**
-	 * 위치(lattitude, longitude)가 location내에 포함되어 있는지 아닌지를 판단한다. 
+	 * 위치(latitude, longitude)가 location내에 포함되어 있는지 아닌지를 판단한다. 
 	 * 
 	 * @param location
-	 * @param latitude
-	 * @param longitude
+	 * @param lat
+	 * @param lng
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean contains(Location location, float latitude, float longitude) throws Exception {		
+	public static boolean contains(Location location, float lat, float lng) throws Exception {		
 		float minLat = location.getLatLo();
 		float minLng = location.getLngLo();
 		float maxLat = location.getLatHi();
 		float maxLng = location.getLngHi();
-		return (latitude <= maxLat && latitude >= minLat && longitude <= maxLng && longitude >= minLng);
+		return (lat <= maxLat && lat >= minLat && lng <= maxLng && lng >= minLng);
 	}
 }

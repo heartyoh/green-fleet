@@ -52,6 +52,11 @@ import com.heartyoh.util.SessionUtils;
  */
 public abstract class EntityService {
 	
+	/**
+	 * 기본 시간 포맷 
+	 */
+	protected static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
 	private static final Logger logger = LoggerFactory.getLogger(EntityService.class);
 	private static final Map<String, Object> emptyMap = new HashMap<String, Object>();
 
@@ -168,8 +173,8 @@ public abstract class EntityService {
 
 	protected static String saveFile(MultipartHttpServletRequest request, MultipartFile file) throws IOException {
 		if (file != null && file.getSize() > 0) {
-			CustomUser user = SessionUtils.currentUser();
-			String company = (user != null) ? user.getCompany() : request.getParameter("company");
+			//CustomUser user = SessionUtils.currentUser();
+			//String company = (user != null) ? user.getCompany() : request.getParameter("company");
 			
 			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
 			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType(), file.getOriginalFilename());
@@ -238,20 +243,12 @@ public abstract class EntityService {
 	 */
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		Map<String, Object> commons = new HashMap<String, Object>();
-		@SuppressWarnings("unchecked")
-		Enumeration<String> names = request.getParameterNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			commons.put(name, request.getParameter(name));
-		}
-
+		response.setContentType("text/html");
+		Map<String, Object> commons = toMap(request);
 		MultipartFile file = request.getFile("file");
 		String filename = file.getOriginalFilename();
 		String contentType = file.getContentType();
-
 		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
-
 		String line = br.readLine();
 		/*
 		 * First line for the header Information
@@ -301,10 +298,15 @@ public abstract class EntityService {
 				this.saveEntity(entity, map, datastore);
 				successCount++;
 			}
+		} catch(Exception e) {
+			logger.error("Failed to import!", e);
+			return this.getResultMsg(false, e.getMessage());
+			
 		} finally {
+			if(br != null)
+				br.close();
 		}
-
-		response.setContentType("text/html");
+		
 		return this.getResultMsg(true, "Imported " + successCount + " count successfully!");
 	}
 	
@@ -319,51 +321,48 @@ public abstract class EntityService {
 	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		datastore.put(obj);
 	}
+	
+	/**
+	 * save 전에 Request 파라미터로 부터 뽑아낸 Map에 대해서 핸들링한다.
+	 * 
+	 * @param datastore
+	 * @param map
+	 * @throws Exception
+	 */
+	protected void adjustRequestMap(DatastoreService datastore, Map<String, Object> map) throws Exception {		
+	}
 
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Map<String, Object> map = toMap(request);
+		String key = request.getParameter("key");
+		Key companyKey = this.getCompanyKey(request);		
+		map.put("_company_key", companyKey);
+		map.put("_now", new Date());
+		
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
 		}
-
-		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		
-		boolean creating = false;
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		this.adjustRequestMap(datastore, map);
+		
+		Key objKey = (!DataUtils.isEmpty(key)) ? KeyFactory.stringToKey(key) : KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 		Entity obj = null;
 
 		try {
 			obj = datastore.get(objKey);
 		} catch (EntityNotFoundException e) {
-			creating = true;
-		}		
-
-		Date now = new Date();
-		map.put("_now", now);
-		map.put("_company_key", companyKey);
-
-		try {
-			if (creating) {
-				obj = new Entity(objKey);
-				onCreate(obj, map, datastore);
-			}
-			/*
-			 * 생성/수정 관계없이 새로 갱신될 정보는 아래에서 수정한다.
-			 */
-
-			if (request instanceof MultipartHttpServletRequest) {
-				postMultipart(obj, map, (MultipartHttpServletRequest) request);
-			}
-
-			onSave(obj, map, datastore);
-			this.saveEntity(obj, map, datastore);
-			
-		} finally {
+			obj = new Entity(objKey);
+			onCreate(obj, map, datastore);
 		}
 
+		if (request instanceof MultipartHttpServletRequest) {
+			postMultipart(obj, map, (MultipartHttpServletRequest) request);
+		}
+
+		onSave(obj, map, datastore);
+		this.saveEntity(obj, map, datastore);
 		response.setContentType("text/html");
 		return this.getCreateResultMsg(true, obj);
 	}
@@ -484,9 +483,9 @@ public abstract class EntityService {
 		PreparedQuery pq = datastore.prepare(q);
 		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 
-		int[] limit_offset = this.getLimitOffsetCount(request);
-		int limit = limit_offset[0];
-		int offset = limit_offset[1];
+		int[] limitOffset = this.getLimitOffsetCount(request);
+		int limit = limitOffset[0];
+		int offset = limitOffset[1];
 
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		

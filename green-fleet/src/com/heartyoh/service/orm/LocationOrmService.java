@@ -3,6 +3,8 @@
  */
 package com.heartyoh.service.orm;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,6 +12,7 @@ import org.dbist.dml.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.heartyoh.model.IEntity;
@@ -21,9 +24,10 @@ import com.heartyoh.util.DataUtils;
  * 
  * @author jhnam
  */
+@Controller
 public class LocationOrmService extends OrmEntityService {
 
-	private String[] keyFields = new String[] { "company", "name" };
+	private static final String[] KEY_FIELDS = new String[] { "company", "name" };
 	
 	@Override
 	public Class<?> getEntityClass() {
@@ -32,7 +36,7 @@ public class LocationOrmService extends OrmEntityService {
 
 	@Override
 	public String[] getKeyFields() {
-		return this.keyFields;
+		return KEY_FIELDS;
 	}
 
 	@Override
@@ -44,28 +48,33 @@ public class LocationOrmService extends OrmEntityService {
 	}
 
 	@RequestMapping(value = "/location/import", method = RequestMethod.POST)
-	public void imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.imports(request, response);
+	public @ResponseBody
+	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.imports(request, response);
 	}
 	
 	@RequestMapping(value = "/location/delete", method = RequestMethod.POST)
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.delete(request, response);
+	public @ResponseBody
+	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = "/location", method = RequestMethod.GET)
-	public void retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.retrieveByPaging(request, response);
+	@RequestMapping(value = {"/location", "/m/data/location"}, method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.retrieveByPaging(request, response);
 	}
 	
 	@RequestMapping(value = "/location/save", method = RequestMethod.POST)
-	public void save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.save(request, response);
+	public @ResponseBody
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.save(request, response);
 	}
 	
 	@RequestMapping(value = "/location/find", method = RequestMethod.GET)
-	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		super.find(request, response);
+	public @ResponseBody
+	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		return super.find(request, response);
 	}
 	
 	@Override

@@ -54,4 +54,8 @@ public class AlarmVehicleRelation extends AbstractEntity {
 		this.vehicleId = vehicleId;
 	}
 	
+	@Override
+	public String getUniqueValue() {
+		return this.company + "@" + this.alarmName + "@" + this.vehicleId;
+	}	
 }

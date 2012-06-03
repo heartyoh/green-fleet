@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <backends>
-	<backend name="video-backend">
+	<backend name="gf-backend">
 		<class>B1</class>
 		<options>
 			<dynamic>true</dynamic>

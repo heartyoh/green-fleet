@@ -16,17 +16,17 @@ import com.google.appengine.api.taskqueue.TaskOptions.Method;
 public class AsyncUtils {
 
 	/**
-	 * vehicleId, lattitude, longitude로 task를 만들어서 LBAQueue에 추가
+	 * vehicleId, latitude, longitude로 task를 만들어서 LBAQueue에 추가
 	 * 
 	 * @param company
 	 * @param vehicle
-	 * @param latitude
-	 * @param longitude
+	 * @param lat
+	 * @param lng
 	 * @throws Exception
 	 */
-	public static void addLbaTaskToQueue(String company, String vehicle, double latitude, double longitude) throws Exception {
+	public static void addLbaTaskToQueue(String company, String vehicle, double lat, double lng) throws Exception {
 		Queue queue = QueueFactory.getQueue("LBAQueue");
-		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicle).param("lat", "" + latitude).param("lng", "" + longitude));
+		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicle).param("lat", "" + lat).param("lng", "" + lng));
 	}
 	
 	/**
