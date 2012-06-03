@@ -87,7 +87,7 @@ public class DriverRunOrmService extends OrmEntityService {
 				if(key.equalsIgnoreCase("driver")) {
 					sum.setDriver(value);
 					
-				} else if(key.equalsIgnoreCase("month")) {
+				} else if(key.equalsIgnoreCase("month_date")) {
 					Date date = DataUtils.toDate(value);
 					Calendar c = Calendar.getInstance();
 					c.setTime(date);

@@ -22,6 +22,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
+import com.heartyoh.model.Vehicle;
 
 /**
  * Entity 유틸리티 클래스 
@@ -358,12 +359,11 @@ public class DatastoreUtils {
 	 * @param companyKey
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
-	public static Entity findVehicle(Key companyKey, String vehicleId) {
-		
-		Query q = createDefaultQuery(companyKey, "Vehicle");
-		q.addFilter("id", FilterOperator.EQUAL, vehicleId);
-		return findSingleEntity(q);
+	public static Vehicle findVehicle(String company, String vehicleId) throws Exception {
+		Vehicle vehicle = new Vehicle(company, vehicleId);
+		return ConnectionManager.getInstance().getDml().select(vehicle);
 	}
 	
 	/**
@@ -375,26 +375,6 @@ public class DatastoreUtils {
 	public static List<Entity> findAdminUsers(Key companyKey) {
 		return findEntityList(companyKey, "CustomUser", DataUtils.newMap("admin", true));
 	}
-	
-	/**
-	 * key로 vehicle을 찾아 리턴 
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public static Entity findVehicle(String key) {
-		return findByKey(key);
-	}
-	
-	/**
-	 * vehicleKey로 vehicle을 찾아 리턴 
-	 * 
-	 * @param vehicleKey
-	 * @return
-	 */
-	public static Entity findVehicle(Key vehicleKey) {
-		return findByKey(vehicleKey);
-	}	
 	
 	/**
 	 * companyKey, vehicleId, consumableItem으로 Consumable을 찾아 리턴 

@@ -88,7 +88,7 @@ public class VehicleRunOrmService extends OrmEntityService {
 				if(key.equalsIgnoreCase("vehicle")) {
 					sum.setVehicle(value);
 					
-				} else if(key.equalsIgnoreCase("month")) {
+				} else if(key.equalsIgnoreCase("month_date")) {
 					Date date = DataUtils.toDate(value);
 					Calendar c = Calendar.getInstance();
 					c.setTime(date);
