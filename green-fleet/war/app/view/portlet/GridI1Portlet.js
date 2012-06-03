@@ -11,7 +11,10 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
     store : Ext.create('Ext.data.ArrayStore', {
 		fields: [ { name : 'datetime', type : 'date', dateFormat:'time' }, 
 		          { name : 'vehicle_id', type : 'string' },
-		          { name : 'driver_id', type : 'string' } ], data: []}),
+		          { name : 'driver_id', type : 'string' },
+		          { name : 'lat', type : 'number' },
+		          { name : 'lng', type : 'number' },
+		          { name : 'velocity', type : 'number' } ], data: []}),
     
     columns: [{
         text     : T('label.datetime'),
@@ -22,14 +25,24 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		width : 110
     },{
         text     : T('label.vehicle'),
-        width    : 70,
-        sortable : true,
+        width    : 60,
         dataIndex: 'vehicle_id'
     },{
         text     : T('label.driver'),
-        width    : 70,
-        sortable : true,
+        width    : 60,
         dataIndex: 'driver_id'
+    },{
+        text     : T('label.velocity'),
+        width    : 50,
+        dataIndex: 'velocity'
+    },{
+        text     : T('label.latitude'),
+        width    : 50,
+        dataIndex: 'lat'
+    },{
+        text     : T('label.longitude'),
+        width    : 50,
+        dataIndex: 'lng'
     }],
     
     initComponent: function() {
@@ -44,7 +57,12 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
     	Ext.Ajax.request({
 		    url: '/incident',
 		    method : 'GET',
-		    params : { page : 1, limit : 5 },
+		    params : { 
+		    	page : 1, 
+		    	limit : 5,
+		    	select : ['datetime', 'vehicle_id', 'driver_id', 'velocity', 'lat', 'lng'],
+		    	sort : Ext.JSON.encode([{property : 'datetime',	direction : 'DESC' }])
+		    },
 		    success: function(response) {		    	
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        

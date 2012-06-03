@@ -152,7 +152,7 @@ T({
 	},
 	
 	portlet : {
-		latest_incident_x : '최근 {x}건 사고 이력',
+		latest_incident_x : '최근 사고 이력 ({x}건)',
 		upcomming_x_replacement : '교체 {x} 리스트',
 	},
 	

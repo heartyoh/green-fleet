@@ -43,22 +43,43 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			self.search();
 		});
 		
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			var filters = self.getFilter();
+			if(filters && filters.length > 0) {
+				operation.params = operation.params || {};
+				operation.params['filter'] = Ext.JSON.encode(filters);
+			}			
+		});		
+		
+	},
+	
+	getFilter : function() {
+		
+		if(!this.sub('vehicle_filter').getSubmitValue() && 
+		   !this.sub('driver_filter').getSubmitValue() &&
+		   !this.sub('date_filter').getSubmitValue()) {
+			return null;
+		}
+		
+		var filters = [];
+		
+		if(this.sub('date_filter').getSubmitValue()) {
+			filters.push({"property" : "date", "value" : this.sub('date_filter').getSubmitValue()});
+		}
+		
+		if(this.sub('vehicle_filter').getSubmitValue()) {
+			filters.push({"property" : "vehicle_id", "value" : this.sub('vehicle_filter').getSubmitValue()});
+		}
+		
+		if(this.sub('driver_filter').getSubmitValue()) {
+			filters.push({"property" : "driver_id", "value" : this.sub('driver_filter').getSubmitValue()});
+		}		
+		
+		return filters;
 	},
 
 	search : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'driver_id',
-				value : this.sub('driver_filter').getValue()
-			}, {
-				property : 'date',
-				value : this.sub('date_filter').getSubmitValue()
-			} ],
-			callback : callback
-		})
+		this.sub('pagingtoolbar').moveFirst({callback : callback});
 	},
 	
 	buildList : function(main) {
@@ -234,7 +255,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				fieldLabel : T('label.date'),
 				format: 'Y-m-d',
 				submitFormat : 'U',
-		        maxValue: new Date(),  // limited to the current date or prior
+		        maxValue: new Date(),
 		        value : new Date(),
 				width : 200
 			}, {
@@ -243,7 +264,16 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			}, {
 				text : T('button.reset'),
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'CheckinDataStore',
+	            displayInfo: true,
+	            cls : 'pagingtoolbar',
+	            displayMsg: 'Displaying checkin data {0} - {1} of {2}',
+	            emptyMsg: "No checkin data to display"
+	        }
 		}
 	},
 
