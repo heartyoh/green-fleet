@@ -243,20 +243,12 @@ public abstract class EntityService {
 	 */
 	public String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		Map<String, Object> commons = new HashMap<String, Object>();
-		@SuppressWarnings("unchecked")
-		Enumeration<String> names = request.getParameterNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			commons.put(name, request.getParameter(name));
-		}
-
+		response.setContentType("text/html");
+		Map<String, Object> commons = toMap(request);
 		MultipartFile file = request.getFile("file");
 		String filename = file.getOriginalFilename();
 		String contentType = file.getContentType();
-
 		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
-
 		String line = br.readLine();
 		/*
 		 * First line for the header Information
@@ -306,10 +298,15 @@ public abstract class EntityService {
 				this.saveEntity(entity, map, datastore);
 				successCount++;
 			}
+		} catch(Exception e) {
+			logger.error("Failed to import!", e);
+			return this.getResultMsg(false, e.getMessage());
+			
 		} finally {
+			if(br != null)
+				br.close();
 		}
-
-		response.setContentType("text/html");
+		
 		return this.getResultMsg(true, "Imported " + successCount + " count successfully!");
 	}
 	
@@ -486,9 +483,9 @@ public abstract class EntityService {
 		PreparedQuery pq = datastore.prepare(q);
 		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 
-		int[] limit_offset = this.getLimitOffsetCount(request);
-		int limit = limit_offset[0];
-		int offset = limit_offset[1];
+		int[] limitOffset = this.getLimitOffsetCount(request);
+		int limit = limitOffset[0];
+		int offset = limitOffset[1];
 
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		

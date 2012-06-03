@@ -21,7 +21,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
@@ -56,7 +55,6 @@ public class TrackService extends EntityService {
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		Entity company = datastore.get((Key)map.get("_company_key"));
-		
 		String datetime = (String)map.get("datetime");
 		
 		if(datetime == null) {
@@ -93,7 +91,7 @@ public class TrackService extends EntityService {
 		if(dblLat == 0 && dblLng == 0)
 			throw new Exception("Both of latitude & longitude values are 0. It might meant to be non stable status of blackbox.");
 		
-		// 위치 기반 서비스 알림 비동기 처리
+		// 위치 기반 서비스 알림 비동기 처리 --> 실시간 처리로...
 		// AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLatitude, dblLongitude);
 		
 		entity.setProperty("terminal_id", terminal_id);
@@ -146,22 +144,39 @@ public class TrackService extends EntityService {
 	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
-		
+		// TODO 이 메소드는 제거해도 됨, 아래 addFilter에서 같은 로직을 수행
+		// 혹시 다른 쪽에 영향을 줄지 몰라 일단 놔 둠 
 		String date = request.getParameter("date");
-		String vehicleId = request.getParameter("vehicle_id");
-		
 		if(!DataUtils.isEmpty(date)) {
-			
-			long dateMillis = DataUtils.toLong(date);
-			if(dateMillis > 1) {
-				Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
-				q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
-				q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
-			}
-		}
-				
-		if(!DataUtils.isEmpty(vehicleId)) {
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+			this.addDateFilter(q, date);
+		}		
+	}
+	
+	@Override
+	protected void addFilter(Query q, String property, String value) {
+		if("date".equalsIgnoreCase(property)) {
+			this.addDateFilter(q, value);
+		} else {
+			super.addFilter(q, property, value);
 		}
 	}
+	
+	/**
+	 * 일자로 검색하는 경우 ...
+	 * 
+	 * @param q
+	 * @param value
+	 */
+	private void addDateFilter(Query q, String value) {
+		
+		if(DataUtils.isEmpty(value))
+			return;
+		
+		long dateMillis = DataUtils.toLong(value);
+		if(dateMillis > 1) {
+			Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
+			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
+			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+		}		
+	}	
 }

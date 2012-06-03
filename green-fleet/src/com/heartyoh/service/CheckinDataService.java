@@ -86,6 +86,7 @@ public class CheckinDataService extends EntityService {
 		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
 		entity.setProperty("engine_start_time", map.get("engine_start_time"));
+		entity.setProperty("datetime", map.get("datetime"));
 		
 		entity.setUnindexedProperty("distance", doubleProperty(map, "distance"));
 		entity.setUnindexedProperty("running_time", intProperty(map, "running_time"));

@@ -37,22 +37,6 @@ Ext.define('GreenFleet.view.management.Track', {
 			self.sub('form').loadRecord(record);
 		});
 
-		this.sub('grid').on('render', function(grid) {
-			// grid.store.load();
-		});
-
-		this.sub('vehicle_filter').on('change', function(field, value) {
-			/*
-			 * Remote Filter를 사용하는 경우에는 검색 아이템의 선택에 바로 반응하지 않는다. Search 버튼을
-			 * 누를때만, 반응한다.
-			 */
-			// self.search();
-		});
-
-		this.sub('date_filter').on('change', function(field, value) {
-			// self.search();
-		});
-
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
 			self.sub('date_filter').setValue(new Date());
@@ -63,12 +47,33 @@ Ext.define('GreenFleet.view.management.Track', {
 		});
 		
 		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
-			operation.params = operation.params || {};
-			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
-			operation.params['date'] = self.sub('date_filter').getSubmitValue();
+			var filters = self.getFilter();
+			if(filters && filters.length > 0) {
+				operation.params = operation.params || {};
+				operation.params['filter'] = Ext.JSON.encode(filters);
+			}			
 		});
-
 	},
+	
+	getFilter : function() {
+		
+		if(!this.sub('vehicle_filter').getSubmitValue() && 
+		   !this.sub('date_filter').getSubmitValue()) {
+			return null;
+		}
+		
+		var filters = [];
+		
+		if(this.sub('date_filter').getSubmitValue()) {
+			filters.push({"property" : "date", "value" : this.sub('date_filter').getSubmitValue()});
+		}
+		
+		if(this.sub('vehicle_filter').getSubmitValue()) {
+			filters.push({"property" : "vehicle_id", "value" : this.sub('vehicle_filter').getSubmitValue()});
+		}
+		
+		return filters;
+	},	
 
 	search : function() {
 		this.sub('pagingtoolbar').moveFirst();
