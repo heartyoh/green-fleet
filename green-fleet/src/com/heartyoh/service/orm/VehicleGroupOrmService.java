@@ -4,6 +4,8 @@
 package com.heartyoh.service.orm;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,9 +74,49 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	}
 	
 	@RequestMapping(value = "/vehicle_group", method = RequestMethod.GET)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		return super.retrieve(request, response);
+		
+		String sql = "select vg.*, vr.vehicle_id from vehicle_group vg, vehicle_relation vr where vg.company = vr.company and vg.company = :company and vg.id = vr.group_id order by vg.id asc";
+		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
+		List<Map> items = this.dml.selectListBySql(sql, params, Map.class, 0, 0);
+				
+		String prevId = "";
+		Map newItem = null;
+		List<String> vehicles = null;
+		List<Map> results = new ArrayList<Map>();
+		
+		for(Map item : items) {
+			String id = (String)item.get("id");
+			
+			if(prevId.equals(id)) {
+				// get
+				vehicles.add((String)item.get("vehicle_id"));
+			} else {
+				// 전 groupId에 대한 처리
+				if(newItem != null) {
+					newItem.put("vehicles", vehicles);
+					results.add(newItem);
+				}
+				
+				// 객체 새로 생성
+				newItem = new HashMap();
+				vehicles = new ArrayList<String>();
+				newItem.put("key", id);
+				newItem.put("id", id);
+				newItem.put("desc", (String)item.get("expl"));
+				newItem.put("updated_at", (Date)item.get("updated_at"));
+				newItem.put("created_at", (Date)item.get("created_at"));
+				vehicles.add((String)item.get("vehicle_id"));
+			}
+			
+			prevId = id;
+		}
+		
+		newItem.put("vehicles", vehicles);
+		results.add(newItem);
+		return this.getResultSet(true, results.size(), results);
 	}
 	
 	@RequestMapping(value = "/vehicle_group/save", method = RequestMethod.POST)
@@ -103,6 +145,17 @@ public class VehicleGroupOrmService extends OrmEntityService {
 		}
 	}	
 	
+	@RequestMapping(value = "/vehicle_group/vehicle_ids", method = RequestMethod.GET)
+	public @ResponseBody 
+	Map<String, Object> vehicleIdListByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
+		params.put("group_id", request.getParameter("group_id"));
+		String sql = "select vehicle_id from vehicle_relation where company = :company and group_id = :group_id";
+		List<String> items = this.dml.selectListBySql(sql, params, String.class, 0, 0);
+		return this.getResultSet(true, items.size(), items);		
+	}
+	
 	@RequestMapping(value = "/vehicle_group/vehicles", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> vehiclesByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -114,13 +167,13 @@ public class VehicleGroupOrmService extends OrmEntityService {
 		int limit = DataUtils.toInt(request.getParameter("limit"));
 		
 		try {
-			// 1. driver relation 총 개수 
+			// 1. vehicle relation 총 개수 
 			String sql = "select count(*) from vehicle_relation where company = :company and group_id = :group_id";
 			Query query = new Query();
 			query.addFilter("company", company).addFilter("group_id", groupId);
 			int totalCount = this.dml.selectSize(VehicleRelation.class, query);
 		
-			// 2. driver 조회 
+			// 2. vehicle 조회 
 			sql = "select v.* from vehicle v, vehicle_relation vr where v.id = vr.vehicle_id and vr.company = :company and vr.group_id = :group_id order by v.id asc";
 			Map<String, Object> params = DataUtils.newMap("company", company);
 			params.put("group_id", groupId);
@@ -134,26 +187,6 @@ public class VehicleGroupOrmService extends OrmEntityService {
 			logger.error("Failed to get vehicles by vehicle group!", e);
 			return this.getResultSet(true, 0, null);
 		}		
-	}
-	
-	@RequestMapping(value = "/vehicle_group/vehicle_ids", method = RequestMethod.GET)
-	public @ResponseBody 
-	Map<String, Object> vehicleIdListByGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
-		params.put("group_id", request.getParameter("group_id"));
-		String sql = "select vehicle_id from vehicle_relation where company = :company and group_id = :group_id";
-		List<String> items = this.dml.selectListBySql(sql, params, String.class, 0, 0);
-		return this.getResultSet(true, items.size(), items);		
-	}
-	
-	@Override
-	protected Map<String, Object> convertItem(HttpServletRequest request, IEntity entity) {
-		
-		VehicleGroup group = (VehicleGroup)entity;
-		Map<String, Object> map = group.toMap(null);
-		map.put("desc", group.getExpl());
-		return map;
 	}
 	
 	@Override
@@ -208,10 +241,10 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	public @ResponseBody
 	String saveRelation(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		response.setContentType("text/html; charset=UTF-8");
+		response.setContentType(CONTENT_TYPE);
 		String company = this.getCompany(request);
-		String groupId = request.getParameter("driver_group_id");
-		String[] vehicleIdArr = request.getParameterValues("driver_id");		
+		String groupId = request.getParameter("vehicle_group_id");
+		String[] vehicleIdArr = request.getParameterValues("vehicle_id");
 		
 		try {
 			List<VehicleRelation> oldRelations = this.findVehicleRelations(company, groupId, vehicleIdArr);
@@ -248,7 +281,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	}
 	
 	/**
-	 * relations에 driverId가 존재하는지 체크 
+	 * relations에 vehicleId가 존재하는지 체크 
 	 * 
 	 * @param relations
 	 * @param vehicleId

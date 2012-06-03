@@ -37,7 +37,11 @@ import com.heartyoh.util.DatastoreUtils;
 @Controller
 public class VehicleOrmService extends OrmEntityService {
 
+	/**
+	 * key fields
+	 */
 	private static final String[] KEY_FIELDS = new String[] { "company", "id" };
+	
 	@Override
 	public Class<?> getEntityClass() {
 		return Vehicle.class;
@@ -175,7 +179,7 @@ public class VehicleOrmService extends OrmEntityService {
 	
 	@RequestMapping(value = "/vehicle/byhealth", method = RequestMethod.GET)
 	public @ResponseBody
-	Map<String, Object> retrieveByHealth(HttpServletRequest request, HttpServletResponse response) 
+	Map<String, Object> findByHealth(HttpServletRequest request, HttpServletResponse response) 
 			throws Exception {
 		
 		String consumableItem = request.getParameter("consumable_item");
