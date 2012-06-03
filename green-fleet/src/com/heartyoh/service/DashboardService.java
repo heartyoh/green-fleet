@@ -8,6 +8,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dbist.dml.Dml;
+import org.dbist.dml.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.heartyoh.model.Vehicle;
+import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
@@ -28,13 +34,19 @@ import com.heartyoh.util.SessionUtils;
 @Controller
 public class DashboardService {
 	
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(DashboardService.class);
+	
 	@RequestMapping(value = "/dashboard/health/consumable", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> consumableHealth(HttpServletRequest request, HttpServletResponse response) {
 		
 		Key companyKey = SessionUtils.getCompanyKey(request);
 		List<Object> items = new ArrayList<Object>();
-		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "ConsumableCode", null);
+		Iterator<Entity> consumables = 
+				DatastoreUtils.findEntities(companyKey, "ConsumableCode", null);
 		
 		while(consumables.hasNext()) {
 			Entity consumable = consumables.next();
@@ -44,21 +56,29 @@ public class DashboardService {
 			item.put("summary", resultList);
 			
 			// healthy
-			Map<String, Object> filters = DataUtils.newMap(new String[] { "consumable_item", "status" }, new Object[] { consumableItem, GreenFleetConstant.VEHICLE_HEALTH_H } );			
+			Map<String, Object> filters = 
+					DataUtils.newMap(new String[] { "consumable_item", "status" }, 
+							new Object[] { consumableItem, GreenFleetConstant.VEHICLE_HEALTH_H } );			
 			int healthCount = DatastoreUtils.totalCount(companyKey, "VehicleConsumable", filters);		
-			Map<String, Object> result1 = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_H, healthCount });
+			Map<String, Object> result1 = 
+					DataUtils.newMap(new String[] { "name", "value" }, 
+							new Object[] { GreenFleetConstant.VEHICLE_HEALTH_H, healthCount });
 			resultList.add(result1);
 			
 			// impending
 			filters.put("status", GreenFleetConstant.VEHICLE_HEALTH_I);
 			int impendingCount = DatastoreUtils.totalCount(companyKey, "VehicleConsumable", filters);
-			Map<String, Object> result2 = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_I, impendingCount });
+			Map<String, Object> result2 = 
+					DataUtils.newMap(new String[] { "name", "value" }, 
+							new Object[] { GreenFleetConstant.VEHICLE_HEALTH_I, impendingCount });
 			resultList.add(result2);
 			
 			// overdue
 			filters.put("status", GreenFleetConstant.VEHICLE_HEALTH_O);
 			int overdueCount = DatastoreUtils.totalCount(companyKey, "VehicleConsumable", filters);
-			Map<String, Object> result3 = DataUtils.newMap(new String[] { "name", "value" }, new Object[] { GreenFleetConstant.VEHICLE_HEALTH_O, overdueCount });
+			Map<String, Object> result3 = 
+					DataUtils.newMap(new String[] { "name", "value" }, 
+							new Object[] { GreenFleetConstant.VEHICLE_HEALTH_O, overdueCount });
 			resultList.add(result3);
 			
 			items.add(item);
@@ -103,20 +123,28 @@ public class DashboardService {
 		// 0 : ~ 10K, 1 : 10 ~ 30K, 2 : 30 ~ 50K, 3 : 50 ~ 100K, 4 : 100 ~ 200K, 5 : 200K ~ 
 		int[] miles = new int[] {0, 0, 0, 0, 0, 0};
 		
-		Iterator<Entity> vehicles = DatastoreUtils.findEntities(companyKey, "Vehicle", null);
-		while(vehicles.hasNext()) {
-			Entity vehicle = vehicles.next();
-			
+		Dml dml = ConnectionManager.getInstance().getDml();
+		List<Vehicle> vehicles = null;
+		try {
+			Query q = new Query();
+			q.addFilter("company", companyKey.getName());
+			vehicles = dml.selectList(Vehicle.class, q);
+		} catch (Exception e) {
+			logger.error("Failed to vehicles health summary!", e);
+			return DataUtils.newMap("sucess", false);
+		}
+		
+		for(Vehicle vehicle : vehicles) {
 			// 1. 건강상태 카운팅 ...
-			String healthStatus = (String)vehicle.getProperty("health_status");
+			String healthStatus = vehicle.getHealthStatus();
 			this.calcHealthStatusCount(healthStatus, healths);
 			
 			// 2. 연식 카운팅 ...
-			int birthYear = (int)DataUtils.toFloat(vehicle.getProperty("birth_year"));
+			int birthYear = vehicle.getBirthYear();
 			this.calcAgeCount(thisYear, birthYear, ages);
 			
 			// 3. 주행거리 카운팅 ...
-			int mileage = (int)DataUtils.toFloat(vehicle.getProperty("total_distance"));
+			int mileage = (int)vehicle.getTotalDistance();
 			this.calcMilesCount(mileage, miles);
 		}
 		

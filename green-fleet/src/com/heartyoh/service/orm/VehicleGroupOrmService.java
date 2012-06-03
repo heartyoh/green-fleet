@@ -78,6 +78,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		
+		// TODO outer join
 		String sql = "select vg.*, vr.vehicle_id from vehicle_group vg, vehicle_relation vr where vg.company = vr.company and vg.company = :company and vg.id = vr.group_id order by vg.id asc";
 		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
 		List<Map> items = this.dml.selectListBySql(sql, params, Map.class, 0, 0);
@@ -114,8 +115,11 @@ public class VehicleGroupOrmService extends OrmEntityService {
 			prevId = id;
 		}
 		
-		newItem.put("vehicles", vehicles);
-		results.add(newItem);
+		if(newItem != null) {
+			newItem.put("vehicles", vehicles);		
+			results.add(newItem);
+		}
+		
 		return this.getResultSet(true, results.size(), results);
 	}
 	

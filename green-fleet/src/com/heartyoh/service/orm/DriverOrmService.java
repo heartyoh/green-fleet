@@ -77,14 +77,22 @@ public class DriverOrmService extends OrmEntityService {
 	}
 	
 	@Override
+	protected Map<String, Object> convertItem(HttpServletRequest request, IEntity entity) {
+		Map<String, Object> item = entity.toMap(request.getParameterValues("select"));
+		item.put("phone_no_1", item.remove("phone_no1"));
+		item.put("phone_no_2", item.remove("phone_no2"));
+		return item;
+	}	
+	
+	@Override
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
 		Driver driver = (Driver)entity;
 		driver.setDivision(request.getParameter("division"));
 		driver.setTitle(request.getParameter("title"));
 		driver.setDivision(request.getParameter("division"));
-		driver.setSocialId(request.getParameter("socialId"));
-		driver.setPhoneNo1(request.getParameter("phoneNo1"));
-		driver.setPhoneNo2(request.getParameter("phoneNo2"));
+		driver.setSocialId(request.getParameter("social_id"));
+		driver.setPhoneNo1(request.getParameter("phone_no_1"));
+		driver.setPhoneNo2(request.getParameter("phone_no_2"));
 		driver.beforeUpdate();
 		return driver;
 	}
