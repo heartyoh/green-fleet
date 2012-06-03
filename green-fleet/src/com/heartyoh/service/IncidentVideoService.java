@@ -77,10 +77,11 @@ public class IncidentVideoService extends EntityService {
 			return super.save(request, response);
 		} catch(Throwable e) {
 			BackendService backendsApi = BackendServiceFactory.getBackendService();
-			String currentBackend = backendsApi.getCurrentBackend();			
+			String currentBackend = backendsApi.getCurrentBackend();
 			time = System.currentTimeMillis() - time;
-			logger.error("It took " + time + " millis to save file. " + (DataUtils.isEmpty(currentBackend) ? "At frontend mode!" : "At backend (" + currentBackend + ") mode!"), e);
-			return getResultMsg(false, "It took " + time + " millis to save file. [" + e.toString() + "]");			
+			String log = "It took " + time + " millis to save file. " + (DataUtils.isEmpty(currentBackend) ? "At frontend mode!" : "At backend (" + currentBackend + ") mode!");
+			logger.error(log, e);
+			return getResultMsg(false, log);
 		}
 	}
 }
