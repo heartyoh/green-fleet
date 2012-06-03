@@ -250,14 +250,9 @@ public abstract class EntityService {
 		String contentType = file.getContentType();
 		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
 		String line = br.readLine();
-		/*
-		 * First line for the header Information
-		 */
+		// First line for the header Information
 		String[] keys = line.split(",");
-
-		/*
-		 * Next lines for the values
-		 */
+		// Next lines for the values
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		int successCount = 0;
 		
@@ -267,9 +262,7 @@ public abstract class EntityService {
 
 			while ((line = br.readLine()) != null) {
 				String[] values = line.split(",");
-
 				Map<String, Object> map = new HashMap<String, Object>();
-
 				for (int i = 0; i < keys.length; i++) {
 					map.put(keys[i].trim(), values[i].trim());
 				}
@@ -278,15 +271,12 @@ public abstract class EntityService {
 				map.put("_content_type", contentType);
 				map.put("_now", now);
 				map.put("_company_key", companyKey);
-				/*
-				 * Request의 파라미터를 모든 레코드의 공통 파라미터로 추가한다.
-				 */
+				// Request의 파라미터를 모든 레코드의 공통 파라미터로 추가한다.
 				map.put("_commons", commons);
 
+				this.adjustRequestMap(datastore, map);
 				Key key = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
 				Entity entity = null;
-
-				// TODO Transaction 처리 ?
 				try {
 					entity = datastore.get(key);
 				} catch (EntityNotFoundException e) {

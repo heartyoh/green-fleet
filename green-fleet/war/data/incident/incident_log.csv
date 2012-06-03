@@ -1,4 +1,4 @@
-datetime,lattitude,longitude,velocity,accelate_x,accelate_y,accelate_z
+datetime,lat,lng,velocity,accelate_x,accelate_y,accelate_z
 2012-02-15 14:20:01, 37.38, 127.11, 100, 30, 40, 50
 2012-02-15 14:20:02, 37.381, 127.112, 100, 30, 40, 50
 2012-02-15 14:20:03, 37.382, 127.122, 100, 30, 40, 50

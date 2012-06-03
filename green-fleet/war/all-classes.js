@@ -4729,22 +4729,43 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			self.search();
 		});
 		
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			var filters = self.getFilter();
+			if(filters && filters.length > 0) {
+				operation.params = operation.params || {};
+				operation.params['filter'] = Ext.JSON.encode(filters);
+			}			
+		});		
+		
+	},
+	
+	getFilter : function() {
+		
+		if(!this.sub('vehicle_filter').getSubmitValue() && 
+		   !this.sub('driver_filter').getSubmitValue() &&
+		   !this.sub('date_filter').getSubmitValue()) {
+			return null;
+		}
+		
+		var filters = [];
+		
+		if(this.sub('date_filter').getSubmitValue()) {
+			filters.push({"property" : "date", "value" : this.sub('date_filter').getSubmitValue()});
+		}
+		
+		if(this.sub('vehicle_filter').getSubmitValue()) {
+			filters.push({"property" : "vehicle_id", "value" : this.sub('vehicle_filter').getSubmitValue()});
+		}
+		
+		if(this.sub('driver_filter').getSubmitValue()) {
+			filters.push({"property" : "driver_id", "value" : this.sub('driver_filter').getSubmitValue()});
+		}		
+		
+		return filters;
 	},
 
 	search : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getValue()
-			}, {
-				property : 'driver_id',
-				value : this.sub('driver_filter').getValue()
-			}, {
-				property : 'date',
-				value : this.sub('date_filter').getSubmitValue()
-			} ],
-			callback : callback
-		})
+		this.sub('pagingtoolbar').moveFirst({callback : callback});
 	},
 	
 	buildList : function(main) {
@@ -4920,7 +4941,7 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 				fieldLabel : T('label.date'),
 				format: 'Y-m-d',
 				submitFormat : 'U',
-		        maxValue: new Date(),  // limited to the current date or prior
+		        maxValue: new Date(),
 		        value : new Date(),
 				width : 200
 			}, {
@@ -4929,7 +4950,16 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 			}, {
 				text : T('button.reset'),
 				itemId : 'search_reset'
-			} ]
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'CheckinDataStore',
+	            displayInfo: true,
+	            cls : 'pagingtoolbar',
+	            displayMsg: 'Displaying checkin data {0} - {1} of {2}',
+	            emptyMsg: "No checkin data to display"
+	        }
 		}
 	},
 
@@ -14071,7 +14101,10 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
     store : Ext.create('Ext.data.ArrayStore', {
 		fields: [ { name : 'datetime', type : 'date', dateFormat:'time' }, 
 		          { name : 'vehicle_id', type : 'string' },
-		          { name : 'driver_id', type : 'string' } ], data: []}),
+		          { name : 'driver_id', type : 'string' },
+		          { name : 'lat', type : 'number' },
+		          { name : 'lng', type : 'number' },
+		          { name : 'velocity', type : 'number' } ], data: []}),
     
     columns: [{
         text     : T('label.datetime'),
@@ -14082,14 +14115,24 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		width : 110
     },{
         text     : T('label.vehicle'),
-        width    : 70,
-        sortable : true,
+        width    : 60,
         dataIndex: 'vehicle_id'
     },{
         text     : T('label.driver'),
-        width    : 70,
-        sortable : true,
+        width    : 60,
         dataIndex: 'driver_id'
+    },{
+        text     : T('label.velocity'),
+        width    : 50,
+        dataIndex: 'velocity'
+    },{
+        text     : T('label.latitude'),
+        width    : 50,
+        dataIndex: 'lat'
+    },{
+        text     : T('label.longitude'),
+        width    : 50,
+        dataIndex: 'lng'
     }],
     
     initComponent: function() {
@@ -14104,7 +14147,12 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
     	Ext.Ajax.request({
 		    url: '/incident',
 		    method : 'GET',
-		    params : { page : 1, limit : 5 },
+		    params : { 
+		    	page : 1, 
+		    	limit : 5,
+		    	select : ['datetime', 'vehicle_id', 'driver_id', 'velocity', 'lat', 'lng'],
+		    	sort : Ext.JSON.encode([{property : 'datetime',	direction : 'DESC' }])
+		    },
 		    success: function(response) {		    	
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        

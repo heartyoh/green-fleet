@@ -2,11 +2,11 @@
 lat=37.38
 lng=127.11
 #host="http://green-fleets.appspot.com"
-host="http://gf-backend.green-fleets.appspot.com/"
-#host="http://localhost:8888"
-tid="T041"
-did="D041"
-vid="V041"
+#host="http://gf-backend.green-fleets.appspot.com/"
+host="http://localhost:8888"
+tid="T039"
+did="D039"
+vid="V039"
 
 dt_incident=$(date '+%F %T')
 lat_incident=$lat

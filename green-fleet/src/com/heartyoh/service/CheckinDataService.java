@@ -1,12 +1,15 @@
 package com.heartyoh.service;
 
+import java.util.Calendar;
 import java.util.Date;
-
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dbist.dml.Dml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,12 +19,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Transaction;
+import com.heartyoh.model.DriverRunSum;
+import com.heartyoh.model.Vehicle;
+import com.heartyoh.model.VehicleRunSum;
+import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -31,6 +35,10 @@ public class CheckinDataService extends EntityService {
 	 * 키가 되는 시간 정보 컬럼 
 	 */
 	private static final String KEY_TIME_COLUMN = "engine_end_time";
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(CheckinDataService.class);	
 	
 	@Override
 	protected String getEntityName() {
@@ -42,6 +50,13 @@ public class CheckinDataService extends EntityService {
 		return true;
 	}
 
+	/**
+	 * date 형태의 문자열 데이터를 Date 객체로 변경 
+	 * 
+	 * @param timeStr
+	 * @param timezone
+	 * @return
+	 */
 	private Date parseDate(String timeStr, int timezone) {
 		if(DataUtils.isEmpty(timeStr))
 			return null;
@@ -68,7 +83,7 @@ public class CheckinDataService extends EntityService {
 	}	
 	
 	@Override
-	protected String getIdValue(Map<String, Object> map) {
+	protected String getIdValue(Map<String, Object> map) {		
 		String engineEndTimeStr = DataUtils.dateToString((Date)map.get(KEY_TIME_COLUMN), DEFAULT_DATE_TIME_FORMAT);
 		return map.get("terminal_id") + "@" + engineEndTimeStr;
 	}
@@ -150,86 +165,141 @@ public class CheckinDataService extends EntityService {
 	@Override
 	protected void saveEntity(Entity checkinObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		Transaction txn = datastore.beginTransaction();		
-		try {
-			String monthStr = DataUtils.dateToString(new Date(), "yyyy-MM") + "-01";
-			Entity vehicle = this.adjustVehicleData(checkinObj);
-			Entity vehicleRunSum = this.adjustRunSumData(checkinObj, "VehicleRunSum", "vehicle", (String)checkinObj.getProperty("vehicle_id"), monthStr);
-			Entity driverRunSum = this.adjustRunSumData(checkinObj, "DriverRunSum", "driver", (String)checkinObj.getProperty("driver_id"), monthStr);
+		try {			
+			Calendar today = Calendar.getInstance();
+			int year = today.get(Calendar.YEAR);
+			int month = today.get(Calendar.MONTH) + 1;
+			Dml dml = ConnectionManager.getInstance().getDml();
 			
+			// 1. 체크인 데이터를 저장 
 			super.saveEntity(checkinObj, map, datastore);
 			
+			// 2. 체크인 정보를 Vehicle 마스터 데이터에 반영  
+			Vehicle vehicle = this.adjustVehicleData(dml, checkinObj);
+			
+			// 3. 체크인 정보를 Vehicle 주행 서머리 정보에 반영 
+			VehicleRunSum vrs = this.adjustVehicleRunSum(dml, checkinObj, year, month);
+			
+			// 4. 체크인 정보를 Driver 주행 서머리 정보에 반영
+			DriverRunSum drs = this.adjustDriverRunSum(dml, checkinObj, year, month);
+			
 			if(vehicle != null)
-				super.saveEntity(vehicle, map, datastore);
+				dml.update(vehicle);
 			
-			if(vehicleRunSum != null)
-				super.saveEntity(vehicleRunSum, map, datastore);
+			if(vrs != null)
+				dml.upsert(vrs);
 			
-			if(driverRunSum != null)
-				super.saveEntity(driverRunSum, map, datastore);
-			
-			txn.commit();
+			if(drs != null)
+				dml.upsert(drs);
 			
 		} catch (Exception e) {
-			txn.rollback();
+			logger.error("Failed to save checkin data!", e);
 			throw e;
 		}
 	}
-	
-	private Entity adjustVehicleData(Entity checkinObj) throws Exception {
-		
-		Key vehicleKey = KeyFactory.createKey(checkinObj.getParent(), "Vehicle", (String)checkinObj.getProperty("vehicle_id"));
-		Entity vehicle = DatastoreUtils.findVehicle(vehicleKey);
 
+	/**
+	 * 체크인 정보에 대해서 Vehicle 마스터 정보에 반영 (주행거리)
+	 * 
+	 * @param dml
+	 * @param checkinObj
+	 * @return
+	 * @throws Exception
+	 */
+	private Vehicle adjustVehicleData(Dml dml, Entity checkinObj) throws Exception {		
+		String company = checkinObj.getParent().getName();
+		String vehicleId = (String)checkinObj.getProperty("vehicle_id");
+		Vehicle vehicle = new Vehicle(company, vehicleId);
+		vehicle = dml.select(vehicle);
+		
 		if(vehicle != null) {
 			// 체크인 시점에 driver, terminal, total distance 정보를 업데이트한다.
-			double totalMileage = DataUtils.toDouble(vehicle.getProperty("total_distance"));
-			double distance = DataUtils.toDouble(checkinObj.getProperty("distance"));
-			vehicle.setProperty("driver_id", checkinObj.getProperty("driver_id"));
-			vehicle.setProperty("terminal_id", checkinObj.getProperty("terminal_id"));
-			vehicle.setProperty("total_distance", totalMileage + distance);
+			float newTotalDist = vehicle.getTotalDistance() + DataUtils.toFloat(checkinObj.getProperty("distance"));
+			//vehicle.setDriverId((String)checkinObj.getProperty("driver_id"));
+			//vehicle.setTerminalId((String)checkinObj.getProperty("terminal_id"));
+			vehicle.setTotalDistance(newTotalDist);
 		}
 		
 		return vehicle;
 	}
 	
-	private Entity adjustRunSumData(Entity checkinObj, String runSumEntityName, String keyWithPropName, String keyValueWithMonth, String monthStr) throws Exception {
+	/**
+	 * Vehicle 주행 서머리 정보에 반영 
+	 *  
+	 * @param dml
+	 * @param checkinObj
+	 * @param year
+	 * @param month
+	 * @return
+	 * @throws Exception
+	 */
+	private VehicleRunSum adjustVehicleRunSum(Dml dml, Entity checkinObj, int year, int month) throws Exception {
 		
-		Key runSumKey = KeyFactory.createKey(checkinObj.getParent(), runSumEntityName, keyValueWithMonth + "@" + monthStr);
-		Entity runSum = DatastoreUtils.findByKey(runSumKey);
-		double cRunDist = 0;
-		int cRunTime = 0;
-		double cConsmpt = 0;
-		double cCo2Emss = 0;
-		double cEffcc = 0;
+		String company = checkinObj.getParent().getName();
+		String vehicleId = (String)checkinObj.getProperty("vehicle_id");
+		VehicleRunSum runSum = new VehicleRunSum(company, vehicleId, year, month);
 		
-		// 체크인 시점에 RunSum 정보를 업데이트한다.
-		if(runSum != null) {
-			cRunDist = DataUtils.toDouble(checkinObj.getProperty("distance"));
-			cRunTime = DataUtils.toInt(checkinObj.getProperty("running_time"));
-			cConsmpt = DataUtils.toDouble(checkinObj.getProperty("fuel_consumption"));
-			cCo2Emss = DataUtils.toDouble(checkinObj.getProperty("co2_emissions"));
-			cEffcc = DataUtils.toDouble(checkinObj.getProperty("fuel_efficiency"));
-		
-		// 체크인 시점에 Vehicle/Driver RunSum 정보가 없다면 생성 ...
-		} else {
-			runSum = new Entity(runSumEntityName, checkinObj.getParent());
-			runSum.setProperty(keyWithPropName, keyValueWithMonth);
-			runSum.setProperty("month", SessionUtils.stringToDate(monthStr));
+		try {
+			runSum = dml.select(runSum);
+		} catch(Exception e) {
+			runSum = new VehicleRunSum(company, vehicleId, year, month);
 		}
 		
-		// RunSum 계산 
-		double sRunDist = DataUtils.toDouble(runSum.getProperty("run_dist"));
-		int sRunTime = DataUtils.toInt(runSum.getProperty("run_time"));
-		double sConsmpt = DataUtils.toDouble(runSum.getProperty("consmpt"));
-		double sCo2Emss = DataUtils.toDouble(runSum.getProperty("co2_emss"));
-		double sEffcc = DataUtils.toDouble(runSum.getProperty("effcc"));
+		if(runSum == null)
+			runSum = new VehicleRunSum(company, vehicleId, year, month);
 		
-		runSum.setProperty("run_dist", cRunDist + sRunDist);
-		runSum.setProperty("run_time", cRunTime + sRunTime);
-		runSum.setProperty("consmpt", cConsmpt + sConsmpt);
-		runSum.setProperty("co2_emss", cCo2Emss + sCo2Emss);
-		runSum.setProperty("effcc", cEffcc + sEffcc);
+		// 체크인 시점에 RunSum 정보를 업데이트한다.		
+		float cRunDist = DataUtils.toFloat(checkinObj.getProperty("distance"));
+		int cRunTime = DataUtils.toInt(checkinObj.getProperty("running_time"));
+		float cConsmpt = DataUtils.toFloat(checkinObj.getProperty("fuel_consumption"));
+		float cCo2Emss = DataUtils.toFloat(checkinObj.getProperty("co2_emissions"));
+		float cEffcc = DataUtils.toFloat(checkinObj.getProperty("fuel_efficiency"));
+		
+		runSum.setRunDist(cRunDist + runSum.getRunDist());
+		runSum.setRunTime(cRunTime + runSum.getRunTime());
+		runSum.setConsmpt(cConsmpt + runSum.getConsmpt());
+		runSum.setCo2Emss(cCo2Emss + runSum.getCo2Emss());
+		runSum.setEffcc(cEffcc + runSum.getEffcc());
+		return runSum;
+	}
+	
+	/**
+	 * Driver 주행 서머리 정보에 반영
+	 * 
+	 * @param dml
+	 * @param checkinObj
+	 * @param year
+	 * @param month
+	 * @return
+	 * @throws Exception
+	 */
+	private DriverRunSum adjustDriverRunSum(Dml dml, Entity checkinObj, int year, int month) throws Exception {
+		
+		String company = checkinObj.getParent().getName();
+		String driverId = (String)checkinObj.getProperty("driver_id");
+		DriverRunSum runSum = new DriverRunSum(company, driverId, year, month);
+		
+		try {
+			runSum = dml.select(runSum);
+		} catch(Exception e) {
+			runSum = new DriverRunSum(company, driverId, year, month);
+		}
+		
+		if(runSum == null)
+			runSum = new DriverRunSum(company, driverId, year, month);
+		
+		// 체크인 시점에 RunSum 정보를 업데이트한다.		
+		float cRunDist = DataUtils.toFloat(checkinObj.getProperty("distance"));
+		int cRunTime = DataUtils.toInt(checkinObj.getProperty("running_time"));
+		float cConsmpt = DataUtils.toFloat(checkinObj.getProperty("fuel_consumption"));
+		float cCo2Emss = DataUtils.toFloat(checkinObj.getProperty("co2_emissions"));
+		float cEffcc = DataUtils.toFloat(checkinObj.getProperty("fuel_efficiency"));
+		
+		runSum.setRunDist(cRunDist + runSum.getRunDist());
+		runSum.setRunTime(cRunTime + runSum.getRunTime());
+		runSum.setConsmpt(cConsmpt + runSum.getConsmpt());
+		runSum.setCo2Emss(cCo2Emss + runSum.getCo2Emss());
+		runSum.setEffcc(cEffcc + runSum.getEffcc());
 		return runSum;
 	}
 
@@ -250,11 +320,6 @@ public class CheckinDataService extends EntityService {
 	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
-		
-		String vehicleId = request.getParameter("vehicle_id");
-		if(!DataUtils.isEmpty(vehicleId)) {
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
-		}
 		
 		String fromDateStr = request.getParameter("from_date");
 		String toDateStr = request.getParameter("to_date");
