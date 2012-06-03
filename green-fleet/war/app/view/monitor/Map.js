@@ -40,7 +40,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			interval = setInterval(function() {
 				vehicleMapStore.load();
 				incidentStore.load();
-			}, 10000);
+			}, GreenFleet.setting.get('refreshTerm') * 1000);
 		});
 		
 		this.on('resize', function() {
