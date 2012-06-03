@@ -9,7 +9,7 @@
 
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<html>
+<html manifest="cache.manifest" >
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
