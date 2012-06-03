@@ -71,7 +71,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 		return this.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/vehicle_group", "/m/data/vehicle_group"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/vehicle_group", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.retrieve(request, response);

@@ -58,7 +58,7 @@ public class TaskOrmService extends OrmEntityService {
 		return super.imports(request, response);
 	}
 		
-	@RequestMapping(value = {"/task", "/m/data/task"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/task", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

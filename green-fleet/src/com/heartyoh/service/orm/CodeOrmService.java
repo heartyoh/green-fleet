@@ -58,7 +58,7 @@ public class CodeOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/code", "/m/data/code"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/code", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.retrieve(request, response);

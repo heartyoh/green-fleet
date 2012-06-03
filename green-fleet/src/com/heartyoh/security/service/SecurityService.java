@@ -41,9 +41,14 @@ public class SecurityService {
 		}
 	}
 
+	@RequestMapping(value = "/m", method = RequestMethod.GET)
+	public String m_default() {
+		return "redirect:/m/home";
+	}
+
 	@RequestMapping(value = "/m/home", method = RequestMethod.GET)
 	public String m_home() {
-		return "m/home";
+		return "/m/home";
 	}
 
 	@RequestMapping(value = "/disabled", method = RequestMethod.GET)

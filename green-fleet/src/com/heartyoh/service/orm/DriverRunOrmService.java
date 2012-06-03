@@ -197,7 +197,7 @@ public class DriverRunOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/driver_run", "/m/data/driver_run"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/driver_run", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

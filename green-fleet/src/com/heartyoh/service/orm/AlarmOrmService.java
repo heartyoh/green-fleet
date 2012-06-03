@@ -66,7 +66,7 @@ public class AlarmOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/alarm", "/m/data/alarm"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/alarm", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.retrieveByPaging(request, response);

@@ -50,7 +50,7 @@ public class TerminalOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/terminal", "/m/data/terminal"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/terminal", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.retrieve(request, response);

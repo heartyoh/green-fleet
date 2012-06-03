@@ -101,7 +101,7 @@ public class VehicleService extends EntityService {
 		return super.delete(request, response);
 	}
 
-	@RequestMapping(value = {"/vehicle", "/m/data/vehicle"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/vehicle", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {		
 		return super.retrieve(request, response);

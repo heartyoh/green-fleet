@@ -142,7 +142,7 @@ public class VehicleRunOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/vehicle_run", "/m/data/vehicle_run"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/vehicle_run", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

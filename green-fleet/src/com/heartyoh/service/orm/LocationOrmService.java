@@ -59,7 +59,7 @@ public class LocationOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/location", "/m/data/location"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/location", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.retrieveByPaging(request, response);

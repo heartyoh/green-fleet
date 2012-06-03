@@ -9,10 +9,10 @@
 
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<html manifest="cache.manifest" >
+<!DOCTYPE HTML>
+<html manifest="cache.manifest" lang="en-US">
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	    <meta charset="UTF-8">
 		<title>Green Fleet</title>
 
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>

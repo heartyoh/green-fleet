@@ -50,7 +50,7 @@ public class ConsumableCodeOrmService extends OrmEntityService {
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = {"/consumable_code", "/m/data/consumable_code"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/consumable_code", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.retrieve(request, response);
