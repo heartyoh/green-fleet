@@ -23,7 +23,7 @@ public class SecurityService {
 		
 		Matcher match = pattern.matcher(userAgent);
 		if(match.find()) {
-			return "redirect:/m/home";
+			return "redirect:/m/";
 		} else {
 			return "home";
 		}
@@ -35,20 +35,20 @@ public class SecurityService {
 		
 		Matcher match = pattern.matcher(userAgent);
 		if(match.find()) {
-			return "redirect:/m/home";
+			return "redirect:/m/";
 		} else {
 			return "home";
 		}
 	}
 
-	@RequestMapping(value = "/m", method = RequestMethod.GET)
+	@RequestMapping(value = "/m/", method = RequestMethod.GET)
 	public String m_default() {
-		return "redirect:/m/home";
+		return "/m/home";
 	}
 
-	@RequestMapping(value = "/m/home", method = RequestMethod.GET)
+	@RequestMapping(value = {"/m/home", "/m"}, method = RequestMethod.GET)
 	public String m_home() {
-		return "/m/home";
+		return "redirect:/m/";
 	}
 
 	@RequestMapping(value = "/disabled", method = RequestMethod.GET)
