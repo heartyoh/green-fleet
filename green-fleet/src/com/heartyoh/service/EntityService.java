@@ -52,11 +52,6 @@ import com.heartyoh.util.SessionUtils;
  */
 public abstract class EntityService {
 	
-	/**
-	 * 기본 시간 포맷 
-	 */
-	protected static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	
 	private static final Logger logger = LoggerFactory.getLogger(EntityService.class);
 	private static final Map<String, Object> emptyMap = new HashMap<String, Object>();
 
@@ -80,6 +75,11 @@ public abstract class EntityService {
 		String company = (user != null) ? user.getCompany() : request.getParameter("company");
 		return KeyFactory.createKey("Company", company);
 	}
+	
+	protected String getCompany(HttpServletRequest request) {
+		CustomUser user = SessionUtils.currentUser();
+		return (user != null) ? user.getCompany() : request.getParameter("company");
+	}	
 	
 	protected Map<String, Object> packResultDataset(boolean success, int totalCount, Object items) {
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -371,7 +371,7 @@ public abstract class EntityService {
 		return this.getDeleteResultMsg(true, key);
 	}
 
-	protected void addFilter(Query q, String property, String value) {
+	protected void addFilter(Query q, String property, Object value) {
 		q.addFilter(property, FilterOperator.EQUAL, value);
 	}
 
@@ -383,7 +383,7 @@ public abstract class EntityService {
 				Filter filter = it.next();
 				String value = filter.getValue();
 				if (value != null && value.length() > 0)
-					addFilter(q, filter.getProperty(), filter.getValue());
+					this.addFilter(q, filter.getProperty(), value);
 			}
 		}
 

@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dbist.dml.Dml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -31,11 +30,12 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
+import com.heartyoh.model.ConsumableCode;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.CalculatorUtils;
-import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
@@ -192,17 +192,15 @@ public class ConsumableService extends HistoricEntityService {
 		if(DataUtils.isEmpty(request.getParameter("company")))
 			throw new Exception("Request parameter [company] is required!");
 		
-		Dml dml = ConnectionManager.getInstance().getDml();
 		Key companyKey = this.getCompanyKey(request);
-		Vehicle condition = new Vehicle(companyKey.getName(), null);
-		List<Vehicle> vehicles = dml.selectList(Vehicle.class, condition);
+		List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyKey.getName());
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService(); 
 		int count = 0;
 		
 		// 차량별로 소모품에 대한 상태 처리
 		for(Vehicle vehicle : vehicles) {
 			try {
-				count += this.summaryConsumableStatus(datastore, dml, companyKey, vehicle);
+				count += this.summaryConsumableStatus(datastore, companyKey, vehicle);
 			} catch (Exception e) {
 				logger.error("Failed to summary consumable status - vehicle id (" + vehicle.getId() + ")!", e);
 			}
@@ -215,12 +213,11 @@ public class ConsumableService extends HistoricEntityService {
 	 * 차량별 소모품 summary
 	 * 
 	 * @param datastore
-	 * @param dml
 	 * @param companyKey
 	 * @param vehicle
 	 * @throws Exception
 	 */
-	private int summaryConsumableStatus(DatastoreService datastore, Dml dml, Key companyKey, Vehicle vehicle) throws Exception {
+	private int summaryConsumableStatus(DatastoreService datastore, Key companyKey, Vehicle vehicle) throws Exception {
 		
 		String vehicleId = vehicle.getId();
 		double totalMileage = vehicle.getTotalDistance();
@@ -239,12 +236,14 @@ public class ConsumableService extends HistoricEntityService {
 			// consumable 별로 health rate와 status를 계산하여 업데이트
 			if(CalculatorUtils.calcConsumableHealth(totalMileage, consumable)) {
 				// 변경되었다면 저장. 하루에 한 번씩 업데이트 되는 내용이라 이력을 쌓지 않는다. 
-				// 만약 이력을 관리하려면 이 부부을 saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore)로 변경하면 된다.
+				// 만약 이력을 관리하려면 이 부분을 
+				// saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore)로 변경하면 된다.
 				datastore.put(consumable);
 				count++;
 			}
 			
-			// 차량 상태 결정 : 모든 소모품이 OK이면 Healthy, 하나라도 Impending이면 Impending, 하나라도 Overdue이면 무조건 Overdue, Overdue가 우선순위가 가장 높음
+			// 차량 상태 결정 : 모든 소모품이 OK이면 Healthy, 
+			// 하나라도 Impending이면 Impending, 하나라도 Overdue이면 무조건 Overdue, Overdue가 우선순위가 가장 높음
 			if(GreenFleetConstant.VEHICLE_HEALTH_O.equalsIgnoreCase(vehicleHealthStatus))
 				continue;
 			
@@ -261,7 +260,7 @@ public class ConsumableService extends HistoricEntityService {
 		
 		// 차량 건강 상태 업데이트 
 		vehicle.setHealthStatus(vehicleHealthStatus);
-		dml.update(vehicle);
+		DatasourceUtils.updateVehicle(vehicle);
 		
 		if(logger.isInfoEnabled())
 			logger.info("Consumables' health statuses of vehicle (id :" + vehicleId + ") are updated! - (" + count + ") count!");
@@ -277,7 +276,7 @@ public class ConsumableService extends HistoricEntityService {
 	 * @param vehicle
 	 * @throws Exception
 	 */
-	private void updateVehicleHealth(DatastoreService datastore, Dml dml, Key companyKey, Vehicle vehicle) throws Exception {
+	private void updateVehicleHealth(DatastoreService datastore, Key companyKey, Vehicle vehicle) throws Exception {
 		
 		Iterator<Entity> consumables = 
 				DatastoreUtils.findEntities(companyKey, "VehicleConsumable", DataUtils.newMap("vehicle_id", vehicle.getId()));
@@ -304,7 +303,7 @@ public class ConsumableService extends HistoricEntityService {
 		
 		// 차량 건강 상태 업데이트 
 		vehicle.setHealthStatus(vehicleHealthStatus);
-		dml.update(vehicle);
+		DatasourceUtils.updateVehicle(vehicle);
 	}
 		
 	@RequestMapping(value = "/vehicle_consumable/import", method = RequestMethod.POST)
@@ -336,13 +335,12 @@ public class ConsumableService extends HistoricEntityService {
 			
 			Map<String, Object> map = toMap(request);
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			Dml dml = ConnectionManager.getInstance().getDml();
 			CalculatorUtils.resetConsumable(DataUtils.toDouble(vehicle.getTotalDistance()), consumable);
 			
 			// 이력 저장을 위해 호출 
 			this.saveEntity(consumable, map, datastore);
 			// vehicle의 건강 상태를 다시 업데이트
-			this.updateVehicleHealth(datastore, dml, consumable.getParent(), vehicle);
+			this.updateVehicleHealth(datastore, consumable.getParent(), vehicle);
 			return this.getResultMsg(true, "Consumable Reset have been processed successfully.");
 			
 		} catch (Throwable t) {
@@ -362,14 +360,13 @@ public class ConsumableService extends HistoricEntityService {
 			
 			Map<String, Object> map = toMap(request);
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			Dml dml = ConnectionManager.getInstance().getDml();
 			this.onReplace(consumable, map, datastore);
 			CalculatorUtils.calcConsumableInfo(DataUtils.toDouble(vehicle.getTotalDistance()), consumable, map);			
 			
 			// 이력 저장을 위해 호출 
 			this.saveEntity(consumable, map, datastore);
 			// vehicle의 건강 상태를 다시 업데이트
-			this.updateVehicleHealth(datastore, dml, consumable.getParent(), vehicle);
+			this.updateVehicleHealth(datastore, consumable.getParent(), vehicle);
 			return this.getResultMsg(true, "Consumable Replacement have been processed successfully.");
 			
 		} catch (Throwable t) {
@@ -435,9 +432,10 @@ public class ConsumableService extends HistoricEntityService {
 				
 		Key companyKey = this.getCompanyKey(request);
 		Map<String, Object> filters = 
-				DataUtils.newMap(new String[] { "vehicle_id", "consumable_item" }, new Object[] { vehicleId, consmItem });
+				DataUtils.newMap(new String[] { "vehicle_id", "consumable_item" }, 
+						new Object[] { vehicleId, consmItem });
 		Entity consumable = DatastoreUtils.findEntity(companyKey, "VehicleConsumable", filters);
-		Vehicle vehicle = DatastoreUtils.findVehicle(companyKey.getName(), vehicleId);		
+		Vehicle vehicle = DatasourceUtils.findVehicle(companyKey.getName(), vehicleId);		
 		return new Object[] { vehicle, consumable };
 	}
 	
@@ -450,7 +448,7 @@ public class ConsumableService extends HistoricEntityService {
 			Map<String, Object> consumables = super.retrieve(request, response);
 		
 			if(DataUtils.toInt(consumables.get("total")) <= 0) {
-				this.initConsumables(request, response);	
+				this.initConsumables(request, response);
 			}
 
 			consumables = super.retrieve(request, response);
@@ -475,13 +473,16 @@ public class ConsumableService extends HistoricEntityService {
 		
 		Key companyKey = this.getCompanyKey(request);
 		Map<String, Object> filters = 
-				DataUtils.newMap(new String[] { "vehicle_id", "consumable_item" }, new Object[] { vehicleId, consmItem });		
-		Iterator<Entity> consumHists = DatastoreUtils.findEntities(companyKey, "ConsumableHistory", filters);
+				DataUtils.newMap(new String[] { "vehicle_id", "consumable_item" }, 
+						new Object[] { vehicleId, consmItem });		
+		Iterator<Entity> consumHists = 
+				DatastoreUtils.findEntities(companyKey, "ConsumableHistory", filters);
 		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
 		
 		while(consumHists.hasNext()) {
 			Entity entity = consumHists.next();
-			Map<String, Object> item = SessionUtils.cvtEntityToMap(entity, request.getParameterValues("select"));
+			Map<String, Object> item = 
+					SessionUtils.cvtEntityToMap(entity, request.getParameterValues("select"));
 			items.add(item);
 		}
 		
@@ -502,7 +503,7 @@ public class ConsumableService extends HistoricEntityService {
 			return;
 		
 		Key companyKey = this.getCompanyKey(request);
-		Vehicle vehicle = DatastoreUtils.findVehicle(companyKey.getName(), request.getParameter("vehicle_id"));
+		Vehicle vehicle = DatasourceUtils.findVehicle(companyKey.getName(), request.getParameter("vehicle_id"));
 		double totalMileage = DataUtils.toDouble(vehicle.getTotalDistance());
 		
 		for(Map<String, Object> consumable : consumables) {
@@ -517,24 +518,25 @@ public class ConsumableService extends HistoricEntityService {
 	 *  
 	 * @param request
 	 * @param response
+	 * @throws Exception
 	 */
-	private void initConsumables(HttpServletRequest request, HttpServletResponse response) {
+	private void initConsumables(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		List<Entity> entities = new ArrayList<Entity>();		
+		List<Entity> entities = new ArrayList<Entity>();
 		Key companyKey = this.getCompanyKey(request);
 		Date now = new Date();
-		Iterator<Entity> consumableCodes = DatastoreUtils.findEntities(companyKey, "ConsumableCode", null);
+		List<ConsumableCode> consumableCodes = DatasourceUtils.findAllConsumableCodes(companyKey.getName());
 		
 		// 소모품 기준 정보로 부터 데이터를 모두 가져와서 차량에 대한 기준정보로 추가 
-		while (consumableCodes.hasNext()) {
-			Entity consumableCode = consumableCodes.next();
-			Map<String, Object> item = SessionUtils.cvtEntityToMap(consumableCode);
+		for(ConsumableCode consumableCode : consumableCodes) {
+			Map<String, Object> item = DataUtils.newMap("key", "");			
+			item.put("_company_key", companyKey);			
 			item.put("_now", now);
-			item.put("_company_key", companyKey);		
-			item.put("consumable_item", item.remove("name"));
-			item.put("key", "");
-			item.remove("desc");
+			item.put("consumable_item", consumableCode.getName());
+			item.put("repl_mileage", consumableCode.getReplMileage());
+			item.put("repl_time", consumableCode.getReplTime());
+			item.put("repl_unit", consumableCode.getReplUnit());
 			item.put("miles_last_repl", 0);
 			item.put("last_repl_date", null);
 			item.put("next_repl_mileage", 0);
@@ -544,11 +546,11 @@ public class ConsumableService extends HistoricEntityService {
 			item.put("status", GreenFleetConstant.VEHICLE_HEALTH_H);
 			item.put("vehicle_id", request.getParameter("vehicle_id"));
 			
-			Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(item));		
+			Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(item));
 			Entity obj = new Entity(objKey);
 			try {
 				onCreate(obj, item, datastore);
-				onSave(obj, item, datastore);				
+				onSave(obj, item, datastore);
 				entities.add(obj);
 			} catch (Exception e) {
 				logger.error("Error at OnCreate", e);
@@ -562,7 +564,7 @@ public class ConsumableService extends HistoricEntityService {
 		} catch (Exception e) {
 			txn.rollback();
 			logger.error("Error when create consumables data!", e);
-		}
+		}		
 	}
 
 	@Override

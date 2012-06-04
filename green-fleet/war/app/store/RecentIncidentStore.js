@@ -93,10 +93,10 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
         dateFormat: 'time'
     }],
 
-//	filters : [ {
-//		property : 'confirm',
-//		value : false
-//	} ],
+	filters : [ {
+		property : 'confirm',
+		value : false
+	} ],
 
 	sorters : [ {
 		property : 'datetime',

@@ -61,6 +61,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		    	page : 1, 
 		    	limit : 5,
 		    	select : ['datetime', 'vehicle_id', 'driver_id', 'velocity', 'lat', 'lng'],
+		    	filter : Ext.JSON.encode([{property : 'confirm', value : false}]),
 		    	sort : Ext.JSON.encode([{property : 'datetime',	direction : 'DESC' }])
 		    },
 		    success: function(response) {		    	

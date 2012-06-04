@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
   <cron>
-    <url>/vehicle_consumable/summary?company=vitizen</url>
-    <description>Resummary the consumable status every day 09:00 (Korean Time) For Vitizen Company</description>
+    <url>/vehicle_consumable/summary?company=palmvision</url>
+    <description>Resummary the consumable status every day 09:00 (Korean Time) For Palmvision Company</description>
     <schedule>every day 00:00</schedule>
   </cron>
   
   <cron>
-    <url>/vehicle_consumable/alarm?company=vitizen</url>
-    <description>Notification in accordance with consumable replacement schedule every 10:00 hours For Vitizen Company</description>
+    <url>/vehicle_consumable/alarm?company=palmvision</url>
+    <description>Notification in accordance with consumable replacement schedule every 10:00 hours For Palmvision Company</description>
     <schedule>every day 01:00</schedule>
   </cron>
     
   <cron>
-    <url>/repair/alarm?company=vitizen</url>
-    <description>Notification in accordance with maintenance schedule every 11:00 hours For Vitizen Company</description>
+    <url>/repair/alarm?company=palmvision</url>
+    <description>Notification in accordance with maintenance schedule every 11:00 hours For Palmvision Company</description>
     <schedule>every day 02:00</schedule>
   </cron>
   
-  <cron>
-    <url>/lba_status/update_use?company=vitizen</url>
-    <description>Location Based Alarm info update use field 00:00 hours For Vitizen Company</description>
-    <schedule>every day 15:00</schedule>
-  </cron>  
-    
 </cronentries>

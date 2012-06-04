@@ -55,9 +55,8 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	
 	@Override
 	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {
-		Query query = new Query();
-		query.addFilter("company", this.getCompany(request));
-		query.addOrder("updated_at", false);
+		Query query = super.getRetrieveQuery(request);
+		query.addOrder("id", true);
 		return query;
 	}
 	

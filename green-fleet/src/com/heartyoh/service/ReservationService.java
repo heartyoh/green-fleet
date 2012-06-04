@@ -85,7 +85,7 @@ public class ReservationService extends EntityService {
 	}
 
 	@Override
-	protected void addFilter(Query q, String property, String value) {
+	protected void addFilter(Query q, String property, Object value) {
 		if("reserved_date".equals(property)) {
 			long fromMillis =DataUtils.toLong(value);
 			if(fromMillis > 1) {

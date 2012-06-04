@@ -127,7 +127,7 @@ public class VehicleRunService extends EntityService {
 	}	
 
 	@Override
-	protected void addFilter(Query q, String property, String value) {
+	protected void addFilter(Query q, String property, Object value) {
 		
 		if("from_date".equals(property)) {
 			Date fromDate = DataUtils.toDate(value);

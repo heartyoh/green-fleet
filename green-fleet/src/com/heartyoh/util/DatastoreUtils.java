@@ -22,7 +22,6 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
-import com.heartyoh.model.Vehicle;
 
 /**
  * Entity 유틸리티 클래스 
@@ -49,6 +48,18 @@ public class DatastoreUtils {
 	 */
 	public static boolean checkExist(String keyStr) {
 		return findByKey(keyStr) != null ? true : false;
+	}
+	
+	/**
+	 * String으로 company를 조회 
+	 * 
+	 * @param company
+	 * @return
+	 */
+	public static Entity findCompany(String company) {
+		Query q = new Query("Company");
+		q.addFilter("id", FilterOperator.EQUAL, company);
+		return findSingleEntity(q);
 	}
 	
 	/**
@@ -354,26 +365,17 @@ public class DatastoreUtils {
 	}
 	
 	/**
-	 * companyKey, vehicleId로 Vehicle을 찾아 리턴
-	 * 
-	 * @param companyKey
-	 * @param id
-	 * @return
-	 * @throws Exception
-	 */
-	public static Vehicle findVehicle(String company, String vehicleId) throws Exception {
-		Vehicle vehicle = new Vehicle(company, vehicleId);
-		return ConnectionManager.getInstance().getDml().select(vehicle);
-	}
-	
-	/**
 	 * 관리자 리스트를 조회 
 	 * 
 	 * @param companyKey
 	 * @return
 	 */
-	public static List<Entity> findAdminUsers(Key companyKey) {
-		return findEntityList(companyKey, "CustomUser", DataUtils.newMap("admin", true));
+	public static List<Entity> findAdminUsers(String company) {
+		
+		Query q = new Query("CustomUser");
+		q.addFilter("company", FilterOperator.EQUAL, company);
+		q.addFilter("admin", FilterOperator.EQUAL, true);
+		return findMultiEntityByList(q);
 	}
 	
 	/**

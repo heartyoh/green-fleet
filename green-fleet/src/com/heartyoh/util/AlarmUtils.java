@@ -13,6 +13,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.appengine.api.capabilities.CapabilitiesService;
 import com.google.appengine.api.capabilities.CapabilitiesServiceFactory;
 import com.google.appengine.api.capabilities.Capability;
@@ -21,8 +24,6 @@ import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.MessageType;
@@ -39,6 +40,10 @@ import com.heartyoh.model.Vehicle;
  */
 public class AlarmUtils {
 
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(AlarmUtils.class);	
 	/**
 	 * XMPPService
 	 */
@@ -152,7 +157,6 @@ public class AlarmUtils {
 	 * @throws Exception
 	 */
 	public static void sendMail(String senderName, String senderEmail, String receiverName, String receiverEmail, String subject, boolean htmlType, String msgBody) throws Exception {
-		
 		sendMail(senderName, senderEmail, (receiverName == null ? null : new String[] {receiverName}), new String[] { receiverEmail }, subject, htmlType, msgBody);
 	}
 	
@@ -331,14 +335,12 @@ public class AlarmUtils {
 		if(DataUtils.isEmpty(impendingRepairs))
 			return;
 		
-		// 1. companyKey 조회 
-		Key companyKey = impendingRepairs.get(0).getKey().getParent();
-		
-		// 2. 관리자 리스트를 조회
-		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
+		String company = impendingRepairs.get(0).getKey().getParent().getName();		
+		// 관리자 리스트를 조회
+		List<Entity> admins = DatastoreUtils.findAdminUsers(company);
 		
 		if(DataUtils.isEmpty(admins))
-			throw new Exception("The company [" + companyKey.getName() + "] does not have an administrator user");
+			throw new Exception("The company [" + company + "] does not have an administrator user");
 		
 		String subject = "Notification in accordance with maintenance schedule";
 		int adminCount = admins.size();
@@ -363,21 +365,22 @@ public class AlarmUtils {
 	 * 교체가 필요한 소모품 정보를 알림 
 	 * 
 	 * @param consumables
-	 * @throws Exception
 	 */
-	public static void alarmConsumables(List<Entity> consumables) throws Exception {
+	public static void alarmConsumables(List<Entity> consumables) {
 		
 		if(DataUtils.isEmpty(consumables))
 			return;
 		
 		// 1. companyKey 조회 
-		Key companyKey = consumables.get(0).getKey().getParent();
+		String company = consumables.get(0).getKey().getParent().getName();
 		
 		// 2. 관리자 리스트를 조회
-		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
+		List<Entity> admins = DatastoreUtils.findAdminUsers(company);
 		
-		if(DataUtils.isEmpty(admins))
-			throw new Exception("The company [" + companyKey.getName() + "] does not have an administrator user");
+		if(DataUtils.isEmpty(admins)) {
+			logger.error("The company [" + company + "] does not have an administrator user! So couln't send consumable alarm!");
+			return;
+		}
 		
 		String subject = "Notification in accordance with consumable replacement schedule";
 		int adminCount = admins.size();
@@ -394,8 +397,16 @@ public class AlarmUtils {
 		String htmlMsgBody = AlarmUtils.generateReplaceAlarmContent(consumables, true);
 		String textMsgBody = AlarmUtils.generateReplaceAlarmContent(consumables, false);
 		
-		AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
-		AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
+		try {
+			AlarmUtils.sendMail("GreenFleet", "heartyoh@gmail.com", receiverNames, receiverEmails, subject, true, htmlMsgBody);
+		} catch(Exception e) {
+			logger.error("Failed to send mail!", e);
+		}
+		try {
+			AlarmUtils.sendXmppMessage(receiverEmails, textMsgBody);
+		} catch(Exception e) {
+			logger.error("Failed to send xmpp message!", e);
+		}
 	}
 	
 	/**
@@ -403,37 +414,41 @@ public class AlarmUtils {
 	 * 
 	 * @param vehicle
 	 * @param incidnet
-	 * @throws Exception
 	 */
-	public static void alarmIncidents(Vehicle vehicle, Entity incident) throws Exception {
+	public static void alarmIncidents(Vehicle vehicle, Entity incident) {
 		
 		if(vehicle == null)
 			return;
 		
-		// 1. companyKey 조회 
-		Key companyKey = KeyFactory.createKey("Company", vehicle.getCompany());
+		String companyStr = vehicle.getCompany();
+		// 관리자 리스트를 조회
+		List<Entity> admins = DatastoreUtils.findAdminUsers(companyStr);
 		
-		// 2. 관리자 리스트를 조회
-		List<Entity> admins = DatastoreUtils.findAdminUsers(companyKey);
-		
-		if(DataUtils.isEmpty(admins))
-			throw new Exception("The company [" + companyKey.getName() + "] does not have an administrator user");
+		if(DataUtils.isEmpty(admins)) {
+			logger.error("The company [" + companyStr + "] does not have an administrator user! So couldn't send incident alarm!");
+			return;
+		}
 		
 		int adminCount = admins.size();
 		String[] receiverEmails = new String[adminCount];
+		
+		System.out.println("Incident! Admin users count (" + adminCount + ")");
 		
 		for(int i = 0 ; i < adminCount ; i++) {
 			Entity user = admins.get(i);
 			receiverEmails[i] = (String)user.getProperty("email");
 		}
 		
-		Entity company = DatastoreUtils.findByKey(companyKey);
-		String timeStr = DataUtils.dateToString(new Date(), "yyyy-MM-dd HH:mm", company);
-		String msg = "[Incident] Please check out vehicle (id : " + vehicle.getId() + ", reg no. : " + vehicle.getRegistrationNumber() + ") accident! Event occurrence time : " + timeStr;		
-
-		AlarmUtils.sendXmppMessage(receiverEmails, msg);
+		String timeStr = DataUtils.dateToString((Date)incident.getProperty("datetime"), GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT);
+		String msg = "[Incident] Please check out vehicle (id : " + vehicle.getId() + ", reg no. : " + vehicle.getRegistrationNumber() + ") accident!\n";
+		msg += "Event occurrence time : " + timeStr;
 		
-		// GAE Channel을 사용한다면 주석해제  
-		//AlarmUtils.sendChannelMessage(receiverEmails, "Incident");
+		try {
+			AlarmUtils.sendXmppMessage(receiverEmails, msg);
+			// GAE Channel을 사용한다면 주석해제  
+			//AlarmUtils.sendChannelMessage(receiverEmails, "Incident");			
+		} catch (Exception e) {
+			logger.error("Failed to send alarm!", e);
+		}
 	}
 }

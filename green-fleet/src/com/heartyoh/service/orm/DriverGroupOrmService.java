@@ -4,6 +4,8 @@
 package com.heartyoh.service.orm;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +47,7 @@ public class DriverGroupOrmService extends OrmEntityService {
 	@Override
 	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {
 		Query query = super.getRetrieveQuery(request);
-		query.addOrder("updated_at", false);
+		query.addOrder("id", true);
 		return query;
 	}
 	
@@ -62,9 +64,53 @@ public class DriverGroupOrmService extends OrmEntityService {
 	}
 
 	@RequestMapping(value = "/driver_group", method = RequestMethod.GET)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		return super.retrieve(request, response);
+		
+		// TODO outer join
+		String sql = "select dg.*, dr.driver_id from driver_group dg, driver_relation dr where dg.company = dr.company and dg.company = :company and dg.id = dr.group_id order by dg.id asc";
+		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
+		List<Map> items = this.dml.selectListBySql(sql, params, Map.class, 0, 0);
+				
+		String prevId = "";
+		Map newItem = null;
+		List<String> drivers = null;
+		List<Map> results = new ArrayList<Map>();
+		
+		for(Map item : items) {
+			String id = (String)item.get("id");
+			
+			if(prevId.equals(id)) {
+				// get
+				drivers.add((String)item.get("driver_id"));
+			} else {
+				// 전 groupId에 대한 처리
+				if(newItem != null) {
+					newItem.put("drivers", drivers);
+					results.add(newItem);
+				}
+				
+				// 객체 새로 생성
+				newItem = new HashMap();
+				drivers = new ArrayList<String>();
+				newItem.put("key", id);
+				newItem.put("id", id);
+				newItem.put("desc", (String)item.get("expl"));
+				newItem.put("updated_at", (Date)item.get("updated_at"));
+				newItem.put("created_at", (Date)item.get("created_at"));
+				drivers.add((String)item.get("driver_id"));
+			}
+			
+			prevId = id;
+		}
+		
+		if(newItem != null) {
+			newItem.put("drivers", drivers);		
+			results.add(newItem);
+		}
+		
+		return this.getResultSet(true, results.size(), results);
 	}	
 	
 	@RequestMapping(value = "/driver_group/save", method = RequestMethod.POST)

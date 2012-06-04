@@ -50,6 +50,11 @@ public class SessionUtils {
 		return stringToDateTime(datetime, null, 0);
 	}
 	
+	public static Date stringToDateTime(String datetime, String format, Entity company) {
+		int timezone = Integer.parseInt((String)company.getProperty("timezone"));
+		return stringToDateTime(datetime, format, timezone);
+	}
+	
 	public static Date stringToDateTime(String datetime, String format, int timezone) {
 		DateFormat df = null;
 		if(format == null)

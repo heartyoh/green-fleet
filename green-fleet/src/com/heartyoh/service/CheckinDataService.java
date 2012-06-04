@@ -26,6 +26,7 @@ import com.heartyoh.model.Vehicle;
 import com.heartyoh.model.VehicleRunSum;
 import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -61,7 +62,7 @@ public class CheckinDataService extends EntityService {
 		if(DataUtils.isEmpty(timeStr))
 			return null;
 		
-		return SessionUtils.stringToDateTime(timeStr, DEFAULT_DATE_TIME_FORMAT, timezone);
+		return SessionUtils.stringToDateTime(timeStr, GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT, timezone);
 	}
 	
 	/**
@@ -84,7 +85,7 @@ public class CheckinDataService extends EntityService {
 	
 	@Override
 	protected String getIdValue(Map<String, Object> map) {		
-		String engineEndTimeStr = DataUtils.dateToString((Date)map.get(KEY_TIME_COLUMN), DEFAULT_DATE_TIME_FORMAT);
+		String engineEndTimeStr = DataUtils.dateToString((Date)map.get(KEY_TIME_COLUMN), GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT);
 		return map.get("terminal_id") + "@" + engineEndTimeStr;
 	}
 
@@ -304,7 +305,7 @@ public class CheckinDataService extends EntityService {
 	}
 
 	@Override
-	protected void addFilter(Query q, String property, String value) {
+	protected void addFilter(Query q, String property, Object value) {
 		
 		if("date".equals(property)) {
 			long dateMillis = DataUtils.toLong(value);

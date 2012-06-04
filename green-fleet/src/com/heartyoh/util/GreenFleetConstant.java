@@ -24,6 +24,23 @@ public class GreenFleetConstant {
 	public static final String REPL_UNIT_MILEAGE_TIME = "MileageTime";
 	
 	/**
+	 * 차량 상태 - 주행 중 
+	 */
+	public static final String VEHICLE_STATUS_RUNNING = "Running";
+	/**
+	 * 차량 상태 - 사고 
+	 */
+	public static final String VEHICLE_STATUS_INCIDENT = "Incident";
+	/**
+	 * 차량 상태 - 정차 중 
+	 */
+	public static final String VEHICLE_STATUS_IDLE = "Idle";
+	/**
+	 * 차량 상태 - 정비 중 
+	 */
+	public static final String VEHICLE_STATUS_MAINT = "Maint";	
+	
+	/**
 	 * 차량 건강 상태 : 건강 
 	 */
 	public static final String VEHICLE_HEALTH_H = "Healthy";
@@ -60,5 +77,15 @@ public class GreenFleetConstant {
 	/**
 	 * ALRM - SMS
 	 */
-	public static final String ALARM_SMS = "sms";	
+	public static final String ALARM_SMS = "sms";
+	
+	/**
+	 * Default date format : yyyy-MM-dd
+	 */
+	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+	
+	/**
+	 * Default datetime format : yyyy-MM-dd HH:mm:ss
+	 */
+	public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 }

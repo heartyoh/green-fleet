@@ -1,15 +1,14 @@
 package com.heartyoh.service;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dbist.dml.Dml;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,18 +25,14 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.AlarmUtils;
-import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatasourceUtils;
+import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class IncidentService extends EntityService {
 	
-	/**
-	 * logger
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(IncidentService.class);
-
 	@Override
 	protected String getEntityName() {
 		return "Incident";
@@ -50,15 +45,20 @@ public class IncidentService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
+		if(!map.containsKey("datetime")) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			map.put("datetime", df.format(new Date()));
+		}
+		
 		return map.get("terminal_id") + "@" + map.get("datetime");
 	}
 
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		Entity company = datastore.get((Key)map.get("_company_key"));
-		
+		Entity company = datastore.get((Key)map.get("_company_key"));		
 		entity.setProperty("terminal_id", map.get("terminal_id"));
-		entity.setProperty("datetime", SessionUtils.stringToDateTime((String)map.get("datetime"), null, Integer.parseInt((String)company.getProperty("timezone"))));
+		Date datetime = SessionUtils.stringToDateTime((String)map.get("datetime"), null, company);
+		entity.setProperty("datetime", datetime);
 		entity.setProperty("confirm", false);
 
 		super.onCreate(entity, map, datastore);
@@ -77,37 +77,75 @@ public class IncidentService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 
+		if(map.containsKey("terminal_id")) {
+			// Terminal ID로 부터 Vehicle ID, Driver ID를 매핑테이블로 부터 찾는다.
+			String terminalId = (String)map.get("terminal_id");
+			String[] vehicleDriverId = 
+					DatasourceUtils.findVehicleDriverId(entity.getParent().getName(), terminalId);
+			
+			if(!map.containsKey("vehicle_id"))
+				map.put("vehicle_id", vehicleDriverId[0]);
+			
+			if(!map.containsKey("driver_id"))
+				map.put("driver_id", vehicleDriverId[1]);
+		} 
+		
+		// indexed properties
 		if (map.get("vehicle_id") != null)
 			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
 		if (map.get("driver_id") != null)
-			entity.setProperty("driver_id", stringProperty(map, "driver_id"));		
+			entity.setProperty("driver_id", stringProperty(map, "driver_id"));				
 		if (map.get("lat") != null)
 			entity.setProperty("lat", doubleProperty(map, "lat"));		
 		if (map.get("lng") != null)
 			entity.setProperty("lng", doubleProperty(map, "lng"));		
 		if (map.get("velocity") != null)
 			entity.setProperty("velocity", doubleProperty(map, "velocity"));
+		
+		entity.setProperty("obd_connected", DataUtils.toBool(map.get("obd_connected")));
+		entity.setProperty("confirm", DataUtils.toBool(map.get("confirm")));
+		
+		// unindexed properties
 		if (map.get("impulse_abs") != null)
-			entity.setProperty("impulse_abs", doubleProperty(map, "impulse_abs"));
+			entity.setUnindexedProperty("impulse_abs", doubleProperty(map, "impulse_abs"));
 		if (map.get("impulse_x") != null)
-			entity.setProperty("impulse_x", doubleProperty(map, "impulse_x"));
+			entity.setUnindexedProperty("impulse_x", doubleProperty(map, "impulse_x"));
 		if (map.get("impulse_y") != null)
-			entity.setProperty("impulse_y", doubleProperty(map, "impulse_y"));
+			entity.setUnindexedProperty("impulse_y", doubleProperty(map, "impulse_y"));
 		if (map.get("impulse_z") != null)
-			entity.setProperty("impulse_z", doubleProperty(map, "impulse_z"));
+			entity.setUnindexedProperty("impulse_z", doubleProperty(map, "impulse_z"));
 		if (map.get("impulse_threshold") != null)
-			entity.setProperty("impulse_threshold", doubleProperty(map, "impulse_threshold"));
+			entity.setUnindexedProperty("impulse_threshold", doubleProperty(map, "impulse_threshold"));
 		if (map.get("engine_temp") != null)
-			entity.setProperty("engine_temp", doubleProperty(map, "engine_temp"));
+			entity.setUnindexedProperty("engine_temp", doubleProperty(map, "engine_temp"));
 		if (map.get("engine_temp_threshold") != null)
-			entity.setProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));
-		if (map.get("obd_connected") != null)
-			entity.setProperty("obd_connected", booleanProperty(map, "obd_connected"));
-		if (map.get("confirm") != null) {
-			entity.setProperty("confirm", booleanProperty(map, "confirm"));
-		}
+			entity.setUnindexedProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));		
 
 		super.onSave(entity, map, datastore);
+		
+		// 사고 알람은 사고가 발생했을 경우에만 보낸다.
+		this.alarmIncident(entity);
+	}
+	
+	/**
+	 * 관리자에게 사고 알람을 보낸다.
+	 * 
+	 * @param incident
+	 */
+	private void alarmIncident(Entity incident) {
+		try {
+			if(DataUtils.isEmpty(incident.getProperty("vehicle_id")))
+				return;
+			
+			Vehicle vehicle = DatasourceUtils.findVehicle(incident.getParent().getName(), (String)incident.getProperty("vehicle_id"));
+			
+			if(vehicle == null)
+				return;
+						
+			AlarmUtils.alarmIncidents(vehicle, incident);
+		} catch(Exception e) {
+			
+		}
 	}
 	
 	@Override
@@ -115,45 +153,32 @@ public class IncidentService extends EntityService {
 		
 		datastore.put(incident);
 		
-		// 관련 차량의 정보를 가져온다.
-		Dml dml = ConnectionManager.getInstance().getDml();
-		Vehicle vehicle = new Vehicle(incident.getParent().getName(), (String)incident.getProperty("vehicle_id"));
-		vehicle = dml.select(vehicle);
+		// 관련 차량의 정보를 가져와서 차량 상태 업데이트...
+		Vehicle vehicle = DatasourceUtils.findVehicle(incident.getParent().getName(), (String)incident.getProperty("vehicle_id"));
 		
 		if(vehicle == null)
 			return;		
 		
-		boolean confirmed = DataUtils.toBool(incident.getProperty("confirm"));
-		
-		if(!confirmed) {
-			vehicle.setStatus("Incident");
-			dml.update(vehicle);
-			// 사고 알람 
-			AlarmUtils.alarmIncidents(vehicle, incident);
-			
-		} else {
+		String vehiclePrvStatus = vehicle.getStatus();		
+		if(DataUtils.toBool(incident.getProperty("confirm"))) {
 			/*
 			 * 만약, 이 Incident의 컨펌 정보가 off이면, 차량의 상태는 무조건 Incident이며,
 			 * 컨펌정보가 on이면, 컨펌정보가 off인 Incident 리스트를 가져와서 하나라도 남아있으면, 차량의 상태는 Incident가 된다.
 			 * 따라서, 아래에서는 관련 차량의 Incident 정보중 아직 컨펌되지 않은 리스트를 가져온다.
-			 */
+			 */			
 			Query q = new Query("Incident");
 			q.setAncestor(incident.getParent());
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle.getId());
 			q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);		
 			PreparedQuery pq = datastore.prepare(q);
 			int incidentsCount = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
-
-			if(incidentsCount > 0) {
-				vehicle.setStatus("Incident");			
-				// 사고 알람 
-				AlarmUtils.alarmIncidents(vehicle, incident);
-			} else {
-				vehicle.setStatus("Running");
-			}
-
-			dml.update(vehicle);
+			vehicle.setStatus(incidentsCount > 0 ? GreenFleetConstant.VEHICLE_STATUS_INCIDENT : GreenFleetConstant.VEHICLE_STATUS_RUNNING);			
+		} else {
+			vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_INCIDENT);
 		}
+		
+		if(!vehiclePrvStatus.equals(vehicle.getStatus()))
+			DatasourceUtils.updateVehicle(vehicle);
 	}	
 
 	@RequestMapping(value = "/incident/import", method = RequestMethod.POST)
@@ -175,20 +200,11 @@ public class IncidentService extends EntityService {
 	}
 
 	@Override
-	protected void buildQuery(Query q, HttpServletRequest request) {
-		
-		// TODO 이 메소드는 제거해도 됨, 아래 addFilter에서 같은 로직을 수행
-		// 혹시 다른 쪽에 영향을 줄지 몰라 일단 놔 둠 
-		String date = request.getParameter("date");
-		if(!DataUtils.isEmpty(date)) {
-			this.addDateFilter(q, date);
-		}		
-	}
-	
-	@Override
-	protected void addFilter(Query q, String property, String value) {
+	protected void addFilter(Query q, String property, Object value) {
 		if("date".equalsIgnoreCase(property)) {
 			this.addDateFilter(q, value);
+		} else if("confirm".equalsIgnoreCase(property)) {
+			super.addFilter(q, property, DataUtils.toBool(value));
 		} else {
 			super.addFilter(q, property, value);
 		}
@@ -200,7 +216,7 @@ public class IncidentService extends EntityService {
 	 * @param q
 	 * @param value
 	 */
-	private void addDateFilter(Query q, String value) {
+	private void addDateFilter(Query q, Object value) {
 		
 		if(DataUtils.isEmpty(value))
 			return;

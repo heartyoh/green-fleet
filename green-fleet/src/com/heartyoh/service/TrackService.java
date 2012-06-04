@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dbist.dml.Dml;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,13 +22,12 @@ import com.google.appengine.api.datastore.Query;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class TrackService extends EntityService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(TrackService.class);
-
 	@Override
 	protected String getEntityName() {
 		return "Track";
@@ -43,37 +40,31 @@ public class TrackService extends EntityService {
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
-		String datetime = (String)map.get("datetime");
-		if(datetime == null) {
+		
+		if(!map.containsKey("datetime")) {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			datetime = df.format(new Date());
+			map.put("datetime", df.format(new Date()));
 		}
 
-		return map.get("terminal_id") + "@" + datetime;
+		return map.get("terminal_id") + "@" + map.get("datetime");
 	}
 
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		Entity company = datastore.get((Key)map.get("_company_key"));
-		String datetime = (String)map.get("datetime");
-		
-		if(datetime == null) {
-			entity.setProperty("datetime", map.get("_now"));
-		} else {
-			entity.setProperty("datetime", SessionUtils.stringToDateTime(datetime, null, Integer.parseInt((String)company.getProperty("timezone"))));
-		}
-
+		entity.setProperty("datetime", map.containsKey("datetime") ? 
+				SessionUtils.stringToDateTime((String)map.get("datetime"), null, company) : map.get("_now"));
 		super.onCreate(entity, map, datastore);
 	}
 
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-		String terminal_id = (String) map.get("terminal_id");
-		String vehicle_id = (String) map.get("vehicle_id");
-		String driver_id = (String) map.get("driver_id");
-		String velocity = (String) map.get("velocity");		
-		String lat = map.containsKey("lat") ? (String) map.get("lat") : "0";		
-		String lng = map.containsKey("lng") ? (String) map.get("lng") : "0";		
+		String terminalId = (String) map.get("terminal_id");
+		String[] vehicleDriverId = 
+				DatasourceUtils.findVehicleDriverId(entity.getParent().getName(), terminalId);
+		String velocity = (String) map.get("velocity");
+		String lat = map.containsKey("lat") ? (String) map.get("lat") : "0";
+		String lng = map.containsKey("lng") ? (String) map.get("lng") : "0";
 
 		double dblLat = 0;
 		double dblLng = 0;
@@ -94,9 +85,9 @@ public class TrackService extends EntityService {
 		// 위치 기반 서비스 알림 비동기 처리 --> 실시간 처리로...
 		// AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLatitude, dblLongitude);
 		
-		entity.setProperty("terminal_id", terminal_id);
-		entity.setProperty("vehicle_id", vehicle_id);
-		entity.setProperty("driver_id", driver_id);
+		entity.setProperty("terminal_id", terminalId);
+		entity.setProperty("vehicle_id", vehicleDriverId[0]);
+		entity.setProperty("driver_id", vehicleDriverId[1]);
 		entity.setProperty("velocity", velocity);
 
 		super.onSave(entity, map, datastore);
@@ -105,14 +96,13 @@ public class TrackService extends EntityService {
 	@Override
 	protected void saveEntity(Entity trackObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		Dml dml = ConnectionManager.getInstance().getDml();
-		Vehicle vehicle = new Vehicle(trackObj.getParent().getName(), (String)trackObj.getProperty("vehicle_id"));
-		vehicle = dml.select(vehicle);
+		Vehicle vehicle = 
+				DatasourceUtils.findVehicle(trackObj.getParent().getName(), (String)trackObj.getProperty("vehicle_id"));
 		
 		if(vehicle != null) {
 			vehicle.setLat(DataUtils.toFloat(trackObj.getProperty("lat")));
 			vehicle.setLng(DataUtils.toFloat(trackObj.getProperty("lng")));
-			dml.update(vehicle);
+			DatasourceUtils.updateVehicle(vehicle);
 		}
 		
 		datastore.put(trackObj);
@@ -139,7 +129,7 @@ public class TrackService extends EntityService {
 	@RequestMapping(value = {"/track", "/m/data/track"}, method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrievex(HttpServletRequest request, HttpServletResponse response) {
-		return super.retrieve(request, response);		
+		return super.retrieve(request, response);
 	}
 	
 	@Override
@@ -153,7 +143,7 @@ public class TrackService extends EntityService {
 	}
 	
 	@Override
-	protected void addFilter(Query q, String property, String value) {
+	protected void addFilter(Query q, String property, Object value) {
 		if("date".equalsIgnoreCase(property)) {
 			this.addDateFilter(q, value);
 		} else {
@@ -167,7 +157,7 @@ public class TrackService extends EntityService {
 	 * @param q
 	 * @param value
 	 */
-	private void addDateFilter(Query q, String value) {
+	private void addDateFilter(Query q, Object value) {
 		
 		if(DataUtils.isEmpty(value))
 			return;
