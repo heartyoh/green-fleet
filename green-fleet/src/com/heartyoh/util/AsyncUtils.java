@@ -3,6 +3,8 @@
  */
 package com.heartyoh.util;
 
+import java.util.Date;
+
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
@@ -20,13 +22,24 @@ public class AsyncUtils {
 	 * 
 	 * @param company
 	 * @param vehicle
+	 * @param alarmName
+	 * @param locName
+	 * @param eventType in/out/in-out
 	 * @param lat
 	 * @param lng
 	 * @throws Exception
 	 */
-	public static void addLbaTaskToQueue(String company, String vehicle, double lat, double lng) throws Exception {
+	public static void addLbaTaskToQueue(String company, String vehicle, String alarmName, String locName, String eventType, float lat, float lng, Date dateTime) throws Exception {
 		Queue queue = QueueFactory.getQueue("LBAQueue");
-		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/lba_status/execute_task").param("company", company).param("vehicle", vehicle).param("lat", "" + lat).param("lng", "" + lng));
+		queue.add(TaskOptions.Builder.withMethod(Method.POST).url("/alarm/send/lba").
+				param("company", company).
+				param("vehicle", vehicle).
+				param("alarm", alarmName).
+				param("location", locName).
+				param("event_type", eventType).
+				param("lat", "" + lat).
+				param("lng", "" + lng).
+				param("datetime", DataUtils.dateToString(dateTime, GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT)));
 	}
 	
 	/**

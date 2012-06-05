@@ -9,6 +9,7 @@ import java.util.Map;
 import org.dbist.dml.Dml;
 import org.dbist.dml.Query;
 
+import com.heartyoh.model.Alarm;
 import com.heartyoh.model.ConsumableCode;
 import com.heartyoh.model.Vehicle;
 
@@ -93,6 +94,43 @@ public class DatasourceUtils {
 		q.addFilter("company", company);
 		List<ConsumableCode> consumbaleCodes = dml.selectList(ConsumableCode.class, q);
 		return consumbaleCodes;
+	}
+	
+	/**
+	 * company, alarmName으로 alarm 조회 
+	 * 
+	 * @param company
+	 * @param alarmName
+	 * @return
+	 * @throws Exception
+	 */
+	public static Alarm findAlarm(String company, String alarmName) throws Exception {
+		Alarm alarm = new Alarm(company, alarmName);
+		return dml.select(alarm);		
+	}
+	
+	/**
+	 * company, vehicleId와 현재 위치, 이전 위치로 검색하여 매칭되는 알람을 조회
+	 * 
+	 * @param company
+	 * @param vehicleId
+	 * @param currentLat
+	 * @param currentLng
+	 * @param prevLat
+	 * @param prevLng
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public static List<Map> findAlarmLocation(String company, String vehicleId, float currentLat, float currentLng, float prevLat, float prevLng) throws Exception {
+		
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		params.put("vehicle_id", vehicleId);
+		params.put("current_lat", currentLat);
+		params.put("current_lng", currentLng);
+		params.put("prev_lat", prevLat);
+		params.put("prev_lng", prevLng);
+		return dml.selectListBySqlPath("com/heartyoh/util/LbaQuery.sql", params, Map.class, 0, 0);
 	}
 	
 }

@@ -101,7 +101,7 @@ public abstract class AbstractEntity implements IEntity {
 			}
 			
 			if(match) {
-				String methodName = ((fieldType == Boolean.class) ? "is_" : "get_") + ValueUtils.toDelimited(fieldName, '_');
+				String methodName = ((fieldType == boolean.class || fieldType == Boolean.class) ? "is_" : "get_") + ValueUtils.toDelimited(fieldName, '_');
 				methodName = ValueUtils.toCamelCase(methodName, '_');
 				Object value = null;
 				try {

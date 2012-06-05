@@ -3,9 +3,6 @@
  */
 package com.heartyoh.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,20 +10,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.prospectivesearch.ProspectiveSearchService;
+import com.google.appengine.api.prospectivesearch.ProspectiveSearchServiceFactory;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
-import com.heartyoh.util.DatastoreUtils;
+import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -36,7 +34,14 @@ import com.heartyoh.util.SessionUtils;
  */
 public class AlarmService extends EntityService {
 	
+	/**
+	 * logger
+	 */
 	private static final Logger logger = LoggerFactory.getLogger(AlarmService.class);
+	/**
+	 * prospective search
+	 */
+	private static ProspectiveSearchService prospectiveSearch = ProspectiveSearchServiceFactory.getProspectiveSearchService();
 	
 	@Override
 	protected String getEntityName() {
@@ -120,6 +125,56 @@ public class AlarmService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
+	@RequestMapping(value = "/alarm/send/lba", method = RequestMethod.POST)
+	public void sendLba(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String company = request.getParameter("company");
+		String vehicle = request.getParameter("vehicle");
+		String alarm = request.getParameter("vehicle");
+		String location = request.getParameter("location");
+		String eventType = request.getParameter("event_type");
+		String lat = request.getParameter("lat");
+		String lng = request.getParameter("lng");
+		String dateTime = request.getParameter("datetime");	
+		Entity alarmHist = this.createAlarmHistory(company, vehicle, alarm, location, eventType, lat, lng, dateTime);
+		DatastoreServiceFactory.getDatastoreService().put(alarmHist);
+		prospectiveSearch.match(alarmHist, "AlarmHistory", "", "/prospective/lba_alarm", "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);		
+	}
+	
+	/**
+	 * alarmHistory를 생성하여 리턴 
+	 * 
+	 * @param company
+	 * @param vehicle
+	 * @param alarmName
+	 * @param locName
+	 * @param eventName
+	 * @param lat
+	 * @param lng
+	 * @param datetime
+	 * @return
+	 */
+	private Entity createAlarmHistory(String company, String vehicle, String alarmName, String locName, String eventName, String lat, String lng, String datetimeStr) {
+		
+		String idValue = vehicle + "@" + alarmName + "@" + datetimeStr;
+		Key companyKey = KeyFactory.createKey("Company", company);
+		Key alarmHistKey = KeyFactory.createKey(companyKey, "AlarmHistory", idValue);
+		Entity alarmHistory = new Entity(alarmHistKey);
+		alarmHistory.setProperty("vehicle", vehicle);
+		alarmHistory.setProperty("alarm", alarmName);
+		alarmHistory.setProperty("loc", locName);
+		try {
+			alarmHistory.setProperty("datetime", DataUtils.toDate(datetimeStr, GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT));
+		} catch(Exception e) {
+			alarmHistory.setProperty("datetime", datetimeStr);
+		}
+		alarmHistory.setUnindexedProperty("evt", eventName);
+		alarmHistory.setUnindexedProperty("lat", lat);
+		alarmHistory.setUnindexedProperty("lng", lng);
+		alarmHistory.setProperty("send", "N");
+		return alarmHistory;
+	}	
+	
 	@RequestMapping(value = "/alarm/send/mail", method = RequestMethod.POST)
 	public void sendMail(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -152,130 +207,5 @@ public class AlarmService extends EntityService {
 	@RequestMapping(value = "/alarm/send/push", method = RequestMethod.POST)
 	public void sendPush(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// TODO
-	}
-	
-	@Override
-	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) throws Exception {
-				
-		String vehiclesStr = (String)obj.getProperty("vehicles");
-		boolean create = DataUtils.isEmpty(obj.getKey()) ? true : false;
-		
-		if(DataUtils.isEmpty(vehiclesStr)) {
-			super.saveEntity(obj, map, datastore);
-		
-		// Alarm 저장하기 전에 Alarm과 관계된 LbaStatus 정보를 추가 또는 갱신한다.	
-		} else {			
-			String[] vehicleIdArr = vehiclesStr.split(",");
-			
-			// Transaction으로 ...
-			Transaction txn = datastore.beginTransaction();
-			try {
-				if(create) {
-					// lbaStatus 생성 
-					this.createLbaStatuses(datastore, obj, vehicleIdArr);
-				} else {
-					// lbaStatus 삭제 후 재 생성 
-					this.updateLbaStatuses(datastore, obj, vehicleIdArr);
-				}
-				
-				super.saveEntity(obj, map, datastore);
-				txn.commit();
-				
-			} catch (Exception e) {
-				txn.rollback();
-				throw e;
-			}
-		}
-	}
-	
-	/**
-	 * Alarm과 관련된 LbaStatus 리스트를 생성 
-	 * 
-	 * @param datastore
-	 * @param alarm
-	 * @param vehicleIdArr
-	 * @throws Exception
-	 */
-	private void createLbaStatuses(DatastoreService datastore, Entity alarm, String[] vehicleIdArr) throws Exception {
-		
-		List<Entity> lbaStatusList = new ArrayList<Entity>();
-		Date now = new Date();
-		
-		for(int i = 0 ; i < vehicleIdArr.length ; i++) {
-			Entity lbaStatus = this.createLbaStatus(alarm, vehicleIdArr[i]);
-			lbaStatus.setProperty("updated_at", now);
-			lbaStatusList.add(lbaStatus);			
-		}
-		
-		datastore.put(lbaStatusList);
-	}
-	
-	/**
-	 * Alarm과 관련된 LbaStatus를 찾아 삭제 
-	 * 
-	 * @param datastore
-	 * @param alarm
-	 * @throws Exception
-	 */
-	private void deleteLbaStatus(DatastoreService datastore, Entity alarm) throws Exception {
-		
-		List<Entity> lbaStatusList = DatastoreUtils.findEntityList(alarm.getParent(), "LbaStatus", DataUtils.newMap("alarm", alarm.getProperty("alarm")));
-		if(DataUtils.isEmpty(lbaStatusList))
-			return;
-		
-		List<Key> keysToDel = new ArrayList<Key>();
-		for(Entity lbaStatus : lbaStatusList)
-			keysToDel.add(lbaStatus.getKey());
-		
-		datastore.delete(keysToDel);
-	}
-	
-	/**
-	 * Alarm과 관련된 기존 LbaStatus를 찾아 삭제한 후 새로 생성 
-	 *  
-	 * @param datastore
-	 * @param alarm
-	 * @param vehicleIdArr
-	 * @throws Exception
-	 */
-	private void updateLbaStatuses(DatastoreService datastore, Entity alarm, String[] vehicleIdArr) throws Exception {
-		// 1. Delete
-		this.deleteLbaStatus(datastore, alarm);
-		// 2. create
-		this.createLbaStatuses(datastore, alarm, vehicleIdArr);
-	}
-	
-	/**
-	 * LbaStatus Entity를 생성 
-	 * 
-	 * @param alarm
-	 * @param vehicleId
-	 * @return
-	 */
-	private Entity createLbaStatus(Entity alarm, String vehicleId) {
-		
-		String alarmName = (String)alarm.getProperty("name");
-		String idValue = vehicleId + "@" + alarmName;
-		Entity lbaStatus = new Entity(KeyFactory.createKey(alarm.getParent(), "LbaStatus", idValue));
-		lbaStatus.setProperty("vehicle", vehicleId);
-		lbaStatus.setProperty("alarm", alarmName);
-		lbaStatus.setProperty("loc", alarm.getProperty("loc"));
-		lbaStatus.setProperty("evt_trg", alarm.getProperty("evt_trg"));
-		lbaStatus.setProperty("bef_status", "");
-		lbaStatus.setProperty("cur_status", "");
-		
-		boolean use = false;
-		
-		if(DataUtils.toBool(alarm.getProperty("always"))) {
-			use = true;
-		} else {
-			//오늘이 from_date, to_date 사이에 있는지 확인 
-			Date fromDate = DataUtils.toDate(alarm.getProperty("from_date"));
-			Date toDate = DataUtils.toDate(alarm.getProperty("to_date"));
-			use = DataUtils.between(DataUtils.getToday(), fromDate, toDate);
-		}
-		
-		lbaStatus.setProperty("use", use);
-		return lbaStatus;
 	}
 }

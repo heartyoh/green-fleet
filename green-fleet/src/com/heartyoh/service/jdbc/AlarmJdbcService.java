@@ -82,11 +82,7 @@ public class AlarmJdbcService extends JdbcEntityService {
 			
 			// 2. alarm & vehicle relation 삭제 
 			super.execute(conn, "delete from alarm_vehicle_relation where company = ? and alarm_name = ?", params);
-			
-			// 3. lba status 삭제
-			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			this.deleteLbaStatus(datastore, company, name);			
-			
+						
 		} catch (Exception e) {
 			logger.error("Failed to delete alarm [" + name + "]", e);
 			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\", \"key\" : \"" + name + "\" }";
@@ -244,18 +240,7 @@ public class AlarmJdbcService extends JdbcEntityService {
 				
 				pstmt3.executeBatch();
 			}
-		
-			// 5. save lba status 
-			Map<String, Object> alarm = new HashMap<String, Object>();
-			alarm.put("company", company);
-			alarm.put("name", name);
-			alarm.put("evt_name", request.getParameter("evt_name"));
-			alarm.put("evt_trg", request.getParameter("evt_trg"));
-			alarm.put("always", DataUtils.toBool(request.getParameter("always")));
-			alarm.put("from_date", DataUtils.toDate(request.getParameter("from_date")));
-			alarm.put("to_date", DataUtils.toDate(request.getParameter("to_date")));
-			this.saveLbaStatus(alarm, vehicles);
-		
+				
 		} catch (Exception e) {
 			logger.error("Failed to save alarm [" + name + "]", e);
 			return "{\"success\" : false, \"msg\" : \"" + e.getMessage() + "\"}";
@@ -265,94 +250,5 @@ public class AlarmJdbcService extends JdbcEntityService {
 		}
 		
 		return "{\"success\" : true, \"msg\" : \"Succeeded to save!\"}";
-	}
-	
-	/**
-	 * lbaStatus 저장 
-	 * 
-	 * @param alarm
-	 * @param vehicles
-	 * @throws Exception
-	 */
-	private void saveLbaStatus(Map<String, Object> alarm, String[] vehicles) throws Exception {
-		
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();		
-		// Alarm 저장하기 전에 Alarm과 관계된 LbaStatus 정보를 추가 또는 갱신한다. lbaStatus 삭제 후 재 생성 
-		this.deleteLbaStatus(datastore, (String)alarm.get("company"), (String)alarm.get("name"));
-		this.createLbaStatus(datastore, alarm, vehicles);
-	}
-	
-	/**
-	 * Alarm과 관련된 LbaStatus 리스트를 생성 
-	 * 
-	 * @param datastore
-	 * @param alarm
-	 * @param vehicles
-	 * @throws Exception
-	 */
-	private void createLbaStatus(DatastoreService datastore, Map<String, Object> alarm, String[] vehicles) throws Exception {
-		
-		Key companyKey = KeyFactory.createKey("Company", (String)alarm.get("company"));
-		List<Entity> lbaStatusList = new ArrayList<Entity>();
-		Date now = new Date();
-		
-		for(int i = 0 ; i < vehicles.length ; i++) {
-			Entity lbaStatus = this.newLbaStatus(companyKey, alarm, vehicles[i]);
-			lbaStatus.setUnindexedProperty("updated_at", now);
-			lbaStatusList.add(lbaStatus);			
-		}
-		
-		datastore.put(lbaStatusList);
-	}
-	
-	/**
-	 * LbaStatus Entity를 생성 
-	 * 
-	 * @param companyKey
-	 * @param alarm
-	 * @param vehicle
-	 * @return
-	 */
-	private Entity newLbaStatus(Key companyKey, Map<String, Object> alarm, String vehicle) {
-		
-		Entity lbaStatus = new Entity(KeyFactory.createKey(companyKey, "LbaStatus", vehicle + "@" + alarm.get("name")));
-		lbaStatus.setProperty("vehicle", vehicle);
-		lbaStatus.setProperty("alarm", alarm.get("name"));
-		lbaStatus.setProperty("loc", alarm.get("evt_name"));
-		lbaStatus.setProperty("evt_trg", alarm.get("evt_trg"));
-		lbaStatus.setProperty("bef_status", "");
-		lbaStatus.setProperty("cur_status", "");
-		
-		// always가 체크되어 있으면 true 아니면 오늘이 from_date, to_date 사이에 있는지 확인 
-		Date fromDate = (Date)alarm.get("from_date");
-		java.sql.Date sqlFromDate = (fromDate == null) ? null : new java.sql.Date(fromDate.getTime());
-		Date toDate = (Date)alarm.get("to_date");
-		java.sql.Date sqlToDate = (toDate == null) ? null : new java.sql.Date(toDate.getTime());
-		boolean use = (Boolean)alarm.get("always") ? true : DataUtils.between(DataUtils.getToday(), sqlFromDate, sqlToDate);
-		lbaStatus.setProperty("use", use);
-		return lbaStatus;
-	}	
-	
-	/**
-	 * Alarm과 관련된 LbaStatus를 찾아 삭제 
-	 * 
-	 * @param datastore
-	 * @param company
-	 * @param alarmName
-	 * @throws Exception
-	 */
-	private void deleteLbaStatus(DatastoreService datastore, String company, String alarmName) throws Exception {
-		
-		Key companyKey = KeyFactory.createKey("Company", company);
-		List<Entity> lbaStatusList = DatastoreUtils.findEntityList(companyKey, "LbaStatus", DataUtils.newMap("alarm", alarmName));
-		
-		if(DataUtils.isEmpty(lbaStatusList))
-			return;
-		
-		List<Key> keysToDel = new ArrayList<Key>();
-		for(Entity lbaStatus : lbaStatusList)
-			keysToDel.add(lbaStatus.getKey());
-		
-		datastore.delete(keysToDel);
 	}
 }

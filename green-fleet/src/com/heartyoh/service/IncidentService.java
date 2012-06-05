@@ -177,7 +177,7 @@ public class IncidentService extends EntityService {
 			vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_INCIDENT);
 		}
 		
-		if(!vehiclePrvStatus.equals(vehicle.getStatus()))
+		if(!vehicle.getStatus().equalsIgnoreCase(vehiclePrvStatus))
 			DatasourceUtils.updateVehicle(vehicle);
 	}	
 

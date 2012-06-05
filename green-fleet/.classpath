@@ -32,7 +32,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-pool-1.6.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/dbist-1.0.8.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/javassist.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/common-util-1.0.12.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.jdbc-3.1.0.RELEASE.jar"/>
@@ -42,5 +41,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.20-bin.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/dbist-1.0.10.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

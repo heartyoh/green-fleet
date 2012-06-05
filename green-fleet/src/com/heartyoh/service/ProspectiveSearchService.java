@@ -23,6 +23,7 @@ import com.heartyoh.util.GreenFleetConstant;
 
 /**
  * Prospective Search 서비스 컨트롤러
+ * 현재 사용안 함
  * 
  * @author jhnam
  */

@@ -47,7 +47,7 @@ public class GreenFleetListener implements ServletContextListener {
 	        schema);
 	    
 	    if(logger.isInfoEnabled())
-	    	logger.info("GreenFleetListener topic 'LbaStatus' saved!");
+	    	logger.info("GreenFleetListener topic 'AlarmHistory' saved!");
 	}
 	
 	@Override

@@ -3,11 +3,14 @@ package com.heartyoh.service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,12 +22,19 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.heartyoh.model.Vehicle;
+import com.heartyoh.util.AsyncUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
+import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class TrackService extends EntityService {
+	
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(TrackService.class);	
 	
 	@Override
 	protected String getEntityName() {
@@ -80,9 +90,6 @@ public class TrackService extends EntityService {
 		if(dblLat == 0 && dblLng == 0)
 			throw new Exception("Both of latitude & longitude values are 0. It might meant to be non stable status of blackbox.");
 		
-		// 위치 기반 서비스 알림 비동기 처리 --> 실시간 처리로...
-		// AsyncUtils.addLbaTaskToQueue(entity.getParent().getName(), vehicle_id, dblLatitude, dblLongitude);
-		
 		entity.setProperty("terminal_id", terminalId);
 		entity.setProperty("vehicle_id", vehicleDriverId[0]);
 		entity.setProperty("driver_id", vehicleDriverId[1]);
@@ -98,12 +105,64 @@ public class TrackService extends EntityService {
 				DatasourceUtils.findVehicle(trackObj.getParent().getName(), (String)trackObj.getProperty("vehicle_id"));
 		
 		if(vehicle != null) {
+			this.checkLocationBasedAlarm(trackObj, vehicle);
 			vehicle.setLat(DataUtils.toFloat(trackObj.getProperty("lat")));
 			vehicle.setLng(DataUtils.toFloat(trackObj.getProperty("lng")));
-			DatasourceUtils.updateVehicle(vehicle);
+			vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_RUNNING);
+			DatasourceUtils.updateVehicle(vehicle);			
 		}
 		
 		datastore.put(trackObj);
+	}
+	
+	/**
+	 * location based alarm 처리
+	 *  
+	 * @param track
+	 * @param vehicle
+	 */
+	@SuppressWarnings("rawtypes")
+	private void checkLocationBasedAlarm(Entity track, Vehicle vehicle) {
+		
+		try {
+			// 차량 정보 
+			String company = vehicle.getCompany();
+			String vehicleId = vehicle.getId();
+			
+			// 차량의 현재 위치 
+			float currentLat = DataUtils.toFloat(track.getProperty("lat"));
+			float currentLng = DataUtils.toFloat(track.getProperty("lng"));
+			
+			// 차량의 이전 위치 
+			float prevLat = vehicle.getLat();
+			float prevLng = vehicle.getLng();
+
+			// 차량 아이디, 현재 위치, 이전 위치로 매칭되는 알람명 - 이벤트(in, out, in-out)쌍을 조회 
+			List<Map> alarms = DatasourceUtils.findAlarmLocation(company, 
+					vehicleId, 
+					currentLat, 
+					currentLng, 
+					prevLat, 
+					prevLng);
+			
+			if(DataUtils.isEmpty(alarms))
+				return;
+			
+			// 조회한 알람 리스트를 traverse
+			for(Map alarm : alarms) {
+				// 위치 기반 서비스 알림 비동기 처리
+				AsyncUtils.addLbaTaskToQueue(company, 
+							vehicleId, 
+							(String)alarm.get("alarm_name"), 
+							(String)alarm.get("loc_name"), 
+							(String)alarm.get("event_type"), 
+							currentLat, 
+							currentLng, 
+							(Date)track.getProperty("updated_at"));
+			}
+		} catch(Exception e) {
+			logger.error("Failed to check location based alarm!", e);
+		}
 	}
 
 	@RequestMapping(value = "/track/import", method = RequestMethod.POST)

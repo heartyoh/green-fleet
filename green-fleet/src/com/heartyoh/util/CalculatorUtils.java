@@ -322,10 +322,22 @@ public class CalculatorUtils {
 	 * @throws Exception
 	 */
 	public static boolean contains(Location location, float lat, float lng) throws Exception {		
-		float minLat = location.getLatLo();
-		float minLng = location.getLngLo();
-		float maxLat = location.getLatHi();
-		float maxLng = location.getLngHi();
-		return (lat <= maxLat && lat >= minLat && lng <= maxLng && lng >= minLng);
+		return contains(location.getLatLo(), location.getLatHi(), location.getLngLo(), location.getLngHi(), lat, lng);
+	}
+
+	/**
+	 * lat, lng 위치가 latLo, latHi, lngLo, lngHi 범위 내에 있는지 판단  
+	 * 
+	 * @param latLo
+	 * @param latHi
+	 * @param lngLo
+	 * @param lngHi
+	 * @param lat
+	 * @param lng
+	 * @return
+	 * @throws Exception
+	 */
+	public static boolean contains(float latLo, float latHi, float lngLo, float lngHi, float lat, float lng) throws Exception {
+		return (lat <= latHi && lat >= latLo && lng <= lngHi && lng >= lngLo);		
 	}
 }

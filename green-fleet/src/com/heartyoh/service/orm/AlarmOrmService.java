@@ -12,16 +12,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dbist.dml.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.Alarm;
 import com.heartyoh.model.AlarmVehicleRelation;
 import com.heartyoh.model.IEntity;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatasourceUtils;
+import com.heartyoh.util.GreenFleetConstant;
 
 /**
  * Alarm 관리 서비스
@@ -31,6 +40,14 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class AlarmOrmService extends OrmEntityService {
 
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(AlarmOrmService.class);
+	/**
+	 * prospective search
+	 */
+	//private static ProspectiveSearchService prospectiveSearch = ProspectiveSearchServiceFactory.getProspectiveSearchService();	
 	/**
 	 * key fields
 	 */
@@ -48,8 +65,7 @@ public class AlarmOrmService extends OrmEntityService {
 
 	@Override
 	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {
-		Query query = new Query();
-		query.addFilter("company", this.getCompany(request));
+		Query query = super.getRetrieveQuery(request);
 		query.addOrder("updated_at", false);
 		return query;
 	}
@@ -136,9 +152,6 @@ public class AlarmOrmService extends OrmEntityService {
 		// 2. alarm & vehicles relation 삭제 
 		this.deleteVehicleRelation(alarm);
 		
-		// 3. lba status 삭제 
-		//DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		//this.deleteLbaStatus(datastore, alarm);
 		return alarm;
 	}
 	
@@ -152,8 +165,6 @@ public class AlarmOrmService extends OrmEntityService {
 		String[] vehicles = DataUtils.isEmpty(request.getParameter("vehicles")) ? null : request.getParameter("vehicles").split(",");
 		this.saveVehicleRelation(alarm, vehicles);
 		
-		// 3. save lba status 
-		//this.saveLbaStatus(alarm, vehicles);	
 		return alarm;
 	}
 	
@@ -238,87 +249,136 @@ public class AlarmOrmService extends OrmEntityService {
 			this.dml.insertBatch(list);
 	}
 	
-	/**
-	 * lbaStatus 저장 
-	 * 
-	 * @param alarm
-	 * @param vehicles
-	 * @throws Exception
-	 */
-	/*private void saveLbaStatus(Alarm alarm, String[] vehicles) throws Exception {
+	@RequestMapping(value = "/alarm/send/lba", method = RequestMethod.POST)
+	public void sendLba(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();		
-		// Alarm 저장하기 전에 Alarm과 관계된 LbaStatus 정보를 추가 또는 갱신한다. lbaStatus 삭제 후 재 생성 
-		this.deleteLbaStatus(datastore, alarm);
-		this.createLbaStatus(datastore, alarm, vehicles);
-	}*/
+		String company = request.getParameter("company");
+		String vehicle = request.getParameter("vehicle");
+		String alarm = request.getParameter("alarm");
+		String location = request.getParameter("location");
+		String eventType = request.getParameter("event_type");
+		String lat = request.getParameter("lat");
+		String lng = request.getParameter("lng");
+		String dateTime = request.getParameter("datetime");	
+		Entity alarmHist = this.createAlarmHistory(company, vehicle, alarm, location, eventType, lat, lng, dateTime);		
+		this.lbaAlarm(alarmHist);
+		DatastoreServiceFactory.getDatastoreService().put(alarmHist);
+		//prospectiveSearch.match(alarmHist, "AlarmHistory", "", "/prospective/lba_alarm", "AlarmQueue", ProspectiveSearchService.DEFAULT_RESULT_BATCH_SIZE, true);
+	}
 	
 	/**
-	 * Alarm과 관련된 LbaStatus 리스트를 생성 
+	 * 알람을 보냄
 	 * 
-	 * @param datastore
-	 * @param alarm
-	 * @param vehicles
-	 * @throws Exception
+	 * @param alarmHist
+	 * @throws
 	 */
-	/*private void createLbaStatus(DatastoreService datastore, Alarm alarm, String[] vehicles) throws Exception {
+	private void lbaAlarm(Entity alarmHist) throws Exception {
 		
-		Key companyKey = KeyFactory.createKey("Company", alarm.getCompany());
-		List<Entity> lbaStatusList = new ArrayList<Entity>();
-		Date now = new Date();
-		
-		for(int i = 0 ; i < vehicles.length ; i++) {
-			Entity lbaStatus = this.newLbaStatus(companyKey, alarm, vehicles[i]);
-			lbaStatus.setUnindexedProperty("updated_at", now);
-			lbaStatusList.add(lbaStatus);			
-		}
-		
-		datastore.put(lbaStatusList);
-	}*/
-	
-	/**
-	 * LbaStatus Entity를 생성 
-	 * 
-	 * @param companyKey
-	 * @param alarm
-	 * @param vehicle
-	 * @return
-	 */
-	/*private Entity newLbaStatus(Key companyKey, Alarm alarm, String vehicle) {
-		
-		Entity lbaStatus = new Entity(KeyFactory.createKey(companyKey, "LbaStatus", vehicle + "@" + alarm.getName()));
-		lbaStatus.setProperty("vehicle", vehicle);
-		lbaStatus.setProperty("alarm", alarm.getName());
-		lbaStatus.setProperty("loc", alarm.getEvtName());
-		lbaStatus.setProperty("evt_trg", alarm.getEvtTrg());
-		lbaStatus.setProperty("bef_status", "");
-		lbaStatus.setProperty("cur_status", "");
-		// always가 체크되어 있으면 true 아니면 오늘이 from_date, to_date 사이에 있는지 확인 
-		boolean use = alarm.isAlways() ? true : DataUtils.between(DataUtils.getToday(), alarm.getFromDate(), alarm.getToDate());
-		lbaStatus.setProperty("use", use);
-		return lbaStatus;
-	}*/
-	
-	/**
-	 * Alarm과 관련된 LbaStatus를 찾아 삭제 
-	 * 
-	 * @param datastore
-	 * @param alarm
-	 * @throws Exception
-	 */
-	/*private void deleteLbaStatus(DatastoreService datastore, Alarm alarm) throws Exception {
-		
-		Key companyKey = KeyFactory.createKey("Company", alarm.getCompany());
-		List<Entity> lbaStatusList = DatastoreUtils.findEntityList(companyKey, "LbaStatus", DataUtils.newMap("alarm", alarm.getName()));
-		
-		if(DataUtils.isEmpty(lbaStatusList))
+		Alarm alarm = DatasourceUtils.findAlarm(alarmHist.getParent().getName(), (String)alarmHist.getProperty("alarm"));
+		if(alarm == null || DataUtils.isEmpty(alarm.getDest()))
 			return;
 		
-		List<Key> keysToDel = new ArrayList<Key>();
-		for(Entity lbaStatus : lbaStatusList)
-			keysToDel.add(lbaStatus.getKey());
+		String[] receivers = alarm.getDest().split(",");
+		String type = alarm.getType();
+		String eventName = (String)alarmHist.getProperty("evt");
+		String content = this.convertMessage(alarm.getMsg(), alarmHist);
 		
-		datastore.delete(keysToDel);
-	}*/
+		if(GreenFleetConstant.ALARM_MAIL.equalsIgnoreCase(type)) {
+			StringBuffer subject = new StringBuffer();
+			subject.append("Location Based Alarm [").append(alarm.getName()).append("] : Vehicle [").append(alarmHist.getProperty("vehicle"));
+			subject.append(eventName.equals(GreenFleetConstant.LBA_EVENT_IN) ? "] comes in to Location [" : "] comes out from Location [");
+			subject.append(alarm.getEvtName()).append("]!\n");
+			AlarmUtils.sendMail(null, null, null, receivers, subject.toString(), false, content);
+						
+		} else if(GreenFleetConstant.ALARM_XMPP.equalsIgnoreCase(type)) {
+			AlarmUtils.sendXmppMessage(receivers, content);
+		}
+		
+		alarmHist.setUnindexedProperty("type", type);
+		alarmHist.setProperty("send", "Y");		
+	}	
+	
+	/**
+	 * message를 치환 
+	 * 
+	 * @param message
+	 * @param alarmHistory
+	 * @return
+	 */
+	private String convertMessage(String message, Entity alarmHistory) {		
+		String vehicle = (String)alarmHistory.getProperty("vehicle");
+		String alarmName = (String)alarmHistory.getProperty("alarm");
+		String location = (String)alarmHistory.getProperty("loc");
+		String event = (String)alarmHistory.getProperty("evt");
+		return message.replaceAll("\\{vehicle\\}", vehicle).replaceAll("\\{alarm\\}", alarmName).replaceAll("\\{location\\}", location).replaceAll("\\{event\\}", event.toUpperCase());
+	}
+	
+	/**
+	 * alarmHistory를 생성하여 리턴 
+	 * 
+	 * @param company
+	 * @param vehicle
+	 * @param alarmName
+	 * @param locName
+	 * @param eventName
+	 * @param lat
+	 * @param lng
+	 * @param datetime
+	 * @return
+	 */
+	private Entity createAlarmHistory(String company, String vehicle, String alarmName, String locName, String eventName, String lat, String lng, String datetimeStr) {
+		
+		String idValue = vehicle + "@" + alarmName + "@" + datetimeStr;
+		Key companyKey = KeyFactory.createKey("Company", company);
+		Key alarmHistKey = KeyFactory.createKey(companyKey, "AlarmHistory", idValue);
+		Entity alarmHistory = new Entity(alarmHistKey);
+		alarmHistory.setProperty("vehicle", vehicle);
+		alarmHistory.setProperty("alarm", alarmName);
+		alarmHistory.setProperty("loc", locName);
+		try {
+			alarmHistory.setProperty("datetime", DataUtils.toDate(datetimeStr, GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT));
+		} catch(Exception e) {
+			alarmHistory.setProperty("datetime", datetimeStr);
+		}
+		alarmHistory.setUnindexedProperty("evt", eventName);
+		alarmHistory.setUnindexedProperty("lat", lat);
+		alarmHistory.setUnindexedProperty("lng", lng);
+		alarmHistory.setProperty("send", "N");
+		return alarmHistory;
+	}	
+	
+	@RequestMapping(value = "/alarm/send/mail", method = RequestMethod.POST)
+	public void sendMail(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String[] receivers = request.getParameterValues("receivers");
+		String message = request.getParameter("message");
+		String subject = DataUtils.isEmpty(request.getParameter("subject")) ? "GreenFleet Email Alarm!" : request.getParameter("subject");
+		String contentType = DataUtils.isEmpty(request.getParameter("contentType")) ? "text" : request.getParameter("contentType");
+		boolean htmlType = "html".equalsIgnoreCase(contentType);
+		
+		try {
+			AlarmUtils.sendMail(null, null, null, receivers, subject, htmlType, message);
+		} catch (Exception e) {
+			logger.error("Failed to send mail!", e);
+		}
+	}
+	
+	@RequestMapping(value = "/alarm/send/xmpp", method = RequestMethod.POST)
+	public void sendXmpp(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String[] receivers = request.getParameterValues("receivers");
+		String message = request.getParameter("message");
+		
+		try {
+			AlarmUtils.sendXmppMessage(receivers, message);
+		} catch (Exception e) {
+			logger.error("Failed to send xmpp!", e);
+		}
+	}
+	
+	@RequestMapping(value = "/alarm/send/push", method = RequestMethod.POST)
+	public void sendPush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO
+	}
 	
 }
