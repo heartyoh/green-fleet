@@ -26,6 +26,18 @@ import com.heartyoh.util.SessionUtils;
 public class IncidentVideoService extends EntityService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IncidentVideoService.class);
+	/**
+	 * blob store type
+	 */
+	private static final String STORE_TYPE = "gf_store";
+	/**
+	 * blob store
+	 */
+	private static final String STORE_BLOB = "blob";
+	/**
+	 * cloud store
+	 */
+	private static final String STORE_CLOUD = "cloud";
 	
 	@Override
 	protected String getEntityName() {
@@ -55,7 +67,16 @@ public class IncidentVideoService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		String video_file = saveFileToGS(request, (MultipartFile) map.get("video_clip"));
+		
+		String gfStorage = (String)request.getAttribute(STORE_TYPE);
+		String video_file = null;
+		
+		if(STORE_BLOB.equals(gfStorage)) {
+			video_file = saveFile(request, (MultipartFile) map.get("video_clip"));
+		} else {
+			video_file = saveFileToGS(request, (MultipartFile) map.get("video_clip"));
+		}
+		
 		if(video_file != null) {
 			entity.setProperty("video_clip", video_file);
 		}
@@ -68,12 +89,31 @@ public class IncidentVideoService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 
-	@RequestMapping(value = "/incident/upload_video", method = RequestMethod.POST)
+	@RequestMapping(value = "/incident/upload_blob", method = RequestMethod.POST)
 	public @ResponseBody
-	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
+	String importsByBlob(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		long time = System.currentTimeMillis();
 		try {
+			request.setAttribute(STORE_TYPE, STORE_BLOB);
+			return super.save(request, response);
+		} catch(Throwable e) {
+			BackendService backendsApi = BackendServiceFactory.getBackendService();
+			String currentBackend = backendsApi.getCurrentBackend();
+			time = System.currentTimeMillis() - time;
+			String log = "It took " + time + " millis to save file. " + (DataUtils.isEmpty(currentBackend) ? "At frontend mode!" : "At backend (" + currentBackend + ") mode!");
+			logger.error(log, e);
+			return getResultMsg(false, log);
+		}
+	}
+	
+	@RequestMapping(value = "/incident/upload_video", method = RequestMethod.POST)
+	public @ResponseBody
+	String importByCloud(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		long time = System.currentTimeMillis();
+		try {
+			request.setAttribute(STORE_TYPE, STORE_CLOUD);
 			return super.save(request, response);
 		} catch(Throwable e) {
 			BackendService backendsApi = BackendServiceFactory.getBackendService();
