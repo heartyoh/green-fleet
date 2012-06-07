@@ -60,23 +60,7 @@ public class IncidentService extends EntityService {
 		Date datetime = SessionUtils.stringToDateTime((String)map.get("datetime"), null, company);
 		entity.setProperty("datetime", datetime);
 		entity.setProperty("confirm", false);
-
-		super.onCreate(entity, map, datastore);
-	}
-
-	@Override
-	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
-		String video_file = saveFile(request, (MultipartFile) map.get("video_file"));
-		if(video_file != null) {
-			entity.setProperty("video_clip", video_file);
-		}
-
-		super.postMultipart(entity, map, request);
-	}
-
-	@Override
-	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
-
+		
 		if(map.containsKey("terminal_id")) {
 			// Terminal ID로 부터 Vehicle ID, Driver ID를 매핑테이블로 부터 찾는다.
 			String terminalId = (String)map.get("terminal_id");
@@ -99,11 +83,30 @@ public class IncidentService extends EntityService {
 			entity.setProperty("lat", doubleProperty(map, "lat"));		
 		if (map.get("lng") != null)
 			entity.setProperty("lng", doubleProperty(map, "lng"));		
-		if (map.get("velocity") != null)
-			entity.setProperty("velocity", doubleProperty(map, "velocity"));
+
+		super.onCreate(entity, map, datastore);
+		
+		// 사고 알람은 사고가 발생했을 경우에만 보낸다.
+		this.alarmIncident(entity);		
+	}
+
+	@Override
+	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
+		String video_file = saveFile(request, (MultipartFile) map.get("video_file"));
+		if(video_file != null) {
+			entity.setProperty("video_clip", video_file);
+		}
+
+		super.postMultipart(entity, map, request);
+	}
+
+	@Override
+	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
 		entity.setProperty("obd_connected", DataUtils.toBool(map.get("obd_connected")));
 		entity.setProperty("confirm", DataUtils.toBool(map.get("confirm")));
+		if (map.get("velocity") != null)
+			entity.setProperty("velocity", doubleProperty(map, "velocity"));
 		
 		// unindexed properties
 		if (map.get("impulse_abs") != null)
@@ -121,10 +124,7 @@ public class IncidentService extends EntityService {
 		if (map.get("engine_temp_threshold") != null)
 			entity.setUnindexedProperty("engine_temp_threshold", doubleProperty(map, "engine_temp_threshold"));		
 
-		super.onSave(entity, map, datastore);
-		
-		// 사고 알람은 사고가 발생했을 경우에만 보낸다.
-		this.alarmIncident(entity);
+		super.onSave(entity, map, datastore);		
 	}
 	
 	/**
