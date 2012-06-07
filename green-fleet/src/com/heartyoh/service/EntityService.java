@@ -210,7 +210,8 @@ public abstract class EntityService {
 			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
 			writeChannel.closeFinally();
 			
-			return "http://commondatastorage.googleapis.com/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
+			//return "http://commondatastorage.googleapis.com/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
+			return "/gs/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
 		}
 		return null;
 	}

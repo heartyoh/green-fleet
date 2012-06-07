@@ -114,7 +114,16 @@ public class FileService {
 	
 	@RequestMapping(value="/download", method = RequestMethod.GET)
 	public void download(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        BlobKey blobKey = new BlobKey(request.getParameter("blob-key"));
+
+		String blobKeyStr = request.getParameter("blob-key");
+		BlobKey blobKey = null;
+		
+		if(blobKeyStr.startsWith("/gs/")) {
+			blobKey = this.blobstoreService.createGsBlobKey(blobKeyStr);
+		} else {
+			blobKey = new BlobKey(blobKeyStr);
+		}
+		
         blobstoreService.serve(blobKey, response);		
 	}
 }
