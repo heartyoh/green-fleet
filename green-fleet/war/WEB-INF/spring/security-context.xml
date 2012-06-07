@@ -16,7 +16,7 @@
         <intercept-url pattern="/incident/save" access="permitAll" />
         <intercept-url pattern="/incident/upload_video" access="permitAll" />
         <intercept-url pattern="/incident/upload_blob" access="permitAll" />
-        <intercept-url pattern="/incident/upload_log" access="permitAll" /-->        
+        <intercept-url pattern="/incident/upload_log" access="permitAll" /-->
         
         <!-- TODO 추후 정리 -->
         <intercept-url pattern="/vehicle_consumable/summary" access="permitAll" />

@@ -199,8 +199,8 @@ public abstract class EntityService {
 			GSFileOptionsBuilder optionsBuilder = new GSFileOptionsBuilder()
 		       .setBucket("green-fleets")
 		       .setKey(company + "/incident/" + file.getOriginalFilename())
-		       .setMimeType(file.getContentType())
-		       .setAcl("public_read");
+		       .setMimeType(file.getContentType());
+		       //.setAcl("public_read");
 //		       .addUserMetadata("company", "vitizen");
 		    AppEngineFile appfile =
 		         fileService.createNewGSFile(optionsBuilder.build());			

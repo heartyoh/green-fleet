@@ -119,11 +119,13 @@ public class FileService {
 		BlobKey blobKey = null;
 		
 		if(blobKeyStr.startsWith("/gs/")) {
+			String namePart = blobKeyStr.substring(blobKeyStr.lastIndexOf("/") + 1);
+			response.setHeader("Content-Disposition", "inline;filename=\"" + namePart + "\"");
 			blobKey = this.blobstoreService.createGsBlobKey(blobKeyStr);
 		} else {
 			blobKey = new BlobKey(blobKeyStr);
 		}
 		
-        blobstoreService.serve(blobKey, response);		
+        blobstoreService.serve(blobKey, response);
 	}
 }
