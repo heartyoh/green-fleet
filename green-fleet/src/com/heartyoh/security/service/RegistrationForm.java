@@ -4,7 +4,10 @@ public class RegistrationForm {
 
     private String name;
     private String company;
-    private String language;
+    private String email;
+    private String phoneNo;
+    private boolean admin;
+	private String language;
 
     public String getLanguage() {
 		return language;
@@ -29,4 +32,28 @@ public class RegistrationForm {
     public void setCompany(String company) {
         this.company = company;
     }
+
+	public String getPhoneNo() {
+		return phoneNo;
+	}
+
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+    
+    public boolean isAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}	
 }
