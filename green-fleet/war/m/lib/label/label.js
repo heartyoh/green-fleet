@@ -51,8 +51,8 @@ Label.prototype.draw = function() {
 	var position = projection.fromLatLngToDivPixel(this.get('position'));
 
 	var div = this.div_;
-	div.style.left = position.x + 'px';
-	div.style.top = position.y + 'px';
+	div.style.left = position.x - 100 + 'px';
+	div.style.top = position.y - 100 + 'px';
 	div.style.display = this.show ? 'block' : 'none';
 
 	this.span_.innerHTML = this.get('text').toString();
