@@ -8,6 +8,7 @@ public class RegistrationForm {
     private String phoneNo;
     private boolean admin;
 	private String language;
+	private boolean prodEnv;
 
     public String getLanguage() {
 		return language;
@@ -55,5 +56,14 @@ public class RegistrationForm {
 
 	public void setAdmin(boolean admin) {
 		this.admin = admin;
-	}	
+	}
+
+	public boolean isProdEnv() {
+		return prodEnv;
+	}
+
+	public void setProdEnv(boolean prodEnv) {
+		this.prodEnv = prodEnv;
+	}
+
 }

@@ -69,5 +69,13 @@
     </b:bean>
 
     <b:bean id="userRegistry" class="com.heartyoh.dao.impl.DatastoreUserDaoImpl" />
+    
+    <b:bean id="productionHostInfo" class="com.heartyoh.security.service.ProductionHostInfo" >
+		<b:property name="hostNameList">
+   			<b:list>  
+    			<b:value>green-fleets.appspot.com</b:value>
+		   </b:list>
+  		</b:property>
+    </b:bean>
 
 </b:beans>

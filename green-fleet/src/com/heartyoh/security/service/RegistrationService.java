@@ -1,5 +1,11 @@
 package com.heartyoh.security.service;
 
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.heartyoh.dao.UserDao;
 import com.heartyoh.model.CustomUser;
+import com.heartyoh.security.AppRole;
+import com.heartyoh.security.GaeUserAuthentication;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
@@ -27,16 +36,47 @@ public class RegistrationService {
 	
 	@Autowired
 	private UserDao registry;
+	
+	@Autowired
+	private ProductionHostInfo productionHostInfo;
 
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
-	public RegistrationForm registrationForm() {
-		return new RegistrationForm();
+	public RegistrationForm registrationForm(HttpServletRequest request) {
+		RegistrationForm form = new RegistrationForm();
+		form.setProdEnv(this.isProductionMode(request.getServerName()));
+		return form;
+	}
+
+	/**
+	 * serverHost명으로 개발 모드인지 운영 모드인지 구분한다.
+	 * 
+	 * @param serverHost
+	 * @return
+	 */
+	private boolean isProductionMode(String serverHost) {
+		List<String> hostNameList = this.productionHostInfo.getHostNameList();
+		return hostNameList.contains(serverHost);
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public String register(RegistrationForm form, BindingResult result) {
+				
+		if (result.hasErrors())
+			return null;
 		
-		/*if (result.hasErrors()) {
+		return form.isProdEnv() ? this.registerByProdEnv(form, result) : this.registerByDevelEnv(form, result);
+	}
+	
+	/**
+	 * local 개발 모드일 경우
+	 * 
+	 * @param form
+	 * @param result
+	 * @return
+	 */
+	private String registerByDevelEnv(RegistrationForm form, BindingResult result) {
+		
+		if (result.hasErrors()) {
 			return null;
 		}
 
@@ -57,12 +97,18 @@ public class RegistrationService {
 		SecurityContextHolder.getContext().setAuthentication(
 				new GaeUserAuthentication(user, authentication.getDetails()));
 
-		return "redirect:/home";*/
+		return "redirect:/home";		
+	}
+	
+	/**
+	 * 운영 환경일 경우 
+	 * 
+	 * @param form
+	 * @param result
+	 * @return
+	 */
+	private String registerByProdEnv(RegistrationForm form, BindingResult result) {
 		
-		if (result.hasErrors()) {
-			return null;
-		}
-				
 		// 0. email이 비어있다면 인증 정보로 부터 가져와 채움 
 		if(DataUtils.isEmpty(form.getEmail())) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -84,8 +130,8 @@ public class RegistrationService {
 			logger.error("User Email [" + form.getEmail() + "] is already in use by another user!");
 			return "redirect:/reg_result?company=" + form.getCompany() + "&email=" + form.getEmail() + "&error=true&message=user_already_exit";
 		}
-
-		// 3. 해당 회사의 관리자에게 메일을 보냄
+		
+		// 4. 해당 회사의 관리자에게 메일을 보냄
 		try {
 			// TODO 수정 
 			AlarmUtils.sendXmppMessage("maparam419@gmail.com", 
@@ -94,7 +140,7 @@ public class RegistrationService {
 			logger.error("Failed to send message!", e);
 		}
 				
-		return "redirect:/reg_result?email=" + form.getEmail() + "&error=false&message=";
+		return "redirect:/reg_result?email=" + form.getEmail() + "&error=false&message=";		
 	}
 	
 	@RequestMapping(value = "/reg_result", method = RequestMethod.GET)

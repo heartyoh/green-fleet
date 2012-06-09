@@ -73,15 +73,15 @@ public class DatastoreUserDaoImpl implements UserDao {
 	}
 
 	public void registerUser(CustomUser newUser) {
-		logger.debug("Attempting to create new user " + newUser);
+		
+		if(logger.isDebugEnabled())
+			logger.debug("Attempting to create new user " + newUser);
 
 		Key companyKey = KeyFactory.createKey("Company", newUser.getCompany());
 		Key key = KeyFactory.createKey(companyKey, USER_TYPE, newUser.getEmail());
-
 		Date now = new Date();
-
+		
 		Entity user = new Entity(key);
-
 		user.setProperty(USER_EMAIL, newUser.getEmail());
 		user.setProperty(USER_NAME, newUser.getName());
 		user.setProperty(USER_COMPANY, newUser.getCompany());
@@ -91,7 +91,6 @@ public class DatastoreUserDaoImpl implements UserDao {
 		user.setUnindexedProperty(USER_UPDATED_AT, now);
 
 		Collection<AppRole> roles = newUser.getAuthorities();
-
 		long binaryAuthorities = 0;
 
 		for (AppRole r : roles) {
@@ -99,7 +98,6 @@ public class DatastoreUserDaoImpl implements UserDao {
 		}
 
 		user.setUnindexedProperty(USER_AUTHORITIES, binaryAuthorities);
-
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		datastore.put(user);
 	}
