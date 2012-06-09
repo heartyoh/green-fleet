@@ -59,6 +59,7 @@ public class DatasourceUtils {
 	 * @throws Exception
 	 */
 	public static void updateVehicle(Vehicle vehicle) throws Exception {
+		vehicle.beforeUpdate();
 		dml.update(vehicle);
 	}
 	

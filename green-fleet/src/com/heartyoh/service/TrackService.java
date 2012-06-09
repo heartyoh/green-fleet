@@ -109,7 +109,7 @@ public class TrackService extends EntityService {
 			vehicle.setLat(DataUtils.toFloat(trackObj.getProperty("lat")));
 			vehicle.setLng(DataUtils.toFloat(trackObj.getProperty("lng")));
 			vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_RUNNING);
-			DatasourceUtils.updateVehicle(vehicle);			
+			DatasourceUtils.updateVehicle(vehicle);
 		}
 		
 		datastore.put(trackObj);
@@ -191,12 +191,16 @@ public class TrackService extends EntityService {
 	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
-		// TODO 이 메소드는 제거해도 됨, 아래 addFilter에서 같은 로직을 수행
-		// 혹시 다른 쪽에 영향을 줄지 몰라 일단 놔 둠 
+		// TODO 타블릿 쪽에서 parameter로 넘김, 타블릿 수정시 이 메소드 삭제 
 		String date = request.getParameter("date");
 		if(!DataUtils.isEmpty(date)) {
 			this.addDateFilter(q, date);
-		}		
+		}
+		
+		String vehicleId = request.getParameter("vehicle_id");
+		if(!DataUtils.isEmpty(vehicleId)) {
+			this.addFilter(q, "vehicle_id", vehicleId);
+		}
 	}
 	
 	@Override
@@ -225,5 +229,5 @@ public class TrackService extends EntityService {
 			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
 		}		
-	}	
+	}
 }

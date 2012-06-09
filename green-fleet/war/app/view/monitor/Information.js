@@ -150,20 +150,17 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			self.getTrackStore().load({
 				params : {
-					vehicle_id : vehicle,
-					/* for Unix timestamp (in seconds) */
-					date : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000),
 					start : 0,
 					limit : 1000
-				}
-//				filters : [ {
-//					property : 'vehicle_id',
-//					value : vehicle
-//				}, {
-//					property : 'date',
-//					/* for Unix timestamp (in seconds) */
-//					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
-//				} ]
+				},
+				filters : [ {
+					property : 'vehicle_id',
+					value : vehicle
+				}, {
+					property : 'date',
+					/* for Unix timestamp (in seconds) */
+					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
+				} ]
 			});
 
 			/*
@@ -171,11 +168,13 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			self.getIncidentStore().load({
 				params : {
-					vehicle_id : vehicle,
 					confirm : false,
 					start : 0,
 					limit : 4
-				}
+				}, 
+				filters : [
+				    { property : 'vehicle_id', value : vehicle }
+				]
 			});
 		});
 	},

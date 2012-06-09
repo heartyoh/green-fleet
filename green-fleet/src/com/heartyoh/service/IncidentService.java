@@ -198,6 +198,14 @@ public class IncidentService extends EntityService {
 	String delete(HttpServletRequest request, HttpServletResponse response) {
 		return super.delete(request, response);
 	}
+	
+	@Override
+	protected void buildQuery(Query q, HttpServletRequest request) {
+		// tablet 쪽에서 호출시 그냥 parameter로 넘김, 수정시 삭제 
+		if(!DataUtils.isEmpty(request.getParameter("vehicle_id"))) {
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, request.getParameter("vehicle_id"));
+		}
+	}
 
 	@Override
 	protected void addFilter(Query q, String property, Object value) {

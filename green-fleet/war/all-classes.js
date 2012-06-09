@@ -5639,6 +5639,10 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.manufacturer'),
 		type : 'string'
 	}, {
+		dataIndex : 'vehicle_model',
+		text : T('label.vehicle_model'),
+		type : 'string'
+	}, {
 		dataIndex : 'vehicle_type',
 		text : T('label.x_type', { x : T('label.vehicle') }),
 		type : 'string'
@@ -5672,18 +5676,6 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	}, {
 		dataIndex : 'lng',
 		text : T('label.longitude')
-	}, {
-		dataIndex : 'created_at',
-		text : T('label.created_at'),
-		xtype : 'datecolumn',
-		format : F('datetime'),
-		width : 120
-	}, {
-		dataIndex : 'updated_at',
-		text : T('label.updated_at'),
-		xtype : 'datecolumn',
-		format : F('datetime'),
-		width : 120
 	} ],
 	viewConfig : {
 
@@ -5714,7 +5706,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		grid.down('textfield[name=id_filter]').setValue('');
 		grid.down('textfield[name=registration_number_field]').setValue('');
 	},
-	tbar : [ 'ID', {
+	tbar : [ T('label.id'), {
 		xtype : 'textfield',
 		name : 'id_filter',
 		hideLabel : true,
@@ -5727,7 +5719,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 				}
 			}
 		}
-	}, 'Registeration Number', {
+	}, T('label.reg_no'), {
 		xtype : 'textfield',
 		name : 'registration_number_field',
 		hideLabel : true,
@@ -5909,20 +5901,17 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			self.getTrackStore().load({
 				params : {
-					vehicle_id : vehicle,
-					/* for Unix timestamp (in seconds) */
-					date : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000),
 					start : 0,
 					limit : 1000
-				}
-//				filters : [ {
-//					property : 'vehicle_id',
-//					value : vehicle
-//				}, {
-//					property : 'date',
-//					/* for Unix timestamp (in seconds) */
-//					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
-//				} ]
+				},
+				filters : [ {
+					property : 'vehicle_id',
+					value : vehicle
+				}, {
+					property : 'date',
+					/* for Unix timestamp (in seconds) */
+					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
+				} ]
 			});
 
 			/*
@@ -5930,11 +5919,13 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			self.getIncidentStore().load({
 				params : {
-					vehicle_id : vehicle,
 					confirm : false,
 					start : 0,
 					limit : 4
-				}
+				}, 
+				filters : [
+				    { property : 'vehicle_id', value : vehicle }
+				]
 			});
 		});
 	},
@@ -13563,9 +13554,6 @@ Ext.define('GreenFleet.view.management.Schedule', {
 
 	entityUrl : 'task',
 
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
 	importUrl : 'task/import',
 
 	afterImport : function() {
@@ -13592,11 +13580,34 @@ Ext.define('GreenFleet.view.management.Schedule', {
 	buildCalendar : function(main) {
 		var calendarStore = Ext.getStore('CalendarStore');
 		var eventStore = Ext.getStore('EventStore');
+		eventStore.autoSync = true;
 		eventStore.load();
 		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
 			calendarStore : calendarStore,
 	        eventStore: eventStore,
-	        flex : 1
+	        flex : 1,
+	        listeners: {
+	            'eventadd': {
+	                fn: function(cp, rec) {	                	
+	                	//cp.store.load();
+	                	//GreenFleet.msg(T('label.success'), "Start : " + cp.viewStart.toString());
+	                	//GreenFleet.msg(T('label.success'), "End : " + cp.viewEnd.toString());
+	                },
+	                scope: this
+	            },
+	            'eventupdate': {
+	                fn: function(cp, rec) {
+	                	//cp.store.load();	                	
+	                },
+	                scope: this
+	            },
+	            'eventdelete': {
+	                fn: function(cp, rec) {
+	                	//cp.store.load();
+	                },
+	                scope: this
+	            }
+	        }	        
 	    });		
 		return calendar;
 	}
@@ -14151,6 +14162,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		    	page : 1, 
 		    	limit : 5,
 		    	select : ['datetime', 'vehicle_id', 'driver_id', 'velocity', 'lat', 'lng'],
+		    	filter : Ext.JSON.encode([{property : 'confirm', value : false}]),
 		    	sort : Ext.JSON.encode([{property : 'datetime',	direction : 'DESC' }])
 		    },
 		    success: function(response) {		    	
@@ -17104,10 +17116,10 @@ Ext.define('GreenFleet.store.RecentIncidentStore', {
         dateFormat: 'time'
     }],
 
-//	filters : [ {
-//		property : 'confirm',
-//		value : false
-//	} ],
+	filters : [ {
+		property : 'confirm',
+		value : false
+	} ],
 
 	sorters : [ {
 		property : 'datetime',

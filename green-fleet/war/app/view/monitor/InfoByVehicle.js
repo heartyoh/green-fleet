@@ -27,6 +27,10 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		text : T('label.manufacturer'),
 		type : 'string'
 	}, {
+		dataIndex : 'vehicle_model',
+		text : T('label.vehicle_model'),
+		type : 'string'
+	}, {
 		dataIndex : 'vehicle_type',
 		text : T('label.x_type', { x : T('label.vehicle') }),
 		type : 'string'
@@ -60,18 +64,6 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	}, {
 		dataIndex : 'lng',
 		text : T('label.longitude')
-	}, {
-		dataIndex : 'created_at',
-		text : T('label.created_at'),
-		xtype : 'datecolumn',
-		format : F('datetime'),
-		width : 120
-	}, {
-		dataIndex : 'updated_at',
-		text : T('label.updated_at'),
-		xtype : 'datecolumn',
-		format : F('datetime'),
-		width : 120
 	} ],
 	viewConfig : {
 
@@ -102,7 +94,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		grid.down('textfield[name=id_filter]').setValue('');
 		grid.down('textfield[name=registration_number_field]').setValue('');
 	},
-	tbar : [ 'ID', {
+	tbar : [ T('label.id'), {
 		xtype : 'textfield',
 		name : 'id_filter',
 		hideLabel : true,
@@ -115,7 +107,7 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 				}
 			}
 		}
-	}, 'Registeration Number', {
+	}, T('label.reg_no'), {
 		xtype : 'textfield',
 		name : 'registration_number_field',
 		hideLabel : true,

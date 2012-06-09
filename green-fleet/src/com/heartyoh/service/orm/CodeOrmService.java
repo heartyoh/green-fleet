@@ -29,6 +29,9 @@ import com.heartyoh.model.Sorter;
 @Controller
 public class CodeOrmService extends OrmEntityService {
 
+	/**
+	 * key field names
+	 */
 	private static final String[] KEY_FIELDS = new String[] { "company", "name" };
 	
 	@Override
@@ -87,7 +90,7 @@ public class CodeOrmService extends OrmEntityService {
 	@Override
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
 		CommonCode code = (CommonCode)entity;
-		code.setExpl(request.getParameter("desc"));		
+		code.setExpl(request.getParameter("desc"));
 		code.beforeUpdate();
 		return code;
 	}
@@ -96,7 +99,7 @@ public class CodeOrmService extends OrmEntityService {
 	protected IEntity onCreate(HttpServletRequest request, IEntity entity) {
 		
 		if(entity == null) {
-			entity = new CommonCode(this.getCompany(request), request.getParameter("group"), null);
+			entity = new CommonCode(this.getCompany(request), request.getParameter("group"), request.getParameter("code"));
 		}
 		
 		entity.beforeCreate();
