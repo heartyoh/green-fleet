@@ -167,13 +167,14 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().load({
-				params : {
-					confirm : false,
-					start : 0,
-					limit : 4
-				}, 
 				filters : [
-				    { property : 'vehicle_id', value : vehicle }
+				    {
+				    	property : 'vehicle_id',
+				    	value : vehicle 
+				    }, {
+				    	property : 'confirm',
+				    	value : false
+				    }
 				]
 			});
 		});

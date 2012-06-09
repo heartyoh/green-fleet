@@ -2,20 +2,20 @@ Ext.define('GreenFleet.store.IncidentByVehicleStore', {
 	extend : 'Ext.data.Store',
 
 	autoLoad : false,
-	
-	pageSize : 25,
 
-//	remoteFilter : true,
-	
-//	remoteSort : true,
-	
+	pageSize : 4,
+
+	remoteFilter : true,
+
+	remoteSort : true,
+
 	fields : [ {
 		name : 'key',
 		type : 'string'
 	}, {
 		name : 'datetime',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	}, {
 		name : 'terminal_id',
 		type : 'string'
@@ -67,13 +67,13 @@ Ext.define('GreenFleet.store.IncidentByVehicleStore', {
 	}, {
 		name : 'created_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	}, {
 		name : 'updated_at',
 		type : 'date',
-		dateFormat:'time'
+		dateFormat : 'time'
 	} ],
-	
+
 	sorters : [ {
 		property : 'datetime',
 		direction : 'DESC'

@@ -11,6 +11,7 @@
 
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=KR&language=KO"></script>
 		<script src="lib/locale/locale.js"></script>
+		<script src="lib/label/label.js"></script>
 		<!-- GAE Channel을 이용하려면 아래 주석 해제 -->
 		<!--script src='/_ah/channel/jsapi'></script-->
 		
@@ -33,6 +34,7 @@
 		</script>
 		
 		<script src="resources/text/en.js"></script>
+		<script src="resources/text/touch_en.js"></script>
     <script type="text/javascript">(function(i){function r(a){function b(a,j){var c=a.length,b,g;for(b=0;b<c;b++){g=a[b];var e=a,K=b,d=void 0;"string"==typeof g&&(g={path:g});g.shared?(g.version=g.shared,d=g.shared+g.path):(A.href=g.path,d=A.href);g.uri=d;g.key=h+"-"+d;f[d]=g;e[K]=g;g.type=j;g.index=b;g.collection=a;g.ready=!1;g.evaluated=!1}return a}var c;"string"==typeof a?(c=a,a=B(c)):c=JSON.stringify(a);var h=a.id,e=h+"-"+C+o,f={};this.key=e;this.css=b(a.css,"css");this.js=b(a.js,"js");this.assets=this.css.concat(this.js);this.getAsset=
 function(a){return f[a]};this.store=function(){s(e,c)}}function v(a,b){k.write('<meta name="'+a+'" content="'+b+'">')}function p(a,b,c){var h=new XMLHttpRequest,c=c||D,a=a+(-1==a.indexOf("?")?"?":"&")+Date.now();try{h.open("GET",a,!0),h.onreadystatechange=function(){if(4==h.readyState){var a=h.status,d=h.responseText;200<=a&&300>a||304==a||0==a&&0<d.length?b(d):c()}},h.send(null)}catch(d){c()}}function L(a,b){var c=k.createElement("iframe");m.push({iframe:c,callback:b});c.src=a+".html";c.style.cssText=
 "width:0;height:0;border:0;position:absolute;z-index:-999;visibility:hidden";k.body.appendChild(c)}function E(a,b,c){var d=!!a.shared;if(!d)var e=b,f=a.version,l,b=function(j){l=j.substring(0,f.length+4);l!=="/*"+f+"*/"?confirm("Requested: '"+a.uri+"' with checksum: "+f+" but received: "+l.substring(2,f.length)+"instead. Attempt to refresh the application?")&&M():e(j)};(d?L:p)(a.uri,b,c)}function F(a){var b=a.data,a=a.source.window,c,d,e,f;for(c=0,d=m.length;c<d;c++)if(e=m[c],f=e.iframe,f.contentWindow===

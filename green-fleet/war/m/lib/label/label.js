@@ -3,18 +3,18 @@ function Label(opt_options) {
 	this.setValues(opt_options);
 
 	// Label specific
-	var span = this.span_ = document.createElement('span');
+	var span = this.span_ = document.createElement('div');
 	this.span_.setAttribute('class', 'mapTipID');
 
 	var div = this.div_ = document.createElement('div');
 	div.appendChild(span);
-	div.style.cssText = 'position: absolute; display: none';
+	div.style.cssText = 'position: absolute; display: none';;
 };
 Label.prototype = new google.maps.OverlayView;
 
 // Implement onAdd
 Label.prototype.onAdd = function() {
-	var pane = this.getPanes().overlayLayer;
+	var pane = this.getPanes().overlayImage;
 	pane.appendChild(this.div_);
 	
 	this.show = true;
@@ -24,6 +24,8 @@ Label.prototype.onAdd = function() {
 	this.listeners_ = [ google.maps.event.addListener(this, 'position_changed', function() {
 		me.draw();
 	}), google.maps.event.addListener(this, 'text_changed', function() {
+		me.draw();
+	}),	google.maps.event.addListener(this, 'zindex_changed', function() {
 		me.draw();
 	}) ];
 };
@@ -52,7 +54,7 @@ Label.prototype.draw = function() {
 
 	var div = this.div_;
 	div.style.left = position.x - 100 + 'px';
-	div.style.top = position.y - 100 + 'px';
+	div.style.top = position.y - 160 + 'px';
 	div.style.display = this.show ? 'block' : 'none';
 
 	this.span_.innerHTML = this.get('text').toString();
