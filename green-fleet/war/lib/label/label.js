@@ -14,7 +14,7 @@ Label.prototype = new google.maps.OverlayView;
 
 // Implement onAdd
 Label.prototype.onAdd = function() {
-	var pane = this.getPanes().overlayLayer;
+	var pane = this.getPanes().overlayImage;
 	pane.appendChild(this.div_);
 	
 	this.show = true;
