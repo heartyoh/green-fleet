@@ -29,11 +29,13 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 
 	private static Logger logger = LoggerFactory.getLogger(GaeAuthenticationFilter.class);
 	
-	private static final String REGISTRATION_URL = "/register";	
+	private static final String REGISTRATION_URL = "/register";
+	@SuppressWarnings("rawtypes")
 	private AuthenticationDetailsSource ads = new WebAuthenticationDetailsSource();
 	private AuthenticationManager authenticationManager;
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
+	@SuppressWarnings("unchecked")
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

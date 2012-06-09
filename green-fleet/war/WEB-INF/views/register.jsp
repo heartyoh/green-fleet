@@ -11,7 +11,7 @@
 <div id="content">
 <p>
 Welcome to the GreenFleet application, <sec:authentication property="principal.name" />.
-Please enter your registration details following.
+Please enter your user registration details following.
 </p>
 
 <form id="register" method="post">
@@ -21,16 +21,24 @@ Please enter your registration details following.
 
   		<label>Name :</label>
   		<input name="name" /> <br />
+  		
+  		<label>Email :</label>
+  		<input name="email" /> <br />
+  		
+  		<label>Phone :</label>
+  		<input name="phoneNo" /> <br />  		
 
+  		<label>Admin :</label>
+  		<input type="checkbox" name="admin"/> <br />
+  		
   		<label>Language :</label>
 		<select name="language">
 			<option value="en" selected="selected">English</option> 
 			<option value="ko">Korean</option> 
-		</select> 
-
+		</select>
 	</fieldset>
 	<input type="submit" value="Register">
 </form>
-</body>
 </div>
+</body>
 </html>
