@@ -42,5 +42,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/dbist-1.0.10.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/poi-3.8-20120326.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

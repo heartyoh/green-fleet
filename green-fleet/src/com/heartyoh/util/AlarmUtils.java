@@ -3,16 +3,24 @@
  */
 package com.heartyoh.util;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,8 +164,21 @@ public class AlarmUtils {
 	 * @param htmlBody
 	 * @throws Exception
 	 */
-	public static void sendMail(String senderName, String senderEmail, String receiverName, String receiverEmail, String subject, boolean htmlType, String msgBody) throws Exception {
-		sendMail(senderName, senderEmail, (receiverName == null ? null : new String[] {receiverName}), new String[] { receiverEmail }, subject, htmlType, msgBody);
+	public static void sendMail(String senderName, 
+			String senderEmail, 
+			String receiverName, 
+			String receiverEmail, 
+			String subject, 
+			boolean htmlType, 
+			String msgBody) throws Exception {
+		
+		sendMail(senderName, 
+				senderEmail, 
+				(receiverName == null ? null : new String[] {receiverName}), 
+				new String[] { receiverEmail }, 
+				subject, 
+				htmlType, 
+				msgBody);
 	}
 	
 	/**
@@ -172,7 +193,38 @@ public class AlarmUtils {
 	 * @param htmlBody
 	 * @throws Exception
 	 */
-	public static void sendMail(String senderName, String senderEmail, String[] receiverNames, String[] receiverEmails, String subject, boolean htmlType, String msgBody) throws Exception {
+	public static void sendMail(String senderName, 
+			String senderEmail, 
+			String[] receiverNames, 
+			String[] receiverEmails, 
+			String subject, 
+			boolean htmlType, 
+			String msgBody) throws Exception {
+		
+		sendAttachmentMail(senderName, senderEmail, receiverNames, receiverEmails, subject, htmlType, msgBody, null);
+	}
+	
+	/**
+	 * send attachment email
+	 * 
+	 * @param senderName
+	 * @param senderEmail
+	 * @param receiverNames
+	 * @param receiverEmails
+	 * @param subject
+	 * @param htmlType
+	 * @param msgBody
+	 * @param workbook
+	 * @throws Exception
+	 */
+	public static void sendAttachmentMail(String senderName, 
+			String senderEmail, 
+			String[] receiverNames, 
+			String[] receiverEmails, 
+			String subject, 
+			boolean htmlType, 
+			String msgBody,
+			Multipart mp) throws Exception {
 		
 		checkCapablities(Capability.MAIL);
 		
@@ -203,7 +255,55 @@ public class AlarmUtils {
         else
         	msg.setText(msgBody);
         
-        Transport.send(msg);
+        if(mp != null)
+        	msg.setContent(mp);
+        
+        Transport.send(msg);		
+	}
+
+	/**
+	 * send excel attachment email
+	 * 
+	 * @param senderName
+	 * @param senderEmail
+	 * @param receiverNames
+	 * @param receiverEmails
+	 * @param subject
+	 * @param htmlType
+	 * @param msgBody
+	 * @param workbook
+	 * @throws Exception
+	 */
+	public static void sendExcelAttachMail(String senderName, 
+			String senderEmail, 
+			String[] receiverNames, 
+			String[] receiverEmails, 
+			String subject, 
+			boolean htmlType, 
+			String msgBody,
+			HSSFWorkbook workbook) throws Exception {
+		    
+		Multipart mp = null;
+		
+        if(workbook != null) {
+        	mp = new MimeMultipart();
+            MimeBodyPart htmlPart = new MimeBodyPart();        
+            htmlPart.setContent("please review", "text/html");
+            mp.addBodyPart(htmlPart);
+
+            MimeBodyPart attachment = new MimeBodyPart();
+            attachment.setFileName("report.xls");
+    		
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+    		workbook.write(os);
+    		os.close();
+    		
+    		DataSource src = new ByteArrayDataSource(os.toByteArray(), "application/vnd.ms-excel");
+    		attachment.setDataHandler(new DataHandler(src));
+            mp.addBodyPart(attachment);
+        } 
+        
+        sendAttachmentMail(senderName, senderEmail, receiverNames, receiverEmails, subject, htmlType, msgBody, mp);
 	}
 	
 	/**
