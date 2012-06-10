@@ -8,6 +8,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -84,9 +89,11 @@ public class ConsumableReporter1 implements IReporter {
 	
 	@Override
 	public void sendReport() throws Exception {
-		String content = this.createContent();
+		//String content = this.createContent();		
+		//AlarmUtils.sendMail(null, null, null, receiverEmails, this.report.getName(), true, content);
 		String[] receiverEmails = this.report.getSendTo().split(",");
-		AlarmUtils.sendMail(null, null, null, receiverEmails, this.report.getName(), true, content);
+		HSSFWorkbook workbook = this.createExcelWorkbook();
+		AlarmUtils.sendExcelAttachMail(null, null, null, receiverEmails, this.report.getName(), true, this.report.getName(), workbook);		
 	}
 	
 	/**
@@ -94,7 +101,7 @@ public class ConsumableReporter1 implements IReporter {
 	 * 
 	 * @return
 	 */
-	private String createContent() {
+	/*private String createContent() {
 		
 		StringBuffer content = new StringBuffer();
 		content.append("<h1 align='center'>");
@@ -138,6 +145,50 @@ public class ConsumableReporter1 implements IReporter {
 		
 		content.append("</table>");		
 		return content.toString();
+	}*/
+	
+	/**
+	 * 엑셀 생성 
+	 * 
+	 * @return
+	 */
+	private HSSFWorkbook createExcelWorkbook() {
+		
+		// 워크북 생성
+		HSSFWorkbook workBook = new HSSFWorkbook();
+		// 워크시트 생성
+		HSSFSheet sheet = workBook.createSheet();
+		// 행 생성
+		HSSFRow subjectRow = sheet.createRow(0);
+		
+		// 제목 행 생성 
+		for(int i = 0 ; i < SELECT_FILEDS.length ; i++) {
+			HSSFCell cell = subjectRow.createCell(i);
+			cell.setCellValue(SELECT_FILEDS[i]);
+		}
+		
+		// 데이터 행 생성 
+		for(int i = 0 ; i < this.results.size() ; i++) {
+			HSSFRow dataRow = sheet.createRow(i + 1);						
+			Map<String, Object> data = this.results.get(i);
+			
+			for(int j = 0 ; j < SELECT_FILEDS.length ; j++) {
+				HSSFCell cell = dataRow.createCell(j);
+				Object value = data.get(SELECT_FILEDS[j]);
+				
+				// String
+				if(j == 0 || j == 1 || j == 6)
+					cell.setCellValue((String)value);
+				// Date
+				else if(j == 2 || j == 3)
+					cell.setCellValue((Date)value);
+				// Double
+				else
+					cell.setCellValue(DataUtils.toDouble(value));
+			}
+		}
+		
+		return workBook;
 	}
 
 }
