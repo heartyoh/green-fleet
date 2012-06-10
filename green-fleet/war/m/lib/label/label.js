@@ -14,7 +14,7 @@ Label.prototype = new google.maps.OverlayView;
 
 // Implement onAdd
 Label.prototype.onAdd = function() {
-	var pane = this.getPanes().overlayImage;
+	var pane = this.getPanes().overlayMouseTarget;
 	pane.appendChild(this.div_);
 	
 	this.show = true;
@@ -53,8 +53,12 @@ Label.prototype.draw = function() {
 	var position = projection.fromLatLngToDivPixel(this.get('position'));
 
 	var div = this.div_;
-	div.style.left = position.x - 100 + 'px';
-	div.style.top = position.y - 160 + 'px';
+	
+	var xoffset = parseInt(this.get('xoffset')) || 0;
+	var yoffset = parseInt(this.get('yoffset')) || 0;
+	
+	div.style.left = position.x + xoffset + 'px';
+	div.style.top = position.y + yoffset + 'px';
 	div.style.display = this.show ? 'block' : 'none';
 
 	this.span_.innerHTML = this.get('text').toString();
