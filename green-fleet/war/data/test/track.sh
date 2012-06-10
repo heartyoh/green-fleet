@@ -23,7 +23,7 @@ do
     echo $DATA
     
     COOKIE_DATA=`cat cookie`
-	curl=`curl -H "Cookie: ACSID=$COOKIE_DATA" --data "$DATA" $host`
+	curl=`curl -H "Cookie: ACSID=$COOKIE_DATA" --data "$DATA" $host/track/save`
 	#curl=`curl --data "$DATA" $host/track/save`
     echo $curl
 
