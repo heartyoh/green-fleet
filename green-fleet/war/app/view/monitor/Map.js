@@ -151,7 +151,7 @@ Ext.define('GreenFleet.view.monitor.Map', {
 			else
 				bounds.extend(latlng);
 			
-			var label = new Label({
+			var label = GreenFleet.label.create({
 				map : this.getMap()
 			});
 			label.bindTo('position', marker, 'position');
