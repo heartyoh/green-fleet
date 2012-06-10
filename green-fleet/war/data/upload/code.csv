@@ -135,6 +135,9 @@ AlarmType,sms,SMS
 LocationEvent,in,When arrived
 LocationEvent,out,When leaved
 LocationEvent,in-out,When arrived or leaved
+ReportType,daily_driving_log,일일 주행일지
+ReportType,consumables_to_replace,교체소모품 목록
+ReportType,repair_list,정비 목록
 ReportType,vehicle_runtime,차량별 주행시간
 ReportType,vehicle_rundist,차량별 주행거리
 ReportType,vehicle_consmpt,차량별 연료소모량

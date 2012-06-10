@@ -19,9 +19,10 @@
         <intercept-url pattern="/incident/upload_log" access="permitAll" /-->
         
         <!-- TODO 추후 정리 -->
+        <intercept-url pattern="/report/daily_report" access="permitAll" />
         <intercept-url pattern="/vehicle_consumable/summary" access="permitAll" />
-        <intercept-url pattern="/vehicle_consumable/alarm" access="permitAll" />
-        <intercept-url pattern="/repair/alarm" access="permitAll" />
+        <!--intercept-url pattern="/vehicle_consumable/alarm" access="permitAll" />
+        <intercept-url pattern="/repair/alarm" access="permitAll" /-->
         <intercept-url pattern="/alarm/send/**" access="permitAll" />
         <intercept-url pattern="/prospective/**" access="permitAll" />
         <intercept-url pattern="/checkin_data/save" access="permitAll" />

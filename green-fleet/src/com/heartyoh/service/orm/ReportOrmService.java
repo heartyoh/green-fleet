@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.heartyoh.model.IEntity;
 import com.heartyoh.model.Report;
-import com.heartyoh.util.AlarmUtils;
+import com.heartyoh.report.ReporterService;
 import com.heartyoh.util.DataUtils;
 
 /**
@@ -38,7 +38,7 @@ public class ReportOrmService extends OrmEntityService {
 	/**
 	 * key fields
 	 */
-	private static final String[] KEY_FILEDS = new String[] { "company", "name" };	
+	private static final String[] KEY_FILEDS = new String[] { "company", "id" };	
 	/**
 	 * daily
 	 */
@@ -96,6 +96,7 @@ public class ReportOrmService extends OrmEntityService {
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
 		
 		Report report = (Report)entity;
+		report.setName(request.getParameter("name"));
 		report.setDaily(DataUtils.toBool(request.getParameter("daily")));
 		report.setWeekly(DataUtils.toBool(request.getParameter("weekly")));
 		report.setMonthly(DataUtils.toBool(request.getParameter("monthly")));
@@ -111,7 +112,7 @@ public class ReportOrmService extends OrmEntityService {
 	protected IEntity onCreate(HttpServletRequest request, IEntity entity) {
 		
 		if(entity == null) {
-			entity = new Report(this.getCompany(request), request.getParameter("name"));
+			entity = new Report(this.getCompany(request), request.getParameter("id"));
 		}
 		
 		entity.beforeCreate();
@@ -144,46 +145,22 @@ public class ReportOrmService extends OrmEntityService {
 	 * @throws Exception
 	 */
 	private void sendReport(String company, String reportCycle) throws Exception {		
-		try {
-			String sql = "select name, send_to, expl from report where company = '" + company + "' and " + reportCycle + " = true"; 
-			@SuppressWarnings("rawtypes")
-			List<Map> reportList = dml.selectListBySql(sql, null, Map.class, 0, 0);
-			if(reportList == null || reportList.isEmpty())
-				return;
-			
-			for(Map<String, Object> report : reportList) {
-				String reportName = (String)report.get("name");
-				String reportTo = (String)report.get("send_to");
-				String expl = (String)report.get("expl");
-				String content = this.getReportContent(company, reportName, reportCycle);
-				AlarmUtils.sendMail(null, null, reportTo, "", expl, true, content);
-			}
-		} catch(Exception e) {
-			logger.error("Failed to send " + reportCycle + "!", e);			
-		} 
-	}
-	
-	/**
-	 * report content
-	 * 
-	 * @param company
-	 * @param name
-	 * @param reportCycle
-	 * @return
-	 * @throws Exception
-	 */
-	private String getReportContent(String company, String name, String reportCycle) throws Exception {
+
+		String sql = "select id, name, send_to, expl from report where company = '" + company + "' and " + reportCycle + " = true"; 
+		List<Report> reportList = dml.selectListBySql(sql, null, Report.class, 0, 0);
+
+		if(reportList == null || reportList.isEmpty())
+			return;
 		
-		if("vehicle_runtime".equalsIgnoreCase(name)) {
-			// 1. daily
-			
-			// 2. weekly
-			
-			// 3. monthly
+		ReporterService service = ReporterService.getInstance();
+		for(Report report : reportList) {
+			try {				
+				service.covering(company, reportCycle, report);
+			} catch(Exception e) {
+				logger.error("Failed to send " + reportCycle + "!", e);			
+			} 				
 		}
-		
-		return null;
-	}	
+	}
 	
 	@RequestMapping(value = "/report/vehicle_group", method = RequestMethod.GET)
 	public @ResponseBody

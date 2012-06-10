@@ -13,6 +13,10 @@ import java.util.Date;
 public class Report extends AbstractEntity {
 
 	/**
+	 * 리포트 아이디 
+	 */
+	private String id;
+	/**
 	 * 리포트 이름
 	 */
 	private String name;
@@ -55,13 +59,21 @@ public class Report extends AbstractEntity {
 	 * 키 생성자 
 	 * 
 	 * @param company
-	 * @param name
+	 * @param id
 	 */
-	public Report(String company, String name) {
+	public Report(String company, String id) {
 		this.company = company;
-		this.name = name;
+		this.id = id;
 	}
 	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -149,7 +161,7 @@ public class Report extends AbstractEntity {
 	
 	@Override
 	public String getUniqueValue() {
-		return this.company + "@" + this.name;
+		return this.company + "@" + this.id;
 	}
 
 }

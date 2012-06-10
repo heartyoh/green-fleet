@@ -256,6 +256,7 @@ CREATE TABLE vehicle (
 -- report
 CREATE TABLE report (
 	company VARCHAR(50) NOT NULL,
+	id VARCHAR(100) NOT NULL,
 	name VARCHAR(100) NOT NULL,
 	daily BIT(1),
 	weekly BIT(1),

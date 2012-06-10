@@ -50,10 +50,6 @@ Ext.define('GreenFleet.view.management.Report', {
 			self.sub('form').loadRecord(record);
 		});
 
-		this.sub('grid').on('render', function(grid) {
-//			grid.store.load();
-		});
-
 		this.sub('name_filter').on('change', function(field, value) {
 			self.search();
 		});
@@ -88,6 +84,10 @@ Ext.define('GreenFleet.view.management.Report', {
 				text : 'Key',
 				type : 'string',
 				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : T('label.id'),
+				type : 'string'				
 			}, {
 				dataIndex : 'name',
 				text : T('label.name'),
@@ -171,11 +171,14 @@ Ext.define('GreenFleet.view.management.Report', {
 					fieldLabel : 'Key',
 					hidden : true
 				}, {
-					name : 'name',
-					fieldLabel : T('label.name'),
+					name : 'id',
+					fieldLabel : T('label.id'),
 					xtype : 'codecombo',
-					group : 'ReportType'
+					group : 'ReportType'						
 				}, {
+					name : 'name',
+					fieldLabel : T('label.name')
+				}, {					
 					name : 'cycle',
 					xtype: 'checkboxgroup',
 		            fieldLabel: T('label.cycle'),

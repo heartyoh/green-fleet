@@ -13,6 +13,8 @@
    	<import resource="security-context.xml"/>
    	
    	<import resource="datasource-context.xml"/>
+   	
+   	<import resource="reporter-context.xml"/>
 
 	<!-- <import resource="infrastructure-context.xml"/> <import resource="security-context.xml"/> 
 		<import resource="cometd-context.xml"/> <import resource="cache-context.xml"/> 

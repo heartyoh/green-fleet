@@ -184,8 +184,10 @@ public class CheckinDataService extends EntityService {
 			// 4. 체크인 정보를 Driver 주행 서머리 정보에 반영
 			DriverRunSum drs = this.adjustDriverRunSum(dml, checkinObj, year, month);
 			
-			if(vehicle != null)
+			if(vehicle != null) {
+				vehicle.beforeUpdate();
 				dml.update(vehicle);
+			}
 			
 			if(vrs != null)
 				dml.upsert(vrs);

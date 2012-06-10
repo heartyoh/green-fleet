@@ -6,7 +6,7 @@
     <schedule>every day 00:00</schedule>
   </cron>
   
-  <cron>
+  <!--cron>
     <url>/vehicle_consumable/alarm?company=palmvision</url>
     <description>Notification in accordance with consumable replacement schedule every 10:00 hours For Palmvision Company</description>
     <schedule>every day 01:00</schedule>
@@ -16,6 +16,12 @@
     <url>/repair/alarm?company=palmvision</url>
     <description>Notification in accordance with maintenance schedule every 11:00 hours For Palmvision Company</description>
     <schedule>every day 02:00</schedule>
-  </cron>
+  </cron-->
+  
+  <cron>
+    <url>/report/daily_report?company=palmvision</url>
+    <description>Daily report</description>
+    <schedule>every day 03:00</schedule>
+  </cron>  
   
 </cronentries>
