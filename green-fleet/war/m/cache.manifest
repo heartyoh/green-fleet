@@ -1,4 +1,136 @@
 CACHE MANIFEST
+# 8bd7c8046473202725b47140b6adc616e3354d97
+resources/images/arrowGray.png
+# 1baa3b9bda6096e1bcfc26f2dbe617fec144acd1
+resources/images/arrowNavPanel.png
+# 14e8d6a465568b546dc8c92fb119059f68fdd4d6
+resources/images/arrowViolet.png
+# 478d2850bb8395e952309af9bd7a1411c66bff04
+resources/images/bgBubble.png
+# 7274eb193036e93982e3ab5f95fa20cc1ab825d3
+resources/images/bgBubbleInfo.png
+# 4640286cbd6a7c66a6109cd408cae4f25a209c5a
+resources/images/bgBubbleInfoActive.png
+# 140609dbc8950681f3ade3110bc5d3195b6b0c83
+resources/images/bgDarkDot.png
+# a94ac25c204ca6da66820327fce2b7c082a71d33
+resources/images/bgDatagridTh.png
+# e2c9386f7bafd9e2243e947d4ed10663a17c79a9
+resources/images/bgDistance.png
+# 89a3ec2ebd9948beae01dc872d7e56f9275583c1
+resources/images/bgDriver.png
+# 04acd67b73117408952bea69f688463128db3943
+resources/images/bgFuel.png
+# 12e82fd659b0eb54796560c46802a70f606da432
+resources/images/bgHGradient.png
+# 7cf01cfc8bb1e7b43e44848702f283896cc72731
+resources/images/bgHeader.png
+# 9e8dc4849665c703d408227882c0f2156decfb29
+resources/images/bgHeaderDark.png
+# eb5b69d04364cb6a7cd03b9d161c8f5d7aa4cafb
+resources/images/bgHealthBar.png
+# 7432f18ab28d3a84d7749666c5f829c379cdc04c
+resources/images/bgInfoIncident.png
+# 42fab5c9bc8ffde44d184386c71bf54baee41c47
+resources/images/bgNavCarousel.png
+# 3e77117f947816bdff8b801497e90ea0a2aadfcd
+resources/images/bgNavMenu.png
+# afb32f10fe497b6cd3ea2a2ecd181ce12c360b46
+resources/images/bgNavMenuActive.png
+# b07f3065d4cae10cc296491eaf489be2deb2d582
+resources/images/bgNavPanel.png
+# 0809ff7ecce534ae8342859fe9b3001561299e50
+resources/images/bgReportSubTitle.png
+# 07cc629f54013ad79ee900cd47e723cfa4f008ce
+resources/images/bgReportTitle.png
+# 5136695975d01203f5ea9b87fc4d0125a25d3d06
+resources/images/bgSubtitle.png
+# c50ec15983fcbdd20cd7c7d24cc7d0c6cd55b4c1
+resources/images/bgSwitch.png
+# d7512d7796b2630b301c1380e74735fd77030578
+resources/images/bgSwitchOn.png
+# 341032f24349a02d263193efabe60f67a37f3588
+resources/images/bgThBlue.png
+# 607ef9afdce0cf52279ab26dfbebf47ad24d47ad
+resources/images/bgThGray.png
+# c5d64afb34a0e70bf0d533258f0385cfc089fef3
+resources/images/bgVehicle.png
+# ac541a7196ccff3af83e6ad99c02a82c6895d20b
+resources/images/bgWhiteShadowPanel.png
+# f24995d0d82dd5290f5892365fddb818cb80f22f
+resources/images/bottomShadow.png
+# c6b04ab75b7a31559675570f1208d366772e2a24
+resources/images/btnBack.png
+# 95f9cae958b1abb498b1421bae314038e86324eb
+resources/images/btnBackPressed.png
+# 4581d95b8e22cf39ac0ac70a82719c33d459539a
+resources/images/btnClose.png
+# 8bc384e06ad4c834e4a0ec68d0ffd5ff1a866ff1
+resources/images/btnSwitch.png
+# 08d6cdbfe47869568575cb2dca2cb11575ddc5c7
+resources/images/btnSwitchOn.png
+# 14c6993653961bacc77718b56d306d538db0f624
+resources/images/darkGradient.png
+# c60e53ddd3153b39cf3e00b4228fec7fe6000692
+resources/images/dotGray.png
+# 1d72f1233898b91b1906f6c3b57df57e06c33f79
+resources/images/ecoLevel.png
+# ebd5f7f49d9912c1176ab685e2b30756b1edefa4
+resources/images/iconDistance.png
+# 04adc1f9af95390566252a3985612d73f7a51f3e
+resources/images/iconETemp.png
+# f5663007f2f477863ef51344f86ce054ebf73532
+resources/images/iconFuel.png
+# f813c2f2ba8726def2ac950bc7aaa35aba608aa9
+resources/images/iconHeaderView.png
+# 4fa5acbeb5dbd2ad13ec2e90d0471df0221be7b4
+resources/images/iconImpluse.png
+# c6c09ae986b521d645bd441fcd1642e4ebe6d644
+resources/images/iconIncidentPoint.png
+# 97b9f2aebb55c85b54b970332a9b29d415167462
+resources/images/iconLoading.png
+# a89815cfd6c9a58c0f57f08ed73cc634e88151fd
+resources/images/iconNavChart.png
+# a54d64230b8458ed3cad08d9db25365a14beb16e
+resources/images/iconNavChartSelected.png
+# c974b421aa0f3e0af72f0899e4a7edff17112937
+resources/images/iconNavDGroup.png
+# 226ecdb21b3e6ca260d1f8613e106ee8ec23f467
+resources/images/iconNavDGroupSelected.png
+# 34b38eb218bd858b0f51e2a1d91f8d259224196a
+resources/images/iconNavMenu.png
+# b5a0f1329f423a535fdce8ec1247c25c20c3a164
+resources/images/iconNavVGroup.png
+# ebfabb952c9157b0f72a68fe9a97319c4d74217b
+resources/images/iconNavVGroupSelected.png
+# d020408d1b0dba23208185fe2c526492cfee5c45
+resources/images/iconOBD.png
+# 0086bc122f4936871d7676ccb5abe878d9ab9768
+resources/images/iconStartPoint.png
+# adbf4782acad08fccf7a3e2bb7f45a997ba232bd
+resources/images/iconStatusDriving.png
+# 539c8d34a2caa92c291826655ab78d4b6793ea9c
+resources/images/iconStatusIdle.png
+# d23069a1b07a359f24b515299887cba135ea221a
+resources/images/iconStatusIncident.png
+# 0ac9c3063b8950ade2d4f0fba3cc2b8d98dc84f9
+resources/images/iconStatusMaint.png
+# 3b93dfa2b56b5584c9e0f1ddcadd7225e84afa29
+resources/images/iconTime.png
+# e842e22498b2cafb65f58263b7b01e607bc6a10f
+resources/images/iconVelocity.png
+# 459c42ef4ed166e661d2451ae9e6749c93ea110a
+resources/images/iconsTab.png
+# 0d358e017abd5c5782bb4093aebf98a33fc2c175
+resources/images/levelB.png
+# f9c00e96f12c0cb419755bf3a0cc8aa017474448
+resources/images/statusDriving.png
+# 11c203dd4b7e5fc09cf8ea3223e42b43960956d9
+resources/images/statusIncident.png
+# 1737050842f52041ee1220eacadad27c20c1a336
+resources/images/statusMaint.png
+# 2bb36450771cd73d28e227e49611c52b2d919c0c
+resources/images/statusStop.png
 
 FALLBACK:
 

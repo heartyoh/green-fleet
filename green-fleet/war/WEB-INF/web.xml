@@ -12,6 +12,11 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		</param-value>
 	</context-param>
 	
+	<mime-mapping>
+	  <extension>manifest</extension>
+	  <mime-type>text/cache-manifest</mime-type>
+	</mime-mapping>
+	
 	<filter>
 		<filter-name>Request Encoding</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
