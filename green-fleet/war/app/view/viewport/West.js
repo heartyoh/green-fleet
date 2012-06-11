@@ -14,7 +14,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 	items : [ {
 		xtype : 'button',
 		itemId : 'overview',
-		cls : 'btnDashboard',
+		cls : 'btnSummary',
 		text : T('menu.overview'),
 		handler : function() {
 			GreenFleet.doMenu('overview');

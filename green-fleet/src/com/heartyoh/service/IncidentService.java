@@ -67,18 +67,20 @@ public class IncidentService extends EntityService {
 			String[] vehicleDriverId = 
 					DatasourceUtils.findVehicleDriverId(entity.getParent().getName(), terminalId);
 			
-			if(!map.containsKey("vehicle_id"))
+			if(vehicleDriverId != null && !DataUtils.isEmpty(vehicleDriverId[0]))
 				map.put("vehicle_id", vehicleDriverId[0]);
 			
-			if(!map.containsKey("driver_id"))
+			if(vehicleDriverId != null && !DataUtils.isEmpty(vehicleDriverId[1]))
 				map.put("driver_id", vehicleDriverId[1]);
 		} 
 		
 		// indexed properties
-		if (map.get("vehicle_id") != null)
+		if (entity.getProperty("vehicle_id") == null)
 			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
-		if (map.get("driver_id") != null)
-			entity.setProperty("driver_id", stringProperty(map, "driver_id"));				
+		
+		if (entity.getProperty("driver_id") == null)
+			entity.setProperty("driver_id", stringProperty(map, "driver_id"));
+		
 		if (map.get("lat") != null)
 			entity.setProperty("lat", doubleProperty(map, "lat"));		
 		if (map.get("lng") != null)

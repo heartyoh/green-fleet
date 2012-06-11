@@ -16,6 +16,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -84,5 +85,33 @@ public class IncidentLogService extends EntityService {
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) {
 		return super.retrieve(request, response);
 	}
+	
+	@Override
+	protected void adjustItem(Map<String, Object> item) {
+		
+		if(item == null)
+			return;
+		
+		Object lat = item.get("lat");
+		Object lng = item.get("lng");
+		
+		if((lat == null && lng == null) || 
+		   (DataUtils.toDouble(lat) == 0 && DataUtils.toDouble(lng) == 0)) {
+			item.clear();
+		}
+	}
 
+	@Override
+	protected void saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		
+		Object latVal = obj.getProperty("lat");
+		Object lngVal = obj.getProperty("lng");
+		
+		if((latVal == null && lngVal == null) || 
+		   (DataUtils.toDouble(latVal) == 0 && DataUtils.toDouble(lngVal) == 0)) {
+			return;
+		}
+		
+		datastore.put(obj);
+	}	
 }

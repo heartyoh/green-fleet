@@ -91,8 +91,17 @@ public class TrackService extends EntityService {
 			throw new Exception("Both of latitude & longitude values are 0. It might meant to be non stable status of blackbox.");
 		
 		entity.setProperty("terminal_id", terminalId);
-		entity.setProperty("vehicle_id", vehicleDriverId[0]);
-		entity.setProperty("driver_id", vehicleDriverId[1]);
+		
+		if(vehicleDriverId != null && !DataUtils.isEmpty(vehicleDriverId[0]))
+			entity.setProperty("vehicle_id", vehicleDriverId[0]);
+		else
+			entity.setProperty("vehicle_id", map.get("vehicle_id"));
+		
+		if(vehicleDriverId != null && !DataUtils.isEmpty(vehicleDriverId[1]))
+			entity.setProperty("driver_id", vehicleDriverId[1]);
+		else
+			entity.setProperty("driver_id", map.get("driver_id"));
+		
 		entity.setProperty("velocity", velocity);
 
 		super.onSave(entity, map, datastore);

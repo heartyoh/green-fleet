@@ -483,7 +483,9 @@ public abstract class EntityService {
 		for (Entity result : pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset))) {
 			Map<String, Object> item = SessionUtils.cvtEntityToMap(result, request.getParameterValues("select"));
 			this.adjustItem(item);
-			items.add(item);
+			
+			if(item != null && !item.isEmpty())
+				items.add(item);
 		}
 
 		return packResultDataset(true, total, items);
