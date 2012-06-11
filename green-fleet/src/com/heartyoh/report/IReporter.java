@@ -4,6 +4,8 @@
 package com.heartyoh.report;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import com.heartyoh.model.Report;
 
@@ -37,6 +39,13 @@ public interface IReporter {
 	 * @throws Exception
 	 */
 	public void execute() throws Exception;
+	
+	/**
+	 * 실행 결과를 리턴 
+	 * 
+	 * @return
+	 */
+	public List<Map<String, Object>> getResult();
 
 	/**
 	 * 실행 결과를 대상자들에게 보낸다.

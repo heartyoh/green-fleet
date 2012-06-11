@@ -146,7 +146,7 @@ public class ReportOrmService extends OrmEntityService {
 	 */
 	private void sendReport(String company, String reportCycle) throws Exception {		
 
-		String sql = "select id, name, send_to, expl from report where company = '" + company + "' and " + reportCycle + " = true"; 
+		String sql = "select company, id, name, send_to, expl from report where company = '" + company + "' and " + reportCycle + " = true"; 
 		List<Report> reportList = dml.selectListBySql(sql, null, Report.class, 0, 0);
 
 		if(reportList == null || reportList.isEmpty())
@@ -157,7 +157,7 @@ public class ReportOrmService extends OrmEntityService {
 			try {				
 				service.covering(company, reportCycle, report);
 			} catch(Exception e) {
-				logger.error("Failed to send " + reportCycle + "!", e);			
+				logger.error("Failed to send " + reportCycle + "!", e);
 			} 				
 		}
 	}

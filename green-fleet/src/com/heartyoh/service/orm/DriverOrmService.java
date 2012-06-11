@@ -87,6 +87,7 @@ public class DriverOrmService extends OrmEntityService {
 	@Override
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
 		Driver driver = (Driver)entity;
+		driver.setName(request.getParameter("name"));
 		driver.setDivision(request.getParameter("division"));
 		driver.setTitle(request.getParameter("title"));
 		driver.setDivision(request.getParameter("division"));

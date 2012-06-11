@@ -3,10 +3,9 @@
  */
 package com.heartyoh.report;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -16,15 +15,15 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
-import com.heartyoh.model.Report;
-import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
+ * 정비 대상 목록 
+ * 
  * @author jhnam
  */
-public class RepairReporter1 implements IReporter {
+public class RepairReporter1 extends AbstractExcelReporter {
 
 	/**
 	 * report id
@@ -40,32 +39,33 @@ public class RepairReporter1 implements IReporter {
 		"repair_mileage", 
 		"repair_man", 
 		"content" };	
+
 	/**
-	 * report name
+	 * cell types
 	 */
-	private Report report;
-	/**
-	 * fromDate
-	 */
-	private Date fromDate;
-	/**
-	 * toDate
-	 */
-	private Date toDate;	
-	/**
-	 * results
-	 */
-	private List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();	
+	private static final int[] CELL_TYPES = new int[] {
+		HSSFCell.CELL_TYPE_STRING,
+		HSSFCell.CELL_TYPE_FORMULA,
+		HSSFCell.CELL_TYPE_FORMULA,
+		HSSFCell.CELL_TYPE_NUMERIC,
+		HSSFCell.CELL_TYPE_STRING,
+		HSSFCell.CELL_TYPE_STRING
+	};
 	
 	@Override
 	public String getId() {
 		return ID;
 	}
+	
+	@Override
+	protected String[] getSelectFields() {
+		return SELECT_FILEDS;
+	}
 
 	@Override
-	public void setParameter(Report report, String cycle, Date fromDate, Date toDate) {
-		this.report = report;
-	}
+	protected int[] getFieldCellTypes() {
+		return CELL_TYPES;
+	}	
 
 	@Override
 	public void execute() throws Exception {		
@@ -107,14 +107,7 @@ public class RepairReporter1 implements IReporter {
 		}		
 	}	
 
-	@Override
-	public void sendReport() throws Exception {
-		String content = this.createContent();
-		String[] receiverEmails = this.report.getSendTo().split(",");
-		AlarmUtils.sendMail(null, null, null, receiverEmails, this.report.getName(), true, content);		
-	}
-	
-	private String createContent() {
+	/*private String createContent() {
 		
 		StringBuffer content = new StringBuffer();
 		content.append("<h1 align='center'>");		
@@ -122,10 +115,15 @@ public class RepairReporter1 implements IReporter {
 		content.append("</h1><br><br>");
 		content.append("<table border='1' align='center'>");
 		content.append("<tr>");
-		content.append("<td>Vehicle</td><td>Previous Repair Date</td><td>Previous Repair Mileage(km)</td><td>Previous Repair Man</td><td>Previous Repair Content</td><td>Next Repair Date</td>");
+		content.append("<td>Vehicle</td>");
+		content.append("<td>Previous Repair Date</td>");
+		content.append("<td>Previous Repair Mileage(km)</td>");
+		content.append("<td>Previous Repair Man</td>");
+		content.append("<td>Previous Repair Content</td>");
+		content.append("<td>Next Repair Date</td>");
 		content.append("</tr>");
 		
-		if(!this.results.isEmpty()) {
+		if(!DataUtils.isEmpty(this.results.isEmpty())) {
 			for(Map<String, Object> repair : this.results) {
 				String vehicleId = (String)repair.get("vehicle_id");
 				String nextRepairDate = DataUtils.isEmpty(repair.get("next_repair_date")) ? "" : 
@@ -151,6 +149,6 @@ public class RepairReporter1 implements IReporter {
 		}
 		
 		return content.toString();		
-	}
+	}*/
 
 }

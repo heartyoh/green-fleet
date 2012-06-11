@@ -4,8 +4,9 @@
 package com.heartyoh.report;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -14,8 +15,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.heartyoh.model.Report;
-import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
@@ -24,7 +23,7 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-public class DailyDrivingReporter implements IReporter {
+public class DailyDrivingReporter extends AbstractExcelReporter {
 
 	/**
 	 * report id
@@ -39,32 +38,32 @@ public class DailyDrivingReporter implements IReporter {
 		"running_time", 
 		"distance", 
 		"fuel_efficiency" };
+	
 	/**
-	 * report name
+	 * cell types
 	 */
-	private Report report;	
-	/**
-	 * fromDate
-	 */
-	private Date fromDate;
-	/**
-	 * toDate
-	 */
-	private Date toDate;
-	/**
-	 * items
-	 */
-	private List<Map<String, Object>> results;
+	private static final int[] CELL_TYPES = new int[] {
+		HSSFCell.CELL_TYPE_STRING,
+		HSSFCell.CELL_TYPE_STRING,
+		HSSFCell.CELL_TYPE_NUMERIC,
+		HSSFCell.CELL_TYPE_NUMERIC,
+		HSSFCell.CELL_TYPE_NUMERIC
+	};
 	
 	@Override
 	public String getId() {
 		return ID;
 	}
+	
+	@Override
+	protected String[] getSelectFields() {
+		return SELECT_FILEDS;
+	}
 
 	@Override
-	public void setParameter(Report report, String cycle, Date fromDate, Date toDate) {
-		this.report = report;
-	}
+	protected int[] getFieldCellTypes() {
+		return CELL_TYPES;
+	}	
 
 	/**
 	 * 기간 설정 
@@ -95,26 +94,19 @@ public class DailyDrivingReporter implements IReporter {
 		}		
 	}
 
-	@Override
-	public void sendReport() throws Exception {
-		String content = this.createContent();
-		String[] receiverEmails = this.report.getSendTo().split(",");
-		AlarmUtils.sendMail(null, null, null, receiverEmails, this.report.getName(), true, content);
-	}
-	
 	/**
 	 * 메일 내용을 생성 
 	 * 
 	 * @return
 	 */
-	private String createContent() {
+	/*private String createContent() {
 		
 		StringBuffer content = new StringBuffer();		
 		content.append("<h1 align='center'>");		
 		content.append("Daily driving log by drivers");
 		content.append("</h1><br><br>");
 		
-		if(!this.results.isEmpty()) {
+		if(!DataUtils.isEmpty(this.results)) {
 			content.append("<table border='1' align='center'>");
 			content.append("<tr>");
 			content.append("<td>Driver ID</td>");
@@ -147,5 +139,5 @@ public class DailyDrivingReporter implements IReporter {
 		}
 		
 		return content.toString();
-	}
+	}*/
 }

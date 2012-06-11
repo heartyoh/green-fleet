@@ -3,15 +3,9 @@
  */
 package com.heartyoh.report;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -20,9 +14,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.heartyoh.model.Report;
-import com.heartyoh.util.AlarmUtils;
-import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -30,7 +21,7 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-public class ConsumableReporter1 implements IReporter {
+public class ConsumableReporter1 extends AbstractExcelReporter {
 
 	/**
 	 * report id
@@ -47,14 +38,19 @@ public class ConsumableReporter1 implements IReporter {
 		"repl_mileage", 
 		"health_rate", 
 		"status" };
+	
 	/**
-	 * report name
+	 * select fields
 	 */
-	private Report report;
-	/**
-	 * results
-	 */
-	private List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+	private static final int[] CELL_TYPES = new int[] {
+		HSSFCell.CELL_TYPE_STRING,
+		HSSFCell.CELL_TYPE_STRING,
+		HSSFCell.CELL_TYPE_FORMULA,
+		HSSFCell.CELL_TYPE_FORMULA,
+		HSSFCell.CELL_TYPE_NUMERIC,
+		HSSFCell.CELL_TYPE_NUMERIC,
+		HSSFCell.CELL_TYPE_STRING
+	};	
 	
 	@Override
 	public String getId() {
@@ -62,10 +58,15 @@ public class ConsumableReporter1 implements IReporter {
 	}
 	
 	@Override
-	public void setParameter(Report report, String cycle, Date fromDate, Date toDate) {
-		this.report = report;
+	protected String[] getSelectFields() {
+		return SELECT_FILEDS;
 	}
-	
+
+	@Override
+	protected int[] getFieldCellTypes() {
+		return CELL_TYPES;
+	}	
+		
 	/**
 	 * 소모품 교체 일정이 다가온 소모품 리스트를 조회한다. 조건은 health rate가 0.98 이상인 것들 대상으로 조회
 	 */
@@ -87,15 +88,6 @@ public class ConsumableReporter1 implements IReporter {
 		}
 	}
 	
-	@Override
-	public void sendReport() throws Exception {
-		//String content = this.createContent();		
-		//AlarmUtils.sendMail(null, null, null, receiverEmails, this.report.getName(), true, content);
-		String[] receiverEmails = this.report.getSendTo().split(",");
-		HSSFWorkbook workbook = this.createExcelWorkbook();
-		AlarmUtils.sendExcelAttachMail(null, null, null, receiverEmails, this.report.getName(), true, this.report.getName(), workbook);		
-	}
-	
 	/**
 	 * 메일 내용을 생성 
 	 * 
@@ -105,7 +97,7 @@ public class ConsumableReporter1 implements IReporter {
 		
 		StringBuffer content = new StringBuffer();
 		content.append("<h1 align='center'>");
-		content.append("A consumable replacement schedule for the following vehicles at the moment!");		
+		content.append("A consumable replacement schedule for the following vehicles at the moment!");
 		content.append("</h1><br><br>");
 		content.append("<table border='1' align='center'>");
 		content.append("<tr>");
@@ -117,7 +109,7 @@ public class ConsumableReporter1 implements IReporter {
 		content.append("<td>Next Replace Date</td>");
 		content.append("</tr>");
 		
-		if(!this.results.isEmpty()) {
+		if(!DataUtils.isEmpty(this.results)) {
 			for(Map<String, Object> consumable : this.results) {
 				String vehicleId = (String)consumable.get("vehicle_id");
 				String consumableItem = (String)consumable.get("consumable_item");
@@ -146,49 +138,5 @@ public class ConsumableReporter1 implements IReporter {
 		content.append("</table>");		
 		return content.toString();
 	}*/
-	
-	/**
-	 * 엑셀 생성 
-	 * 
-	 * @return
-	 */
-	private HSSFWorkbook createExcelWorkbook() {
-		
-		// 워크북 생성
-		HSSFWorkbook workBook = new HSSFWorkbook();
-		// 워크시트 생성
-		HSSFSheet sheet = workBook.createSheet();
-		// 행 생성
-		HSSFRow subjectRow = sheet.createRow(0);
-		
-		// 제목 행 생성 
-		for(int i = 0 ; i < SELECT_FILEDS.length ; i++) {
-			HSSFCell cell = subjectRow.createCell(i);
-			cell.setCellValue(SELECT_FILEDS[i]);
-		}
-		
-		// 데이터 행 생성 
-		for(int i = 0 ; i < this.results.size() ; i++) {
-			HSSFRow dataRow = sheet.createRow(i + 1);						
-			Map<String, Object> data = this.results.get(i);
-			
-			for(int j = 0 ; j < SELECT_FILEDS.length ; j++) {
-				HSSFCell cell = dataRow.createCell(j);
-				Object value = data.get(SELECT_FILEDS[j]);
-				
-				// String
-				if(j == 0 || j == 1 || j == 6)
-					cell.setCellValue((String)value);
-				// Date
-				else if(j == 2 || j == 3)
-					cell.setCellValue((Date)value);
-				// Double
-				else
-					cell.setCellValue(DataUtils.toDouble(value));
-			}
-		}
-		
-		return workBook;
-	}
 
 }
