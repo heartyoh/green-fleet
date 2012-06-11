@@ -11,6 +11,8 @@
 	<!-- Configure java.util.logging -->
 	<system-properties>
 		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties" />
+		<!-- This property used for excel attachment -->
+		<property name="user.name" value="heartyoh"/>
 	</system-properties>
 
 	<!-- HTTP Sessions are disabled by default. To enable HTTP sessions specify: 
@@ -40,5 +42,5 @@
 		<service>xmpp_message</service>
 		<service>xmpp_error</service>
 	</inbound-services>
-
+	
 </appengine-web-app>

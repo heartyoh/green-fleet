@@ -288,7 +288,7 @@ public class AlarmUtils {
         if(workbook != null) {
         	mp = new MimeMultipart();
             MimeBodyPart htmlPart = new MimeBodyPart();        
-            htmlPart.setContent("please review", "text/html");
+            htmlPart.setContent(msgBody, htmlType ? "text/html" : "text/plain");
             mp.addBodyPart(htmlPart);
 
             MimeBodyPart attachment = new MimeBodyPart();
