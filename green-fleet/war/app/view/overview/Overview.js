@@ -23,13 +23,14 @@ Ext.define('GreenFleet.view.overview.Overview', {
             xtype: 'container',
             region: 'center',
             layout: 'border',
-            items: [ this.zwest, this.zportal()] //, this.zeast ]
+            //items: [ this.zwest, this.zportal()] //, this.zeast ]
+            items : [ this.zportal() ]
 		}];
 		this.callParent(arguments);
 		var self = this;
 	},
 	
-	zwest : {
+	/*zwest : {
         id: 'overview-vehicle-group',
         xtype : 'grid_vg1_portlet',
         region: 'west',
@@ -51,7 +52,7 @@ Ext.define('GreenFleet.view.overview.Overview', {
         maxWidth: 310,
         split: true,
         collapsible: true
-	},
+	},*/
 	
 	zportal : function() {
 		
@@ -76,12 +77,36 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                }
 	            }, {
 	                id: 'portlet-1-2',
-	                title: T('title.schedule'),
+	                title: T('portlet.today_maint_list'),
+	                tools: this.getTools(),
+	                height : 200,
+	                items : {
+	                	xtype : 'grid_m1_portlet',
+	                	height : 200
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }/*, {
+	                id: 'portlet-1-3',
+	                title: T('portlet.fuel_efficiency'),
 	                tools: this.getTools(),
 	                height : 300,
 	                items : {
-	                	xtype : 'calendar_portlet',
+	                	xtype : 'chart_f1_portlet',
 	                	height : 300
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }*/, {
+	                id: 'portlet-1-3',
+	                title: T('title.schedule'),
+	                tools: this.getTools(),
+	                height : 230,
+	                items : {
+	                	xtype : 'calendar_portlet',
+	                	height : 230
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -106,15 +131,28 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-2-2',
 	                title : T('portlet.latest_incident_x', {x : '5'}),
 	                tools: this.getTools(),
-	                height : 300,
+	                height : 200,
 	                items: {
 	                	xtype : 'grid_i1_portlet',
-	                	height : 300
+	                	height : 200
 	                },	                
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
 	                }
-	            }]
+	            }, {
+	                id: 'portlet-2-3',
+	                title : '차량 그룹별 운행 정보',
+	                tools: this.getTools(),
+	                height : 230,
+	                items: {
+	                    id: 'overview-vehicle-group',
+	                    xtype : 'grid_vg1_portlet',
+	                    width: 230
+	                },	                
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	        	}]
 	        },{
 	            id: 'col-3',
 	            items: [{
@@ -134,9 +172,22 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-3-2',
 	                title: T('portlet.upcomming_x_replacement', {x : T('label.consumable_item')}),
 	                tools: this.getTools(),
+	                height : 200,
 	                items : {
 	                	xtype : 'grid_c1_portlet',
-	                	height : 300	                	
+	                	height : 200	                	
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-3-3',
+	                title: T('portlet.avg_fuel_effcc'),
+	                tools: this.getTools(),
+	                height : 230,
+	                items : {
+	                	xtype : 'chart_f1_portlet',
+	                	height : 230
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)

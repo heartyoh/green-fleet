@@ -137,6 +137,17 @@ public class ReportOrmService extends OrmEntityService {
 		this.sendReport(company, MONTHLY_REPORT);
 	}
 	
+	@RequestMapping(value = "/report/service", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> reportService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		Map<String, Object> params = DataUtils.toMap(request);
+		if(!params.containsKey("company"))
+			params.put("company", DataUtils.getCompany(request));
+		
+		return ReporterService.getInstance().reportData(params);
+	}	
+	
 	/**
 	 * daily, weekly, monthly 등의 주기로 리포트를 찾아서 설정된 사용자에게 리포트
 	 * 
@@ -155,7 +166,7 @@ public class ReportOrmService extends OrmEntityService {
 		ReporterService service = ReporterService.getInstance();
 		for(Report report : reportList) {
 			try {				
-				service.covering(company, reportCycle, report);
+				service.reportCyclic(company, reportCycle, report);
 			} catch(Exception e) {
 				logger.error("Failed to send " + reportCycle + "!", e);
 			} 				

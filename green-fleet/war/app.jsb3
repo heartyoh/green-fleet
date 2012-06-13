@@ -415,6 +415,21 @@
                     "path": "app/view/common/"
                 },
                 {
+                    "clsName": "GreenFleet.view.management.VehicleOverview",
+                    "name": "VehicleOverview.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.portlet.GridM1Portlet",
+                    "name": "GridM1Portlet.js",
+                    "path": "app/view/portlet/"
+                },
+                {
+                    "clsName": "GreenFleet.view.portlet.ChartF1Portlet",
+                    "name": "ChartF1Portlet.js",
+                    "path": "app/view/portlet/"
+                },
+                {
                     "clsName": "GreenFleet.store.CompanyStore",
                     "name": "CompanyStore.js",
                     "path": "app/store/"

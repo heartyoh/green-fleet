@@ -126,7 +126,12 @@ Ext.define('GreenFleet.view.MainMenu', {
 		} ]
 	}, {
 		text : T('menu.vehicle'),
-		submenus : [ {
+		submenus : [ /*{
+			title : T('menu.vehicle_overview'),
+			xtype : 'management_vehicle_overview',
+			itemId : 'vehicle_overview',
+			closable : true
+		}, */{
 			title : T('menu.vehicle'),
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',

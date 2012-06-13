@@ -12,7 +12,7 @@ Ext.define('GreenFleet.view.portlet.GridVG1Portlet', {
     
     split: true,
     
-    collapsible: true,
+    //collapsible: true,
     
     year : null,
     
@@ -25,7 +25,11 @@ Ext.define('GreenFleet.view.portlet.GridVG1Portlet', {
     		this.year = today.getFullYear();
     		this.month = today.getMonth() + 1;
     	} 
-    	this.title = '차량 그룹별 운행 정보 [' + this.year + '-' + this.month + ']';
+    	//this.title = '차량 그룹별 운행 정보 [' + this.year + '-' + this.month + ']';
+    	this.addVehicleGroupTab(this);
+    },
+    
+    reload : function() {
     	this.addVehicleGroupTab(this);
     },
     

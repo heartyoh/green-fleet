@@ -11,6 +11,7 @@ T({
 		dashboard : 'Dashboard',
 		company : 'Company',
 		vehicle : 'Vehicle',
+		vehicle_overview : 'Vehicle Overview',
 		driver : 'Driver',
 		reservation : 'Reservation',
 		maintenance : 'Maintenance',
@@ -112,7 +113,8 @@ T({
 		speed_section_chart : 'Drivers Speed Section Chart',
 		report_list : 'Report List',
 		report_details : 'Report Details',
-		schedule : 'Schedule',		
+		schedule : 'Schedule',
+		vehicle_overview : 'Vehicle Overview'
 	},
 	
 	report : {
@@ -153,7 +155,9 @@ T({
 	
 	portlet : {
 		latest_incident_x : 'Latest Incident ({x} count)',
-		upcomming_x_replacement : 'Upcomming {x} replacement'
+		upcomming_x_replacement : 'Upcomming {x} replacement',
+		today_maint_list : 'Tomorrow\'s maintenance vehicles',
+		avg_fuel_effcc : 'The average annual fuel efficiency'
 	},	
 	
 	tab : {

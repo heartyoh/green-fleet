@@ -44,9 +44,9 @@ Ext.define('GreenFleet.view.portlet.GridC1Portlet', {
     	var self = this;
     	this.setLoading(true);
     	Ext.Ajax.request({
-		    url: '/vehicle_consumable/by_health_rate',
+		    url: '/report/service',
 		    method : 'GET',
-		    params : { health_rate : 0.98 },
+		    params : { id : 'consumables_to_replace', health_rate : 0.98 },
 		    success: function(response) {		    	
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        

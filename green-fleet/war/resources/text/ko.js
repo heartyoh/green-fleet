@@ -11,6 +11,7 @@ T({
 		dashboard : '대쉬보드',
 		company : '회사',
 		vehicle : '차량',
+		vehicle_overview : '차량 개요',
 		driver : '운전자',
 		reservation : '예약',
 		maintenance : '정비',
@@ -112,7 +113,8 @@ T({
 		speed_section_chart : '속도구간 차트',
 		report_list : '리포트 리스트',
 		report_details : '리포트 상세',
-		schedule : '일정'
+		schedule : '일정',
+		vehicle_overview : '차량 개요',
 	},
 	
 	report : {
@@ -154,6 +156,8 @@ T({
 	portlet : {
 		latest_incident_x : '최근 사고 이력 ({x}건)',
 		upcomming_x_replacement : '교체 {x} 리스트',
+		today_maint_list : '정비 예정 차량',
+		avg_fuel_effcc : '연간 평균 연비'
 	},
 	
 	tab : {
