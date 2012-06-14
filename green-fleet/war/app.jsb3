@@ -380,11 +380,6 @@
                     "path": "app/view/portlet/"
                 },
                 {
-                    "clsName": "GreenFleet.view.portlet.ChartV2Portlet",
-                    "name": "ChartV2Portlet.js",
-                    "path": "app/view/portlet/"
-                },
-                {
                     "clsName": "GreenFleet.view.portlet.CalendarPortlet",
                     "name": "CalendarPortlet.js",
                     "path": "app/view/portlet/"
