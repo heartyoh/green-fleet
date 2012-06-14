@@ -157,7 +157,8 @@ T({
 		latest_incident_x : 'Latest Incident ({x} count)',
 		upcomming_x_replacement : 'Upcomming {x} replacement',
 		today_maint_list : 'Tomorrow\'s maintenance vehicles',
-		avg_fuel_effcc : 'The average annual fuel efficiency'
+		avg_fuel_effcc : 'The average annual fuel efficiency',
+		vehicle_group_driving_summary : 'Vehicle group driving summary'
 	},	
 	
 	tab : {

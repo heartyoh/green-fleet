@@ -23,7 +23,7 @@ Ext.define('GreenFleet.view.overview.Overview', {
             xtype: 'container',
             region: 'center',
             layout: 'border',
-            //items: [ this.zwest, this.zportal()] //, this.zeast ]
+            //items: [ this.zwest, this.zportal(), this.zeast ]
             items : [ this.zportal() ]
 		}];
 		this.callParent(arguments);
@@ -87,19 +87,7 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
 	                }
-	            }/*, {
-	                id: 'portlet-1-3',
-	                title: T('portlet.fuel_efficiency'),
-	                tools: this.getTools(),
-	                height : 300,
-	                items : {
-	                	xtype : 'chart_f1_portlet',
-	                	height : 300
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	            }*/, {
+	            }, {
 	                id: 'portlet-1-3',
 	                title: T('title.schedule'),
 	                tools: this.getTools(),
@@ -141,7 +129,7 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                }
 	            }, {
 	                id: 'portlet-2-3',
-	                title : '차량 그룹별 운행 정보',
+	                title : T('portlet.vehicle_group_driving_summary'),
 	                tools: this.getTools(),
 	                height : 230,
 	                items: {

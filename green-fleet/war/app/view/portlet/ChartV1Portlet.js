@@ -20,9 +20,9 @@ Ext.define('GreenFleet.view.portlet.ChartV1Portlet', {
     	var self = this;
     	this.setLoading(true);
     	Ext.Ajax.request({
-		    url: '/dashboard/health/vehicle',
+    		url: '/report/service',
 		    method : 'GET',
-		    params : { health_type : self.chartType },
+		    params : { id : 'vehicle_health', health_type : self.chartType },
 		    success: function(response) {		    	
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        
@@ -30,8 +30,7 @@ Ext.define('GreenFleet.view.portlet.ChartV1Portlet', {
 		        	var records = resultObj.items;
 					var healthRecord = self.findRecord(records, self.chartType);
 					self.chartPanel.items[0].store.loadData(healthRecord.summary);
-					Ext.defer(function() {self.setLoading(false);}, 100);
-					
+					Ext.defer(function() {self.setLoading(false);}, 100);					
 		        } else {
 		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
 		        }
@@ -73,7 +72,7 @@ Ext.define('GreenFleet.view.portlet.ChartV1Portlet', {
 				height : self.height - 20,
 		        shadow: false,
 		        legend: {
-		            position: 'bottom',
+		            position: 'right',
 		            labelFont : '6px',
 		            boxStroke : '#cfcfcf'
 		        },

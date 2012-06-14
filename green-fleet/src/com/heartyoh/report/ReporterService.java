@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Controller;
 
 import com.heartyoh.model.Report;
-import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 
 /**
@@ -88,16 +86,17 @@ public class ReporterService {
 	 * @throws Exception
 	 */
 	public void reportCyclic(String company, String reportCycle, Report report) throws Exception {
-		
-		String reporterClass = this.reporterMappings.get(report.getId());
+				
+		/*String reporterClass = this.reporterMappings.get(report.getId());
 		Class<?> reporterKlazz = Class.forName(reporterClass);
 		IReporter reporter = (IReporter)reporterKlazz.newInstance();
 		Map<String, Object> params = DataUtils.newMap("_report_cycle", reportCycle);
 		params.put("_today", DataUtils.getToday());
 		params.put("_report", report);
-		reporter.setParameter(params);
-		List<Map<String, Object>> results = reporter.report();
-		ExcelConverter converter = new ExcelConverter();
+		List<Map<String, Object>> results = reporter.report(params);*/
+		
+		// TODO 리포터 서비스를 데이터 가져오는 것으로만 이용하고 나머지 변환은 개별 구현으로 한다.
+		/*ExcelConverter converter = new ExcelConverter();
 		Workbook workbook = converter.convert(reporter.getSelectFields(), reporter.getFieldTypes(), results);
 		String sendTo = report.getSendTo();
 		
@@ -105,7 +104,7 @@ public class ReporterService {
 			return;
 		
 		String[] receivers = sendTo.split(",");
-		AlarmUtils.sendExcelAttachMail(null, null, null, receivers, report.getName(), true, report.getExpl(), workbook);
+		AlarmUtils.sendExcelAttachMail(null, null, null, receivers, report.getName(), true, report.getExpl(), workbook);*/
 	}
 	
 	/**
@@ -121,8 +120,7 @@ public class ReporterService {
 		String reporterClass = this.reporterMappings.get(reporterId);
 		Class<?> reporterKlazz = Class.forName(reporterClass);
 		IReporter reporter = (IReporter)reporterKlazz.newInstance();
-		reporter.setParameter(params);
-		List<Map<String, Object>> results = reporter.report();
+		List<Object> results = reporter.report(params);
 		return DataUtils.packResultDataset(true, results.size(), results);
 	}	
 }

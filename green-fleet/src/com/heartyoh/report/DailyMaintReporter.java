@@ -3,7 +3,6 @@
  */
 package com.heartyoh.report;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +24,7 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-public class DailyMaintReporter implements IReporter {
+public class DailyMaintReporter extends AbstractReporter {
 
 	/**
 	 * report id
@@ -35,43 +34,32 @@ public class DailyMaintReporter implements IReporter {
 	 * select fields
 	 */
 	private static final String[] SELECT_FILEDS = new String[] { "vehicle_id", "next_repair_date" };
+	/**
+	 * parameter names
+	 */
+	private static final String[] PARAM_NAMES = new String[] { "company", "_today" };
 
-	/**
-	 * field types
-	 */
-	private static final int[] FIELD_TYPES = new int[] { Types.VARCHAR, Types.DATE };
-	
-	/**
-	 * parameters
-	 */
-	private Map<String, Object> params;
-	
 	@Override
 	public String getId() {
 		return ID;
 	}
 	
 	@Override
-	public String[] getSelectFields() {
+	public String[] getOutputNames() {
 		return SELECT_FILEDS;
-	}
-
-	@Override
-	public int[] getFieldTypes() {
-		return FIELD_TYPES;
 	}
 	
 	@Override
-	public void setParameter(Map<String, Object> params) {
-		this.params = params;
+	public String[] getInputNames() {
+		return PARAM_NAMES;
 	}
 
 	@Override
-	public List<Map<String, Object>> report() throws Exception {
+	public List<Object> report(Map<String, Object> params) throws Exception {
 		
 		Key companyKey = KeyFactory.createKey("Company", (String)params.get("company"));
-		Date today = this.params.containsKey("_today") ? 
-				(Date)this.params.get("_today") : DataUtils.getToday();
+		Date today = params.containsKey("_today") ? 
+				(Date)params.get("_today") : DataUtils.getToday();
 				
 		// 넘어온 기준 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회 
 		Query q = new Query("Repair");
@@ -83,7 +71,7 @@ public class DailyMaintReporter implements IReporter {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		
-		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		List<Object> results = new ArrayList<Object>();
 		for(Entity repair : pq.asIterable()) {
 			results.add(SessionUtils.cvtEntityToMap(repair, SELECT_FILEDS));
 		}

@@ -3,7 +3,6 @@
  */
 package com.heartyoh.report;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -17,7 +16,7 @@ import com.heartyoh.util.DatasourceUtils;
  * 
  * @author jhnam
  */
-public class FuelReporter implements IReporter {
+public class FuelReporter extends AbstractReporter {
 
 	/**
 	 * report id
@@ -26,17 +25,11 @@ public class FuelReporter implements IReporter {
 	/**
 	 * select fields
 	 */
-	private static final String[] SELECT_FILEDS = new String[] { "vehicle", "effcc" };
-	
+	private static final String[] SELECT_FILEDS = new String[] { "vehicle", "effcc" };	
 	/**
-	 * select fields
+	 * parameter names
 	 */
-	private static final int[] FIELD_TYPES = new int[] { Types.VARCHAR, Types.DOUBLE };
-	
-	/**
-	 * parameters
-	 */
-	private Map<String, Object> params;		
+	private static final String[] PARAM_NAMES = new String[] { "company", "_today" };
 	
 	@Override
 	public String getId() {
@@ -44,47 +37,43 @@ public class FuelReporter implements IReporter {
 	}
 	
 	@Override
-	public String[] getSelectFields() {
+	public String[] getOutputNames() {
 		return SELECT_FILEDS;
-	}
-
-	@Override
-	public int[] getFieldTypes() {
-		return FIELD_TYPES;
 	}
 	
 	@Override
-	public void setParameter(Map<String, Object> params) {
-		this.params = params;
-	}
+	public String[] getInputNames() {
+		return PARAM_NAMES;
+	}	
 
 	@Override
-	public List<Map<String, Object>> report() throws Exception {
-		return this.averagefuelEffcc();
+	public List<Object> report(Map<String, Object> params) throws Exception {
+		return this.averagefuelEffcc(params);
 	}
 	
 	/**
 	 * 연비 Top 5
 	 * 
+	 * @param params
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private List<Map<String, Object>> averagefuelEffcc() throws Exception {
-		
-		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+	private List<Object> averagefuelEffcc(Map<String, Object> params) throws Exception {
+				
 		StringBuffer sql = new StringBuffer();
 		sql.append("select a.vehicle, case when a.count = 0 then 0 else (a.total / a.count) end effcc ");
 		sql.append("from (");
 		sql.append("select vehicle, sum(effcc) as total, count(effcc) as count from vehicle_run_sum where company = :company and year = :year group by vehicle");
 		sql.append(") a");
 		
-		Map<String, Object> paramMap = DataUtils.newMap("company", this.params.get("company"));
+		Map<String, Object> paramMap = DataUtils.newMap("company", params.get("company"));
 		int year = paramMap.containsKey("year") ? DataUtils.toInt(paramMap.get("year")) : Calendar.getInstance().get(Calendar.YEAR);
 		paramMap.put("year", year);
-		List<Map> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
-		for(Map item : items) {
-			results.add((Map<String, Object>)item);
+		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
+		
+		List<Object> results = new ArrayList<Object>();
+		for(Object item : items) {
+			results.add(item);
 		}
 		return results;
 	}

@@ -157,7 +157,8 @@ T({
 		latest_incident_x : '최근 사고 이력 ({x}건)',
 		upcomming_x_replacement : '교체 {x} 리스트',
 		today_maint_list : '정비 예정 차량',
-		avg_fuel_effcc : '연간 평균 연비'
+		avg_fuel_effcc : '연간 평균 연비',
+		vehicle_group_driving_summary : '차량 그룹별 운행 정보'
 	},
 	
 	tab : {

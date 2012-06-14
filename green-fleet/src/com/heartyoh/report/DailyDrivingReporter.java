@@ -3,7 +3,6 @@
  */
 package com.heartyoh.report;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +23,7 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-public class DailyDrivingReporter implements IReporter {
+public class DailyDrivingReporter extends AbstractReporter {
 
 	/**
 	 * report id
@@ -41,20 +40,9 @@ public class DailyDrivingReporter implements IReporter {
 		"fuel_efficiency" };
 	
 	/**
-	 * cell types
+	 * parameter names
 	 */
-	private static final int[] FIELD_TYPES = new int[] {
-		Types.VARCHAR,
-		Types.VARCHAR,
-		Types.DOUBLE,
-		Types.DOUBLE,
-		Types.DOUBLE
-	};
-	
-	/**
-	 * parameters
-	 */
-	private Map<String, Object> params;	
+	private static final String[] PARAM_NAMES = new String[] { "company", "_today" };
 	
 	@Override
 	public String getId() {
@@ -62,26 +50,21 @@ public class DailyDrivingReporter implements IReporter {
 	}
 	
 	@Override
-	public String[] getSelectFields() {
+	public String[] getOutputNames() {
 		return SELECT_FILEDS;
-	}
-
-	@Override
-	public int[] getFieldTypes() {
-		return FIELD_TYPES;
 	}
 	
 	@Override
-	public void setParameter(Map<String, Object> params) {
-		this.params = params;
-	}
+	public String[] getInputNames() {
+		return PARAM_NAMES;
+	}	
 
 	@Override
-	public List<Map<String, Object>> report() throws Exception {
+	public List<Object> report(Map<String, Object> params) throws Exception {
 		
 		Key companyKey = KeyFactory.createKey("Company", (String)params.get("company"));
-		Date today = this.params.containsKey("_today") ? 
-				(Date)this.params.get("_today") : DataUtils.getToday();
+		Date today = params.containsKey("_today") ? 
+				(Date)params.get("_today") : DataUtils.getToday();
 				
 		DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 		Query q = new Query("CheckinData");
@@ -91,7 +74,7 @@ public class DailyDrivingReporter implements IReporter {
 		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);		
 		PreparedQuery pq = datastoreService.prepare(q);
 		
-		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		List<Object> results = new ArrayList<Object>();
 		for(Entity consumable : pq.asIterable()) {
 			Map<String, Object> map = SessionUtils.cvtEntityToMap(consumable, SELECT_FILEDS);
 			results.add(map);

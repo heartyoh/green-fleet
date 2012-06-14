@@ -3,7 +3,6 @@
  */
 package com.heartyoh.report;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +22,16 @@ import com.heartyoh.util.SessionUtils;
  * 
  * @author jhnam
  */
-public class ConsumableReplReporter implements IReporter {
+public class ConsumableReplReporter extends AbstractReporter {
 
 	/**
 	 * report id
 	 */
 	private static final String ID = "consumables_to_replace";
 	/**
-	 * select fields
+	 * output field names
 	 */
-	private static final String[] SELECT_FILEDS = new String[] { 
+	private static final String[] OUTPUT_NAMES = new String[] { 
 		"vehicle_id", 
 		"consumable_item", 
 		"next_repl_date", 
@@ -42,22 +41,11 @@ public class ConsumableReplReporter implements IReporter {
 		"status" };
 	
 	/**
-	 * select fields
+	 * input parameter names
 	 */
-	private static final int[] FIELD_TYPES = new int[] {
-		Types.VARCHAR,
-		Types.VARCHAR,
-		Types.VARCHAR,
-		Types.VARCHAR,
-		Types.DOUBLE,
-		Types.DOUBLE,
-		Types.VARCHAR
+	private static final String[] INPUT_NAMES = new String[] {
+		"company", "health_rate"
 	};
-	
-	/**
-	 * parameters
-	 */
-	private Map<String, Object> params;		
 	
 	@Override
 	public String getId() {
@@ -65,25 +53,20 @@ public class ConsumableReplReporter implements IReporter {
 	}
 	
 	@Override
-	public String[] getSelectFields() {
-		return SELECT_FILEDS;
-	}
-
-	@Override
-	public int[] getFieldTypes() {
-		return FIELD_TYPES;
+	public String[] getOutputNames() {
+		return OUTPUT_NAMES;
 	}
 	
 	@Override
-	public void setParameter(Map<String, Object> params) {
-		this.params = params;
+	public String[] getInputNames() {
+		return INPUT_NAMES;
 	}
-		
+
 	/**
 	 * 소모품 교체 일정이 다가온 소모품 리스트를 조회한다. 조건은 health rate가 0.99 이상인 것들 대상으로 조회
 	 */
 	@Override
-	public List<Map<String, Object>> report() throws Exception {
+	public List<Object> report(Map<String, Object> params) throws Exception {
 		
 		Key companyKey = KeyFactory.createKey("Company", (String)params.get("company"));
 		Query q = new Query("VehicleConsumable");
@@ -95,12 +78,11 @@ public class ConsumableReplReporter implements IReporter {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		
-		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		List<Object> results = new ArrayList<Object>();
 		for(Entity consumable : pq.asIterable()) {
-			Map<String, Object> map = SessionUtils.cvtEntityToMap(consumable, SELECT_FILEDS);
+			Map<String, Object> map = SessionUtils.cvtEntityToMap(consumable, OUTPUT_NAMES);
 			results.add(map);
 		}
 		return results;
 	}
-
 }

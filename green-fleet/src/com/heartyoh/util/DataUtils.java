@@ -17,8 +17,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+
 import com.google.appengine.api.datastore.Entity;
 import com.heartyoh.model.CustomUser;
+import com.heartyoh.model.Filter;
+import com.heartyoh.model.Sorter;
 
 /**
  * 데이터 핸들링을 위한 유틸리티 클래스
@@ -54,6 +59,41 @@ public class DataUtils {
 			map.put(name, request.getParameter(name));
 		}
 		return map;
+	}
+	
+	/**
+	 * filterStr 파싱 
+	 * 
+	 * @param filterStr
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<Filter> parseFilters(String filterStr) throws Exception {
+		
+		if (filterStr != null) {
+			List<Filter> filters = new ObjectMapper().readValue(filterStr, new TypeReference<List<Filter>>() {});
+			return filters;
+			
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * sorterStr 파싱
+	 * 
+	 * @param sorterStr
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<Sorter> parseSorters(String sorterStr) throws Exception {
+		
+		if (sorterStr != null) {
+			List<Sorter> sorters = new ObjectMapper().readValue(sorterStr, new TypeReference<List<Sorter>>() {});
+			return sorters;
+		} else {
+			return null;
+		}
 	}	
 
 	/**

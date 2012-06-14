@@ -6,6 +6,8 @@ package com.heartyoh.report;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Reporter interface
  * 
@@ -21,31 +23,34 @@ public interface IReporter {
 	public String getId();
 	
 	/**
-	 * 조회 필드명 
+	 * 조회 필드명 리턴 
 	 * 
 	 * @return
 	 */
-	public String[] getSelectFields();
+	public String[] getOutputNames();
 	
 	/**
-	 * 조회 필드명과 매핑되는 조회 필드 타입  
+	 * 파라미터 명 리턴 
 	 * 
 	 * @return
 	 */
-	public int[] getFieldTypes();
-	
+	public String[] getInputNames();
+		
 	/**
-	 * parameter 설정 
+	 * 파라미터를 받아 실행한 결과를 리턴 
 	 * 
 	 * @param params
-	 */
-	public void setParameter(Map<String, Object> params);
-	
-	/**
-	 * 결과를 생성하여 리턴 
-	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Map<String, Object>> report() throws Exception;
+	public List<Object> report(Map<String, Object> params) throws Exception;
+	
+	/**
+	 * 파라미터를 받아 실행한 결과를 리턴 
+	 * 
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Object> report(HttpServletRequest request) throws Exception;	
 }
