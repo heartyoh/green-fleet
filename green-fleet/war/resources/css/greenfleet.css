@@ -207,6 +207,19 @@ span.mapTipID{
 .btnFullscreen:hover{background:url('../image/btnFullscreenOn.png') no-repeat;}
 .incidentVOD .x-panel-body{background:url('../image/bgVOD.gif') 50% 50% no-repeat;background-color:#dfdfdf;border:1px solid #c0c0c0}
 
+/*user registration style*/
+.userRegistration{background:url('../image/bgIntro.png') repeat-x #ebecf1;font-family:Arial}
+.userRegistration .content{background:url('../image/greenfleet.png') 50% 148px no-repeat;padding:135px 0 0 53%}
+.userRegistration p,.userRegistration form{width:400px}
+.userRegistration p span{display:block;font-size:30px;font-weight:bold;color:#000;}
+.userRegistration p{font-size:11px;color:#585858;line-height:1.5}
+.userRegistration fieldset{border:0;margin:0}
+.userRegistration fieldset *{margin-top:7px}
+.userRegistration label{font-size:13px;color:#585858;display:inline-block;width:70px}
+.btnRegister{background:url('../image/btnBlue.png') no-repeat;color:#fff;font-size:14px;border:0;width:95px;height:35px;margin:10px 10px 10px 85px;padding-left:24px}
+.btnRegister:hover{background:url('../image/btnGreen.png') no-repeat;}
+.userRegistration input[type='text']{min-width:180px;font-size:13px}
+
 /*Maintenance style*/
 .maintCell{background:url('../image/imgMaint.gif') 9px 5px no-repeat;margin:5px 5px 0 5px;padding:7px 10px 7px 55px;background-color:#fff;color:#333;font-size:11px;border:1px solid #dfdfdf}
 .maintCell span{display:block;border-bottom:1px dotted #cfcfcf;padding-bottom:3px;margin-bottom:3px;color:#478802;}
