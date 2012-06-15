@@ -85,6 +85,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				text : T('label.repl_unit'),
 				type : 'string'
 			}, {
+				xtype: 'numbercolumn',
 				dataIndex : 'fst_repl_mileage',
 				text : T('label.fst_repl_mileage'),
 				type : 'int'
@@ -93,6 +94,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				text : T('label.fst_repl_time'),
 				type : 'int'					
 			}, {
+				xtype: 'numbercolumn',
 				dataIndex : 'repl_mileage',
 				text : T('label.repl_mileage'),
 				type : 'int'

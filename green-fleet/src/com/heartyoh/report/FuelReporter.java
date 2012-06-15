@@ -61,7 +61,7 @@ public class FuelReporter extends AbstractReporter {
 	private List<Object> averagefuelEffcc(Map<String, Object> params) throws Exception {
 				
 		StringBuffer sql = new StringBuffer();
-		sql.append("select a.vehicle, case when a.count = 0 then 0 else (a.total / a.count) end effcc ");
+		sql.append("select a.vehicle, case when a.count = 0 then 0 else round((a.total / a.count), 2) end effcc ");
 		sql.append("from (");
 		sql.append("select vehicle, sum(effcc) as total, count(effcc) as count from vehicle_run_sum where company = :company and year = :year group by vehicle");
 		sql.append(") a");

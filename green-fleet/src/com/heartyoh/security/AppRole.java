@@ -3,7 +3,8 @@ package com.heartyoh.security;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum AppRole implements GrantedAuthority {
-	ADMIN(0), NEW_USER(1), USER(2);
+	
+	ADMIN(0), NEW_USER(1), USER(2), SUPER_USER(4);
 
 	private final int bit;
 

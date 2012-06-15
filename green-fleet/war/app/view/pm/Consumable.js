@@ -402,7 +402,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			fieldLabel : T('label.repl_mileage') + " (km)"
 		}, {
 			name : 'repl_time',
-			fieldLabel : T('label.repl_time') + ' (month)'
+			fieldLabel : T('label.repl_time') + T('label.parentheses_month')
 		}, {
 			fieldLabel : T('label.last_repl_date'),
 			name : 'last_repl_date',
@@ -490,7 +490,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						disabled : true
 					}, {
 						name : 'repl_time',
-						fieldLabel : T('label.repl_time') + '(month)',
+						fieldLabel : T('label.repl_time') + T('parentheses_month'),
 						disabled : true
 					} ]
 				}, {
