@@ -214,6 +214,11 @@ public class TrackService extends EntityService {
 		if(!DataUtils.isEmpty(vehicleId)) {
 			this.addFilter(q, "vehicle_id", vehicleId);
 		}
+		
+		String driverId = request.getParameter("driver_id");
+		if(!DataUtils.isEmpty(driverId)) {
+			this.addFilter(q, "driver_id", driverId);
+		}		
 	}
 	
 	@Override

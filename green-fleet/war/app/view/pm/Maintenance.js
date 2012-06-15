@@ -199,7 +199,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 			xtype : 'datecolumn',
 			format : F('date')
 		}, {
-			header : T('label.x_time', {x : T('label.repair')}) + T('label.parentheses_x', {x : T('label.minute_s')}),
+			header : T('label.repair_time') + T('label.parentheses_min'),
 			dataIndex : 'repair_time',
 		}, {
 			header : T('label.next_repair_date'),

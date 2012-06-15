@@ -69,14 +69,6 @@ Ext.define('GreenFleet.view.MainMenu', {
 	},
 
 	items : [ {
-//		text : 'Dashboard',
-//		submenus : [ {
-//			title : 'File',
-//			xtype : 'filemanager',
-//			itemId : 'filemanager',
-//			closable : true
-//		} ]
-//	}, {
 		text : T('menu.company'),
 		submenus : [ {
 			title : T('menu.company'),

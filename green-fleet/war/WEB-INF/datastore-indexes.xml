@@ -40,6 +40,11 @@
         <property name="datetime" direction="desc" />
     </datastore-index>
     
+    <datastore-index kind="Track" ancestor="true" source="manual">
+        <property name="driver_id" direction="asc" />
+        <property name="datetime" direction="desc" />
+    </datastore-index>    
+    
     <datastore-index kind="IncidentLog" ancestor="true" source="manual">
         <property name="incident" direction="asc"/>
         <property name="datetime" direction="asc"/>

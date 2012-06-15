@@ -126,7 +126,7 @@ Ext.define('GreenFleet.view.portlet.GridVG1Portlet', {
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        if(resultObj.success) {
 		        	var runDataArr = resultObj.items;
-		        	var total = { 'vehicle_id' : 'Toatl', 'run_time' : 0, 'run_dist' : 0, 'consmpt' : 0 };
+		        	var total = { 'vehicle_id' : 'Total', 'run_time' : 0, 'run_dist' : 0, 'consmpt' : 0 };
 		        	Ext.each(runDataArr, function(runData) {
 		        		total.run_time += runData.run_time;
 		        		total.run_dist += runData.run_dist;

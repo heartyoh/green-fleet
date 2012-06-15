@@ -54,16 +54,15 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 		return {
 			xtype : 'panel',
 			autoscroll : true,
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 5,
+			cls : 'paddingPanel healthDashboard',
 			height : height - 5,
 			items : [{
 				xtype : 'chart',
 				animate : true,
 		        store: Ext.create('Ext.data.ArrayStore', { fields: [ { name : 'vehicle', type : 'string' },  { name : 'effcc', type : 'double' } ], data: [] }),
-				width : width - 15,
-				height : height - 15,
-				shadow : true,
+				width : width - 35,
+				height : height - 45,
+				shadow : false,
 				insetPadding : 5,
 				theme : 'Base:gradients',
 				axes: [{

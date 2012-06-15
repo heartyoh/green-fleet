@@ -1405,14 +1405,6 @@ Ext.define('GreenFleet.view.MainMenu', {
 	},
 
 	items : [ {
-//		text : 'Dashboard',
-//		submenus : [ {
-//			title : 'File',
-//			xtype : 'filemanager',
-//			itemId : 'filemanager',
-//			closable : true
-//		} ]
-//	}, {
 		text : T('menu.company'),
 		submenus : [ {
 			title : T('menu.company'),
@@ -2877,6 +2869,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				text : T('label.repl_unit'),
 				type : 'string'
 			}, {
+				xtype: 'numbercolumn',
 				dataIndex : 'fst_repl_mileage',
 				text : T('label.fst_repl_mileage'),
 				type : 'int'
@@ -2885,6 +2878,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				text : T('label.fst_repl_time'),
 				type : 'int'					
 			}, {
+				xtype: 'numbercolumn',
 				dataIndex : 'repl_mileage',
 				text : T('label.repl_mileage'),
 				type : 'int'
@@ -3148,8 +3142,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.health'),
 				type : 'string'
 			}, {
+				xtype: 'numbercolumn',
 				dataIndex : 'total_distance',
-				text : T('label.total_x', {x : T('label.distance')}),
+				text : T('label.total_x', {x : T('label.distance')}) + '(km)',
 				type : 'string'
 			}, {
 				dataIndex : 'remaining_fuel',
@@ -4543,6 +4538,7 @@ Ext.define('GreenFleet.view.management.Track', {
 
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
+			self.sub('driver_filter').setValue('');
 			self.sub('date_filter').setValue(new Date());
 		});
 
@@ -4562,6 +4558,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	getFilter : function() {
 		
 		if(!this.sub('vehicle_filter').getSubmitValue() && 
+		   !this.sub('driver_filter').getSubmitValue() && 
 		   !this.sub('date_filter').getSubmitValue()) {
 			return null;
 		}
@@ -4575,6 +4572,10 @@ Ext.define('GreenFleet.view.management.Track', {
 		if(this.sub('vehicle_filter').getSubmitValue()) {
 			filters.push({"property" : "vehicle_id", "value" : this.sub('vehicle_filter').getSubmitValue()});
 		}
+		
+		if(this.sub('driver_filter').getSubmitValue()) {
+			filters.push({"property" : "driver_id", "value" : this.sub('driver_filter').getSubmitValue()});
+		}		
 		
 		return filters;
 	},	
@@ -4643,6 +4644,16 @@ Ext.define('GreenFleet.view.management.Track', {
 			},
 			tbar : [ {
 				xtype : 'combo',
+				name : 'driver_filter',
+				itemId : 'driver_filter',
+				queryMode : 'local',
+				store : 'DriverBriefStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : T('label.driver'),
+				width : 200
+			}, {
+				xtype : 'combo',
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
@@ -4658,7 +4669,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				fieldLabel : T('label.date'),
 				format : 'Y-m-d',
 				submitFormat : 'U',
-				maxValue : new Date(), // limited to the current date or prior
+				maxValue : new Date(),
 				value : new Date(),
 				width : 200
 			}, {
@@ -8006,7 +8017,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			fieldLabel : T('label.repl_mileage') + " (km)"
 		}, {
 			name : 'repl_time',
-			fieldLabel : T('label.repl_time') + ' (month)'
+			fieldLabel : T('label.repl_time') + T('label.parentheses_month')
 		}, {
 			fieldLabel : T('label.last_repl_date'),
 			name : 'last_repl_date',
@@ -8094,7 +8105,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 						disabled : true
 					}, {
 						name : 'repl_time',
-						fieldLabel : T('label.repl_time') + '(month)',
+						fieldLabel : T('label.repl_time') + T('parentheses_month'),
 						disabled : true
 					} ]
 				}, {
@@ -8526,7 +8537,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 					}
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.repl_mileage') + " (km)",
+		            header: T('label.repl_mileage') + '(km)',
 		            dataIndex: 'repl_mileage',
 		            width: 105,
 		            editor: {
@@ -8537,7 +8548,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		            }	        	
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.repl_time') + " (month)",
+		            header: T('label.repl_time') + T('label.parentheses_month'),
 		            dataIndex: 'repl_time',
 		            width: 105,
 		            editor: {
@@ -8554,11 +8565,12 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 					format : F('date')
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.miles_last_repl') + " (km)",
+		            header: T('label.miles_last_repl') + '(km)',
 		            dataIndex: 'miles_last_repl',
 		            width: 125
 		        }, {
-		        	header : T('label.next_repl_mileage') + " (km)",
+		        	xtype: 'numbercolumn',
+		        	header : T('label.next_repl_mileage') + '(km)',
 		        	dataIndex : 'next_repl_mileage',
 		        	width : 130		        	
 		        }, {
@@ -13425,7 +13437,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 			xtype : 'datecolumn',
 			format : F('date')
 		}, {
-			header : T('label.x_time', {x : T('label.repair')}) + T('label.parentheses_x', {x : T('label.minute_s')}),
+			header : T('label.repair_time') + T('label.parentheses_min'),
 			dataIndex : 'repair_time',
 		}, {
 			header : T('label.next_repair_date'),
@@ -13745,6 +13757,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	
 	zportal : function() {
 		
+		var today = new Date();
+		var year = today.getFullYear();
+		var month = today.getMonth() + 1;
+		
 		return {
 	        id: 'overview-portal',
 	        xtype: 'portalpanel',
@@ -13755,10 +13771,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-1-1',
 	                title: T('title.running_distance'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_v1_portlet',
-	                	height : 230,
+	                	height : 220,
 	                	chartType : 'mileage'
 	                },
 	                listeners: {
@@ -13768,10 +13784,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-1-2',
 	                title: T('portlet.today_maint_list'),
 	                tools: this.getTools(),
-	                height : 200,
+	                height : 220,
 	                items : {
 	                	xtype : 'grid_m1_portlet',
-	                	height : 200
+	                	height : 220
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -13780,10 +13796,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-1-3',
 	                title: T('title.schedule'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'calendar_portlet',
-	                	height : 230
+	                	height : 220
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -13795,10 +13811,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-2-1',
 	                title: T('title.vehicle_health'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_v1_portlet',
-	                	height : 230,
+	                	height : 220,
 	                	chartType : 'health'
 	                },
 	                listeners: {
@@ -13808,23 +13824,23 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-2-2',
 	                title : T('portlet.latest_incident_x', {x : '5'}),
 	                tools: this.getTools(),
-	                height : 200,
+	                height : 220,
 	                items: {
 	                	xtype : 'grid_i1_portlet',
-	                	height : 200
+	                	height : 220
 	                },	                
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
 	                }
 	            }, {
 	                id: 'portlet-2-3',
-	                title : T('portlet.vehicle_group_driving_summary'),
+	                title : T('portlet.vehicle_group_driving_summary') + ' ('+ year + '/' + month + ')', 
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items: {
 	                    id: 'overview-vehicle-group',
 	                    xtype : 'grid_vg1_portlet',
-	                    width: 230
+	                    width: 220
 	                },	                
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -13836,10 +13852,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-3-1',
 	                title: T('title.vehicle_age'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_v1_portlet',
-	                	height : 230,
+	                	height : 220,
 	                	chartType : 'age'
 	                },
 	                listeners: {
@@ -13849,10 +13865,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-3-2',
 	                title: T('portlet.upcomming_x_replacement', {x : T('label.consumable_item')}),
 	                tools: this.getTools(),
-	                height : 200,
+	                height : 220,
 	                items : {
 	                	xtype : 'grid_c1_portlet',
-	                	height : 200	                	
+	                	height : 220	                	
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -13861,10 +13877,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-3-3',
 	                title: T('portlet.avg_fuel_effcc'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_f1_portlet',
-	                	height : 230
+	                	height : 220
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -14012,8 +14028,13 @@ Ext.define('GreenFleet.view.portlet.PortalColumn', {
     alias: 'widget.portalcolumn',
     layout: 'anchor',
     defaultType: 'portlet',
-    cls: 'x-portal-column'
-
+    cls: 'x-portal-column',
+    listeners : {
+    	dblclick : {
+            element: 'el', 
+            fn: function() { alert('click'); }
+        }
+    }
     // This is a class so that it could be easily extended
     // if necessary to provide additional behavior.
 });
@@ -14426,7 +14447,7 @@ Ext.define('GreenFleet.view.portlet.GridVG1Portlet', {
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        if(resultObj.success) {
 		        	var runDataArr = resultObj.items;
-		        	var total = { 'vehicle_id' : 'Toatl', 'run_time' : 0, 'run_dist' : 0, 'consmpt' : 0 };
+		        	var total = { 'vehicle_id' : 'Total', 'run_time' : 0, 'run_dist' : 0, 'consmpt' : 0 };
 		        	Ext.each(runDataArr, function(runData) {
 		        		total.run_time += runData.run_time;
 		        		total.run_dist += runData.run_dist;
@@ -16073,16 +16094,15 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 		return {
 			xtype : 'panel',
 			autoscroll : true,
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 5,
+			cls : 'paddingPanel healthDashboard',
 			height : height - 5,
 			items : [{
 				xtype : 'chart',
 				animate : true,
 		        store: Ext.create('Ext.data.ArrayStore', { fields: [ { name : 'vehicle', type : 'string' },  { name : 'effcc', type : 'double' } ], data: [] }),
-				width : width - 15,
-				height : height - 15,
-				shadow : true,
+				width : width - 35,
+				height : height - 45,
+				shadow : false,
 				insetPadding : 5,
 				theme : 'Base:gradients',
 				axes: [{

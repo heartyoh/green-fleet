@@ -39,6 +39,7 @@ Ext.define('GreenFleet.view.management.Track', {
 
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
+			self.sub('driver_filter').setValue('');
 			self.sub('date_filter').setValue(new Date());
 		});
 
@@ -58,6 +59,7 @@ Ext.define('GreenFleet.view.management.Track', {
 	getFilter : function() {
 		
 		if(!this.sub('vehicle_filter').getSubmitValue() && 
+		   !this.sub('driver_filter').getSubmitValue() && 
 		   !this.sub('date_filter').getSubmitValue()) {
 			return null;
 		}
@@ -71,6 +73,10 @@ Ext.define('GreenFleet.view.management.Track', {
 		if(this.sub('vehicle_filter').getSubmitValue()) {
 			filters.push({"property" : "vehicle_id", "value" : this.sub('vehicle_filter').getSubmitValue()});
 		}
+		
+		if(this.sub('driver_filter').getSubmitValue()) {
+			filters.push({"property" : "driver_id", "value" : this.sub('driver_filter').getSubmitValue()});
+		}		
 		
 		return filters;
 	},	
@@ -139,6 +145,16 @@ Ext.define('GreenFleet.view.management.Track', {
 			},
 			tbar : [ {
 				xtype : 'combo',
+				name : 'driver_filter',
+				itemId : 'driver_filter',
+				queryMode : 'local',
+				store : 'DriverBriefStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : T('label.driver'),
+				width : 200
+			}, {
+				xtype : 'combo',
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
@@ -154,7 +170,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				fieldLabel : T('label.date'),
 				format : 'Y-m-d',
 				submitFormat : 'U',
-				maxValue : new Date(), // limited to the current date or prior
+				maxValue : new Date(),
 				value : new Date(),
 				width : 200
 			}, {

@@ -8,8 +8,13 @@ Ext.define('GreenFleet.view.portlet.PortalColumn', {
     alias: 'widget.portalcolumn',
     layout: 'anchor',
     defaultType: 'portlet',
-    cls: 'x-portal-column'
-
+    cls: 'x-portal-column',
+    listeners : {
+    	dblclick : {
+            element: 'el', 
+            fn: function() { alert('click'); }
+        }
+    }
     // This is a class so that it could be easily extended
     // if necessary to provide additional behavior.
 });
