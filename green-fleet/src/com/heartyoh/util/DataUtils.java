@@ -17,7 +17,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.model.CustomUser;
+import com.heartyoh.model.Filter;
+import com.heartyoh.model.Sorter;
 
 /**
  * 데이터 핸들링을 위한 유틸리티 클래스
@@ -25,6 +31,17 @@ import com.google.appengine.api.datastore.Entity;
  * @author jhnam
  */
 public class DataUtils {
+	
+	/**
+	 * company 정보를 request 객체에서 추출하여 리턴 
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static String getCompany(HttpServletRequest request) {
+		CustomUser user = SessionUtils.currentUser();
+		return (user != null) ? user.getCompany() : request.getParameter("company");		
+	}
 	
 	/**
 	 * request parameter 정보를 Map으로 변환 
@@ -42,6 +59,41 @@ public class DataUtils {
 			map.put(name, request.getParameter(name));
 		}
 		return map;
+	}
+	
+	/**
+	 * filterStr 파싱 
+	 * 
+	 * @param filterStr
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<Filter> parseFilters(String filterStr) throws Exception {
+		
+		if (filterStr != null) {
+			List<Filter> filters = new ObjectMapper().readValue(filterStr, new TypeReference<List<Filter>>() {});
+			return filters;
+			
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * sorterStr 파싱
+	 * 
+	 * @param sorterStr
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<Sorter> parseSorters(String sorterStr) throws Exception {
+		
+		if (sorterStr != null) {
+			List<Sorter> sorters = new ObjectMapper().readValue(sorterStr, new TypeReference<List<Sorter>>() {});
+			return sorters;
+		} else {
+			return null;
+		}
 	}	
 
 	/**
@@ -474,6 +526,18 @@ public class DataUtils {
 		long millis = DataUtils.getTodayMillis();
 		return getFromToDate(millis, beforeDateAmount, afterDateAmount);
 	}
+	
+	/**
+	 * stDate 기준으로 넘어온 앞 뒤 날 수 조건을 추가한 From, To Date를 리턴한다.
+	 *  
+	 * @param stDate
+	 * @param beforeDateAmount
+	 * @param afterDateAmount
+	 * @return
+	 */
+	public static Date[] getFromToDate(Date stDate, int beforeDateAmount, int afterDateAmount) {
+		return getFromToDate(stDate.getTime(), beforeDateAmount, afterDateAmount);
+	}	
 	
 	/**
 	 * date가 fromDate, toDate 사이에 있는지 체크

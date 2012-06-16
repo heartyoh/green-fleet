@@ -117,7 +117,11 @@ public class TrackService extends EntityService {
 			this.checkLocationBasedAlarm(trackObj, vehicle);
 			vehicle.setLat(DataUtils.toFloat(trackObj.getProperty("lat")));
 			vehicle.setLng(DataUtils.toFloat(trackObj.getProperty("lng")));
-			vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_RUNNING);
+			
+			// 상태가 incident이면 상태 변경을 하지 않는다.
+			if(!GreenFleetConstant.VEHICLE_STATUS_INCIDENT.equalsIgnoreCase(vehicle.getStatus()))
+				vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_RUNNING);
+			
 			DatasourceUtils.updateVehicle(vehicle);
 		}
 		
@@ -210,6 +214,11 @@ public class TrackService extends EntityService {
 		if(!DataUtils.isEmpty(vehicleId)) {
 			this.addFilter(q, "vehicle_id", vehicleId);
 		}
+		
+		String driverId = request.getParameter("driver_id");
+		if(!DataUtils.isEmpty(driverId)) {
+			this.addFilter(q, "driver_id", driverId);
+		}		
 	}
 	
 	@Override

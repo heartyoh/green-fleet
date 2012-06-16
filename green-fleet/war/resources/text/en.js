@@ -11,6 +11,7 @@ T({
 		dashboard : 'Dashboard',
 		company : 'Company',
 		vehicle : 'Vehicle',
+		vehicle_overview : 'Vehicle Overview',
 		driver : 'Driver',
 		reservation : 'Reservation',
 		maintenance : 'Maintenance',
@@ -112,7 +113,8 @@ T({
 		speed_section_chart : 'Drivers Speed Section Chart',
 		report_list : 'Report List',
 		report_details : 'Report Details',
-		schedule : 'Schedule',		
+		schedule : 'Schedule',
+		vehicle_overview : 'Vehicle Overview'
 	},
 	
 	report : {
@@ -153,7 +155,10 @@ T({
 	
 	portlet : {
 		latest_incident_x : 'Latest Incident ({x} count)',
-		upcomming_x_replacement : 'Upcomming {x} replacement'
+		upcomming_x_replacement : 'Upcomming {x} replacement',
+		today_maint_list : 'Tomorrow\'s maintenance vehicles',
+		avg_fuel_effcc : 'The average annual fuel efficiency',
+		vehicle_group_driving_summary : 'Vehicle group driving summary'
 	},	
 	
 	tab : {
@@ -297,12 +302,13 @@ T({
 		healthy : 'Healthy',
 		impending : 'Impending',
 		overdue : 'Overdue',
-		repair : 'Repair',
-		repair_date : 'Repair Date',
-		next_repair_date : 'Next Repair Date',
-		repair_mileage : 'Repair Mileage',
-		repair_man : 'Repair Man',
-		repair_shop : 'Repair Shop',
+		repair : 'Maintenence',
+		repair_date : 'Maint. Date',
+		next_repair_date : 'Next Maint. Date',
+		repair_mileage : 'Maint. Mileage',
+		repair_man : 'Maint. Man',
+		repair_shop : 'Maint. Shop',
+		repair_time : 'Maint. Time',
 		content : 'Content',		
 		repl_unit : 'Replacement Unit',
 		fst_repl_mileage : 'First Repl. Mileage',
@@ -352,6 +358,9 @@ T({
 		state_maint : 'Maint.',
 		second_s : 'sec.',
 		minute_s : 'min.',
+		parentheses_month : '(month)',
+		parentheses_hour : '(hour)',
+		parentheses_min : '(min)',
 		maintenance : 'Maintenance',
 		period_always : 'Period Always',
 		period : 'Period',

@@ -5,39 +5,40 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" href="/static/css/gae.css" type="text/css" />
+<link rel="stylesheet" href="resources/css/greenfleet.css" type="text/css" />
 <title>Registration</title>
 </head>
-<body>
-<div id="content">
+<body class="userRegistration">
+<div id="content" class="content">
 <p>
-Welcome to the GreenFleet application, <sec:authentication property="principal.name" />.
+<span>GreenFleet</span>Welcome to the GreenFleet application, <b><sec:authentication property="principal.name" /></b>.<br/>
 Please enter your user registration details following.
 </p>
 
 <form id="register" method="post">
   	<fieldset>
-  		<label>Company :</label>
-  		<input name="company" /> <br />
+  		<label>Company </label>
+  		<input name="company" type="text"/> <br />
 
-  		<label>Name :</label>
-  		<input name="name" /> <br />
+  		<label>Name </label>
+  		<input name="name"  type="text"/> <br />
   		
-  		<label>Email :</label>
-  		<input name="email" /> <br />
+  		<label>Email </label>
+  		<input name="email"  type="text"/> <br />
   		
-  		<label>Phone :</label>
-  		<input name="phoneNo" /> <br />  		
+  		<label>Phone </label>
+  		<input name="phoneNo"  type="text"/> <br />  		
 
-  		<label>Admin :</label>
+  		<label>Admin </label>
   		<input type="checkbox" name="admin"/> <br />
   		
-  		<label>Language :</label>
+  		<label>Language </label>
 		<select name="language">
 			<option value="en" selected="selected">English</option> 
 			<option value="ko">Korean</option> 
 		</select>
 	</fieldset>
-	<input type="submit" value="Register">
+	<input type="submit" value="Register" class="btnRegister">
 </form>
 </div>
 </body>

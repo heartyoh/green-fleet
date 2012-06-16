@@ -86,7 +86,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 					}
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.repl_mileage') + " (km)",
+		            header: T('label.repl_mileage') + '(km)',
 		            dataIndex: 'repl_mileage',
 		            width: 105,
 		            editor: {
@@ -97,7 +97,7 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 		            }	        	
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.repl_time') + " (month)",
+		            header: T('label.repl_time') + T('label.parentheses_month'),
 		            dataIndex: 'repl_time',
 		            width: 105,
 		            editor: {
@@ -114,11 +114,12 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 					format : F('date')
 		        }, {
 		            xtype: 'numbercolumn',
-		            header: T('label.miles_last_repl') + " (km)",
+		            header: T('label.miles_last_repl') + '(km)',
 		            dataIndex: 'miles_last_repl',
 		            width: 125
 		        }, {
-		        	header : T('label.next_repl_mileage') + " (km)",
+		        	xtype: 'numbercolumn',
+		        	header : T('label.next_repl_mileage') + '(km)',
 		        	dataIndex : 'next_repl_mileage',
 		        	width : 130		        	
 		        }, {

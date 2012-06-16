@@ -23,13 +23,14 @@ Ext.define('GreenFleet.view.overview.Overview', {
             xtype: 'container',
             region: 'center',
             layout: 'border',
-            items: [ this.zwest, this.zportal()] //, this.zeast ]
+            //items: [ this.zwest, this.zportal(), this.zeast ]
+            items : [ this.zportal() ]
 		}];
 		this.callParent(arguments);
 		var self = this;
 	},
 	
-	zwest : {
+	/*zwest : {
         id: 'overview-vehicle-group',
         xtype : 'grid_vg1_portlet',
         region: 'west',
@@ -51,9 +52,13 @@ Ext.define('GreenFleet.view.overview.Overview', {
         maxWidth: 310,
         split: true,
         collapsible: true
-	},
+	},*/
 	
 	zportal : function() {
+		
+		var today = new Date();
+		var year = today.getFullYear();
+		var month = today.getMonth() + 1;
 		
 		return {
 	        id: 'overview-portal',
@@ -65,10 +70,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-1-1',
 	                title: T('title.running_distance'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_v1_portlet',
-	                	height : 230,
+	                	height : 220,
 	                	chartType : 'mileage'
 	                },
 	                listeners: {
@@ -76,12 +81,24 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                }
 	            }, {
 	                id: 'portlet-1-2',
+	                title: T('portlet.today_maint_list'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'grid_m1_portlet',
+	                	height : 220
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-1-3',
 	                title: T('title.schedule'),
 	                tools: this.getTools(),
-	                height : 300,
+	                height : 220,
 	                items : {
 	                	xtype : 'calendar_portlet',
-	                	height : 300
+	                	height : 220
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
@@ -93,10 +110,10 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-2-1',
 	                title: T('title.vehicle_health'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_v1_portlet',
-	                	height : 230,
+	                	height : 220,
 	                	chartType : 'health'
 	                },
 	                listeners: {
@@ -106,25 +123,38 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-2-2',
 	                title : T('portlet.latest_incident_x', {x : '5'}),
 	                tools: this.getTools(),
-	                height : 300,
+	                height : 220,
 	                items: {
 	                	xtype : 'grid_i1_portlet',
-	                	height : 300
+	                	height : 220
 	                },	                
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)
 	                }
-	            }]
+	            }, {
+	                id: 'portlet-2-3',
+	                title : T('portlet.vehicle_group_driving_summary') + ' ('+ year + '/' + month + ')', 
+	                tools: this.getTools(),
+	                height : 220,
+	                items: {
+	                    id: 'overview-vehicle-group',
+	                    xtype : 'grid_vg1_portlet',
+	                    width: 220
+	                },	                
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	        	}]
 	        },{
 	            id: 'col-3',
 	            items: [{
 	                id: 'portlet-3-1',
 	                title: T('title.vehicle_age'),
 	                tools: this.getTools(),
-	                height : 230,
+	                height : 220,
 	                items : {
 	                	xtype : 'chart_v1_portlet',
-	                	height : 230,
+	                	height : 220,
 	                	chartType : 'age'
 	                },
 	                listeners: {
@@ -134,9 +164,22 @@ Ext.define('GreenFleet.view.overview.Overview', {
 	                id: 'portlet-3-2',
 	                title: T('portlet.upcomming_x_replacement', {x : T('label.consumable_item')}),
 	                tools: this.getTools(),
+	                height : 220,
 	                items : {
 	                	xtype : 'grid_c1_portlet',
-	                	height : 300	                	
+	                	height : 220	                	
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-3-3',
+	                title: T('portlet.avg_fuel_effcc'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'chart_f1_portlet',
+	                	height : 220
 	                },
 	                listeners: {
 	                    close : Ext.bind(this.onPortletClose, this)

@@ -67,14 +67,28 @@ public class UserService extends EntityService {
 		String name = (String) map.get("name");
 		String company = (String) map.get("company");
 		String admin = (String) map.get("admin");
+		String superUser = (String) map.get("super_user");
 		String enabled = (String) map.get("enabled");
 		String language = (String) map.get("language");
 		
+		entity.setProperty("enabled", DataUtils.toBool(enabled));
+		entity.setProperty("admin", DataUtils.toBool(admin));
+		entity.setProperty("super_user", DataUtils.toBool(superUser));
+		
+		if (email != null)
+			entity.setProperty("email", email);
+		
+		if (name != null)
+			entity.setProperty("name", name);
+		
+		if (company != null)
+			entity.setProperty("company", company);
+		
 		if(language == null) {
 			try {
-				Entity entity_company = datastore.get(entity.getParent());
-				if(!DataUtils.isEmpty(entity_company.getProperty("language")))
-					language = (String)entity_company.getProperty("language");
+				Entity companyEntity = datastore.get(entity.getParent());
+				if(!DataUtils.isEmpty(companyEntity.getProperty("language")))
+					language = (String)companyEntity.getProperty("language");
 			} catch(EntityNotFoundException e) {
 			} finally {
 				if(language == null)
@@ -82,34 +96,33 @@ public class UserService extends EntityService {
 			}
 		}
 
-		Set<AppRole> roles = EnumSet.of(AppRole.USER);
-
-		if (admin != null && (admin.equalsIgnoreCase("true") || admin.equalsIgnoreCase("on"))) {
-			roles.add(AppRole.ADMIN);
-		}
-
-		if (email != null)
-			entity.setProperty("email", email);
-		if (name != null)
-			entity.setProperty("name", name);
-		if (company != null)
-			entity.setProperty("company", company);
-		if (admin != null)
-			entity.setProperty("admin", booleanProperty(map, "admin"));
+		entity.setUnindexedProperty("language", language);
 		
-		if (language != null)
-			entity.setUnindexedProperty("language", language);
-		if (enabled != null)
-			entity.setUnindexedProperty("enabled", booleanProperty(map, "enabled"));
-
+		Set<AppRole> roles = EnumSet.of(AppRole.USER);
+		
+		if(DataUtils.toBool(admin))
+			roles.add(AppRole.ADMIN);
+		
+		if(DataUtils.toBool(superUser)) 
+			roles.add(AppRole.SUPER_USER);
+		
 		long binaryAuthorities = 0;
-
 		for (AppRole r : roles) {
 			binaryAuthorities |= 1 << r.getBit();
 		}
 
 		entity.setUnindexedProperty("authorities", binaryAuthorities);
-
+		
+		// TODO 예전에 저장된 쓰지 않는 데이터 삭제 
+		if(entity.hasProperty("forename"))
+			entity.removeProperty("forename");
+		
+		if(entity.hasProperty("nickname"))
+			entity.removeProperty("nickname");
+		
+		if(entity.hasProperty("surname"))
+			entity.removeProperty("surname");		
+		
 		super.onSave(entity, map, datastore);
 	}
 
@@ -153,20 +166,19 @@ public class UserService extends EntityService {
 
 		PreparedQuery pq = datastore.prepare(q);
 		int total = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
-
 		int[] limitOffset = this.getLimitOffsetCount(request);
 		int limit = limitOffset[0];
 		int offset = limitOffset[1];
 
-		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();
-		
+		List<Map<String, Object>> items = new LinkedList<Map<String, Object>>();		
 		for (Entity result : pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset))) {
-			Map<String, Object> item = SessionUtils.cvtEntityToMap(result, request.getParameterValues("select"));
+			Map<String, Object> item = 
+					SessionUtils.cvtEntityToMap(result, request.getParameterValues("select"));
 			this.adjustItem(item);
 			items.add(item);
 		}
 
-		return packResultDataset(true, total, items);
+		return DataUtils.packResultDataset(true, total, items);
 	}
 	
 	@RequestMapping(value = "/user/find", method = RequestMethod.GET)

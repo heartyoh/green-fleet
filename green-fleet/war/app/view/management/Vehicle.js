@@ -141,8 +141,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.health'),
 				type : 'string'
 			}, {
+				xtype: 'numbercolumn',
 				dataIndex : 'total_distance',
-				text : T('label.total_x', {x : T('label.distance')}),
+				text : T('label.total_x', {x : T('label.distance')}) + '(km)',
 				type : 'string'
 			}, {
 				dataIndex : 'remaining_fuel',

@@ -20,7 +20,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -281,7 +281,7 @@ public class AlarmUtils {
 			String subject, 
 			boolean htmlType, 
 			String msgBody,
-			HSSFWorkbook workbook) throws Exception {
+			Workbook workbook) throws Exception {
 		    
 		Multipart mp = null;
 		

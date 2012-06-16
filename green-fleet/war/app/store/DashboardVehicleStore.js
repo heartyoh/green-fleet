@@ -17,8 +17,9 @@ Ext.define('GreenFleet.store.DashboardVehicleStore', {
 
 	proxy : {
 		type : 'ajax',
-		url : 'dashboard/health/vehicle',
+		url : 'report/service',
 		extraParams : {
+			id : 'vehicle_health'
 		},
 		reader : {
 			type : 'json',

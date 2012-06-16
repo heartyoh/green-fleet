@@ -11,6 +11,7 @@ T({
 		dashboard : '대쉬보드',
 		company : '회사',
 		vehicle : '차량',
+		vehicle_overview : '차량 개요',
 		driver : '운전자',
 		reservation : '예약',
 		maintenance : '정비',
@@ -112,7 +113,8 @@ T({
 		speed_section_chart : '속도구간 차트',
 		report_list : '리포트 리스트',
 		report_details : '리포트 상세',
-		schedule : '일정'
+		schedule : '일정',
+		vehicle_overview : '차량 개요',
 	},
 	
 	report : {
@@ -152,8 +154,11 @@ T({
 	},
 	
 	portlet : {
-		latest_incident_x : '최근 사고 이력 ({x}건)',
+		latest_incident_x : '최근 이상상황 이력 ({x}건)',
 		upcomming_x_replacement : '교체 {x} 리스트',
+		today_maint_list : '정비 예정 차량',
+		avg_fuel_effcc : '연간 평균 연비',
+		vehicle_group_driving_summary : '차량 그룹별 운행 정보'
 	},
 	
 	tab : {
@@ -297,12 +302,13 @@ T({
 		impending : '교체 임박',
 		overdue : '기한 초과',	
 		healthy : '양호',
-		repair : '수리',
-		repair_date : '수리일자',
-		next_repair_date : '다음 수리일자',
-		repair_mileage : '수리 주행거리',
-		repair_man : '수리공',
-		repair_shop : '수리점',
+		repair : '정비',
+		repair_date : '정비일자',
+		next_repair_date : '다음 정비일자',
+		repair_mileage : '정비시점 주행거리',
+		repair_man : '정비공',
+		repair_shop : '정비점',
+		repair_time : '정비시간',
 		content : '내용',		
 		repl_unit : '교체 단위',
 		fst_repl_mileage : '최초 교체 주행거리',
@@ -352,6 +358,9 @@ T({
 		state_maint : '정비중',
 		second_s : '초',
 		minute_s : '분',
+		parentheses_month : '(개월)',
+		parentheses_hour : '(시간)',
+		parentheses_min : '(분)',
 		maintenance : '정비',
 		period_always : '기간 항상',
 		period : '기간',

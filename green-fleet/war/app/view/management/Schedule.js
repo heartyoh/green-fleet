@@ -39,7 +39,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 			calendarStore : calendarStore,
 	        eventStore: eventStore,
 	        flex : 1,
-	        listeners: {
+	        /*listeners: {
 	            'eventadd': {
 	                fn: function(cp, rec) {	                	
 	                	//cp.store.load();
@@ -60,7 +60,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 	                },
 	                scope: this
 	            }
-	        }	        
+	        }*/	        
 	    });		
 		return calendar;
 	}

@@ -88,4 +88,21 @@ public class GreenFleetConstant {
 	 * Default datetime format : yyyy-MM-dd HH:mm:ss
 	 */
 	public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
+	/**
+	 * TASK TYPE - 정비 
+	 */
+	public static final String TASK_TYPE_MAINTENENCE = "1";
+	/**
+	 * TASK TYPE - 소모품  
+	 */
+	public static final String TASK_TYPE_CONSUMABLES = "2";
+	/**
+	 * TASK TYPE - 예약 
+	 */
+	public static final String TASK_TYPE_RESERVATION = "3";
+	/**
+	 * TASK TYPE - 일반 태스크 
+	 */
+	public static final String TASK_TYPE_TASK = "4";
 }

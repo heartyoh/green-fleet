@@ -13,9 +13,11 @@
 	<bean id="reporterService" class="com.heartyoh.report.ReporterService" factory-method="createInstance">
         <property name="reporterMappings">
             <map>
-                <entry key="consumables_to_replace" value="com.heartyoh.report.ConsumableReporter1" />
+                <entry key="consumables_to_replace" value="com.heartyoh.report.ConsumableReplReporter" />
                 <entry key="daily_driving_log" value="com.heartyoh.report.DailyDrivingReporter" />
-                <entry key="repair_list" value="com.heartyoh.report.RepairReporter1" />
+                <entry key="repair_list" value="com.heartyoh.report.DailyMaintReporter" />
+                <entry key="fuel" value="com.heartyoh.report.FuelReporter" />
+                <entry key="vehicle_health" value="com.heartyoh.report.VehicleHealthReporter" />
             </map>
         </property>		
 	</bean>

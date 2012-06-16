@@ -1,51 +1,6 @@
-id,registration_number,manufacturer,fuel_type,vehicle_type,birth_year,ownership_type,status,total_distance,remaining_fuel,health_status
-V001, 가 1234, Audi         ,D,F,1998,A,Running  ,256000 ,5 ,Impending
-V002, 가 1235, Kia          ,D,F,1998,A,Running  ,220500 ,40,Impending
-V003, 가 1236, Samsung      ,G,F,1999,A,Idle     ,187000 ,50,Healthy
-V004, 가 1237, GM           ,D,F,1999,A,Running  ,165000 ,10,Healthy
-V005, 가 1238, Audi         ,D,F,2000,A,Running  ,162000 ,0 ,Healthy
-V006, 가 1239, Samsung      ,G,F,2001,A,Maint    ,150000 ,30,Impending
-V007, 가 1210, Hyundai      ,G,F,2001,A,Running  ,149000 ,24,Healthy
-V008, 가 1211, Audi         ,D,F,2001,A,Idle     ,141000 ,23,Healthy
-V009, 가 1212, Kia          ,L,F,2002,A,Running  ,132800 ,22,Overdue
-V010, 가 1213, Kia          ,D,F,2002,A,Running  ,131200 ,21,Healthy
-V011, 가 1214, Audi         ,G,F,2003,A,Running  ,130000 ,20,Healthy
-V012, 가 1215, GM           ,G,F,2003,A,Idle     ,128000 ,19,Healthy
-V013, 가 1216, Audi         ,G,F,2003,A,Running  ,121300 ,18,Overdue
-V014, 가 1217, Hyundai      ,G,F,2003,A,Running  ,121000 ,7 ,Healthy
-V015, 가 1218, Audi         ,D,F,2003,A,Running  ,119000 ,16,Impending
-V016, 가 1219, Hyundai      ,D,F,2004,A,Idle     ,116000 ,15,Healthy
-V017, 가 1220, Audi         ,G,F,2004,A,Running  ,113000 ,14,Healthy
-V018, 가 1221, Audi         ,D,F,2004,A,Running  ,110000 ,20,Impending
-V019, 카 0987, Hyundai      ,L,E,2004,A,Idle     ,104000 ,60,Impending
-V020, 카 0988, Kia          ,L,E,2005,A,Running  ,103400 ,29,Healthy
-V021, 카 0989, Samsung      ,L,E,2005,A,Running  ,100000 ,25,Impending
-V022, 카 0990, Volkswagon   ,G,E,2005,A,Idle     ,95000  ,35,Overdue
-V023, 카 0991, Hyundai      ,D,E,2005,A,Running  ,93500  ,35,Overdue
-V024, 카 0992, Volkswagon   ,D,E,2006,A,Running  ,91200  ,45,Overdue
-V025, 추 3456, Hyundai      ,D,F,2006,A,Idle     ,89120  ,33,Impending
-V026, 추 8765, Mercedes-Benz,G,F,2006,A,Running  ,88340  ,44,Impending
-V027, 추 2938, Kia          ,D,F,2006,A,Running  ,81200  ,22,Healthy
-V028, 추 2939, Mercedes-Benz,D,F,2006,A,Running  ,79120  ,7 ,Healthy
-V029, 추 2940, Hyundai      ,L,F,2007,A,Idle     ,78078  ,33,Healthy
-V030, 타 4367, Mercedes-Benz,D,F,2007,A,Idle     ,76005  ,16,Healthy
-V031, 타 4368, GM           ,G,F,2007,A,Maint    ,75600  ,23,Healthy
-V032, 타 4369, Samsung      ,D,F,2007,A,Idle     ,71200  ,43,Healthy
-V033, 타 4370, Mercedes-Benz,D,F,2008,A,Idle     ,65000  ,45,Impending
-V034, 타 4371, Hyundai      ,G,F,2008,A,Running  ,64500  ,14,Healthy
-V035, 타 4372, Kia          ,G,F,2008,A,Idle     ,62300  ,41,Healthy
-V036, 타 4373, Mercedes-Benz,D,F,2008,A,Idle     ,51230  ,34,Healthy
-V037, 타 4374, Mercedes-Benz,D,F,2009,A,Idle     ,50100  ,35,Healthy
-V038, 류 6746, Samsung      ,G,F,2009,A,Running  ,47200  ,32,Healthy
-V039, 류 7896, Hyundai      ,G,F,2009,A,Idle     ,46500  ,35,Impending
-V040, 류 9865, GM           ,G,F,2009,A,Running  ,43200  ,2 ,Healthy
-V041, 류 9080, Hyundai      ,G,F,2009,A,Idle     ,43000  ,35,Healthy
-V042, 사 7263, Hyundai      ,D,F,2009,A,Running  ,41000  ,35,Overdue
-V043, 사 8976, GM           ,D,F,2009,A,Idle     ,39820  ,3 ,Healthy
-V044, 사 0989, Hyundai      ,D,F,2010,A,Running  ,38010  ,37,Healthy
-V045, 사 7865, Kia          ,G,E,2010,A,Running  ,35400  ,38,Impending
-V046, 나 3423, Audi         ,D,E,2010,A,Running  ,32050  ,12,Impending
-V047, 나 6757, Kia          ,G,E,2010,A,Maint    ,30160  ,50,Impending
-V048, 나 8979, Kia          ,L,E,2011,A,Running  ,26500  ,45,Overdue
-V049, 다 8765, Audi         ,D,E,2011,A,Running  ,23080  ,9 ,Impending
-V050, 라 0965, Samsung      ,D,E,2011,A,Maint    ,19800  ,43,Impending
+id,registration_number,manufacturer,vehicle_model, fuel_type,vehicle_type,birth_year,ownership_type,status,total_distance,remaining_fuel,health_status,driver_id
+PV-001, 29로 1234, Hyundai      ,Avante,D,F,2005,A,Running  ,256000 ,5 ,Impending,PD-001
+PV-002, 76카 8721, Kia          ,Porte, D,F,2007,A,Running  ,220500 ,40,Impending,PD-002
+PV-003, 95더 7396, Renault      ,SM3,   G,F,2008,A,Idle     ,187000 ,50,Healthy,PD-003
+PV-004, 75사 1737, GM           ,Cruise,D,F,2009,A,Running  ,165000 ,10,Healthy,PD-004
+PV-005, 34 가 3238, Volkswagen  ,Golf  ,D,F,2010,A,Running  ,162000 ,0 ,Healthy,PD-005

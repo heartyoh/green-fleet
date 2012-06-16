@@ -380,11 +380,6 @@
                     "path": "app/view/portlet/"
                 },
                 {
-                    "clsName": "GreenFleet.view.portlet.ChartV2Portlet",
-                    "name": "ChartV2Portlet.js",
-                    "path": "app/view/portlet/"
-                },
-                {
                     "clsName": "GreenFleet.view.portlet.CalendarPortlet",
                     "name": "CalendarPortlet.js",
                     "path": "app/view/portlet/"
@@ -413,6 +408,21 @@
                     "clsName": "GreenFleet.view.common.UserSelector",
                     "name": "UserSelector.js",
                     "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleOverview",
+                    "name": "VehicleOverview.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.portlet.GridM1Portlet",
+                    "name": "GridM1Portlet.js",
+                    "path": "app/view/portlet/"
+                },
+                {
+                    "clsName": "GreenFleet.view.portlet.ChartF1Portlet",
+                    "name": "ChartF1Portlet.js",
+                    "path": "app/view/portlet/"
                 },
                 {
                     "clsName": "GreenFleet.store.CompanyStore",

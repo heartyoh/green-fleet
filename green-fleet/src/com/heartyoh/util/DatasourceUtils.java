@@ -3,6 +3,7 @@
  */
 package com.heartyoh.util;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.dbist.dml.Query;
 
 import com.heartyoh.model.Alarm;
 import com.heartyoh.model.ConsumableCode;
+import com.heartyoh.model.Task;
 import com.heartyoh.model.Vehicle;
 
 /**
@@ -134,4 +136,86 @@ public class DatasourceUtils {
 		return dml.selectListBySqlPath("com/heartyoh/util/LbaQuery.sql", params, Map.class, 0, 0);
 	}
 	
+	/**
+	 * Task 생성 
+	 * 
+	 * @param task
+	 * @return
+	 * @throws Exception
+	 */
+	public static void createTask(Task task) throws Exception {
+		dml.insert(task);
+	}
+	
+	/**
+	 * company, url 조건으로 task 조회 
+	 * 
+	 * @param company
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public static Task findTask(Map<String, Object> params) throws Exception {
+		
+		StringBuffer sql = new StringBuffer("select * from task");
+		if(params.isEmpty()) 
+			throw new Exception("Parameters not exist!");
+		
+		sql.append(" where ");
+		
+		int idx = 0;
+		Iterator<String> keyIter = params.keySet().iterator();
+		while(keyIter.hasNext()) {
+			String key = keyIter.next();
+			sql.append(idx++ == 0 ? "" : " and ");
+			sql.append(key).append(" = :").append(key);
+		}
+		
+		return dml.selectBySql(sql.toString(), params, Task.class);
+	}
+	
+	/**
+	 * task id로 task를 조회 
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public static Task findTask(long id) throws Exception {
+		return dml.select(new Task(id));
+	}
+	
+	/**
+	 * task를 업데이트  
+	 * 
+	 * @param task
+	 * @return
+	 * @throws Exception
+	 */
+	public static void updateTask(Task task) throws Exception {
+		dml.update(task);
+	}
+	
+	/**
+	 * task를 삭제 
+	 * 
+	 * @param id
+	 * @throws Exception
+	 */
+	public static void daleteTask(long id) throws Exception {
+		dml.delete(new Task(id));
+	}
+	
+	/**
+	 * sql로 조회 
+	 * 
+	 * @param sql
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public static List<Map> selectBySql(String sql, Map<String, Object> params) throws Exception {
+		return dml.selectListBySql(sql, params, Map.class, 0, 0);
+	}
 }

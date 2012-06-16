@@ -27,7 +27,7 @@ import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 /**
- * Dashboard를 위한 컨트롤러 
+ * Dashboard를 위한 컨트롤러, Deprecated ==> 동일한 기능이 VehicleHealthReporter로 이동 
  * 
  * @author jhnam
  */
@@ -96,7 +96,7 @@ public class DashboardService {
 	public @ResponseBody
 	Map<String, Object> vehicleHealths(HttpServletRequest request, HttpServletResponse response) {
 		
-		// TODO 여기 sql 문으로 로직 변경 필요 
+		// URL : /report/service, ID : vehicle_health로 이동, 추후 mobile에서 이동한 후 삭제   
 		Key companyKey = SessionUtils.getCompanyKey(request);
 		List<Object> items = new ArrayList<Object>();
 		

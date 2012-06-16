@@ -3,9 +3,7 @@
  */
 package com.heartyoh.service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,15 +16,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.heartyoh.util.AlarmUtils;
+import com.heartyoh.model.Task;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatasourceUtils;
+import com.heartyoh.util.GreenFleetConstant;
 import com.heartyoh.util.SessionUtils;
 
 /**
@@ -92,26 +89,49 @@ public class RepairService extends EntityService {
 		super.onSave(entity, map, datastore);
 	}
 	
-	@RequestMapping(value = "/repair/alarm", method = RequestMethod.GET)
-	public @ResponseBody
-	String alarm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@Override
+	protected void saveEntity(Entity repair, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
-		Key companyKey = this.getCompanyKey(request);
+		Object nextRepairDateObj = repair.getProperty("next_repair_date");		
 		
-		// 0. 쿼리 : 오늘 날짜로 정비 스케줄이 잡혀 있는 모든 Repair 조회
-		List<Entity> impendingRepairs = this.findImpendingRepairs(companyKey);
-
-		if(DataUtils.isEmpty(impendingRepairs))
-			return this.getResultMsg(true, "No vehicles to repair exist!");
-		
-		try {
-			AlarmUtils.alarmRepairs(impendingRepairs);
-		} catch (Exception e) {
-			return this.getResultMsg(false, e.getMessage());
+		// 다음 정비일이 설정되었다면 task와 연동 		
+		if(repair.getProperty("task_id") == null) {
+			if(nextRepairDateObj != null) {
+				Date nextRepairDate = (Date)nextRepairDateObj;
+				String company = repair.getParent().getName();
+				String url = KeyFactory.keyToString(repair.getKey());
+				Task task = new Task();
+				task.setCategory(GreenFleetConstant.TASK_TYPE_MAINTENENCE);
+				task.setAllDay(true);
+				task.setCompany(company);
+				task.setStartDate(nextRepairDate);
+				task.setEndDate(nextRepairDate);
+				task.setUrl(url);
+				task.setTitle("Vehicle [" + repair.getProperty("vehicle_id") + "] maintenence");
+				DatasourceUtils.createTask(task);
+				Map<String, Object> params = DataUtils.newMap("company", company);
+				params.put("url", url);
+				task = DatasourceUtils.findTask(params);
+				repair.setProperty("task_id", task.getId());
+			}
+		} else {
+			long taskId = (Long)repair.getProperty("task_id");
+			Task task = DatasourceUtils.findTask(taskId);
+			
+			if(nextRepairDateObj != null) {
+				Date nextRepairDate = (Date)nextRepairDateObj;
+				task.setStartDate(nextRepairDate);
+				task.setEndDate(nextRepairDate);
+				DatasourceUtils.updateTask(task);
+				
+			} else {
+				DatasourceUtils.daleteTask(task.getId());
+				repair.removeProperty("task_id");
+			}
 		}
 		
-		return this.getResultMsg(true, "Repair alarms notified (" + impendingRepairs.size() + " count) successfully!");
-	}
+		datastore.put(repair);
+	}	
 	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
 	public @ResponseBody
@@ -124,7 +144,7 @@ public class RepairService extends EntityService {
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
-
+	
 	@RequestMapping(value = "/repair/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) {
@@ -143,32 +163,5 @@ public class RepairService extends EntityService {
 		
 		if(!DataUtils.isEmpty(vehicleId))
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);		
-	}
-	
-	/**
-	 * 정비 일정이 다가온 정보를 조회한다. 
-	 * 
-	 * @param companyKey
-	 * @return
-	 */
-	private List<Entity> findImpendingRepairs(Key companyKey) {
-		
-		Query q = new Query(this.getEntityName());
-		q.setAncestor(companyKey);
-		
-		long dateMillis = DataUtils.getTodayMillis();
-		Date[] fromToDate = DataUtils.getFromToDate(dateMillis, 1, 3);
-		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
-		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
-		q.addSort("next_repair_date", SortDirection.DESCENDING);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		PreparedQuery pq = datastore.prepare(q);
-		
-		List<Entity> repairs = new ArrayList<Entity>();
-		for(Entity repair : pq.asIterable()) {
-			repairs.add(repair);
-		}
-		
-		return repairs;
 	}
 }
