@@ -20,7 +20,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.SessionUtils;
 
-@Controller
+
 public class ReservationService extends EntityService {
 	private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
 

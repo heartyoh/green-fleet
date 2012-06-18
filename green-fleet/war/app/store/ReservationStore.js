@@ -10,7 +10,11 @@ Ext.define('GreenFleet.store.ReservationStore', {
 		name : 'id',
 		type : 'string'
 	}, {
-		name : 'reserved_date',
+		name : 'start_date',
+		type : 'date',
+		dateFormat:'time'
+	}, {
+		name : 'end_date',
 		type : 'date',
 		dateFormat:'time'
 	}, {

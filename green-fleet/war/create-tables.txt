@@ -267,3 +267,21 @@ CREATE TABLE report (
 	updated_at DATETIME,
 	PRIMARY KEY(company, name)
 ) DEFAULT CHARSET=utf8;
+
+-- reservation
+CREATE TABLE reservation (
+	id VARCHAR(100) NOT NULL, 
+	company VARCHAR(50) NOT NULL,
+	vehicle_id VARCHAR(100) NOT NULL,
+	start_date DATETIME NOT NULL,
+	end_date DATETIME NOT NULL,
+	vehicle_type VARCHAR(50),
+	driver_id VARCHAR(50) NOT NULL,
+	delivery_place VARCHAR(1000),
+	destination VARCHAR(1000),
+	purpose VARCHAR(255),
+	status VARCHAR(255),	
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(id)
+) DEFAULT CHARSET=utf8;

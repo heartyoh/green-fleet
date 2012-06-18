@@ -142,7 +142,7 @@ public abstract class OrmEntityService {
 		if(entity == null)
 			throw new Exception("Failed to delete because entity not found!");
 
-		this.onDelete(request, entity);		
+		this.onDelete(request, entity);
 		this.dml.delete(entity);
 		return entity;
 	}

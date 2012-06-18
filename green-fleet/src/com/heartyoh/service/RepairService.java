@@ -94,7 +94,7 @@ public class RepairService extends EntityService {
 		
 		Object nextRepairDateObj = repair.getProperty("next_repair_date");		
 		
-		// 다음 정비일이 설정되었다면 task와 연동 		
+		// 다음 정비일이 설정되었다면 task와 연동
 		if(repair.getProperty("task_id") == null) {
 			if(nextRepairDateObj != null) {
 				Date nextRepairDate = (Date)nextRepairDateObj;

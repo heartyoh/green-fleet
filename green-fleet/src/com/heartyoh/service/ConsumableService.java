@@ -256,6 +256,8 @@ public class ConsumableService extends HistoricEntityService {
 			} else if(GreenFleetConstant.VEHICLE_HEALTH_O.equalsIgnoreCase(healthStatus)) {
 				vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_O;
 			}
+			
+			// TODO 소모품 관리 일정 관리 연동 ==> 다음 교체일이 있는 경우만 ...
 		}
 		
 		// 차량 건강 상태 업데이트 

@@ -29,20 +29,19 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.sub('grid').on('render', function(grid) {
-//			grid.store.load();
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
 			self.search();
 		});
 
-		this.sub('reserved_date_filter').on('change', function(field, value) {
+		this.sub('datetime_filter').on('change', function(field, value) {
 			self.search();
 		});
 
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
-			self.sub('reserved_date_filter').setValue('');
+			self.sub('datetime_filter').setValue('');
 		});
 
 		this.down('#search').on('click', function() {
@@ -57,8 +56,8 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				property : 'vehicle_id',
 				value : this.sub('vehicle_filter').getSubmitValue()
 			}, {
-				property : 'reserved_date',
-				value : this.sub('reserved_date_filter').getSubmitValue()
+				property : 'datetime',
+				value : this.sub('datetime_filter').getSubmitValue()
 			} ],
 			callback : callback
 		});
@@ -72,23 +71,30 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			autoScroll : true,
 			flex : 1,
 			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
+				dataIndex : 'id',
 				text : T('label.id'),
-				type : 'string'
+				type : 'string',
+				hidden : true
 			}, {
-				dataIndex : 'reserved_date',
-				text : T('label.reserved_date'),
-				xtype : 'datecolumn',
-				format : F('date'),
-				width : 120
+				dataIndex : 'vehicle_id',
+				text : T('label.vehicle'),
+				type : 'string'
 			}, {
 				dataIndex : 'driver_id',
 				text : T('label.driver'),
 				type : 'string'
 			}, {
-				dataIndex : 'vehicle_id',
-				text : T('label.vehicle'),
-				type : 'string'
+				dataIndex : 'start_date',
+				text : T('label.from_date'),
+				xtype : 'datecolumn',
+				format : F('date'),
+				width : 120
+			}, {
+				dataIndex : 'end_date',
+				text : T('label.to_date'),
+				xtype : 'datecolumn',
+				format : F('date'),
+				width : 120
 			}, {
 				dataIndex : 'vehicle_type',
 				text : T('label.x_type', {x : T('label.vehicle')}),
@@ -133,8 +139,8 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				width : 200
 			}, T('label.date'), {
 				xtype : 'datefield',
-				name : 'reserved_date_filter',
-				itemId : 'reserved_date_filter',
+				name : 'datetime_filter',
+				itemId : 'datetime_filter',
 				hideLabel : true,
 				width : 200
 			}, {
@@ -161,13 +167,18 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				anchor : '100%'
 			},
 			items : [ {
-				name : 'key',
+				name : 'id',
 				fieldLabel : T('label.id'),
-				disabled : true
+				hidden : true
 			}, {
 				xtype : 'datefield',
-				name : 'reserved_date',
-				fieldLabel : T('label.reserved_date'),
+				name : 'start_date',
+				fieldLabel : T('label.from_date'),
+				format : F('date')
+			}, {
+				xtype : 'datefield',
+				name : 'end_date',
+				fieldLabel : T('label.to_date'),
 				format : F('date')
 			}, {
 				name : 'vehicle_type',
