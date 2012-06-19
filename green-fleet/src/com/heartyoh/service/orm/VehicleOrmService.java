@@ -104,6 +104,15 @@ public class VehicleOrmService extends OrmEntityService {
 		vehicle.setTotalDistance(DataUtils.toFloat(request.getParameter("total_distance")));
 		vehicle.setRemainingFuel(DataUtils.toFloat(request.getParameter("remaining_fuel")));
 		
+		if(request.getParameter("eco_index") != null)
+			vehicle.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
+		
+		if(request.getParameter("official_effcc") != null)
+			vehicle.setOfficialEffcc(DataUtils.toFloat(request.getParameter("official_effcc")));
+		
+		if(request.getParameter("avg_effcc") != null)
+			vehicle.setAvgEffcc(DataUtils.toFloat(request.getParameter("avg_effcc")));		
+		
 		if(!DataUtils.isEmpty(request.getParameter("lat")))
 			vehicle.setLat(DataUtils.toFloat(request.getParameter("lat")));
 		

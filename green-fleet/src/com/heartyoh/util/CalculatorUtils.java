@@ -234,10 +234,11 @@ public class CalculatorUtils {
 		// 다음 교체일
 		Date nextReplDate = DataUtils.toDate(consumable.getProperty("next_repl_date"));
 		
-		// FIXME 최근 교체일이 없다면 아직 한 번도 교체하지 않았다는 의미이므로 차량을 최초 구입한 날짜로 해야하지만 그 정보가 차량에 없다. ==> vehicle에 추가 필요 
-		if(lastReplDate == null || replTime == 0)
-			return -1f;
-				
+		// 최근 교체일이 없다면 그냥 오늘 날짜로 부터 계산한다.
+		if(lastReplDate == null || replTime == 0) {
+			lastReplDate = DataUtils.getToday();
+		}
+		
 		// 다음 교체일이 없다면 계산해 줌 
 		if(nextReplDate == null) {
 			consumable.setProperty("next_repl_date", DataUtils.addDate(lastReplDate, 30 * replTime));

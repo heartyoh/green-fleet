@@ -1,11 +1,11 @@
-Ext.define('GreenFleet.view.management.DriverSpeedSection', {
+Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.management_driver_speed',
+	alias : 'widget.management_vehicle_speed',
 
-	title : T('title.driver_speed_section'),
+	title : T('title.vehicle_speed_section'),
 
-	entityUrl : 'driver_speed',
+	entityUrl : 'vehicle_speed',
 	
 	layout : {
 		align : 'stretch',
@@ -18,7 +18,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		var self = this;
 
 		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.driver_speed_section') + "</div>"}, 
+		    { html : "<div class='listTitle'>" + T('title.vehicle_speed_section') + "</div>"}, 
 		    {
 				xtype : 'container',
 				flex : 1,
@@ -44,10 +44,10 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 
 		this.callParent();
 
-		this.sub('driver_list').on('itemclick', function(grid, record) {
+		this.sub('vehicle_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.driver = record.data.id;
+			proxy.extraParams.vehicle = record.data.id;
 			proxy.extraParams.from_year = self.sub('from_year').getValue();
 			proxy.extraParams.to_year = self.sub('to_year').getValue();
 			proxy.extraParams.from_month = self.sub('from_month').getValue();
@@ -77,14 +77,14 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
 		 */
 		this.sub('id_filter').on('change', function(field, value) {
-			self.searchDrivers(false);
+			self.searchVehicles(false);
 		});
 
 		/**
 		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
 		 */
-		this.sub('name_filter').on('change', function(field, value) {
-			self.searchDrivers(false);
+		this.sub('reg_no_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
 		});
 		
 		/**
@@ -107,18 +107,18 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		this.sub('chart_panel').setTitle(title);
 	},
 	
-	searchDrivers : function(searchRemote) {
+	searchVehicles : function(searchRemote) {
 		
 		if(searchRemote) {
-			this.sub('driver_list').store.load();
+			this.sub('vehicle_list').store.load();
 			
 		} else {
-			this.sub('driver_list').store.clearFilter(true);			
+			this.sub('vehicle_list').store.clearFilter(true);			
 			var idValue = this.sub('id_filter').getValue();
-			var nameValue = this.sub('name_filter').getValue();
+			var nameValue = this.sub('reg_no_filter').getValue();
 			
 			if(idValue || nameValue) {
-				this.sub('driver_list').store.filter([ {
+				this.sub('vehicle_list').store.filter([ {
 					property : 'id',
 					value : idValue
 				}, {
@@ -132,9 +132,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	zvehiclelist : function(self) {
 		return {
 			xtype : 'gridpanel',
-			itemId : 'driver_list',
-			store : 'DriverStore',
-			title : T('title.driver_list'),
+			itemId : 'vehicle_list',
+			store : 'VehicleBriefStore',
+			title : T('title.vehicle_list'),
 			width : 260,
 			autoScroll : true,
 			
@@ -143,8 +143,8 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 				text : T('label.id'),
 				flex : 1
 			}, {
-				dataIndex : 'name',
-				text : T('label.name'),
+				dataIndex : 'registration_number',
+				text : T('label.reg_no'),
 				flex : 1
 			} ],
 
@@ -159,8 +159,8 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 				T('label.name'),
 				{
 					xtype : 'textfield',
-					name : 'name_filter',
-					itemId : 'name_filter',
+					name : 'reg_no_filter',
+					itemId : 'reg_no_filter',
 					width : 65
 				},
 				' ',
@@ -168,7 +168,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 					xtype : 'button',
 					text : T('button.search'),
 					handler : function(btn) {
-						btn.up('management_driver_speed').searchDrivers(true);
+						btn.up('management_vehicle_speed').searchVehicles(true);
 					}
 				}
 			]
@@ -178,7 +178,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	zrunstatus : {
 		xtype : 'gridpanel',
 		itemId : 'runstatus_grid',
-		store : 'DriverSpeedStore',
+		store : 'VehicleSpeedStore',
 		cls : 'hIndexbar',
 		title : T('title.runstatus_history'),
 		autoScroll : true,
@@ -269,7 +269,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('management_driver_speed');
+						var thisView = combo.up('management_vehicle_speed');
 						thisView.refreshChart();
 					}
 			    }

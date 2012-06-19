@@ -54,6 +54,7 @@ public class ReservationOrmService extends OrmEntityService {
  
 	@Override
 	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {
+		// TODO 날짜로 검색 
 		Query query = super.getRetrieveQuery(request);
 		query.addOrder("updated_at", false);
 		return query;
@@ -79,7 +80,8 @@ public class ReservationOrmService extends OrmEntityService {
 	
 	@RequestMapping(value = "/reservation/save", method = RequestMethod.POST)
 	public @ResponseBody
-	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO 이미 예약된 차인지 확인 후 저장 ...
 		return super.save(request, response);
 	}
 	
@@ -167,7 +169,6 @@ public class ReservationOrmService extends OrmEntityService {
 		if(task != null) {
 			task.setStartDate(reserv.getStartDate());
 			task.setEndDate(reserv.getEndDate());
-			task.setUrl("" + reserv.getId());
 			task.setTitle("Reservation [" + reserv.getVehicleId() + "] by [" + reserv.getDriverId() + "]");
 			DatasourceUtils.updateTask(task);
 			

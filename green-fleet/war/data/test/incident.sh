@@ -1,8 +1,7 @@
 #!/bin/bash
 lat=37.38
 lng=127.11
-#host="http://green-fleets.appspot.com"
-host="http://gf-backend.green-fleets.appspot.com/"
+host="http://green-fleets.appspot.com"
 #host="http://localhost:8888"
 tid="PT-003"
 

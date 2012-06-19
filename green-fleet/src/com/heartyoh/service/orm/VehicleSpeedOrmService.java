@@ -15,7 +15,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dbist.dml.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,50 +23,36 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.heartyoh.model.IEntity;
-import com.heartyoh.model.VehicleRunSum;
+import com.heartyoh.model.VehicleSpeedSum;
 import com.heartyoh.util.DataUtils;
 
 /**
- * 차량별 운행 정보 서비스
+ * Vehicle 속도 서머리 서비스 
  * 
  * @author jhnam
  */
 @Controller
-public class VehicleRunOrmService extends OrmEntityService {
+public class VehicleSpeedOrmService extends OrmEntityService {
 
+	/**
+	 * key fields
+	 */
 	private static final String[] KEY_FIELDS = new String[] { "company", "vehicle", "year", "month" };
 	
 	@Override
 	public Class<?> getEntityClass() {
-		return VehicleRunSum.class;
+		return VehicleSpeedSum.class;
 	}
 
 	@Override
 	public String[] getKeyFields() {
 		return KEY_FIELDS;
 	}
-
-	@Override
-	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {
 		
-		Query query = new Query();
-		query.addFilter("company", this.getCompany(request));
-		
-		if(!DataUtils.isEmpty(request.getParameter("vehicle"))) {
-			query.addFilter("vehicle", request.getParameter("vehicle"));
-		}
-		
-		query.addOrder("year", true);
-		query.addOrder("month", true);
-		query.addOrder("vehicle", true);
-		return query;
-	}
-
-	@RequestMapping(value = "/vehicle_run/import", method = RequestMethod.POST)
+	@RequestMapping(value = "/vehicle_speed/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		response.setContentType("text/html; charset=UTF-8");
 		MultipartFile file = request.getFile("file");
 		BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
 		String line = br.readLine();
@@ -78,7 +63,7 @@ public class VehicleRunOrmService extends OrmEntityService {
 		
 		while ((line = br.readLine()) != null) {
 			String[] values = line.split(",");
-			VehicleRunSum sum = new VehicleRunSum();
+			VehicleSpeedSum sum = new VehicleSpeedSum();
 			sum.setCompany(company);
 			
 			for (int i = 0; i < keys.length; i++) {
@@ -88,6 +73,12 @@ public class VehicleRunOrmService extends OrmEntityService {
 				if(key.equalsIgnoreCase("vehicle")) {
 					sum.setVehicle(value);
 					
+				} else if(key.equalsIgnoreCase("year")) {
+					sum.setYear(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("month")) {
+					sum.setMonth(DataUtils.toInt(value));					
+					
 				} else if(key.equalsIgnoreCase("month_date")) {
 					Date date = DataUtils.toDate(value);
 					Calendar c = Calendar.getInstance();
@@ -96,62 +87,85 @@ public class VehicleRunOrmService extends OrmEntityService {
 					sum.setMonth(c.get(Calendar.MONTH) + 1);
 					sum.setMonthDate(date);
 					
-				} else if(key.equalsIgnoreCase("run_time")) {
-					sum.setRunTime(DataUtils.toInt(value));
+				} else if(key.equalsIgnoreCase("spd_lt10")) {
+					sum.setSpdLt10(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("run_dist")) { 
-					sum.setRunDist(DataUtils.toFloat(value));
+				} else if(key.equalsIgnoreCase("spd_lt20")) {
+					sum.setSpdLt20(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("co2_emss")) {
-					sum.setCo2Emss(DataUtils.toFloat(value));
+				} else if(key.equalsIgnoreCase("spd_lt30")) {
+					sum.setSpdLt30(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("consmpt")) {
-					sum.setConsmpt(DataUtils.toFloat(value));
+				} else if(key.equalsIgnoreCase("spd_lt40")) {
+					sum.setSpdLt40(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("effcc")) {
-					sum.setEffcc(DataUtils.toFloat(value));
+				} else if(key.equalsIgnoreCase("spd_lt50")) {
+					sum.setSpdLt50(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("eco_index")) {
-					sum.setEffcc(DataUtils.toFloat(value));					
+				} else if(key.equalsIgnoreCase("spd_lt60")) {
+					sum.setSpdLt60(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("oos_cnt")) {
-					sum.setOosCnt(DataUtils.toInt(value));
+				} else if(key.equalsIgnoreCase("spd_lt70")) {
+					sum.setSpdLt70(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("mnt_cnt")) {
-					sum.setMntCnt(DataUtils.toInt(value));
+				} else if(key.equalsIgnoreCase("spd_lt80")) {
+					sum.setSpdLt80(DataUtils.toInt(value));
 					
-				} else if(key.equalsIgnoreCase("mnt_time")) {
-					sum.setMntTime(DataUtils.toInt(value));
-				}
+				} else if(key.equalsIgnoreCase("spd_lt90")) {
+					sum.setSpdLt90(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt100")) {
+					sum.setSpdLt100(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt110")) {
+					sum.setSpdLt110(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt120")) {
+					sum.setSpdLt120(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt130")) {
+					sum.setSpdLt130(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt140")) {
+					sum.setSpdLt140(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt150")) {
+					sum.setSpdLt150(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("spd_lt160")) {
+					sum.setSpdLt160(DataUtils.toInt(value));
+				} 
 			}
 
-			sum.beforeSave();
+			sum.beforeSave();			
 			list.add(sum);
+			batchCount++;
 			
 			if(batchCount == 30) {
 				this.dml.upsertBatch(list);
 				list.clear();
 				batchCount = 0;
-			}			
+			}
 		}
 
-		this.dml.upsertBatch(list);		
-		return "{\"success\" : true, \"msg\" : \"Imported " + list.size() + " count successfully\"}";
+		this.dml.upsertBatch(list);
+		response.setContentType("text/html; charset=UTF-8");
+		return "{\"success\" : true, \"msg\" : \"Imported " + list.size() + " count successfully\"}";		
 	}
 	
-	@RequestMapping(value = "/vehicle_run/delete", method = RequestMethod.POST)
+	@RequestMapping(value = "/vehicle_speed/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.delete(request, response);
 	}
 	
-	@RequestMapping(value = "/vehicle_run", method = RequestMethod.GET)
+	@RequestMapping(value = "/vehicle_speed", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		String company = this.getCompany(request);
 		Map<String, Object> queryParams = new HashMap<String, Object>();
-		StringBuffer query = new StringBuffer("select *, CONCAT_WS('-', year, month) month_str from vehicle_run_sum where company = :company");
+		StringBuffer query = new StringBuffer("select *, CONCAT_WS('-', year, month) month_str from vehicle_speed_sum where company = :company");
 		queryParams.put("company", company);
 		
 		if(!DataUtils.isEmpty(request.getParameter("from_year")) && !DataUtils.isEmpty(request.getParameter("from_month"))) {
@@ -181,40 +195,53 @@ public class VehicleRunOrmService extends OrmEntityService {
 		
 		try {
 			@SuppressWarnings("rawtypes")
-			List<Map> items = this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);		
+			List<Map> items = this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);	
 			return this.getResultSet(true, items.size(), items);
 			
 		} catch(Exception e) {
 			return this.getResultSet(false, 0, null);
 		}
-	}
+	}	
 	
-	@RequestMapping(value = "/vehicle_run/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/vehicle_speed/save", method = RequestMethod.POST)
 	public @ResponseBody
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.save(request, response);
 	}
 	
-	@RequestMapping(value = "/vehicle_run/find", method = RequestMethod.GET)
+	@RequestMapping(value = "/vehicle_speed/find", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.find(request, response);
 	}
 	
 	@Override
+	protected Map<String, Object> convertItem(HttpServletRequest request, IEntity entity) {
+		Map<String, Object> record = super.convertItem(request, entity);
+		record.put("month_str", record.get("year") + "-" + record.get("month"));
+		return record;
+	}
+	
+	@Override
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
 		
-		VehicleRunSum sum = (VehicleRunSum)entity;
-		sum.setRunTime(DataUtils.toInt(request.getParameter("run_time")));
-		sum.setRunDist(DataUtils.toFloat(request.getParameter("run_dist")));		
-		sum.setCo2Emss(DataUtils.toFloat(request.getParameter("co2_emss")));
-		sum.setConsmpt(DataUtils.toFloat(request.getParameter("consmpt")));
-		sum.setEffcc(DataUtils.toFloat(request.getParameter("effcc")));
-		sum.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
-		sum.setOosCnt(DataUtils.toInt(request.getParameter("oos_cnt")));
-		sum.setMntCnt(DataUtils.toInt(request.getParameter("mnt_cnt")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("mnt_time")));
-		
+		VehicleSpeedSum sum = (VehicleSpeedSum)entity;		
+		sum.setSpdLt10(DataUtils.toInt(request.getParameter("spd_lt10")));
+		sum.setSpdLt20(DataUtils.toInt(request.getParameter("spd_lt20")));
+		sum.setSpdLt30(DataUtils.toInt(request.getParameter("spd_lt30")));
+		sum.setSpdLt40(DataUtils.toInt(request.getParameter("spd_lt40")));
+		sum.setSpdLt50(DataUtils.toInt(request.getParameter("spd_lt50")));
+		sum.setSpdLt60(DataUtils.toInt(request.getParameter("spd_lt60")));
+		sum.setSpdLt70(DataUtils.toInt(request.getParameter("spd_lt70")));
+		sum.setSpdLt80(DataUtils.toInt(request.getParameter("spd_lt80")));
+		sum.setSpdLt90(DataUtils.toInt(request.getParameter("spd_lt90")));
+		sum.setSpdLt100(DataUtils.toInt(request.getParameter("spd_lt100")));
+		sum.setSpdLt110(DataUtils.toInt(request.getParameter("spd_lt110")));
+		sum.setSpdLt120(DataUtils.toInt(request.getParameter("spd_lt120")));
+		sum.setSpdLt130(DataUtils.toInt(request.getParameter("spd_lt130")));
+		sum.setSpdLt140(DataUtils.toInt(request.getParameter("spd_lt140")));
+		sum.setSpdLt150(DataUtils.toInt(request.getParameter("spd_lt150")));
+		sum.setSpdLt160(DataUtils.toInt(request.getParameter("spd_lt160")));
 		sum.beforeUpdate();
 		return sum;
 	}
@@ -223,7 +250,7 @@ public class VehicleRunOrmService extends OrmEntityService {
 	protected IEntity onCreate(HttpServletRequest request, IEntity entity) {
 		
 		if(entity == null) {
-			entity = new VehicleRunSum(this.getCompany(request), 
+			entity = new VehicleSpeedSum(this.getCompany(request), 
 									   request.getParameter("vehicle"), 
 									   DataUtils.toInt(request.getParameter("year")), 
 									   DataUtils.toInt(request.getParameter("month")));
@@ -231,5 +258,5 @@ public class VehicleRunOrmService extends OrmEntityService {
 		
 		entity.beforeCreate();
 		return entity;
-	}
+	}		
 }

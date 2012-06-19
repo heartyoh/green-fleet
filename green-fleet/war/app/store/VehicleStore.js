@@ -54,8 +54,17 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'terminal_id',
 		type : 'string'
 	}, {
+		name : 'avg_effcc',
+		type : 'float'
+	}, {
+		name : 'official_effcc',
+		type : 'float'
+	}, {
+		name : 'eco_index',
+		type : 'int'
+	}, {
 		name : 'lat',
-		type : 'float'			
+		type : 'float'
 	}, {
 		name : 'lng',
 		type : 'float'

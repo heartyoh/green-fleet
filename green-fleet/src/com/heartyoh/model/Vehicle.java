@@ -69,6 +69,18 @@ public class Vehicle extends AbstractEntity {
 	 */
 	private float remainingFuel;
 	/**
+	 * 공인연비 
+	 */
+	private float officialEffcc;
+	/**
+	 * 평균연비 
+	 */
+	private float avgEffcc;
+	/**
+	 * 에코 지수
+	 */
+	private int ecoIndex;
+	/**
 	 * 차량 위치 : 위도 
 	 */
 	private float lat;
@@ -208,6 +220,30 @@ public class Vehicle extends AbstractEntity {
 
 	public void setTotalDistance(float totalDistance) {
 		this.totalDistance = totalDistance;
+	}
+
+	public float getOfficialEffcc() {
+		return officialEffcc;
+	}
+
+	public void setOfficialEffcc(float officialEffcc) {
+		this.officialEffcc = officialEffcc;
+	}
+
+	public float getAvgEffcc() {
+		return avgEffcc;
+	}
+
+	public void setAvgEffcc(float avgEffcc) {
+		this.avgEffcc = avgEffcc;
+	}
+
+	public int getEcoIndex() {
+		return ecoIndex;
+	}
+
+	public void setEcoIndex(int ecoIndex) {
+		this.ecoIndex = ecoIndex;
 	}
 
 	public float getRemainingFuel() {

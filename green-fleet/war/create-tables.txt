@@ -1,3 +1,16 @@
+-- App Engine Database 설정 
+-- App Engine SQL Cloud
+instance name : green-fleets-cloudsql:green-fleets
+database name : fleet_master
+database username : root
+database password :  
+
+-- Use Google Cloud SQL
+instance name : green-fleets-cloudsql:green-fleets-test
+database name : fleet_master
+database username : root
+database password :  
+
 -- vehicle group
 CREATE TABLE vehicle_group (
 	company VARCHAR(50) NOT NULL, 
@@ -107,6 +120,7 @@ CREATE TABLE vehicle_run_sum (
 	consmpt FLOAT(9,1),
 	co2_emss FLOAT(7,2),
 	effcc FLOAT(5,2),
+	eco_index SMALLINT,
 	oos_cnt INT,
 	mnt_cnt INT,
 	inc_cnt INT,
@@ -115,6 +129,19 @@ CREATE TABLE vehicle_run_sum (
 	sud_brake_cnt INT,
 	eco_drv_time INT,
 	ovr_spd_time INT,
+	effcc_sum FLOAT(6,1),
+	eco_index_sum MEDIUMINT,
+	sum_count SMALLINT,	
+	PRIMARY KEY(company, vehicle, year, month)
+) DEFAULT CHARSET=utf8;
+
+-- vehicle speed sum
+CREATE TABLE vehicle_speed_sum (
+	company VARCHAR(50) NOT NULL,
+	vehicle VARCHAR(50) NOT NULL, 
+	year SMALLINT NOT NULL, 
+	month SMALLINT NOT NULL,
+	month_date DATE NOT NULL,
 	spd_lt10 INT, 
 	spd_lt20 INT, 
 	spd_lt30 INT, 
@@ -146,11 +173,25 @@ CREATE TABLE driver_run_sum (
 	consmpt FLOAT(9,1),
 	co2_emss FLOAT(7,2),
 	effcc FLOAT(5,2),
+	eco_index SMALLINT,
+	effcc_sum FLOAT(6,1),
+	eco_index_sum MEDIUMINT,
+	sum_count SMALLINT,	
 	sud_accel_cnt INT,
 	sud_brake_cnt INT,
 	eco_drv_time INT,
 	ovr_spd_time INT,
 	inc_cnt INT,
+	PRIMARY KEY(company, driver, year, month)
+) DEFAULT CHARSET=utf8;
+
+-- driver speed sum
+CREATE TABLE driver_speed_sum (
+	company VARCHAR(50) NOT NULL,
+	driver VARCHAR(50) NOT NULL, 
+	year SMALLINT NOT NULL, 
+	month SMALLINT NOT NULL,
+	month_date DATE NOT NULL,
 	spd_lt10 INT, 
 	spd_lt20 INT, 
 	spd_lt30 INT, 
@@ -235,7 +276,7 @@ CREATE TABLE vehicle (
 	driver_id VARCHAR(50),
 	terminal_id VARCHAR(50),
 	registration_number VARCHAR(100) NOT NULL, 
-	manufacturer VARCHAR(2000),
+	manufacturer VARCHAR(50),
 	vehicle_model VARCHAR(50),
 	vehicle_type VARCHAR(50),
 	fuel_type VARCHAR(50),
@@ -245,12 +286,35 @@ CREATE TABLE vehicle (
 	health_status VARCHAR(30),
 	total_distance FLOAT(9,1),
 	remaining_fuel FLOAT(7,1),
+	avg_effcc FLOAT(4,1),
+	official_effcc FLOAT(4,1),
+	eco_index SMALLINT,
 	lat FLOAT(11,7),
 	lng FLOAT(11,7),
 	image_clip VARCHAR(1000),
 	created_at DATETIME, 
 	updated_at DATETIME,
 	PRIMARY KEY(company, id)
+) DEFAULT CHARSET=utf8;
+
+--  TODO vehicle model
+CREATE TABLE vehicle_model (
+	id VARCHAR(50) NOT NULL,
+	manufacturer VARCHAR(50),		-- 제조사 
+	model VARCHAR(50),				-- 모델 
+	birth_year SMALLINT,			-- 연식 
+	seater SMALLINT,				-- 인승  
+	vehicle_type VARCHAR(50),		-- 차량타입 : sedan, suv, ....
+	fuel_type VARCHAR(50),			-- 연료타입 : 가스, 휘발유, 경유, 하이브리드, 전기차 
+	effcc_grade SMALLINT,			-- 연료소비효율 등급 
+	displacement SMALLINT,			-- 배기량 
+	transmission VARCHAR(1),		-- 변속기 형식 
+	co2_emss FLOAT(4,1),			-- Co2 배출량 
+	official_effcc FLOAT(4,1),		-- 공인연비 
+	image_clip VARCHAR(1000),		-- 사진 
+	created_at DATETIME, 
+	updated_at DATETIME,
+	PRIMARY KEY(id)
 ) DEFAULT CHARSET=utf8;
 
 -- report

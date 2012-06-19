@@ -22,8 +22,10 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.DriverRunSum;
+import com.heartyoh.model.DriverSpeedSum;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.model.VehicleRunSum;
+import com.heartyoh.model.VehicleSpeedSum;
 import com.heartyoh.util.ConnectionManager;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.GreenFleetConstant;
@@ -106,14 +108,14 @@ public class CheckinDataService extends EntityService {
 		
 		entity.setUnindexedProperty("distance", doubleProperty(map, "distance"));
 		entity.setUnindexedProperty("running_time", intProperty(map, "running_time"));
+		entity.setUnindexedProperty("idle_time", intProperty(map, "idle_time"));
+		entity.setUnindexedProperty("eco_driving_time", intProperty(map, "eco_driving_time"));
 		entity.setUnindexedProperty("average_speed", doubleProperty(map, "average_speed"));
 		entity.setUnindexedProperty("max_speed", intProperty(map, "max_speed"));
 		entity.setUnindexedProperty("fuel_consumption", doubleProperty(map, "fuel_consumption"));
 		entity.setUnindexedProperty("fuel_efficiency", doubleProperty(map, "fuel_efficiency"));
 		entity.setUnindexedProperty("sudden_accel_count", intProperty(map, "sudden_accel_count"));
 		entity.setUnindexedProperty("sudden_brake_count", intProperty(map, "sudden_brake_count"));
-		entity.setUnindexedProperty("idle_time", intProperty(map, "idle_time"));
-		entity.setUnindexedProperty("eco_driving_time", intProperty(map, "eco_driving_time"));
 		entity.setUnindexedProperty("over_speed_time", intProperty(map, "over_speed_time"));
 		entity.setUnindexedProperty("co2_emissions", doubleProperty(map, "co2_emissions"));
 		entity.setUnindexedProperty("max_cooling_water_temp", doubleProperty(map, "max_cooling_water_temp"));
@@ -134,7 +136,7 @@ public class CheckinDataService extends EntityService {
 		entity.setUnindexedProperty("less_than_130km", intProperty(map, "less_than_130km"));
 		entity.setUnindexedProperty("less_than_140km", intProperty(map, "less_than_140km"));
 		entity.setUnindexedProperty("less_than_150km", intProperty(map, "less_than_150km"));
-		entity.setUnindexedProperty("less_than_160km", intProperty(map, "less_than_160km"));		
+		entity.setUnindexedProperty("less_than_160km", intProperty(map, "less_than_160km"));
 
 		super.onSave(entity, map, datastore);
 	}
@@ -164,7 +166,7 @@ public class CheckinDataService extends EntityService {
 	}
 	
 	@Override
-	protected void saveEntity(Entity checkinObj, Map<String, Object> map, DatastoreService datastore) throws Exception {
+	protected void saveEntity(Entity checkin, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
 		try {			
 			Calendar today = Calendar.getInstance();
@@ -172,17 +174,20 @@ public class CheckinDataService extends EntityService {
 			int month = today.get(Calendar.MONTH) + 1;
 			Dml dml = ConnectionManager.getInstance().getDml();
 			
-			// 1. 체크인 데이터를 저장 
-			super.saveEntity(checkinObj, map, datastore);
+			// 1. 체크인 정보를 Vehicle 마스터 데이터에 반영  
+			Vehicle vehicle = this.adjustVehicleData(dml, checkin);
 			
-			// 2. 체크인 정보를 Vehicle 마스터 데이터에 반영  
-			Vehicle vehicle = this.adjustVehicleData(dml, checkinObj);
+			// 2. 체크인 정보를 Vehicle 주행 서머리 정보에 반영 
+			VehicleRunSum vrs = this.adjustVehicleRunSum(dml, checkin, year, month);
 			
-			// 3. 체크인 정보를 Vehicle 주행 서머리 정보에 반영 
-			VehicleRunSum vrs = this.adjustVehicleRunSum(dml, checkinObj, year, month);
+			// 3. 체크인 정보를 Driver 주행 서머리 정보에 반영
+			DriverRunSum drs = this.adjustDriverRunSum(dml, checkin, year, month);
 			
-			// 4. 체크인 정보를 Driver 주행 서머리 정보에 반영
-			DriverRunSum drs = this.adjustDriverRunSum(dml, checkinObj, year, month);
+			// 4. 체크인 정보를 Vehicle 속도 서머리 정보에 반영 
+			VehicleSpeedSum vss = this.adjustVehicleSpeedSum(dml, checkin, year, month);
+			
+			// 5. 체크인 정보를 Driver 속도 서머리 정보에 반영
+			DriverSpeedSum dss = this.adjustDriverSpeedSum(dml, checkin, year, month);
 			
 			if(vehicle != null) {
 				vehicle.beforeUpdate();
@@ -195,6 +200,15 @@ public class CheckinDataService extends EntityService {
 			if(drs != null)
 				dml.upsert(drs);
 			
+			if(vss != null)
+				dml.upsert(vss);
+			
+			if(dss != null)
+				dml.upsert(dss);
+			
+			// 4. 체크인 데이터를 저장 
+			super.saveEntity(checkin, map, datastore);			
+			
 		} catch (Exception e) {
 			logger.error("Failed to save checkin data!", e);
 			throw e;
@@ -205,22 +219,29 @@ public class CheckinDataService extends EntityService {
 	 * 체크인 정보에 대해서 Vehicle 마스터 정보에 반영 (주행거리)
 	 * 
 	 * @param dml
-	 * @param checkinObj
+	 * @param checkin
 	 * @return
 	 * @throws Exception
 	 */
-	private Vehicle adjustVehicleData(Dml dml, Entity checkinObj) throws Exception {		
-		String company = checkinObj.getParent().getName();
-		String vehicleId = (String)checkinObj.getProperty("vehicle_id");
+	private Vehicle adjustVehicleData(Dml dml, Entity checkin) throws Exception {		
+		String company = checkin.getParent().getName();
+		String vehicleId = (String)checkin.getProperty("vehicle_id");
 		Vehicle vehicle = new Vehicle(company, vehicleId);
 		vehicle = dml.select(vehicle);
 		
 		if(vehicle != null) {
-			// 체크인 시점에 driver, terminal, total distance 정보를 업데이트한다.
-			float newTotalDist = vehicle.getTotalDistance() + DataUtils.toFloat(checkinObj.getProperty("distance"));
-			//vehicle.setDriverId((String)checkinObj.getProperty("driver_id"));
-			//vehicle.setTerminalId((String)checkinObj.getProperty("terminal_id"));
+			// 체크인 시점에 주행거리를 업데이트한다.
+			float newTotalDist = vehicle.getTotalDistance();
+			newTotalDist += DataUtils.toFloat(checkin.getProperty("distance"));
 			vehicle.setTotalDistance(newTotalDist);
+			
+			// 차량 정보의 공인연비, 평균 연비로 에코 지수를 계산하여 checkin 데이터에 추가 
+			float avgEffcc = DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
+			float officialEffcc = vehicle.getOfficialEffcc();
+			if(officialEffcc > 0) {
+				int ecoIndex = Math.round((avgEffcc / officialEffcc) * 100);
+				checkin.setUnindexedProperty("eco_index", ecoIndex);
+			}
 		}
 		
 		return vehicle;
@@ -230,16 +251,16 @@ public class CheckinDataService extends EntityService {
 	 * Vehicle 주행 서머리 정보에 반영 
 	 *  
 	 * @param dml
-	 * @param checkinObj
+	 * @param checkin
 	 * @param year
 	 * @param month
 	 * @return
 	 * @throws Exception
 	 */
-	private VehicleRunSum adjustVehicleRunSum(Dml dml, Entity checkinObj, int year, int month) throws Exception {
+	private VehicleRunSum adjustVehicleRunSum(Dml dml, Entity checkin, int year, int month) throws Exception {
 		
-		String company = checkinObj.getParent().getName();
-		String vehicleId = (String)checkinObj.getProperty("vehicle_id");
+		String company = checkin.getParent().getName();
+		String vehicleId = (String)checkin.getProperty("vehicle_id");
 		VehicleRunSum runSum = new VehicleRunSum(company, vehicleId, year, month);
 		
 		try {
@@ -252,17 +273,29 @@ public class CheckinDataService extends EntityService {
 			runSum = new VehicleRunSum(company, vehicleId, year, month);
 		
 		// 체크인 시점에 RunSum 정보를 업데이트한다.		
-		float cRunDist = DataUtils.toFloat(checkinObj.getProperty("distance"));
-		int cRunTime = DataUtils.toInt(checkinObj.getProperty("running_time"));
-		float cConsmpt = DataUtils.toFloat(checkinObj.getProperty("fuel_consumption"));
-		float cCo2Emss = DataUtils.toFloat(checkinObj.getProperty("co2_emissions"));
-		float cEffcc = DataUtils.toFloat(checkinObj.getProperty("fuel_efficiency"));
+		float cRunDist = DataUtils.toFloat(checkin.getProperty("distance"));
+		int cRunTime = DataUtils.toInt(checkin.getProperty("running_time"));
+		float cConsmpt = DataUtils.toFloat(checkin.getProperty("fuel_consumption"));
+		float cCo2Emss = DataUtils.toFloat(checkin.getProperty("co2_emissions"));		
+		float cEffccSum = DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
+		int cEcoIndexSum = DataUtils.toInt(checkin.getProperty("eco_index"));
 		
 		runSum.setRunDist(cRunDist + runSum.getRunDist());
 		runSum.setRunTime(cRunTime + runSum.getRunTime());
 		runSum.setConsmpt(cConsmpt + runSum.getConsmpt());
 		runSum.setCo2Emss(cCo2Emss + runSum.getCo2Emss());
-		runSum.setEffcc(cEffcc + runSum.getEffcc());
+		runSum.setEffccSum(cEffccSum + runSum.getEffccSum());
+		runSum.setEcoIndexSum(cEcoIndexSum + runSum.getEcoIndexSum());
+		runSum.setSumCount(runSum.getSumCount() + 1);
+		
+		// 평균연비 계산 
+		float effcc = (float)(runSum.getEffccSum() / runSum.getSumCount());
+		runSum.setEffcc(effcc);
+		
+		// 에코지수 계산 
+		int ecoIndex = Math.round(runSum.getEcoIndexSum() / runSum.getSumCount());
+		runSum.setEcoIndex(ecoIndex);
+		
 		return runSum;
 	}
 	
@@ -270,16 +303,16 @@ public class CheckinDataService extends EntityService {
 	 * Driver 주행 서머리 정보에 반영
 	 * 
 	 * @param dml
-	 * @param checkinObj
+	 * @param checkin
 	 * @param year
 	 * @param month
 	 * @return
 	 * @throws Exception
 	 */
-	private DriverRunSum adjustDriverRunSum(Dml dml, Entity checkinObj, int year, int month) throws Exception {
+	private DriverRunSum adjustDriverRunSum(Dml dml, Entity checkin, int year, int month) throws Exception {
 		
-		String company = checkinObj.getParent().getName();
-		String driverId = (String)checkinObj.getProperty("driver_id");
+		String company = checkin.getParent().getName();
+		String driverId = (String)checkin.getProperty("driver_id");
 		DriverRunSum runSum = new DriverRunSum(company, driverId, year, month);
 		
 		try {
@@ -292,20 +325,120 @@ public class CheckinDataService extends EntityService {
 			runSum = new DriverRunSum(company, driverId, year, month);
 		
 		// 체크인 시점에 RunSum 정보를 업데이트한다.		
-		float cRunDist = DataUtils.toFloat(checkinObj.getProperty("distance"));
-		int cRunTime = DataUtils.toInt(checkinObj.getProperty("running_time"));
-		float cConsmpt = DataUtils.toFloat(checkinObj.getProperty("fuel_consumption"));
-		float cCo2Emss = DataUtils.toFloat(checkinObj.getProperty("co2_emissions"));
-		float cEffcc = DataUtils.toFloat(checkinObj.getProperty("fuel_efficiency"));
+		float cRunDist = DataUtils.toFloat(checkin.getProperty("distance"));
+		int cRunTime = DataUtils.toInt(checkin.getProperty("running_time"));
+		float cConsmpt = DataUtils.toFloat(checkin.getProperty("fuel_consumption"));
+		float cCo2Emss = DataUtils.toFloat(checkin.getProperty("co2_emissions"));
+		float cEffccSum = DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
+		int cEcoIndexSum = DataUtils.toInt(checkin.getProperty("eco_index"));
 		
 		runSum.setRunDist(cRunDist + runSum.getRunDist());
 		runSum.setRunTime(cRunTime + runSum.getRunTime());
 		runSum.setConsmpt(cConsmpt + runSum.getConsmpt());
 		runSum.setCo2Emss(cCo2Emss + runSum.getCo2Emss());
-		runSum.setEffcc(cEffcc + runSum.getEffcc());
+		runSum.setEffccSum(cEffccSum + runSum.getEffccSum());
+		runSum.setEcoIndexSum(cEcoIndexSum + runSum.getEcoIndexSum());
+		runSum.setSumCount(runSum.getSumCount() + 1);
+		
+		// 평균연비 계산 
+		float effcc = (float)(runSum.getEffccSum() / runSum.getSumCount());
+		runSum.setEffcc(effcc);
+		
+		// 에코지수 계산 
+		int ecoIndex = Math.round(runSum.getEcoIndexSum() / runSum.getSumCount());
+		runSum.setEcoIndex(ecoIndex);
+		
 		return runSum;
 	}
-
+	
+	/**
+	 * 차량 속도 서머리 테이블에 반영 
+	 * 
+	 * @param dml
+	 * @param checkin
+	 * @param year
+	 * @param month
+	 * @return
+	 * @throws Exception
+	 */
+	private VehicleSpeedSum adjustVehicleSpeedSum(Dml dml, Entity checkin, int year, int month) throws Exception {
+		
+		String company = checkin.getParent().getName();
+		String vehicleId = (String)checkin.getProperty("vehicle_id");
+		VehicleSpeedSum speedSum = new VehicleSpeedSum(company, vehicleId, year, month);
+		
+		try {
+			speedSum = dml.select(speedSum);
+		} catch(Exception e) {
+			speedSum = new VehicleSpeedSum(company, vehicleId, year, month);
+		}
+		
+		if(speedSum == null)
+			speedSum = new VehicleSpeedSum(company, vehicleId, year, month);
+		
+		speedSum.setSpdLt10(DataUtils.toInt(checkin.getProperty("less_than_10km")) + speedSum.getSpdLt10());
+		speedSum.setSpdLt20(DataUtils.toInt(checkin.getProperty("less_than_20km")) + speedSum.getSpdLt20());
+		speedSum.setSpdLt30(DataUtils.toInt(checkin.getProperty("less_than_30km")) + speedSum.getSpdLt30());
+		speedSum.setSpdLt40(DataUtils.toInt(checkin.getProperty("less_than_40km")) + speedSum.getSpdLt40());
+		speedSum.setSpdLt50(DataUtils.toInt(checkin.getProperty("less_than_50km")) + speedSum.getSpdLt50());
+		speedSum.setSpdLt60(DataUtils.toInt(checkin.getProperty("less_than_60km")) + speedSum.getSpdLt60());
+		speedSum.setSpdLt70(DataUtils.toInt(checkin.getProperty("less_than_70km")) + speedSum.getSpdLt70());
+		speedSum.setSpdLt80(DataUtils.toInt(checkin.getProperty("less_than_80km")) + speedSum.getSpdLt80());
+		speedSum.setSpdLt90(DataUtils.toInt(checkin.getProperty("less_than_90km")) + speedSum.getSpdLt90());
+		speedSum.setSpdLt100(DataUtils.toInt(checkin.getProperty("less_than_100km")) + speedSum.getSpdLt100());
+		speedSum.setSpdLt110(DataUtils.toInt(checkin.getProperty("less_than_110km")) + speedSum.getSpdLt110());
+		speedSum.setSpdLt120(DataUtils.toInt(checkin.getProperty("less_than_120km")) + speedSum.getSpdLt120());
+		speedSum.setSpdLt130(DataUtils.toInt(checkin.getProperty("less_than_130km")) + speedSum.getSpdLt130());
+		speedSum.setSpdLt140(DataUtils.toInt(checkin.getProperty("less_than_140km")) + speedSum.getSpdLt140());
+		speedSum.setSpdLt150(DataUtils.toInt(checkin.getProperty("less_than_150km")) + speedSum.getSpdLt150());
+		speedSum.setSpdLt160(DataUtils.toInt(checkin.getProperty("less_than_160km")) + speedSum.getSpdLt160());
+		return speedSum;
+	}
+	
+	/**
+	 * 운전자 속도 서머리 테이블에 반영 
+	 * 
+	 * @param dml
+	 * @param checkin
+	 * @param year
+	 * @param month
+	 * @return
+	 * @throws Exception
+	 */
+	private DriverSpeedSum adjustDriverSpeedSum(Dml dml, Entity checkin, int year, int month) throws Exception {
+		
+		String company = checkin.getParent().getName();
+		String driverId = (String)checkin.getProperty("driver_id");
+		DriverSpeedSum speedSum = new DriverSpeedSum(company, driverId, year, month);
+		
+		try {
+			speedSum = dml.select(speedSum);
+		} catch(Exception e) {
+			speedSum = new DriverSpeedSum(company, driverId, year, month);
+		}
+		
+		if(speedSum == null)
+			speedSum = new DriverSpeedSum(company, driverId, year, month);
+		
+		speedSum.setSpdLt10(DataUtils.toInt(checkin.getProperty("less_than_10km")) + speedSum.getSpdLt10());
+		speedSum.setSpdLt20(DataUtils.toInt(checkin.getProperty("less_than_20km")) + speedSum.getSpdLt20());
+		speedSum.setSpdLt30(DataUtils.toInt(checkin.getProperty("less_than_30km")) + speedSum.getSpdLt30());
+		speedSum.setSpdLt40(DataUtils.toInt(checkin.getProperty("less_than_40km")) + speedSum.getSpdLt40());
+		speedSum.setSpdLt50(DataUtils.toInt(checkin.getProperty("less_than_50km")) + speedSum.getSpdLt50());
+		speedSum.setSpdLt60(DataUtils.toInt(checkin.getProperty("less_than_60km")) + speedSum.getSpdLt60());
+		speedSum.setSpdLt70(DataUtils.toInt(checkin.getProperty("less_than_70km")) + speedSum.getSpdLt70());
+		speedSum.setSpdLt80(DataUtils.toInt(checkin.getProperty("less_than_80km")) + speedSum.getSpdLt80());
+		speedSum.setSpdLt90(DataUtils.toInt(checkin.getProperty("less_than_90km")) + speedSum.getSpdLt90());
+		speedSum.setSpdLt100(DataUtils.toInt(checkin.getProperty("less_than_100km")) + speedSum.getSpdLt100());
+		speedSum.setSpdLt110(DataUtils.toInt(checkin.getProperty("less_than_110km")) + speedSum.getSpdLt110());
+		speedSum.setSpdLt120(DataUtils.toInt(checkin.getProperty("less_than_120km")) + speedSum.getSpdLt120());
+		speedSum.setSpdLt130(DataUtils.toInt(checkin.getProperty("less_than_130km")) + speedSum.getSpdLt130());
+		speedSum.setSpdLt140(DataUtils.toInt(checkin.getProperty("less_than_140km")) + speedSum.getSpdLt140());
+		speedSum.setSpdLt150(DataUtils.toInt(checkin.getProperty("less_than_150km")) + speedSum.getSpdLt150());
+		speedSum.setSpdLt160(DataUtils.toInt(checkin.getProperty("less_than_160km")) + speedSum.getSpdLt160());
+		return speedSum;
+	}
+	
 	@Override
 	protected void addFilter(Query q, String property, Object value) {
 		

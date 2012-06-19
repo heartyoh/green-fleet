@@ -55,6 +55,10 @@ public class IncidentService extends EntityService {
 
 	@Override
 	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		
+		if(!map.containsKey("datetime"))
+			throw new Exception("Argument datetime not found!");
+		
 		Entity company = datastore.get((Key)map.get("_company_key"));		
 		entity.setProperty("terminal_id", map.get("terminal_id"));
 		Date datetime = SessionUtils.stringToDateTime((String)map.get("datetime"), null, company);

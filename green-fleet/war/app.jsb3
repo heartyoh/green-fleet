@@ -205,11 +205,6 @@
                     "path": "app/view/monitor/"
                 },
                 {
-                    "clsName": "GreenFleet.view.monitor.CheckinByVehicle",
-                    "name": "CheckinByVehicle.js",
-                    "path": "app/view/monitor/"
-                },
-                {
                     "clsName": "GreenFleet.view.monitor.InfoByVehicle",
                     "name": "InfoByVehicle.js",
                     "path": "app/view/monitor/"
@@ -423,6 +418,11 @@
                     "clsName": "GreenFleet.view.portlet.ChartF1Portlet",
                     "name": "ChartF1Portlet.js",
                     "path": "app/view/portlet/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleSpeedSection",
+                    "name": "VehicleSpeedSection.js",
+                    "path": "app/view/management/"
                 },
                 {
                     "clsName": "GreenFleet.store.CompanyStore",
@@ -672,6 +672,11 @@
                 {
                     "clsName": "GreenFleet.store.ReportStore",
                     "name": "ReportStore.js",
+                    "path": "app/store/"
+                },
+                {
+                    "clsName": "GreenFleet.store.VehicleSpeedStore",
+                    "name": "VehicleSpeedStore.js",
                     "path": "app/store/"
                 },
                 {

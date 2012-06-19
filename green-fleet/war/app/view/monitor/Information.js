@@ -372,7 +372,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		flex : 1,
 		items : [ {
 			xtype : 'monitor_info_by_vehicle'
-		}, {
+		}/*, {
 			xtype : 'monitor_control_by_vehicle',
 			title : T('tab.ctrl_by_vehicle')
 		}, {
@@ -381,7 +381,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		}, {
 			xtype : 'monitor_control_by_vehicle',
 			title : T('tab.maintenance')
-		} ]
+		}*/ ]
 	},
 
 	zvehicleinfo : {

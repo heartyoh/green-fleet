@@ -57,7 +57,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			proxy.extraParams.to_year = self.sub('to_year').getValue();
 			proxy.extraParams.from_month = self.sub('from_month').getValue();
 			proxy.extraParams.to_month = self.sub('to_month').getValue();
-			proxy.extraParams.select = ['driver', 'year', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
+			proxy.extraParams.select = ['driver', 'year', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'eco_index', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -206,19 +206,22 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				header : T('label.fuel_efficiency') + ' (km/l)',
 				dataIndex : 'effcc'
 			}, {
-				header : T('label.x_count', {x : T('label.sudden_accel')}),
+				header : T('label.eco_index') + ' (%)',
+				dataIndex : 'eco_index'
+			}, {
+				header : T('label.sud_accel_cnt'),
 				dataIndex : 'sud_accel_cnt'
 			}, {
-				header : T('label.x_count', {x : T('label.sudden_brake')}),
+				header : T('label.sud_brake_cnt'),
 				dataIndex : 'sud_brake_cnt'
 			}, {
-				header : T('label.x_time', {x : T('label.eco_driving')}) + ' (min)',
+				header : T('label.eco_drv_time') + ' (min)',
 				dataIndex : 'eco_drv_time'	
 			}, {
-				header : T('label.x_time', {x : T('label.over_speeding')}) + ' (min)',
+				header : T('label.ovr_spd_time') + ' (min)',
 				dataIndex : 'ovr_spd_time'
 			}, {
-				header : T('label.x_count', {x : T('label.incident')}),
+				header : T('label.inc_cnt'),
 				dataIndex : 'inc_cnt'
 			} ]				
 		}],
@@ -311,17 +314,18 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ],					
-					data : [{ "name" : "run_dist", 		"desc" : T('label.run_dist'), 								"unit" : "(km)" },
-					        { "name" : "run_time", 		"desc" : T('label.run_time'), 								"unit" : "(min)" },
-							{ "name" : "consmpt", 		"desc" : T('label.fuel_consumption'), 						"unit" : "(l)" },
-							{ "name" : "co2_emss", 		"desc" : T('label.co2_emissions'), 							"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 						"unit" : "(km/l)" },
-							{ "name" : "sud_accel_cnt", "desc" : T('label.x_count', {x : T('label.sudden_accel')}), "unit" : "" },
-							{ "name" : "sud_brake_cnt", "desc" : T('label.x_count', {x : T('label.sudden_brake')}),	"unit" : "" },
-							{ "name" : "eco_drv_time", 	"desc" : T('label.x_time', {x : T('label.eco_driving')}), 	"unit" : "(min)" },
-							{ "name" : "ovr_spd_time",  "desc" : T('label.x_time', {x : T('label.over_speeding')}), "unit" : "(min)" },
-							{ "name" : "inc_cnt",  		"desc" : T('label.x_count', {x : T('label.incident')}), 	"unit" : "" },
-							{ "name" : "driving_habit", "desc" : T('label.driving_habit'), 							"unit" : "" }]
+					data : [{ "name" : "run_dist", 		"desc" : T('label.run_dist'),			"unit" : "(km)" },
+					        { "name" : "run_time", 		"desc" : T('label.run_time'),			"unit" : "(min)" },
+							{ "name" : "consmpt", 		"desc" : T('label.fuel_consumption'),	"unit" : "(l)" },
+							{ "name" : "co2_emss", 		"desc" : T('label.co2_emissions'),		"unit" : "(g/km)" },
+							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
+							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },
+							{ "name" : "sud_accel_cnt", "desc" : T('label.sud_accel_cnt'), 		"unit" : "" },
+							{ "name" : "sud_brake_cnt", "desc" : T('label.sud_brake_cnt'),		"unit" : "" },
+							{ "name" : "eco_drv_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : "(min)" },
+							{ "name" : "ovr_spd_time",  "desc" : T('label.ovr_spd_time'), 		"unit" : "(min)" },
+							{ "name" : "inc_cnt",  		"desc" : T('label.inc_cnt'), 			"unit" : "" },
+							{ "name" : "driving_habit", "desc" : T('label.driving_habit'), 		"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -447,11 +451,11 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		sudBrakeCnt = sudBrakeCnt / totalRecordCnt;
 		
 		var radarData = [
-		    { 'name' : T('label.x_time', {x : T('label.eco_driving')}), 	'value' : ecoDrvTime },
-		    { 'name' : T('label.fuel_efficiency'), 							'value' : efficiency },
-		    { 'name' : T('label.x_time', {x : T('label.over_speeding')}), 	'value' : overSpdCnt },
-		    { 'name' : T('label.x_count', {x : T('label.sudden_accel')}), 	'value' : sudAccelCnt },
-		    { 'name' : T('label.x_count', {x : T('label.sudden_brake')}),	'value' : sudBrakeCnt },
+		    { 'name' : T('label.eco_drv_time'), 	'value' : ecoDrvTime },
+		    { 'name' : T('label.fuel_efficiency'), 	'value' : efficiency },
+		    { 'name' : T('label.ovr_spd_time'), 	'value' : overSpdCnt },
+		    { 'name' : T('label.sud_accel_cnt'), 	'value' : sudAccelCnt },
+		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt },
 		];
 		
 		var radarStore = Ext.create('Ext.data.JsonStore', {
@@ -463,7 +467,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		var guageStore = Ext.create('Ext.data.JsonStore', {
 			fields : ['name', 'value'],
 			autoDestroy : true,
-			data : [ {'name' : T('label.eco_drv_index'), 'value' : 3 } ]
+			data : [ {'name' : T('label.eco_index'), 'value' : 3 } ]
 		});		
 		
 		var chartPanel = this.sub('chart_panel');

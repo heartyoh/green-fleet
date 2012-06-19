@@ -22,6 +22,12 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'language',
 		type : 'string'
 	}, {
+		name : 'lat',
+		type : 'float'
+	}, {
+		name : 'lng',
+		type : 'float'			
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	}, {

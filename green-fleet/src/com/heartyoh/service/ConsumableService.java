@@ -31,6 +31,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.model.ConsumableCode;
+import com.heartyoh.model.Task;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.CalculatorUtils;
@@ -200,7 +201,7 @@ public class ConsumableService extends HistoricEntityService {
 		// 차량별로 소모품에 대한 상태 처리
 		for(Vehicle vehicle : vehicles) {
 			try {
-				count += this.summaryConsumableStatus(datastore, companyKey, vehicle);
+				count += this.updateConsumableStatus(datastore, companyKey, vehicle);
 			} catch (Exception e) {
 				logger.error("Failed to summary consumable status - vehicle id (" + vehicle.getId() + ")!", e);
 			}
@@ -210,14 +211,14 @@ public class ConsumableService extends HistoricEntityService {
 	}
 	
 	/**
-	 * 차량별 소모품 summary
+	 * 차량별 소모품 상태 업데이트
 	 * 
 	 * @param datastore
 	 * @param companyKey
 	 * @param vehicle
 	 * @throws Exception
 	 */
-	private int summaryConsumableStatus(DatastoreService datastore, Key companyKey, Vehicle vehicle) throws Exception {
+	private int updateConsumableStatus(DatastoreService datastore, Key companyKey, Vehicle vehicle) throws Exception {
 		
 		String vehicleId = vehicle.getId();
 		double totalMileage = vehicle.getTotalDistance();
@@ -226,9 +227,10 @@ public class ConsumableService extends HistoricEntityService {
 			return 0;
 		
 		Map<String, Object> filters = DataUtils.newMap("vehicle_id", vehicleId);
-		Iterator<Entity> consumables = DatastoreUtils.findEntities(companyKey, "VehicleConsumable", filters);
-		int count = 0;
+		Iterator<Entity> consumables = 
+				DatastoreUtils.findEntities(companyKey, "VehicleConsumable", filters);		
 		String vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_H;
+		int count = 0;
 		
 		// 차량별로 각각의 consumable 정보를 가져옴
 		while(consumables.hasNext()) {
@@ -237,7 +239,7 @@ public class ConsumableService extends HistoricEntityService {
 			if(CalculatorUtils.calcConsumableHealth(totalMileage, consumable)) {
 				// 변경되었다면 저장. 하루에 한 번씩 업데이트 되는 내용이라 이력을 쌓지 않는다. 
 				// 만약 이력을 관리하려면 이 부분을 
-				// saveEntity(Entity obj, Map<String, Object> map, DatastoreService datastore)로 변경하면 된다.
+				// saveEntity(consumable, Map<String, Object> map, datastore)로 변경하면 된다.
 				datastore.put(consumable);
 				count++;
 			}
@@ -257,17 +259,69 @@ public class ConsumableService extends HistoricEntityService {
 				vehicleHealthStatus = GreenFleetConstant.VEHICLE_HEALTH_O;
 			}
 			
-			// TODO 소모품 관리 일정 관리 연동 ==> 다음 교체일이 있는 경우만 ...
+			// 다음 교체일이 있는 경우에는 소모품 관리 일정 관리 연동
+			if(consumable.getProperty("next_repl_date") != null) {
+				this.updateTask(consumable);								
+			}
 		}
 		
-		// 차량 건강 상태 업데이트 
-		vehicle.setHealthStatus(vehicleHealthStatus);
-		DatasourceUtils.updateVehicle(vehicle);
+		// 차량 상태가 바뀌었을 경우에만 차량 건강 상태 업데이트
+		if(!vehicleHealthStatus.equalsIgnoreCase(vehicle.getHealthStatus())) {
+			vehicle.setHealthStatus(vehicleHealthStatus);
+			DatasourceUtils.updateVehicle(vehicle);
+		}
 		
 		if(logger.isInfoEnabled())
 			logger.info("Consumables' health statuses of vehicle (id :" + vehicleId + ") are updated! - (" + count + ") count!");
 		
 		return count;
+	}
+	
+	/**
+	 * 일정 조회 
+	 * 
+	 * @param consumable
+	 * @return
+	 * @throws Exception
+	 */
+	private Task findTask(Entity consumable) throws Exception {
+		String company = consumable.getParent().getName();
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		params.put("category", GreenFleetConstant.TASK_TYPE_CONSUMABLES);
+		params.put("url", KeyFactory.keyToString(consumable.getKey()));		
+		return DatasourceUtils.findTask(params);		
+	}
+	
+	/**
+	 * 일정관리 연동 
+	 * 
+	 * @param consumable
+	 * @throws Exception
+	 */
+	private void updateTask(Entity consumable) throws Exception {
+		
+		Date nextReplDate = (Date)consumable.getProperty("next_repl_date");
+		String vehicleId = (String)consumable.getProperty("vehicle_id");
+		String item = (String)consumable.getProperty("consumable_item");
+		String consumableKey = KeyFactory.keyToString(consumable.getKey());
+		Task task = this.findTask(consumable);
+		
+		if(task != null) {
+			task.setStartDate(nextReplDate);
+			task.setEndDate(nextReplDate);
+			DatasourceUtils.updateTask(task);
+			
+		} else {
+			task = new Task();
+			task.setCategory(GreenFleetConstant.TASK_TYPE_CONSUMABLES);
+			task.setAllDay(true);
+			task.setCompany(consumable.getParent().getName());
+			task.setStartDate(nextReplDate);
+			task.setEndDate(nextReplDate);
+			task.setUrl(consumableKey);
+			task.setTitle("Replacement [" + item + "] of Vehicle [" + vehicleId + "]");
+			DatasourceUtils.createTask(task);			
+		}
 	}
 	
 	/**
@@ -303,9 +357,11 @@ public class ConsumableService extends HistoricEntityService {
 			}
 		}
 		
-		// 차량 건강 상태 업데이트 
-		vehicle.setHealthStatus(vehicleHealthStatus);
-		DatasourceUtils.updateVehicle(vehicle);
+		// 차량 상태가 바뀌었을 경우에만 차량 건강 상태 업데이트
+		if(!vehicleHealthStatus.equalsIgnoreCase(vehicle.getHealthStatus())) {
+			vehicle.setHealthStatus(vehicleHealthStatus);
+			DatasourceUtils.updateVehicle(vehicle);
+		}
 	}
 		
 	@RequestMapping(value = "/vehicle_consumable/import", method = RequestMethod.POST)
@@ -501,11 +557,12 @@ public class ConsumableService extends HistoricEntityService {
 	 */
 	private void adjustMileage(HttpServletRequest request, List<Map<String, Object>> consumables) throws Exception {
 		
-		if(DataUtils.isEmpty(request.getParameter("vehicle_id")))
+		String vehicleId = request.getParameter("vehicle_id");
+		if(DataUtils.isEmpty(vehicleId))
 			return;
 		
 		Key companyKey = this.getCompanyKey(request);
-		Vehicle vehicle = DatasourceUtils.findVehicle(companyKey.getName(), request.getParameter("vehicle_id"));
+		Vehicle vehicle = DatasourceUtils.findVehicle(companyKey.getName(), vehicleId);
 		double totalMileage = DataUtils.toDouble(vehicle.getTotalDistance());
 		
 		for(Map<String, Object> consumable : consumables) {

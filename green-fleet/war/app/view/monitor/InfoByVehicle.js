@@ -30,18 +30,18 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		dataIndex : 'vehicle_model',
 		text : T('label.vehicle_model'),
 		type : 'string'
-	}, {
+	}, /*{
 		dataIndex : 'vehicle_type',
-		text : T('label.x_type', { x : T('label.vehicle') }),
-		type : 'string'
-	}, {
-		dataIndex : 'birth_year',
-		text : T('label.birth_year'),
+		text : T('label.vehicle_type'),
 		type : 'string'
 	}, {
 		dataIndex : 'ownership_type',
-		text : T('label.x_type', { x : T('label.ownership') }),
+		text : T('label.ownership_type'),
 		type : 'string'
+	},*/ {
+		dataIndex : 'birth_year',
+		text : T('label.birth_year'),
+		type : 'string'		
 	}, {
 		dataIndex : 'status',
 		text : T('label.status'),
@@ -52,8 +52,20 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 		type : 'string'
 	}, {
 		dataIndex : 'total_distance',
-		text : T('label.total_x', { x : T('label.distance')}),
+		text : T('label.total_distance'),
 		type : 'string'
+	}, {
+		dataIndex : 'official_effcc',
+		text : T('label.official_effcc'),
+		type : 'float'
+	}, {
+		dataIndex : 'avg_effcc',
+		text : T('label.avg_effcc'),
+		type : 'float'
+	}, {
+		dataIndex : 'eco_index',
+		text : T('label.eco_index') + '(%)',
+		type : 'int'			
 	}, {
 		dataIndex : 'remaining_fuel',
 		text : T('label.remaining_fuel'),

@@ -58,6 +58,12 @@ public class CompanyService extends EntityService {
 		entity.setProperty("timezone", map.get("timezone"));
 		entity.setProperty("language", map.get("language") != null ? map.get("language") : "en");
 		
+		// TODO default 값은 추후 변경 
+		double lat = map.containsKey("lat") ? DataUtils.toDouble(map.get("lat")) : 37.55;
+		double lng = map.containsKey("lng") ? DataUtils.toDouble(map.get("lng")) : 126.97;
+		entity.setUnindexedProperty("lat", lat);
+		entity.setUnindexedProperty("lng", lng);
+		
 		super.onSave(entity, map, datastore);
 	}
 

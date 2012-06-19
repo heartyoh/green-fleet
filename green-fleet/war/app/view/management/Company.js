@@ -105,6 +105,14 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'language',
 				text : T('label.language')
 			}, {
+				dataIndex : 'lat',
+				text : T('label.latitude'),
+				type : 'number'
+			}, {
+				dataIndex : 'lng',
+				text : T('label.longitude'),
+				type : 'number'
+			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
 				xtype : 'datecolumn',
@@ -198,6 +206,12 @@ Ext.define('GreenFleet.view.management.Company', {
 					msgTarget : 'side',
 					allowBlank : true,
 					buttonText : T('button.file')
+				}, {
+					name : 'lat',
+					fieldLabel : T('label.latitude')
+				}, {
+					name : 'lng',
+					fieldLabel : T('label.longitude')					
 				}, {
 					xtype : 'datefield',
 					name : 'updated_at',

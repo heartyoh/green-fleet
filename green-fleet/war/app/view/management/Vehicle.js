@@ -116,21 +116,17 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				dataIndex : 'vehicle_model',
 				text : T('label.vehicle_model'),
 				type : 'string'
-			}, {
+			}, /*{
 				dataIndex : 'fuel_type',
 				text : T('label.fuel_type'),
 				type : 'string'
 			}, {
 				dataIndex : 'vehicle_type',
-				text : T('label.x_type', {x: T('label.vehicle')}),
+				text : T('label.vehicle_type'),
 				type : 'string'
-			}, {
+			},*/ {
 				dataIndex : 'birth_year',
 				text : T('label.birth_year'),
-				type : 'string'
-			}, {
-				dataIndex : 'ownership_type',
-				text : T('label.x_type', {x : T('label.ownership')}),
 				type : 'string'
 			}, {
 				dataIndex : 'status',
@@ -141,9 +137,21 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				text : T('label.health'),
 				type : 'string'
 			}, {
+				dataIndex : 'official_effcc',
+				text : T('label.official_effcc'),
+				type : 'float'
+			}, {
+				dataIndex : 'avg_effcc',
+				text : T('label.avg_effcc'),
+				type : 'float'
+			}, {
+				dataIndex : 'eco_index',
+				text : T('label.eco_index') + '(%)',
+				type : 'int'
+			}, {
 				xtype: 'numbercolumn',
 				dataIndex : 'total_distance',
-				text : T('label.total_x', {x : T('label.distance')}) + '(km)',
+				text : T('label.total_distance') + '(km)',
 				type : 'string'
 			}, {
 				dataIndex : 'remaining_fuel',
@@ -155,12 +163,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			}, {
 				dataIndex : 'lng',
 				text : T('label.longitude')
-			}, {
-				dataIndex : 'updated_at',
-				text : T('label.updated_at'),
-				xtype : 'datecolumn',
-				format : F('datetime'),
-				width : 120
 			} ],
 			viewConfig : {
 
@@ -238,7 +240,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							xtype : 'codecombo',
 							name : 'vehicle_type',
 							group : 'V-Type1',
-							fieldLabel : T('label.x_type', {x : T('label.vehicle')})
+							fieldLabel : T('label.vehicle_type')
 						}, {
 							xtype : 'codecombo',
 							name : 'fuel_type',
@@ -264,7 +266,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							store : 'OwnershipStore',
 							displayField : 'desc',
 							valueField : 'name',
-							fieldLabel : T('label.x_type', {x : T('label.ownership')})
+							fieldLabel : T('label.ownership_type')
 						}, {
 							xtype : 'combo',
 							name : 'status',
@@ -278,7 +280,16 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							fieldLabel : T('label.health')							
 						}, {
 							name : 'total_distance',
-							fieldLabel : T('label.total_x', {x : T('label.distance')})
+							fieldLabel : T('label.total_distance')
+						}, {
+							name : 'official_effcc',
+							fieldLabel : T('label.official_effcc')
+						}, {
+							name : 'avg_effcc',
+							fieldLabel : T('label.avg_effcc')
+						}, {
+							name : 'eco_index',
+							fieldLabel : T('label.eco_index')
 						}, {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')

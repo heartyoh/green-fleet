@@ -12,7 +12,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	           'ConsumableCodeStore', 'VehicleConsumableStore', 'ConsumableHistoryStore', 'RepairStore', 
 	           'VehicleByHealthStore', 'DashboardConsumableStore', 'DashboardVehicleStore', 'LocationStore', 'AlarmStore', 
 	           'VehicleRunStore', 'DriverRunStore', 'DriverSpeedStore', 'YearStore', 'MonthStore', 'DriverGroupStore', 
-	           'DriverByGroupStore', 'VehicleGroupCountStore', 'CalendarStore', 'EventStore', 'ReportStore' ],
+	           'DriverByGroupStore', 'VehicleGroupCountStore', 'CalendarStore', 'EventStore', 'ReportStore', 'VehicleSpeedStore' ],
 
 	models : [ 'Code' ],
 
@@ -20,7 +20,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'SideMenu', 'management.Company', 'management.User', 'management.Code', 'management.VehicleGroup', 
 	          'management.ConsumableCode', 'management.Vehicle', 'management.Terminal', 'management.Reservation', 
 	          'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 
-	          'monitor.Map', 'monitor.CheckinByVehicle', 'monitor.InfoByVehicle', 'monitor.Information', 
+	          'monitor.Map', 'monitor.InfoByVehicle', 'monitor.Information', 
 	          'monitor.IncidentView', 'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 
 	          'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
 	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
@@ -31,7 +31,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'portlet.GridI1Portlet', 'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 
 	          'portlet.CalendarPortlet', 'portlet.GridC1Portlet', 'management.Report', 'common.MultiSelect', 
 	          'common.ItemSelector', 'common.UserSelector', 'management.VehicleOverview', 'portlet.GridM1Portlet', 
-	          'portlet.ChartF1Portlet' ],
+	          'portlet.ChartF1Portlet', 'management.VehicleSpeedSection' ],
 
 	init : function() {
 		this.control({
