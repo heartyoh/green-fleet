@@ -188,7 +188,7 @@ public class ConsumableService extends HistoricEntityService {
 	
 	@RequestMapping(value = "/vehicle_consumable/summary", method = RequestMethod.GET)
 	public @ResponseBody
-	String summary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	String dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		if(DataUtils.isEmpty(request.getParameter("company")))
 			throw new Exception("Request parameter [company] is required!");

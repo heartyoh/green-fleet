@@ -327,7 +327,7 @@ public abstract class EntityService {
 		
 		Map<String, Object> map = toMap(request);
 		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);		
+		Key companyKey = this.getCompanyKey(request);
 		map.put("_company_key", companyKey);
 		map.put("_now", new Date());
 		

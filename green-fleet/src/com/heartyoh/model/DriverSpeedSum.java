@@ -5,6 +5,8 @@ package com.heartyoh.model;
 
 import java.util.Date;
 
+import com.heartyoh.util.DataUtils;
+
 
 /**
  * Driver Speed Sum 모델 
@@ -109,7 +111,9 @@ public class DriverSpeedSum extends AbstractEntity {
 		this.company = company;
 		this.driver = driver;
 		this.year = year;
-		this.month = month;		
+		this.month = month;
+		Date monthDate = DataUtils.toDate(this.year + "-" + (this.month < 10 ? "0" : "") + this.month + "-01");
+		this.setMonthDate(monthDate);		
 	}
  
 	public String getDriver() {

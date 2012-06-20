@@ -277,5 +277,5 @@ public class VehicleOrmService extends OrmEntityService {
 		}
 		
 		return resultMap;
-	}	
+	}
 }

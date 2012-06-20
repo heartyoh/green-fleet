@@ -12,7 +12,8 @@ Ext.define('GreenFleet.view.portlet.PortalColumn', {
     listeners : {
     	dblclick : {
             element: 'el', 
-            fn: function() { alert('click'); }
+            fn: function() {
+            }
         }
     }
     // This is a class so that it could be easily extended
