@@ -12,6 +12,7 @@ import org.dbist.dml.Query;
 
 import com.heartyoh.model.Alarm;
 import com.heartyoh.model.ConsumableCode;
+import com.heartyoh.model.Driver;
 import com.heartyoh.model.Task;
 import com.heartyoh.model.Vehicle;
 
@@ -41,7 +42,7 @@ public class DatasourceUtils {
 	}
 	
 	/**
-	 * company의 모든 vehicle list를 찾아 리턴 
+	 * company의 모든 vehicle list 조회  
 	 * 
 	 * @param company
 	 * @return
@@ -83,6 +84,20 @@ public class DatasourceUtils {
 			return new String[] {"", ""};
 		else
 			return new String[] { (String)data.get("id"), (String)data.get("driver_id") };
+	}
+	
+	/**
+	 * company의 모든 driver list 조회
+	 *  
+	 * @param company
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Driver> findAllDrivers(String company) throws Exception {
+		Query q = new Query();
+		q.addFilter("company", company);
+		List<Driver> drivers = dml.selectList(Driver.class, q);
+		return drivers;		
 	}
 	
 	/**
@@ -217,5 +232,59 @@ public class DatasourceUtils {
 	@SuppressWarnings("rawtypes")
 	public static List<Map> selectBySql(String sql, Map<String, Object> params) throws Exception {
 		return dml.selectListBySql(sql, params, Map.class, 0, 0);
+	}
+	
+//	/**
+//	 * VehicleRunSum 리스트 조회 
+//	 * 
+//	 * @param params
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	public static List<VehicleRunSum> findVehicleRunSum(Map<String, Object> params) throws Exception {		
+//		return dml.selectList(VehicleRunSum.class, params);
+//	}
+//	
+//	/**
+//	 * VehicleSpeedSum 리스트 조회 
+//	 * 
+//	 * @param params
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	public static List<VehicleSpeedSum> findVehicleSpeedSum(Map<String, Object> params) throws Exception {		
+//		return dml.selectList(VehicleSpeedSum.class, params);
+//	}	
+//	
+//	/**
+//	 * DriverRunSum 리스트 조회 
+//	 * 
+//	 * @param params
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	public static List<DriverRunSum> findDriverRunSum(Map<String, Object> params) throws Exception {		
+//		return dml.selectList(DriverRunSum.class, params);
+//	}
+//	
+//	/**
+//	 * DriverSpeedSum 리스트 조회 
+//	 * 
+//	 * @param params
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	public static List<DriverSpeedSum> findDriverSpeedSum(Map<String, Object> params) throws Exception {		
+//		return dml.selectList(DriverSpeedSum.class, params);
+//	}
+	
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<?> findEntities(Class<?> cls, Map<String, Object> params) throws Exception {
+		return dml.selectList(cls, params);
 	}
 }

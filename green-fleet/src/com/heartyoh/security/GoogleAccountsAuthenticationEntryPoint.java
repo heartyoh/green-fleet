@@ -16,9 +16,20 @@ public class GoogleAccountsAuthenticationEntryPoint implements AuthenticationEnt
 
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
 			throws IOException, ServletException {
+		
+		if(!response.isCommitted()) {
+	    	String ajax = request.getHeader("X-Requested-With");
+	    	
+	    	if ("XMLHttpRequest".equals(ajax)) {
+	            System.out.println("No failure URL set, sending 401 Unauthorized error");
+	            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed!");
+	            return;
+	    	}
+		}
+		
 		UserService userService = UserServiceFactory.getUserService();
 		String loginUrl = userService.createLoginURL(request.getRequestURI());
-		response.sendRedirect(loginUrl);
+		response.sendRedirect(loginUrl);		
 	}
 
 }

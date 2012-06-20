@@ -68,8 +68,7 @@ public class DriverGroupOrmService extends OrmEntityService {
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		
-		// TODO outer join
-		String sql = "select dg.*, dr.driver_id from driver_group dg, driver_relation dr where dg.company = dr.company and dg.company = :company and dg.id = dr.group_id order by dg.id asc";
+		String sql = "select dg.*, dr.driver_id from driver_group dg LEFT OUTER JOIN driver_relation dr ON dg.id = dr.group_id where dg.company = :company order by dg.id asc";
 		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
 		List<Map> items = this.dml.selectListBySql(sql, params, Map.class, 0, 0);
 				

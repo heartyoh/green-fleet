@@ -2,6 +2,7 @@ package com.heartyoh.service;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -29,6 +31,7 @@ import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.security.AppRole;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
 
 @Controller
@@ -184,7 +187,19 @@ public class UserService extends EntityService {
 	@RequestMapping(value = "/user/find", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) {
-		return super.find(request, response);
+		
+		String key = request.getParameter("key");
+		if(DataUtils.isEmpty(key)) {
+			key = SessionUtils.currentUser().getKey();
+			Entity entity = DatastoreUtils.findByKey(key);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.putAll(entity.getProperties());
+			map.put("key", KeyFactory.keyToString(entity.getKey()));
+			map.put("success", true);
+			return map;
+		} else {
+			return super.find(request, response);
+		}
 	}
 
 }

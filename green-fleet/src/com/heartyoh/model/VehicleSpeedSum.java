@@ -5,6 +5,8 @@ package com.heartyoh.model;
 
 import java.util.Date;
 
+import com.heartyoh.util.DataUtils;
+
 /**
  * @author jhnam
  *
@@ -106,7 +108,9 @@ public class VehicleSpeedSum extends AbstractEntity {
 		this.company = company;
 		this.vehicle = vehicle;
 		this.year = year;
-		this.month = month;		
+		this.month = month;
+		Date monthDate = DataUtils.toDate(this.year + "-" + (this.month < 10 ? "0" : "") + this.month + "-01");
+		this.setMonthDate(monthDate);		
 	}
  
 	public String getVehicle() {

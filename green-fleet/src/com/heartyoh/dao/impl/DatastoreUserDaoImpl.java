@@ -42,6 +42,7 @@ public class DatastoreUserDaoImpl implements UserDao {
 
 		Query q = new Query(USER_TYPE);
 		q.addFilter("email", Query.FilterOperator.EQUAL, email);
+		q.addFilter("enabled", Query.FilterOperator.EQUAL, true);
 
 		PreparedQuery pq = datastore.prepare(q);
 

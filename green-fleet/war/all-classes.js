@@ -3767,6 +3767,7 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				name : 'datetime_filter',
 				itemId : 'datetime_filter',
 				hideLabel : true,
+				format : 'Y-m-d',
 				width : 200
 			}, {
 				text : T('button.search'),
@@ -13869,7 +13870,8 @@ Ext.define('GreenFleet.view.portlet.PortalColumn', {
     listeners : {
     	dblclick : {
             element: 'el', 
-            fn: function() { alert('click'); }
+            fn: function() {
+            }
         }
     }
     // This is a class so that it could be easily extended

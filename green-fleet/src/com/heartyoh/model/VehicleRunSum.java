@@ -77,7 +77,27 @@ public class VehicleRunSum extends AbstractEntity {
 	/**
 	 * 정비 시간 
 	 */
-	private int mntTime;	
+	private int mntTime;
+	/**
+	 * 급가속 횟수 
+	 */
+	private int sudAccelCnt;
+	/**
+	 * 급감속 횟수 
+	 */
+	private int sudBrakeCnt;
+	/**
+	 * 경제운전시간 
+	 */
+	private int ecoDrvTime;
+	/**
+	 * 과속시간 
+	 */
+	private int ovrSpdTime;
+	/**
+	 * 사고횟수 
+	 */
+	private int incCnt;	
 	
 	/**
 	 * 기본 생성자 
@@ -228,6 +248,46 @@ public class VehicleRunSum extends AbstractEntity {
 
 	public void setMntTime(int mntTime) {
 		this.mntTime = mntTime;
+	}
+
+	public int getSudAccelCnt() {
+		return sudAccelCnt;
+	}
+
+	public void setSudAccelCnt(int sudAccelCnt) {
+		this.sudAccelCnt = sudAccelCnt;
+	}
+
+	public int getSudBrakeCnt() {
+		return sudBrakeCnt;
+	}
+
+	public void setSudBrakeCnt(int sudBrakeCnt) {
+		this.sudBrakeCnt = sudBrakeCnt;
+	}
+
+	public int getEcoDrvTime() {
+		return ecoDrvTime;
+	}
+
+	public void setEcoDrvTime(int ecoDrvTime) {
+		this.ecoDrvTime = ecoDrvTime;
+	}
+
+	public int getOvrSpdTime() {
+		return ovrSpdTime;
+	}
+
+	public void setOvrSpdTime(int ovrSpdTime) {
+		this.ovrSpdTime = ovrSpdTime;
+	}
+
+	public int getIncCnt() {
+		return incCnt;
+	}
+
+	public void setIncCnt(int incCnt) {
+		this.incCnt = incCnt;
 	}
 
 	@Override
