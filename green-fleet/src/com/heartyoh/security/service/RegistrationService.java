@@ -90,9 +90,9 @@ public class RegistrationService {
 
 		CustomUser user = new CustomUser(currentUser.getUserId(), currentUser.getEmail(), form.getName(),
 				roles, form.getCompany(), form.getLanguage(), true);
-
-		registry.registerUser(user);
-
+		registry.registerUser(user);		
+		user = registry.findUser(currentUser.getEmail());
+		
 		// Update the context with the full authentication
 		SecurityContextHolder.getContext().setAuthentication(
 				new GaeUserAuthentication(user, authentication.getDetails()));

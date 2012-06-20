@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dbist.dml.Dml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,6 +22,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -47,7 +50,7 @@ public class CheckinDataService extends EntityService {
 	/**
 	 * logger
 	 */
-	//private static final Logger logger = LoggerFactory.getLogger(CheckinDataService.class);	
+	private static final Logger logger = LoggerFactory.getLogger(CheckinDataService.class);	
 	
 	@Override
 	protected String getEntityName() {
@@ -146,6 +149,26 @@ public class CheckinDataService extends EntityService {
 
 		super.onSave(entity, map, datastore);
 	}
+	
+	@Override
+	protected void saveEntity(Entity checkin, Map<String, Object> map, DatastoreService datastore) throws Exception {
+		
+		Vehicle vehicle = 
+				DatasourceUtils.findVehicle(checkin.getParent().getName(), (String)checkin.getProperty("vehicle_id"));
+		
+		if(vehicle != null) {
+			// 차량 정보의 공인연비, 평균 연비로 에코 지수를 계산하여 checkin 데이터에 추가 
+			float avgEffcc = DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
+			float officialEffcc = vehicle.getOfficialEffcc();
+			
+			if(officialEffcc > 0) {
+				int ecoIndex = Math.round((avgEffcc / officialEffcc) * 100);
+				checkin.setUnindexedProperty("eco_index", ecoIndex);
+			}
+		}
+		
+		datastore.put(checkin);
+	}	
 
 	@RequestMapping(value = "/checkin_data/import", method = RequestMethod.POST)
 	public @ResponseBody
@@ -245,13 +268,25 @@ public class CheckinDataService extends EntityService {
 	public void dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Key companyKey = this.getCompanyKey(request);
-		Date[] fromToDate = DataUtils.getFirstLastDateOfMonth();
+		Date stDate = DataUtils.getToday();
 		Calendar c = Calendar.getInstance();
-		c.setTime(fromToDate[0]);
+		c.setTime(stDate);
 		int year = c.get(Calendar.YEAR);
-		int month = c.get(Calendar.MONTH) + 1;		
-		this.updateVehicleSummary(companyKey, year, month, fromToDate);
-		this.updateDriverSummary(companyKey, year, month, fromToDate);
+		int month = c.get(Calendar.MONTH) + 1;
+		int dayOfMonth = c.get(Calendar.DAY_OF_MONTH) + 1;
+		
+		// 매월 1일이면 해당월의 데이터가 없기 때문에 이전 달 데이터를 서머리한다.
+		if(dayOfMonth == 1) {
+			stDate = DataUtils.addDate(stDate, -2);
+			c.setTime(stDate);
+			year = c.get(Calendar.YEAR);
+			month = c.get(Calendar.MONTH) + 1;
+		}
+		
+		Date fromDate = DataUtils.getBeginDateOfMonth(stDate);
+		Date toDate = DataUtils.getEndDateOfMonth(stDate);
+		this.updateVehicleSummary(companyKey, year, month, fromDate, toDate);
+		this.updateDriverSummary(companyKey, year, month, fromDate, toDate);
 	}
 	
 	/**
@@ -263,14 +298,16 @@ public class CheckinDataService extends EntityService {
 	 * @param firstDateOfMonth
 	 * @throws Exception
 	 */
-	private void updateVehicleSummary(Key companyKey, int year, int month, Date[] fromToDate) throws Exception {
+	private void updateVehicleSummary(Key companyKey, int year, int month, Date fromDate, Date toDate) throws Exception {
 		
 		List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyKey.getName());
 
 		// 각 Vehicle에 대해서 모두 수집 
 		for(Vehicle vehicle : vehicles) {
-			List<Entity> checkinsByVehicle = this.findCheckins(companyKey, fromToDate, "vehicle_id", vehicle.getId());
+			List<Entity> checkinsByVehicle = this.findCheckins(companyKey, fromDate, toDate, "vehicle_id", vehicle.getId());
 			this.updateVehicleSumInfo(vehicle, year, month, checkinsByVehicle);
+			if(logger.isInfoEnabled())
+				logger.info("Vehicle [" + vehicle.getId() + "] summary completed!");
 		}
 	}
 
@@ -305,32 +342,22 @@ public class CheckinDataService extends EntityService {
 		float consmpt = 0;
 		float co2Emss = 0;
 		float effcc = 0;
-		int ecoIndex = 0;
 		int sudAccelCnt = 0;
 		int sudBrakeCnt = 0;
 		int ecoDrvTime = 0;
 		int ovrSpdTime = 0;
-		int incCnt = 0;
-		int oosCnt = 0;
-		int mntCnt = 0;
-		int mntTime = 0;		
 		Map<String, Integer> speedMap = new HashMap<String, Integer>();
 		
 		for(Entity checkin : checkins) {
-			runTime += DataUtils.toInt(checkin.getProperty("run_time"));	
-			runDist += DataUtils.toFloat(checkin.getProperty("run_dist"));
-			consmpt += DataUtils.toFloat(checkin.getProperty("consmpt"));
-			co2Emss += DataUtils.toFloat(checkin.getProperty("co2_emss"));	
-			effcc += DataUtils.toFloat(checkin.getProperty("effcc"));
-			ecoIndex += DataUtils.toInt(checkin.getProperty("eco_index")); 	
-			sudAccelCnt += DataUtils.toInt(checkin.getProperty("sud_accel_cnt"));
-			sudBrakeCnt += DataUtils.toInt(checkin.getProperty("sud_brake_cnt"));
-			ecoDrvTime += DataUtils.toInt(checkin.getProperty("eco_drv_time"));
-			ovrSpdTime += DataUtils.toInt(checkin.getProperty("ovr_spd_time"));
-			incCnt += DataUtils.toInt(checkin.getProperty("inc_cnt"));
-			oosCnt += DataUtils.toInt(checkin.getProperty("oos_cnt"));
-			mntCnt += DataUtils.toInt(checkin.getProperty("mnt_cnt"));
-			mntTime += DataUtils.toInt(checkin.getProperty("mnt_time"));
+			runTime += DataUtils.toInt(checkin.getProperty("running_time"));
+			runDist += DataUtils.toFloat(checkin.getProperty("distance"));
+			consmpt += DataUtils.toFloat(checkin.getProperty("fuel_consumption"));
+			co2Emss += DataUtils.toFloat(checkin.getProperty("co2_emissions"));	
+			effcc += DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
+			sudAccelCnt += DataUtils.toInt(checkin.getProperty("sudden_accel_count"));
+			sudBrakeCnt += DataUtils.toInt(checkin.getProperty("sudden_brake_count"));
+			ecoDrvTime += DataUtils.toInt(checkin.getProperty("eco_driving_time"));
+			ovrSpdTime += DataUtils.toInt(checkin.getProperty("over_speed_time"));
 			
 			for(int i = 1 ; i <= 16 ; i++) {
 				String key = "less_than_" + i + "0km";
@@ -349,17 +376,15 @@ public class CheckinDataService extends EntityService {
 			runSum.setRunTime(runTime);
 			runSum.setRunDist(runDist);
 			runSum.setConsmpt(consmpt);
-			runSum.setCo2Emss(co2Emss);		
+			runSum.setCo2Emss(co2Emss);
 			runSum.setSudAccelCnt(sudAccelCnt);
 			runSum.setSudBrakeCnt(sudBrakeCnt);
 			runSum.setEcoDrvTime(ecoDrvTime);
 			runSum.setOvrSpdTime(ovrSpdTime);
-			runSum.setOosCnt(oosCnt);
-			runSum.setMntCnt(mntCnt);
-			runSum.setMntTime(mntTime);
-			runSum.setIncCnt(incCnt);			
 			runSum.setEffcc((float)(effcc / checkInCount));
-			runSum.setEcoIndex(Math.round(ecoIndex / checkInCount));
+			float officialEffcc = vehicle.getOfficialEffcc();
+			int ecoIndex = Math.round((runSum.getEffcc() / officialEffcc) * 100);
+			runSum.setEcoIndex(ecoIndex);
 			dml.upsert(runSum);
 			
 			// 2. VehicleSpeedSum
@@ -381,7 +406,7 @@ public class CheckinDataService extends EntityService {
 			speedSum.setSpdLt160(speedMap.get("less_than_160km") + speedSum.getSpdLt160());
 			dml.upsert(speedSum);
 			
-			// 3. Vehicle
+			// 3. Vehicle - 총 주행거리 
 			vehicle.setTotalDistance(vehicle.getTotalDistance() + runDist);
 			dml.upsert(vehicle);
 		}
@@ -391,21 +416,22 @@ public class CheckinDataService extends EntityService {
 	 * checkin data를 조회 
 	 * 
 	 * @param companyKey
-	 * @param fromToDate
+	 * @param fromDate
+	 * @param toDate
 	 * @param filterName
 	 * @param filterValue
 	 * @return
 	 * @throws Exception
 	 */
-	private List<Entity> findCheckins(Key companyKey, Date[] fromToDate, String filterName, String filterValue) throws Exception {
+	private List<Entity> findCheckins(Key companyKey, Date fromDate, Date toDate, String filterName, String filterValue) throws Exception {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);
 		q.addFilter(filterName, Query.FilterOperator.EQUAL, filterValue);
-		q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
-		q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+		q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+		q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
 		PreparedQuery pq = datastore.prepare(q);
-		return pq.asList(null);		
+		return pq.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 	}
 	
 	/**
@@ -414,17 +440,21 @@ public class CheckinDataService extends EntityService {
 	 * @param company
 	 * @param year
 	 * @param month
-	 * @param firstDateOfMonth
+	 * @param fromDate
+	 * @param toDate
 	 * @throws Exception
 	 */
-	private void updateDriverSummary(Key companyKey, int year, int month, Date[] fromToDate) throws Exception {
+	private void updateDriverSummary(Key companyKey, int year, int month, Date fromDate, Date toDate) throws Exception {
 		@SuppressWarnings("unchecked")
 		List<Driver> drivers = (List<Driver>) DatasourceUtils.findEntities(Driver.class, DataUtils.newMap("company",companyKey.getName()));
 
 		// 각 Driver에 대해서 모두 수집 
 		for(Driver driver : drivers) {
-			List<Entity> checkinsByDriver = this.findCheckins(companyKey, fromToDate, "driver_id", driver.getId());
+			List<Entity> checkinsByDriver = this.findCheckins(companyKey, fromDate, toDate, "driver_id", driver.getId());
 			this.updateDriverSumInfo(driver, year, month, checkinsByDriver);
+			
+			if(logger.isInfoEnabled())
+				logger.info("Driver [" + driver.getId() + "] summary completed!");			
 		}		
 	}
 	
@@ -458,26 +488,28 @@ public class CheckinDataService extends EntityService {
 		float consmpt = 0;
 		float co2Emss = 0;
 		float effcc = 0;
-		int ecoIndex = 0;
 		int sudAccelCnt = 0;
 		int sudBrakeCnt = 0;
 		int ecoDrvTime = 0;
 		int ovrSpdTime = 0;
-		int incCnt = 0;
+		int ecoIndex = 0;
 		Map<String, Integer> speedMap = new HashMap<String, Integer>();
 		
 		for(Entity checkin : checkins) {
-			runTime += DataUtils.toInt(checkin.getProperty("run_time"));	
-			runDist += DataUtils.toFloat(checkin.getProperty("run_dist"));
-			consmpt += DataUtils.toFloat(checkin.getProperty("consmpt"));
-			co2Emss += DataUtils.toFloat(checkin.getProperty("co2_emss"));	
-			effcc += DataUtils.toFloat(checkin.getProperty("effcc"));
-			ecoIndex += DataUtils.toInt(checkin.getProperty("eco_index")); 	
-			sudAccelCnt += DataUtils.toInt(checkin.getProperty("sud_accel_cnt"));
-			sudBrakeCnt += DataUtils.toInt(checkin.getProperty("sud_brake_cnt"));
-			ecoDrvTime += DataUtils.toInt(checkin.getProperty("eco_drv_time"));
-			ovrSpdTime += DataUtils.toInt(checkin.getProperty("ovr_spd_time"));
-			incCnt += DataUtils.toInt(checkin.getProperty("inc_cnt"));
+			runTime += DataUtils.toInt(checkin.getProperty("running_time"));	
+			runDist += DataUtils.toFloat(checkin.getProperty("distance"));
+			consmpt += DataUtils.toFloat(checkin.getProperty("fuel_consumption"));
+			co2Emss += DataUtils.toFloat(checkin.getProperty("co2_emissions"));	
+			effcc += DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));	
+			sudAccelCnt += DataUtils.toInt(checkin.getProperty("sudden_accel_count"));
+			sudBrakeCnt += DataUtils.toInt(checkin.getProperty("sudden_brake_count"));
+			ecoDrvTime += DataUtils.toInt(checkin.getProperty("eco_driving_time"));
+			ovrSpdTime += DataUtils.toInt(checkin.getProperty("over_speed_time"));
+			
+			if(checkin.hasProperty("eco_index")) {
+				int ecoIndexValue = DataUtils.toInt(checkin.getProperty("eco_index"));
+				ecoIndex += ecoIndexValue;
+			}
 			
 			for(int i = 1 ; i <= 16 ; i++) {
 				String key = "less_than_" + i + "0km";
@@ -501,9 +533,8 @@ public class CheckinDataService extends EntityService {
 			runSum.setSudBrakeCnt(sudBrakeCnt);
 			runSum.setEcoDrvTime(ecoDrvTime);
 			runSum.setOvrSpdTime(ovrSpdTime);
-			runSum.setIncCnt(incCnt);			
-			runSum.setEffcc((float)(effcc / checkInCount));
-			runSum.setEcoIndex(Math.round(ecoIndex / checkInCount));
+			runSum.setEffcc((float)(effcc / checkInCount));			
+			runSum.setEcoIndex(Math.round((ecoIndex / checkInCount) * 100));
 			dml.upsert(runSum);
 			
 			// 2. DriverSpeedSum

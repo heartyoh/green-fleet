@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.heartyoh.util.DataUtils;
+
 /**
  * 서머리 서비스 : 서머리  
  * 
@@ -30,6 +32,9 @@ public class SummaryService {
 	@RequestMapping(value = "/summary/daily_summary", method = RequestMethod.GET)
 	public @ResponseBody
 	String dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		if(DataUtils.isEmpty(request.getParameter("company")))
+			throw new Exception("Request parameter [company] is required!");
 		
 		// 1. 소모품 상태 업데이트 서머리	
 		ConsumableService consumableStatusUpdate = new ConsumableService();

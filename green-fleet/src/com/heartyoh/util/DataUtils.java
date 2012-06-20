@@ -567,11 +567,20 @@ public class DataUtils {
 	 * 
 	 * @return
 	 */
-	public static Date[] getFirstLastDateOfMonth() {
-		
+	public static Date[] getFirstLastDateOfMonth() {		
+		return getFirstLastDate(DataUtils.getToday());
+	}
+	
+	/**
+	 * stDate 기준으로 달력을 만들기 위한 첫번째 날짜와 마지막 날짜를 구하여 리턴
+	 *  
+	 * @param stDate
+	 * @return
+	 */
+	public static Date[] getFirstLastDate(Date stDate) {
 		Date[] dates = new Date[2];
 		Calendar cal= Calendar.getInstance();
-		cal.setTime(new Date());
+		cal.setTime(stDate);
 		int currentMonth = cal.get(Calendar.MONTH);
 		int lastDayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		cal.set(Calendar.DAY_OF_MONTH, 1);		
@@ -588,4 +597,32 @@ public class DataUtils {
 		dates[1] = cal.getTime();
 		return dates;
 	}
+	
+	/**
+	 * 기준일 stDate 월의 첫째날(1일)을 구한다.
+	 *  
+	 * @param stDate
+	 * @return
+	 */
+	public static Date getBeginDateOfMonth(Date stDate) {
+		Calendar cal= Calendar.getInstance();
+		cal.setTime(stDate);
+		int firstDayOfMonth = cal.getActualMinimum(Calendar.DAY_OF_MONTH);
+		cal.set(Calendar.DAY_OF_MONTH, firstDayOfMonth);
+		return cal.getTime();		
+	}
+	
+	/**
+	 * 기준일 stDate 월의 마지막 날(28일 혹은 30일 혹은 31일)을 구한다.
+	 * 
+	 * @param stDate
+	 * @return
+	 */
+	public static Date getEndDateOfMonth(Date stDate) {		
+		Calendar cal= Calendar.getInstance();
+		cal.setTime(stDate);
+		int lastDayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		cal.set(Calendar.DAY_OF_MONTH, lastDayOfMonth);
+		return cal.getTime();
+	}	
 }
