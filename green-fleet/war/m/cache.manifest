@@ -49,6 +49,8 @@ resources/images/bgSubtitle.png
 resources/images/bgSwitch.png
 # d7512d7796b2630b301c1380e74735fd77030578
 resources/images/bgSwitchOn.png
+# e7772c2871fc6d51123d9cdd8bdcaf911af1f39c
+resources/images/bgTabTopActive.png
 # 341032f24349a02d263193efabe60f67a37f3588
 resources/images/bgThBlue.png
 # 607ef9afdce0cf52279ab26dfbebf47ad24d47ad
@@ -81,7 +83,7 @@ resources/images/iconDistance.png
 resources/images/iconETemp.png
 # f5663007f2f477863ef51344f86ce054ebf73532
 resources/images/iconFuel.png
-# f813c2f2ba8726def2ac950bc7aaa35aba608aa9
+# c07a437edd05841219fdb16af64f2d5f2f0778ff
 resources/images/iconHeaderView.png
 # 4fa5acbeb5dbd2ad13ec2e90d0471df0221be7b4
 resources/images/iconImpluse.png
@@ -105,6 +107,12 @@ resources/images/iconNavVGroup.png
 resources/images/iconNavVGroupSelected.png
 # d020408d1b0dba23208185fe2c526492cfee5c45
 resources/images/iconOBD.png
+# 2ad86f919ac0d247908930f5ae9a72b8e7861c2b
+resources/images/iconPin.png
+# 0516060d37ee49d5576fca522ad01cc2cebf5d17
+resources/images/iconPinBlue.png
+# 8bae4a98460380a45c7bf8bebf9a1ac0dacaed3b
+resources/images/iconReport.png
 # 0086bc122f4936871d7676ccb5abe878d9ab9768
 resources/images/iconStartPoint.png
 # adbf4782acad08fccf7a3e2bb7f45a997ba232bd
@@ -117,9 +125,11 @@ resources/images/iconStatusIncident.png
 resources/images/iconStatusMaint.png
 # 3b93dfa2b56b5584c9e0f1ddcadd7225e84afa29
 resources/images/iconTime.png
+# e429a645752670543ff805d7d80066173e86c911
+resources/images/iconTrack.png
 # e842e22498b2cafb65f58263b7b01e607bc6a10f
 resources/images/iconVelocity.png
-# 459c42ef4ed166e661d2451ae9e6749c93ea110a
+# 31221f87ca352a920a5c8d904dce8e1d99fd7533
 resources/images/iconsTab.png
 # 0d358e017abd5c5782bb4093aebf98a33fc2c175
 resources/images/levelB.png
@@ -135,4 +145,6 @@ resources/images/statusStop.png
 FALLBACK:
 
 NETWORK:
+/m/
+/m/home
 *
