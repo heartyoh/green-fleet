@@ -268,21 +268,12 @@ public class CheckinDataService extends EntityService {
 	public void dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Key companyKey = this.getCompanyKey(request);
-		Date stDate = DataUtils.getToday();
+		// 이틀 전 데이터를 서머리한다. 
+		Date stDate = DataUtils.addDate(DataUtils.getToday(), - 2);		
 		Calendar c = Calendar.getInstance();
 		c.setTime(stDate);
 		int year = c.get(Calendar.YEAR);
-		int month = c.get(Calendar.MONTH) + 1;
-		int dayOfMonth = c.get(Calendar.DAY_OF_MONTH) + 1;
-		
-		// 매월 1일이면 해당월의 데이터가 없기 때문에 이전 달 데이터를 서머리한다.
-		if(dayOfMonth == 1) {
-			stDate = DataUtils.addDate(stDate, -2);
-			c.setTime(stDate);
-			year = c.get(Calendar.YEAR);
-			month = c.get(Calendar.MONTH) + 1;
-		}
-		
+		int month = c.get(Calendar.MONTH) + 1;				
 		Date fromDate = DataUtils.getBeginDateOfMonth(stDate);
 		Date toDate = DataUtils.getEndDateOfMonth(stDate);
 		this.updateVehicleSummary(companyKey, year, month, fromDate, toDate);

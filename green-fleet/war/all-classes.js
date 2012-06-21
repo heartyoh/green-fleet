@@ -17238,7 +17238,7 @@ Ext.define('GreenFleet.store.DriverStore', {
 Ext.define('GreenFleet.store.DriverBriefStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 
 	pageSize : 1000,
 
@@ -18152,7 +18152,7 @@ Ext.define('GreenFleet.store.TerminalStore', {
 Ext.define('GreenFleet.store.TerminalBriefStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : true,
+	autoLoad : false,
 
 	fields : [ {
 		name : 'id',

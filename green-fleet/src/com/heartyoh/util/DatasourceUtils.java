@@ -3,6 +3,8 @@
  */
 package com.heartyoh.util;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +151,25 @@ public class DatasourceUtils {
 		params.put("prev_lat", prevLat);
 		params.put("prev_lng", prevLng);
 		return dml.selectListBySqlPath("com/heartyoh/util/LbaQuery.sql", params, Map.class, 0, 0);
+	}
+	
+	/**
+	 * Vehicle 평균 연비, Eco Index 업데이트
+	 *  
+	 * @param company
+	 * @throws Exception
+	 */
+	public static void updateVehicleEffcc(String company) throws Exception {
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		Date today = DataUtils.getToday();
+		String toDate = DataUtils.dateToString(today, GreenFleetConstant.DEFAULT_DATE_FORMAT);
+		params.put("toDate", toDate);
+		Calendar c = Calendar.getInstance();
+		c.setTime(today);
+		c.add(Calendar.YEAR, -1);		
+		String fromDate = DataUtils.dateToString(c.getTime(), GreenFleetConstant.DEFAULT_DATE_FORMAT);
+		params.put("fromDate", fromDate);
+		dml.executeBySqlPath("com/heartyoh/util/UpdateAvgEffcc.sql", params);
 	}
 	
 	/**

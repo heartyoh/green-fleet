@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
-  <!--cron>
-    <url>/vehicle_consumable/summary?company=palmvision</url>
-    <description>Resummary the consumable status every day 09:00 (Korean Time) For Palmvision Company</description>
-    <schedule>every day 00:00</schedule>
-  </cron>
-  
-  <cron>
-    <url>/vehicle_consumable/alarm?company=palmvision</url>
-    <description>Notification in accordance with consumable replacement schedule every 10:00 hours For Palmvision Company</description>
-    <schedule>every day 01:00</schedule>
-  </cron>
-    
-  <cron>
-    <url>/repair/alarm?company=palmvision</url>
-    <description>Notification in accordance with maintenance schedule every 11:00 hours For Palmvision Company</description>
-    <schedule>every day 02:00</schedule>
-  </cron-->
-  
+
   <cron>
     <url>/summary/daily_summary?company=palmvision</url>
     <description>Daily summary</description>
@@ -25,9 +8,27 @@
   </cron>
     
   <cron>
+    <url>/summary/monthly_summary?company=palmvision</url>
+    <description>Monthly summary</description>
+    <schedule>1 of month 00:00</schedule>
+  </cron>
+      
+  <!--cron>
+    <url>/summary/weekly_summary?company=palmvision</url>
+    <description>Weekly summary</description>
+    <schedule>every monday 00:00</schedule>
+  </cron>
+  
+  <cron>
+    <url>/summary/yearly_summary?company=palmvision</url>
+    <description>Yearly summary</description>
+    <schedule>1 of jan 00:00</schedule>
+  </cron-->
+      
+  <cron>
     <url>/report/daily_report?company=palmvision</url>
     <description>Daily report</description>
     <schedule>every day 03:00</schedule>
-  </cron>
+  </cron>  
   
 </cronentries>

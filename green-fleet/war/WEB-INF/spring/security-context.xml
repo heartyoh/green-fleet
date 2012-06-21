@@ -21,6 +21,7 @@
         <!-- TODO 추후 정리 -->
         <intercept-url pattern="/report/daily_report" access="permitAll" />
         <intercept-url pattern="/summary/daily_summary" access="permitAll" />
+        <intercept-url pattern="/summary/monthly_summary" access="permitAll" />
         <!--intercept-url pattern="/vehicle_consumable/summary" access="permitAll" />
         <intercept-url pattern="/vehicle_consumable/alarm" access="permitAll" />
         <intercept-url pattern="/repair/alarm" access="permitAll" /-->
