@@ -43,7 +43,6 @@
         <intercept-url pattern="/logout" access="permitAll" />
         <intercept-url pattern="/register" access="hasRole('NEW_USER')" />
         <intercept-url pattern="/reg_result" access="hasRole('NEW_USER')" />
-        <intercept-url pattern="/m/app.json" access="permitAll" />
         <intercept-url pattern="/m/**" access="permitAll" />
         <intercept-url pattern="/**" access="hasRole('USER')" />
         <custom-filter position="PRE_AUTH_FILTER" ref="gaeFilter" />

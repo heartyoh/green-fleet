@@ -49,8 +49,10 @@ resources/images/bgSubtitle.png
 resources/images/bgSwitch.png
 # d7512d7796b2630b301c1380e74735fd77030578
 resources/images/bgSwitchOn.png
-# e7772c2871fc6d51123d9cdd8bdcaf911af1f39c
+# f01b0fa9adc2e5d372fbca7d9cc360370be7d6f4
 resources/images/bgTabTopActive.png
+# e7772c2871fc6d51123d9cdd8bdcaf911af1f39c
+resources/images/bgTabTopPress.png
 # 341032f24349a02d263193efabe60f67a37f3588
 resources/images/bgThBlue.png
 # 607ef9afdce0cf52279ab26dfbebf47ad24d47ad
