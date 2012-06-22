@@ -2,33 +2,52 @@
 <cronentries>
 
   <cron>
-    <url>/summary/daily_summary?company=palmvision</url>
+    <url>/cron/summary/daily_summary</url>
     <description>Daily summary</description>
     <schedule>every day 21:00</schedule>
+    <target>gf-backend</target>
   </cron>
     
   <cron>
-    <url>/summary/monthly_summary?company=palmvision</url>
+    <url>/cron/summary/monthly_summary</url>
     <description>Monthly summary</description>
     <schedule>1 of month 00:00</schedule>
+    <target>gf-backend</target>
   </cron>
       
   <!--cron>
-    <url>/summary/weekly_summary?company=palmvision</url>
+    <url>/cron/summary/weekly_summary</url>
     <description>Weekly summary</description>
     <schedule>every monday 00:00</schedule>
+    <target>gf-backend</target>
   </cron>
   
   <cron>
-    <url>/summary/yearly_summary?company=palmvision</url>
+    <url>/cron/summary/yearly_summary</url>
     <description>Yearly summary</description>
     <schedule>1 of jan 00:00</schedule>
+    <target>gf-backend</target>
   </cron-->
       
   <cron>
-    <url>/report/daily_report?company=palmvision</url>
+    <url>/cron/report/daily_report</url>
     <description>Daily report</description>
     <schedule>every day 03:00</schedule>
+    <target>gf-backend</target>
   </cron>  
   
+  <cron>
+    <url>/cron/data_gen/track</url>
+    <description>Track generation for test</description>
+    <schedule>every day 22:00</schedule>
+    <target>gf-backend</target>
+  </cron>
+  
+  <cron>
+    <url>/cron/data_gen/checkin</url>
+    <description>Checkin data generation for test</description>
+    <schedule>every day 22:30</schedule>
+    <target>gf-backend</target>
+  </cron>  
+    
 </cronentries>

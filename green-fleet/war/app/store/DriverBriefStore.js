@@ -1,7 +1,7 @@
 Ext.define('GreenFleet.store.DriverBriefStore', {
 	extend : 'Ext.data.Store',
 
-	autoLoad : false,
+	autoLoad : true,
 
 	pageSize : 1000,
 

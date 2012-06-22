@@ -3,6 +3,8 @@
  */
 package com.heartyoh.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.appengine.api.datastore.Entity;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
+import com.heartyoh.util.DatastoreUtils;
 
 /**
- * 서머리 서비스 : 서머리  
+ * 서머리 서비스
  * 
  * @author jhnam
  */
@@ -37,29 +41,41 @@ public class SummaryService {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/summary/daily_summary", method = RequestMethod.GET)
+	@RequestMapping(value = "/cron/summary/daily_summary", method = RequestMethod.GET)
 	public @ResponseBody
 	String dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		this.checkCompany(request);
+		DataUtils.checkHeader(request);
 		
-		try {
-			// 1. 소모품 상태 업데이트 서머리	
-			ConsumableService consumableStatusUpdate = new ConsumableService();
-			consumableStatusUpdate.dailySummary(request, response);
-		} catch (Exception e) {
-			logger.error("Failed to consumable daily summary!", e);
+		// 모든 회사에 대해서 처리 
+		List<Entity> companies = DatastoreUtils.findAllCompany();
+		boolean success = true;
+		String msg = "OK";
+		
+		for(Entity company : companies) {
+			String companyId = (String)company.getProperty("id");
+			try {
+				// 1. 소모품 상태 업데이트 서머리	
+				ConsumableService consumableStatusUpdate = new ConsumableService();
+				consumableStatusUpdate.dailySummary(companyId);
+			} catch (Exception e) {
+				success = false;
+				msg = "Failed to consumable daily summary!";
+				logger.error(msg, e);
+			}
+		
+			try {
+				// 2. Vehicle, Driver 주행 서머리
+				CheckinDataService runSummary = new CheckinDataService();
+				runSummary.dailySummary(companyId);
+			} catch (Exception e) {
+				success = false;
+				msg = "Failed to driving daily summary!";
+				logger.error(msg, e);
+			}
 		}
 		
-		try {
-			// 2. Vehicle, Driver 주행 서머리
-			CheckinDataService runSummary = new CheckinDataService();
-			runSummary.dailySummary(request, response);
-		} catch (Exception e) {
-			logger.error("Failed to consumable daily summary!", e);
-		}
-		
-		return "{ \"success\" : true, \"msg\" : \"OK\" }";
+		return "{ \"success\" : " + success + ", \"msg\" : \"" + msg + "\" }";
 	}
 	
 	/**
@@ -70,9 +86,11 @@ public class SummaryService {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/summary/weekly_summary", method = RequestMethod.GET)
+	@RequestMapping(value = "/cron/summary/weekly_summary", method = RequestMethod.GET)
 	public @ResponseBody
 	String weeklySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		DataUtils.checkHeader(request);
 		return null;
 	}
 	
@@ -84,19 +102,29 @@ public class SummaryService {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/summary/monthly_summary", method = RequestMethod.GET)
+	@RequestMapping(value = "/cron/summary/monthly_summary", method = RequestMethod.GET)
 	public @ResponseBody
 	String monthlySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		this.checkCompany(request);
+		DataUtils.checkHeader(request);
 		
-		try {
-			DatasourceUtils.updateVehicleEffcc(request.getParameter("company"));
-		} catch(Exception e) {
-			logger.error("Failed to vehicle monthly summary!", e);
+		// 모든 회사에 대해서 처리 
+		List<Entity> companies = DatastoreUtils.findAllCompany();
+		boolean success = true;
+		String msg = "OK";
+		
+		for(Entity company : companies) {
+			String companyId = (String)company.getProperty("id");		
+			try {
+				DatasourceUtils.updateVehicleEffcc(companyId);
+			} catch(Exception e) {
+				success = false;
+				msg = "Failed to vehicle monthly summary!";
+				logger.error(msg, e);
+			}
 		}
 		
-		return "{ \"success\" : true, \"msg\" : \"OK\" }";
+		return "{ \"success\" : " + success + ", \"msg\" : \"" + msg + "\" }";
 	}
 	
 	/**
@@ -107,20 +135,12 @@ public class SummaryService {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/summary/yearly_summary", method = RequestMethod.GET)
+	@RequestMapping(value = "/cron/summary/yearly_summary", method = RequestMethod.GET)
 	public @ResponseBody
 	String yearlySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		DataUtils.checkHeader(request);
+		
 		return null;
-	}
-	
-	/**
-	 * company 정보 존재 체크 
-	 * 
-	 * @param request
-	 * @throws Exception
-	 */
-	private void checkCompany(HttpServletRequest request) throws Exception {
-		if(DataUtils.isEmpty(request.getParameter("company")))
-			throw new Exception("Request parameter [company] is required!");		
 	}
 }

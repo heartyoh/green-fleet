@@ -55,18 +55,6 @@ public class VehicleRunSum extends AbstractEntity {
 	 */
 	private int ecoIndex;
 	/**
-	 * 에코 지수 합 
-	 */
-	private int ecoIndexSum;
-	/**
-	 * 연비 합 
-	 */
-	private float effccSum;
-	/**
-	 * 이달의 총 서머리 횟수 : 에코 지수, 연비는 에코 지수 합, 연비 합과 서머리 횟수로 평균을 내서 계산 
-	 */
-	private int sumCount;	
-	/**
 	 * 고장 횟수 
 	 */
 	private int oosCnt;
@@ -200,30 +188,6 @@ public class VehicleRunSum extends AbstractEntity {
 
 	public void setEcoIndex(int ecoIndex) {
 		this.ecoIndex = ecoIndex;
-	}
-
-	public int getEcoIndexSum() {
-		return ecoIndexSum;
-	}
-
-	public void setEcoIndexSum(int ecoIndexSum) {
-		this.ecoIndexSum = ecoIndexSum;
-	}
-
-	public float getEffccSum() {
-		return effccSum;
-	}
-
-	public void setEffccSum(float effccSum) {
-		this.effccSum = effccSum;
-	}
-
-	public int getSumCount() {
-		return sumCount;
-	}
-
-	public void setSumCount(int sumCount) {
-		this.sumCount = sumCount;
 	}
 
 	public int getOosCnt() {

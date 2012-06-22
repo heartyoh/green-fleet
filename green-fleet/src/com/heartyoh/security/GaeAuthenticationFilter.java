@@ -42,8 +42,7 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 
 		if (authentication == null) {
 			// User isn't authenticated. Check if there is a Google Accounts
-			// user
-			User googleUser = UserServiceFactory.getUserService().getCurrentUser();
+			User googleUser = UserServiceFactory.getUserService().getCurrentUser();			
 
 			if (googleUser != null) {
 				// User has returned after authenticating through GAE. Need to

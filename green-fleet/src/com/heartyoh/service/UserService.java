@@ -114,18 +114,7 @@ public class UserService extends EntityService {
 			binaryAuthorities |= 1 << r.getBit();
 		}
 
-		entity.setUnindexedProperty("authorities", binaryAuthorities);
-		
-		// TODO 예전에 저장된 쓰지 않는 데이터 삭제 
-		if(entity.hasProperty("forename"))
-			entity.removeProperty("forename");
-		
-		if(entity.hasProperty("nickname"))
-			entity.removeProperty("nickname");
-		
-		if(entity.hasProperty("surname"))
-			entity.removeProperty("surname");		
-		
+		entity.setUnindexedProperty("authorities", binaryAuthorities);		
 		super.onSave(entity, map, datastore);
 	}
 

@@ -18,10 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.backends.BackendService;
+import com.google.appengine.api.backends.BackendServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.heartyoh.model.IEntity;
 import com.heartyoh.model.Report;
 import com.heartyoh.report.ReporterService;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 
 /**
  * Report Service
@@ -119,22 +123,46 @@ public class ReportOrmService extends OrmEntityService {
 		return entity;
 	}	
 	
-	@RequestMapping(value = "/report/daily_report", method = RequestMethod.GET)
-	public void dailyReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String company = this.getCompany(request);
-		this.sendReport(company, DAILY_REPORT);
+	@RequestMapping(value = "/cron/report/daily_report", method = RequestMethod.GET)
+	public String dailyReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		DataUtils.checkHeader(request);
+		
+		long time = System.currentTimeMillis();
+		try {						
+			List<Entity> companies = DatastoreUtils.findAllCompany();
+			for(Entity company : companies) {
+				this.sendReport((String)company.getProperty("id"), DAILY_REPORT);
+			}	
+			return "{ \"success\" : true, \"msg\" : \"OK\" }";
+		} catch(Throwable e) {
+			BackendService backendsApi = BackendServiceFactory.getBackendService();
+			String currentBackend = backendsApi.getCurrentBackend();
+			time = System.currentTimeMillis() - time;
+			String log = "It took " + time + " millis to save file. " + (DataUtils.isEmpty(currentBackend) ? "At frontend mode!" : "At backend (" + currentBackend + ") mode!");
+			logger.error(log, e);
+			return "{ \"success\" : false, \"msg\" : \"" + e.getMessage() + "\" }";
+		}
 	}
 	
-	@RequestMapping(value = "/report/weekly_report", method = RequestMethod.GET)
-	public void weeklyReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String company = this.getCompany(request);
-		this.sendReport(company, WEEKLY_REPORT);
+	@RequestMapping(value = "/cron/report/weekly_report", method = RequestMethod.GET)
+	public String weeklyReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		DataUtils.checkHeader(request);
+		List<Entity> companies = DatastoreUtils.findAllCompany();
+		for(Entity company : companies) {
+			this.sendReport((String)company.getProperty("id"), WEEKLY_REPORT);
+		}		
+		return "{ \"success\" : true, \"msg\" : \"OK\" }";
 	}
 	
-	@RequestMapping(value = "/report/monthly_report", method = RequestMethod.GET)
-	public void monthlyReport(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		String company = this.getCompany(request);
-		this.sendReport(company, MONTHLY_REPORT);
+	@RequestMapping(value = "/cron/report/monthly_report", method = RequestMethod.GET)
+	public String monthlyReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		DataUtils.checkHeader(request);
+		List<Entity> companies = DatastoreUtils.findAllCompany();
+		for(Entity company : companies) {
+			this.sendReport((String)company.getProperty("id"), MONTHLY_REPORT);
+		}		
+		return "{ \"success\" : true, \"msg\" : \"OK\" }";
 	}
 	
 	@RequestMapping(value = "/report/service", method = RequestMethod.GET)

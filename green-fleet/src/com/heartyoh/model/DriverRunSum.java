@@ -54,18 +54,6 @@ public class DriverRunSum extends AbstractEntity {
 	 */
 	private int ecoIndex;
 	/**
-	 * 에코 지수 합 
-	 */
-	private int ecoIndexSum;
-	/**
-	 * 연비 합 
-	 */
-	private float effccSum;
-	/**
-	 * 이달의 총 서머리 횟수 : 에코 지수, 연비는 에코 지수 합, 연비 합과 서머리 횟수로 평균을 내서 계산 
-	 */
-	private int sumCount;
-	/**
 	 * 급가속 횟수 
 	 */
 	private int sudAccelCnt;
@@ -228,30 +216,6 @@ public class DriverRunSum extends AbstractEntity {
 
 	public void setIncCnt(int incCnt) {
 		this.incCnt = incCnt;
-	}
-
-	public int getEcoIndexSum() {
-		return ecoIndexSum;
-	}
-
-	public void setEcoIndexSum(int ecoIndexSum) {
-		this.ecoIndexSum = ecoIndexSum;
-	}
-
-	public float getEffccSum() {
-		return effccSum;
-	}
-
-	public void setEffccSum(float effccSum) {
-		this.effccSum = effccSum;
-	}
-
-	public int getSumCount() {
-		return sumCount;
-	}
-
-	public void setSumCount(int sumCount) {
-		this.sumCount = sumCount;
 	}
 
 	@Override

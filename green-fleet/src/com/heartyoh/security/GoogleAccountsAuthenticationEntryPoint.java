@@ -28,7 +28,7 @@ public class GoogleAccountsAuthenticationEntryPoint implements AuthenticationEnt
 		
 		UserService userService = UserServiceFactory.getUserService();
 		String loginUrl = userService.createLoginURL(request.getRequestURI());
-		response.sendRedirect(loginUrl);		
+		response.sendRedirect(loginUrl);
 	}
 
 }

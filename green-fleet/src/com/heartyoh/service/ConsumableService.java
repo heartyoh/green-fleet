@@ -186,15 +186,22 @@ public class ConsumableService extends HistoricEntityService {
 		}
 	}	
 	
-	@RequestMapping(value = "/vehicle_consumable/summary", method = RequestMethod.GET)
-	public @ResponseBody
-	String dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	/**
+	 * daily summary, 차량별 소모품 상태 업데이트 
+	 * 
+	 * @param company
+	 * @return
+	 * @throws Exception
+	 */
+	public String dailySummary(String company) throws Exception {
 		
-		if(DataUtils.isEmpty(request.getParameter("company")))
+		if(DataUtils.isEmpty(company))
 			throw new Exception("Request parameter [company] is required!");
 		
-		Key companyKey = this.getCompanyKey(request);
-		List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyKey.getName());
+		Key companyKey = KeyFactory.createKey("Company", company);
+		@SuppressWarnings("unchecked")
+		List<Vehicle> vehicles = 
+			(List<Vehicle>) DatasourceUtils.findEntities(Vehicle.class, DataUtils.newMap("company", company));
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService(); 
 		int count = 0;
 		

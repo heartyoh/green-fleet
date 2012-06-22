@@ -127,15 +127,23 @@ public class RegistrationService {
 		// 2. 이미 사용중인 사용자인지 체크 
 		CustomUser user = this.registry.findUser(form.getEmail());
 		if(user != null) {
-			logger.error("User Email [" + form.getEmail() + "] is already in use by another user!");
+			logger.error("User Email [" + form.getEmail() + "] is already used!");
 			return "redirect:/reg_result?company=" + form.getCompany() + "&email=" + form.getEmail() + "&error=true&message=user_already_exit";
 		}
 		
 		// 4. 해당 회사의 관리자에게 메일을 보냄
 		try {
-			// TODO 수정 
-			AlarmUtils.sendXmppMessage("maparam419@gmail.com", 
-					"You have received user registration request. [name : " + form.getName() + ", email : " + form.getEmail() + "]!");
+			List<Entity> admins = DatastoreUtils.findAdminUsers(form.getCompany());
+			for(Entity admin : admins) {
+				AlarmUtils.sendMail(null, null, 
+						(String)admin.getProperty("name"), 
+						(String)admin.getProperty("email"), 
+						"You have received user registration request", 
+						true, 
+						"<H3 align='center'>Green Fleet User registration request!</H3> <br/>" +
+						"Please register this user after checking! <br/>" + 
+						"Requester Information [name : " + form.getName() + ", email : " + form.getEmail() + ", phone : " + form.getPhoneNo() + "]!");
+			}
 		} catch (Exception e) {
 			logger.error("Failed to send message!", e);
 		}

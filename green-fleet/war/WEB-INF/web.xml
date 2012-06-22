@@ -83,7 +83,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>XMPPMessageServlet</servlet-name>
 		<url-pattern>/_ah/xmpp/message/*</url-pattern>
 	</servlet-mapping>
-	
+	    	
 	<!--servlet>
     	<servlet-name>matches</servlet-name>
     	<servlet-class>com.heartyoh.service.ProspectiveSearchMatchServlet</servlet-class>

@@ -63,6 +63,16 @@ public class DatastoreUtils {
 	}
 	
 	/**
+	 * 모든 회사 리스트 조회 
+	 * 
+	 * @return
+	 */
+	public static List<Entity> findAllCompany() {		
+		Query q = new Query("Company");
+		return findMultiEntityByList(q);
+	}
+	
+	/**
 	 * key로 entity를 조회 
 	 * 
 	 * @param key

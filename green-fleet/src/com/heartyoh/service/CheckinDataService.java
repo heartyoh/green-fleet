@@ -265,9 +265,9 @@ public class CheckinDataService extends EntityService {
 	 * @return
 	 * @throws Exception
 	 */
-	public void dailySummary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void dailySummary(String company) throws Exception {
 		
-		Key companyKey = this.getCompanyKey(request);
+		Key companyKey = KeyFactory.createKey("Company", company);
 		// 이틀 전 데이터를 서머리한다. 
 		Date stDate = DataUtils.addDate(DataUtils.getToday(), - 2);		
 		Calendar c = Calendar.getInstance();

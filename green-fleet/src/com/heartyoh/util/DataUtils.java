@@ -33,6 +33,19 @@ import com.heartyoh.model.Sorter;
 public class DataUtils {
 	
 	/**
+	 * header를 체크해서 cron job 에서 호출된 것만 허용함  
+	 * 
+	 * @param request
+	 * @throws Exception
+	 */
+	public static void checkHeader(HttpServletRequest request) throws Exception {
+		// TODO cron job header를 체크해서 단지 cron으로만 실행시켜야 하는 경우 아래 주석 제거 ==> 운영 단계에서 필요 
+		//String value = request.getHeader("X-AppEngine-Cron");		
+		//if(DataUtils.isEmpty(value) || !value.equalsIgnoreCase("true"))
+		//	throw new Exception("Just cron job is acceptable!");
+	}
+	
+	/**
 	 * company 정보를 request 객체에서 추출하여 리턴 
 	 * 
 	 * @param request

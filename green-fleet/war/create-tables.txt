@@ -121,8 +121,6 @@ CREATE TABLE vehicle_run_sum (
 	co2_emss FLOAT(7,2),
 	effcc FLOAT(5,2),
 	eco_index SMALLINT,
-	effcc_sum FLOAT(6,1),
-	eco_index_sum MEDIUMINT,	
 	sud_accel_cnt INT,
 	sud_brake_cnt INT,
 	eco_drv_time INT,
@@ -131,7 +129,6 @@ CREATE TABLE vehicle_run_sum (
 	oos_cnt INT,
 	mnt_cnt INT,
 	mnt_time INT,
-	sum_count SMALLINT,	
 	PRIMARY KEY(company, vehicle, year, month)
 ) DEFAULT CHARSET=utf8;
 
@@ -174,9 +171,6 @@ CREATE TABLE driver_run_sum (
 	co2_emss FLOAT(7,2),
 	effcc FLOAT(5,2),
 	eco_index SMALLINT,
-	effcc_sum FLOAT(6,1),
-	eco_index_sum MEDIUMINT,
-	sum_count SMALLINT,	
 	sud_accel_cnt INT,
 	sud_brake_cnt INT,
 	eco_drv_time INT,

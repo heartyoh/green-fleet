@@ -255,50 +255,6 @@ public class DatasourceUtils {
 		return dml.selectListBySql(sql, params, Map.class, 0, 0);
 	}
 	
-//	/**
-//	 * VehicleRunSum 리스트 조회 
-//	 * 
-//	 * @param params
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	public static List<VehicleRunSum> findVehicleRunSum(Map<String, Object> params) throws Exception {		
-//		return dml.selectList(VehicleRunSum.class, params);
-//	}
-//	
-//	/**
-//	 * VehicleSpeedSum 리스트 조회 
-//	 * 
-//	 * @param params
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	public static List<VehicleSpeedSum> findVehicleSpeedSum(Map<String, Object> params) throws Exception {		
-//		return dml.selectList(VehicleSpeedSum.class, params);
-//	}	
-//	
-//	/**
-//	 * DriverRunSum 리스트 조회 
-//	 * 
-//	 * @param params
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	public static List<DriverRunSum> findDriverRunSum(Map<String, Object> params) throws Exception {		
-//		return dml.selectList(DriverRunSum.class, params);
-//	}
-//	
-//	/**
-//	 * DriverSpeedSum 리스트 조회 
-//	 * 
-//	 * @param params
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	public static List<DriverSpeedSum> findDriverSpeedSum(Map<String, Object> params) throws Exception {		
-//		return dml.selectList(DriverSpeedSum.class, params);
-//	}
-	
 	/**
 	 * 
 	 * @param params
