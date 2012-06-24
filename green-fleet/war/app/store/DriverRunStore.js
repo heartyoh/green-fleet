@@ -14,7 +14,7 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
-		type : 'string',
+		type : 'string'
 	}, {
 		name : 'run_dist',
 		type : 'float'

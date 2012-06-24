@@ -14,7 +14,7 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
-		type : 'string',
+		type : 'string'
 	}, {
 		name : 'spd_lt10',
 		type : 'integer'
