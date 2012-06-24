@@ -533,7 +533,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]
@@ -584,7 +584,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						renderer : function(storeItem) { 
 							return this.setTitle(storeItem.data.name + ':' + Ext.util.Format.number(storeItem.data.value, '0.00')); 
 						}
-					},	                
+					}	                
 	            }]
 			}]
 		};

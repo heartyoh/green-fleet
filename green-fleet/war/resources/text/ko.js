@@ -116,7 +116,7 @@ T({
 		report_list : '리포트 리스트',
 		report_details : '리포트 상세',
 		schedule : '일정',
-		vehicle_overview : '차량 개요',
+		vehicle_overview : '차량 개요'
 	},
 	
 	report : {
@@ -152,7 +152,7 @@ T({
         mtbf_by_vehicles : '차량별 평균고장간격',
         by_vehicles : '차량 관점',
         by_drivers : '운전자별 관점',
-        by_years : '년도 관점',
+        by_years : '년도 관점'
 	},
 	
 	portlet : {

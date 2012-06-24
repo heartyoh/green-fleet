@@ -566,7 +566,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]

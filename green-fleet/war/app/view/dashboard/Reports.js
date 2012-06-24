@@ -101,5 +101,5 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				flex : 1
 			} ]
 		}
-	},
+	}
 });

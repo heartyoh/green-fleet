@@ -205,7 +205,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				fieldLabel : T('label.enabled'),
 				xtype : 'checkboxfield',
 				flex : 1,
-				checked : true,
+				checked : true
 	        },
 			{
 	            xtype:'fieldset',
