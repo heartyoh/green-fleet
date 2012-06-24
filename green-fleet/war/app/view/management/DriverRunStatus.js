@@ -455,7 +455,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		    { 'name' : T('label.fuel_efficiency'), 	'value' : efficiency },
 		    { 'name' : T('label.ovr_spd_time'), 	'value' : overSpdCnt },
 		    { 'name' : T('label.sud_accel_cnt'), 	'value' : sudAccelCnt },
-		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt },
+		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt }
 		];
 		
 		var radarStore = Ext.create('Ext.data.JsonStore', {

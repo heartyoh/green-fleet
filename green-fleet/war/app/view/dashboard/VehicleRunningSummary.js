@@ -225,7 +225,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
 							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
 							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
-							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
+							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
