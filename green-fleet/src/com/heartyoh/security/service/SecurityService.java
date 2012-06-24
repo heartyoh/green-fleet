@@ -64,9 +64,8 @@ public class SecurityService {
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
-
 		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/");
-
 		response.sendRedirect(logoutUrl);
 	}
+
 }

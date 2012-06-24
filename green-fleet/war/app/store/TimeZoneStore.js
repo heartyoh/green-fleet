@@ -41,13 +41,13 @@ Ext.define('GreenFleet.store.TimeZoneStore', {
 		display : "(GMT -2:00) Mid-Atlantic"
 	}, {
 		value : -1.0,
-		display : "(GMT -1:00 hour) Azores, Cape Verde Islands"
+		display : "(GMT -1:00) Azores, Cape Verde Islands"
 	}, {
 		value : 0.0,
 		display : "(GMT) Western Europe Time, London, Lisbon, Casablanca"
 	}, {
 		value : 1.0,
-		display : "(GMT +1:00 hour) Brussels, Copenhagen, Madrid, Paris"
+		display : "(GMT +1:00) Brussels, Copenhagen, Madrid, Paris"
 	}, {
 		value : 2.0,
 		display : "(GMT +2:00) Kaliningrad, South Africa"

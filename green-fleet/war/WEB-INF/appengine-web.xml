@@ -43,4 +43,8 @@
 		<service>xmpp_error</service>
 	</inbound-services>
 	
+	<admin-console>
+    	<page name="GreenFleet Admin" url="/admin" />
+  	</admin-console>
+  	
 </appengine-web-app>
