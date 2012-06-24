@@ -102,7 +102,7 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]

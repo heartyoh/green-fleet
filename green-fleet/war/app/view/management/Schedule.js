@@ -38,7 +38,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
 			calendarStore : calendarStore,
 	        eventStore: eventStore,
-	        flex : 1,
+	        flex : 1
 	        /*listeners: {
 	            'eventadd': {
 	                fn: function(cp, rec) {	                	

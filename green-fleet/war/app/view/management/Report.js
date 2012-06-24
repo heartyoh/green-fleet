@@ -192,7 +192,7 @@ Ext.define('GreenFleet.view.management.Report', {
 					name : 'send_to',
 					xtype : 'textarea',
 					rows : 6,
-					fieldLabel: T('label.send_to'),
+					fieldLabel: T('label.send_to')
 					//xtype : 'user_selector',
 					//selector_label : T('label.send_to'),
 				}, {

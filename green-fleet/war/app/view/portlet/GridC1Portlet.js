@@ -63,5 +63,5 @@ Ext.define('GreenFleet.view.portlet.GridC1Portlet', {
 		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
 		    }
 		});    	
-    },    
+    }    
 });

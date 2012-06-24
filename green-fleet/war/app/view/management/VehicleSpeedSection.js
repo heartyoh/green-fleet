@@ -185,7 +185,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		flex : 1,
 		columns : [ {
 			dataIndex : 'month_str',
-			text : T('label.month'),
+			text : T('label.month')
 		}, {
 			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
@@ -540,7 +540,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
-	                title: T('label.month'),
+	                title: T('label.month')
 				}],			
 				series : [{
 					type : 'column',
@@ -704,7 +704,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['name'],
-	                title: T('label.speed_section') + '(km)',
+	                title: T('label.speed_section') + '(km)'
 				}],			
 				series : [{
 					type: 'column',

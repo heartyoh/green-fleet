@@ -585,7 +585,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]

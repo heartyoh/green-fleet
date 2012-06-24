@@ -137,7 +137,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 				width : 100
 			}, {
 				dataIndex : 'status',
-				text : T('label.status'),
+				text : T('label.status')
 			} ],
 			
 			tbar : [ T('label.id'),
@@ -200,7 +200,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 			format : F('date')
 		}, {
 			header : T('label.repair_time') + T('label.parentheses_min'),
-			dataIndex : 'repair_time',
+			dataIndex : 'repair_time'
 		}, {
 			header : T('label.next_repair_date'),
 			dataIndex : 'next_repair_date',
