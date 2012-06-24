@@ -14,7 +14,7 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		type : 'integer'
 	}, {
 		name : 'month',
-		type : 'integer',		
+		type : 'integer'		
 	}, {
 		name : 'month_str',
 		type : 'string'
