@@ -315,7 +315,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 			    value : new Date().getMonth() + 1,
 				store : 'MonthStore',
 				width : 40		
-			},
+			}
 		]
 	},
 
