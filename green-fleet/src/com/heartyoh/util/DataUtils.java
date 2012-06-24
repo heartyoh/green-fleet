@@ -506,7 +506,7 @@ public class DataUtils {
 	 * 
 	 * @param standardTimeMillis  
 	 * @param beforeDateAmount 0보다 작은 값이면 0으로 강제 세팅
-	 * @param afterDateAmount 1보다 작은 값이며 1로 강제 세팅
+	 * @param afterDateAmount 1보다 작은 값이면 1로 강제 세팅
 	 * @return
 	 */
 	public static Date[] getFromToDate(long standardTimeMillis, int beforeDateAmount, int afterDateAmount) {

@@ -9265,7 +9265,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				fieldLabel : T('label.enabled'),
 				xtype : 'checkboxfield',
 				flex : 1,
-				checked : true,
+				checked : true
 	        },
 			{
 	            xtype:'fieldset',
@@ -9955,7 +9955,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]
@@ -10419,7 +10419,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		    { 'name' : T('label.fuel_efficiency'), 	'value' : efficiency },
 		    { 'name' : T('label.ovr_spd_time'), 	'value' : overSpdCnt },
 		    { 'name' : T('label.sud_accel_cnt'), 	'value' : sudAccelCnt },
-		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt },
+		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt }
 		];
 		
 		var radarStore = Ext.create('Ext.data.JsonStore', {
@@ -10497,7 +10497,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]
@@ -10548,7 +10548,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						renderer : function(storeItem) { 
 							return this.setTitle(storeItem.data.name + ':' + Ext.util.Format.number(storeItem.data.value, '0.00')); 
 						}
-					},	                
+					}	                
 	            }]
 			}]
 		};
@@ -10784,7 +10784,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		flex : 1,
 		columns : [ {
 			dataIndex : 'month_str',
-			text : T('label.month'),
+			text : T('label.month')
 		}, {
 			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
@@ -10914,7 +10914,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			    value : new Date().getMonth() + 1,
 				store : 'MonthStore',
 				width : 40		
-			},
+			}
 		]
 	},
 
@@ -11139,7 +11139,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
-	                title: T('label.month'),
+	                title: T('label.month')
 				}],			
 				series : [{
 					type : 'column',
@@ -11303,7 +11303,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['name'],
-	                title: T('label.speed_section') + '(km)',
+	                title: T('label.speed_section') + '(km)'
 				}],			
 				series : [{
 					type: 'column',
@@ -11430,7 +11430,7 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				flex : 1
 			} ]
 		}
-	},
+	}
 });
 Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	extend : 'Ext.Container',
@@ -11659,7 +11659,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
 							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
 							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
-							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" },]
+							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -12019,7 +12019,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]
@@ -12595,7 +12595,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]
@@ -13213,7 +13213,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 				width : 100
 			}, {
 				dataIndex : 'status',
-				text : T('label.status'),
+				text : T('label.status')
 			} ],
 			
 			tbar : [ T('label.id'),
@@ -13276,7 +13276,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 			format : F('date')
 		}, {
 			header : T('label.repair_time') + T('label.parentheses_min'),
-			dataIndex : 'repair_time',
+			dataIndex : 'repair_time'
 		}, {
 			header : T('label.next_repair_date'),
 			dataIndex : 'next_repair_date',
@@ -13510,7 +13510,7 @@ Ext.define('GreenFleet.view.management.Schedule', {
 		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
 			calendarStore : calendarStore,
 	        eventStore: eventStore,
-	        flex : 1,
+	        flex : 1
 	        /*listeners: {
 	            'eventadd': {
 	                fn: function(cp, rec) {	                	
@@ -14560,7 +14560,7 @@ Ext.define('GreenFleet.view.portlet.GridC1Portlet', {
 		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
 		    }
 		});    	
-    },    
+    }    
 });
 
 Ext.define('GreenFleet.view.management.Report', {
@@ -14757,9 +14757,9 @@ Ext.define('GreenFleet.view.management.Report', {
 					name : 'send_to',
 					xtype : 'textarea',
 					rows : 6,
-					fieldLabel: T('label.send_to'),
+					fieldLabel: T('label.send_to')
 					//xtype : 'user_selector',
-					//selector_label : T('label.send_to'),
+					//selector_label : T('label.send_to')
 				}, {
 					xtype : 'textarea',
 					name : 'expl',
@@ -15981,7 +15981,7 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 						display : 'insideEnd',
 						contrast : true,
 						color: '#333',
-						font : '14px Arial',
+						font : '14px Arial'
 					}
 				}]
 			}]
@@ -16176,7 +16176,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		flex : 1,
 		columns : [ {
 			dataIndex : 'month_str',
-			text : T('label.month'),
+			text : T('label.month')
 		}, {
 			header : T('label.lessthan_km_min', {km : 10}),
 			dataIndex : 'spd_lt10'
@@ -16306,7 +16306,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 			    value : new Date().getMonth() + 1,
 				store : 'MonthStore',
 				width : 40		
-			},
+			}
 		]
 	},
 
@@ -16531,7 +16531,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
-	                title: T('label.month'),
+	                title: T('label.month')
 				}],			
 				series : [{
 					type : 'column',
@@ -16695,7 +16695,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['name'],
-	                title: T('label.speed_section') + '(km)',
+	                title: T('label.speed_section') + '(km)'
 				}],			
 				series : [{
 					type: 'column',
@@ -18218,13 +18218,13 @@ Ext.define('GreenFleet.store.TimeZoneStore', {
 		display : "(GMT -2:00) Mid-Atlantic"
 	}, {
 		value : -1.0,
-		display : "(GMT -1:00 hour) Azores, Cape Verde Islands"
+		display : "(GMT -1:00) Azores, Cape Verde Islands"
 	}, {
 		value : 0.0,
 		display : "(GMT) Western Europe Time, London, Lisbon, Casablanca"
 	}, {
 		value : 1.0,
-		display : "(GMT +1:00 hour) Brussels, Copenhagen, Madrid, Paris"
+		display : "(GMT +1:00) Brussels, Copenhagen, Madrid, Paris"
 	}, {
 		value : 2.0,
 		display : "(GMT +2:00) Kaliningrad, South Africa"
@@ -18616,7 +18616,7 @@ Ext.define('GreenFleet.store.RepairStore', {
 			dateFormat:'time'
 		}, {
 			name : 'repair_time',
-			type : 'int',				
+			type : 'int'				
 		}, {
 			name : 'next_repair_date',
 			type : 'date',
@@ -18927,13 +18927,13 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		type : 'string'
 	}, {
 		name : 'year',
-		type : 'integer',
+		type : 'integer'
 	}, {
 		name : 'month',
-		type : 'integer',		
+		type : 'integer'		
 	}, {
 		name : 'month_str',
-		type : 'string',
+		type : 'string'
 	}, {
 		name : 'run_dist',
 		type : 'float'
@@ -19000,7 +19000,7 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
-		type : 'string',
+		type : 'string'
 	}, {
 		name : 'run_dist',
 		type : 'float'
@@ -19073,7 +19073,7 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
-		type : 'string',
+		type : 'string'
 	}, {
 		name : 'spd_lt10',
 		type : 'integer'
@@ -19431,7 +19431,7 @@ Ext.define('GreenFleet.store.VehicleSpeedStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
-		type : 'string',
+		type : 'string'
 	}, {
 		name : 'spd_lt10',
 		type : 'integer'
