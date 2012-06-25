@@ -154,12 +154,12 @@ public class DatasourceUtils {
 	}
 	
 	/**
-	 * Vehicle 평균 연비, Eco Index 업데이트
+	 * Vehicle 평균 연비, Eco Index, Eco Run Rate 업데이트
 	 *  
 	 * @param company
 	 * @throws Exception
 	 */
-	public static void updateVehicleEffcc(String company) throws Exception {
+	public static void updateVehicleIndex(String company) throws Exception {
 		Map<String, Object> params = DataUtils.newMap("company", company);
 		Date today = DataUtils.getToday();
 		String toDate = DataUtils.dateToString(today, GreenFleetConstant.DEFAULT_DATE_FORMAT);
@@ -169,8 +169,27 @@ public class DatasourceUtils {
 		c.add(Calendar.YEAR, -1);		
 		String fromDate = DataUtils.dateToString(c.getTime(), GreenFleetConstant.DEFAULT_DATE_FORMAT);
 		params.put("fromDate", fromDate);
-		dml.executeBySqlPath("com/heartyoh/util/UpdateAvgEffcc.sql", params);
+		dml.executeBySqlPath("com/heartyoh/util/UpdateVehicleInfo.sql", params);
 	}
+	
+	/**
+	 * Driver 평균 연비, Eco Index, Eco Run Rate 업데이트
+	 *  
+	 * @param company
+	 * @throws Exception
+	 */
+	public static void updateDriverIndex(String company) throws Exception {
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		Date today = DataUtils.getToday();
+		String toDate = DataUtils.dateToString(today, GreenFleetConstant.DEFAULT_DATE_FORMAT);
+		params.put("toDate", toDate);
+		Calendar c = Calendar.getInstance();
+		c.setTime(today);
+		c.add(Calendar.YEAR, -1);		
+		String fromDate = DataUtils.dateToString(c.getTime(), GreenFleetConstant.DEFAULT_DATE_FORMAT);
+		params.put("fromDate", fromDate);
+		dml.executeBySqlPath("com/heartyoh/util/UpdateDriverInfo.sql", params);
+	}	
 	
 	/**
 	 * Task 생성 
@@ -256,6 +275,7 @@ public class DatasourceUtils {
 	}
 	
 	/**
+	 * cls, params로 entity 리스트 조회 
 	 * 
 	 * @param params
 	 * @return
@@ -263,5 +283,17 @@ public class DatasourceUtils {
 	 */
 	public static List<?> findEntities(Class<?> cls, Map<String, Object> params) throws Exception {
 		return dml.selectList(cls, params);
+	}
+	
+	/**
+	 * cls, params로 entity 조회 
+	 * 
+	 * @param cls
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public static Object findEntity(Class<?> cls, Map<String, Object> params) throws Exception {
+		return dml.select(cls, params);
 	}
 }

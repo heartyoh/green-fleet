@@ -30,6 +30,21 @@ Ext.define('GreenFleet.store.DriverStore', {
 		name : 'phone_no_2',
 		type : 'string'
 	}, {
+		name : 'total_distance',
+		type : 'float'
+	}, {
+		name : 'total_run_time',
+		type : 'int'
+	}, {
+		name : 'avg_effcc',
+		type : 'float'
+	}, {
+		name : 'eco_index',
+		type : 'int'
+	}, {
+		name : 'eco_run_rate',
+		type : 'int'
+	}, {
 		name : 'image_clip',
 		type : 'string'
 	}, {

@@ -40,6 +40,26 @@ public class Driver extends AbstractEntity {
 	 */
 	private String phoneNo2;
 	/**
+	 * 총 주행거리  
+	 */
+	private float totalDistance;
+	/**
+	 * 총 주행시간 
+	 */
+	private int totalRunTime;
+	/**
+	 * 평균연비 
+	 */
+	private float avgEffcc;
+	/**
+	 * 에코 지수
+	 */
+	private int ecoIndex;
+	/**
+	 * 경제 주행 비율 
+	 */
+	private int ecoRunRate;	
+	/**
 	 * image_clip
 	 */
 	private String imageClip;
@@ -123,6 +143,46 @@ public class Driver extends AbstractEntity {
 
 	public void setPhoneNo2(String phoneNo2) {
 		this.phoneNo2 = phoneNo2;
+	}
+
+	public float getTotalDistance() {
+		return totalDistance;
+	}
+
+	public void setTotalDistance(float totalDistance) {
+		this.totalDistance = totalDistance;
+	}
+
+	public int getTotalRunTime() {
+		return totalRunTime;
+	}
+
+	public void setTotalRunTime(int totalRunTime) {
+		this.totalRunTime = totalRunTime;
+	}
+
+	public float getAvgEffcc() {
+		return avgEffcc;
+	}
+
+	public void setAvgEffcc(float avgEffcc) {
+		this.avgEffcc = avgEffcc;
+	}
+
+	public int getEcoIndex() {
+		return ecoIndex;
+	}
+
+	public void setEcoIndex(int ecoIndex) {
+		this.ecoIndex = ecoIndex;
+	}
+
+	public int getEcoRunRate() {
+		return ecoRunRate;
+	}
+
+	public void setEcoRunRate(int ecoRunRate) {
+		this.ecoRunRate = ecoRunRate;
 	}
 
 	public String getImageClip() {

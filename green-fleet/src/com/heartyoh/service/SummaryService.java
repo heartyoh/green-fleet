@@ -116,7 +116,8 @@ public class SummaryService {
 		for(Entity company : companies) {
 			String companyId = (String)company.getProperty("id");		
 			try {
-				DatasourceUtils.updateVehicleEffcc(companyId);
+				DatasourceUtils.updateVehicleIndex(companyId);
+				DatasourceUtils.updateDriverIndex(companyId);
 			} catch(Exception e) {
 				success = false;
 				msg = "Failed to vehicle monthly summary!";

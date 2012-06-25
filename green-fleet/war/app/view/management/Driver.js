@@ -112,7 +112,7 @@ Ext.define('GreenFleet.view.management.Driver', {
 				type : 'string'
 			}, {
 				dataIndex : 'social_id',
-				text : T('label.x_id', {x : T('label.social')}),
+				text : T('label.social_id'),
 				type : 'string'
 			}, {
 				dataIndex : 'phone_no_1',
@@ -122,6 +122,31 @@ Ext.define('GreenFleet.view.management.Driver', {
 				dataIndex : 'phone_no_2',
 				text : T('label.phone_x', {x : 2}),
 				type : 'string'
+			}, {
+				dataIndex : 'total_distance',
+				text : T('label.total_distance') + '(km)',
+				xtype: 'numbercolumn',
+				type : 'float'
+			}, {
+				dataIndex : 'total_run_time',
+				text : T('label.total_run_time') + T('label.parentheses_min'),
+				xtype: 'numbercolumn',
+				type : 'int'
+			}, {
+				dataIndex : 'avg_effcc',
+				text : T('label.avg_effcc'),
+				xtype: 'numbercolumn',
+				type : 'float'
+			}, {
+				dataIndex : 'eco_index',
+				text : T('label.eco_index') + '(%)',
+				xtype: 'numbercolumn',
+				type : 'int'
+			}, {
+				dataIndex : 'eco_run_rate',
+				text : T('label.eco_run_rate') + '(%)',
+				xtype: 'numbercolumn',
+				type : 'int'
 			}, {
 				dataIndex : 'created_at',
 				text : T('label.created_at'),
@@ -215,13 +240,28 @@ Ext.define('GreenFleet.view.management.Driver', {
 						fieldLabel : T('label.title')
 					}, {
 						name : 'social_id',
-						fieldLabel : T('label.x_id', {x : T('label.social')})
+						fieldLabel : T('label.social_id')
 					}, {
 						name : 'phone_no_1',
 						fieldLabel : T('label.phone_x', {x : 1})
 					}, {
 						name : 'phone_no_2',
 						fieldLabel : T('label.phone_x', {x : 2})
+					}, {
+						name : 'total_distance',
+						fieldLabel : T('label.total_distance')
+					}, {
+						name : 'total_run_time',
+						fieldLabel : T('label.total_run_time')
+					}, {
+						name : 'avg_effcc',
+						fieldLabel : T('label.avg_effcc')
+					}, {
+						name : 'eco_index',
+						fieldLabel : T('label.eco_index')
+					}, {
+						name : 'eco_run_rate',
+						fieldLabel : T('label.eco_run_rate')
 					}, {
 						xtype : 'filefield',
 						name : 'image_file',

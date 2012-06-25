@@ -45,6 +45,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		name : 'total_distance',
 		type : 'float'
 	}, {
+		name : 'total_run_time',
+		type : 'int'
+	}, {
 		name : 'remaining_fuel',
 		type : 'float'
 	}, {
@@ -61,6 +64,9 @@ Ext.define('GreenFleet.store.VehicleStore', {
 		type : 'float'
 	}, {
 		name : 'eco_index',
+		type : 'int'
+	}, {
+		name : 'eco_run_rate',
 		type : 'int'
 	}, {
 		name : 'lat',

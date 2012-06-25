@@ -3,6 +3,9 @@
  */
 package com.heartyoh.service.orm;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +31,7 @@ import com.heartyoh.model.Sorter;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
+import com.heartyoh.util.GreenFleetConstant;
 
 /**
  * Vehicle Service
@@ -73,7 +77,7 @@ public class VehicleOrmService extends OrmEntityService {
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		return super.retrieve(request, response);
-	}
+	}	
 	
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody
@@ -278,4 +282,164 @@ public class VehicleOrmService extends OrmEntityService {
 		
 		return resultMap;
 	}
+	
+	@RequestMapping(value = "/vehicle/summary", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> summary(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		String company = this.getCompany(request);
+		Key companyKey = KeyFactory.createKey("Company", company);
+		String vehicleId = null;
+		String yearStr = null;
+		String monthStr = null;
+		int year = 0;
+		int month = 0;
+		
+		List<Filter> filters = this.parseFilters(request.getParameter("filter"));
+		if(!DataUtils.isEmpty(filters)) {
+			for(Filter filter : filters) {
+				if("id".equalsIgnoreCase(filter.getProperty()))
+					vehicleId = filter.getValue();
+				
+				if("year".equalsIgnoreCase(filter.getProperty()))
+					yearStr = filter.getValue();
+				
+				if("month".equalsIgnoreCase(filter.getProperty()))
+					monthStr = filter.getValue();			
+			}
+		} else {
+			vehicleId = request.getParameter("id");
+			yearStr = request.getParameter("year");
+			monthStr = request.getParameter("month");
+		}
+		
+		if(DataUtils.isEmpty(vehicleId))
+			throw new Exception("Parameter [id] required!");
+		
+		if(DataUtils.isEmpty(yearStr)) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(new Date());
+			year = c.get(Calendar.YEAR);
+			month = c.get(Calendar.MONTH) + 1;
+		} else {
+			year = Integer.parseInt(yearStr);
+			month = Integer.parseInt(monthStr);
+		}
+		
+		List<Object> results = new ArrayList<Object>();
+		Map<String, Object> items = new HashMap<String, Object>();
+		results.add(items);
+		
+		// 1. 차량 마스터 정보		
+		if(!this.getVehicleMaster(items, company, vehicleId, year, month)) {
+			return this.getResultSet(true, 0, null);
+		}
+		
+		// 2. 차량 소모품 정보
+		this.getConsumables(items, companyKey, vehicleId);
+		// 3. 차량 정비 정보 
+		this.getMaintanence(items, companyKey, vehicleId);
+		
+		return this.getResultSet(true, 1, results);
+	}
+	
+	/**
+	 * vehicle master 정보 
+	 * 
+	 * @param results
+	 * @param company
+	 * @param vehicleId
+	 * @param year
+	 * @param month
+	 * @throws Exception
+	 */
+	private boolean getVehicleMaster(Map<String, Object> items, String company, String vehicleId, int year, int month) throws Exception {
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ");
+		sql.append("v.id, v.registration_number, v.birth_year, v.vehicle_type, v.manufacturer, v.image_clip, v.fuel_type, ");
+		sql.append("v.remaining_fuel, v.total_run_time, v.total_distance, v.official_effcc, v.avg_effcc, v.eco_index, ");
+		sql.append("v.eco_run_rate, vs.run_time_of_month, vs.eco_drv_time_of_month, vs.run_dist_of_month, ");
+		sql.append("vs.consmpt_of_month, vs.effcc_of_month, vs.co2_emss_of_month ");
+		sql.append("from ");
+		sql.append("vehicle v LEFT OUTER JOIN ");
+		sql.append("(select vehicle, run_time run_time_of_month, eco_drv_time eco_drv_time_of_month, ");
+		sql.append("run_dist run_dist_of_month, consmpt consmpt_of_month, effcc effcc_of_month, co2_emss co2_emss_of_month ");
+		sql.append("from vehicle_run_sum where company = :company and year = :year and month = :month and vehicle = :id) vs ");
+		sql.append("ON v.id = vs.vehicle ");
+		sql.append("where v.company = :company and v.id = :id");
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		params.put("id", vehicleId);
+		params.put("year", year);
+		params.put("month", month);
+		@SuppressWarnings("rawtypes")
+		Map data = dml.selectBySql(sql.toString(), params, Map.class);
+		
+		if(DataUtils.isEmpty(data)) {
+			items.put("vehicle", null);
+			return false;
+		} else {
+			items.put("vehicle", data);
+			return true;
+		}		
+	}
+
+	/**
+	 * vehicle 소모품 정보 
+	 * 
+	 * @param items
+	 * @param companyKey
+	 * @param vehicleId
+	 * @throws Exception
+	 */
+	private void getConsumables(Map<String, Object> items, Key companyKey, String vehicleId) throws Exception {
+		
+		List<Entity> consumables = DatastoreUtils.findConsumables(companyKey, vehicleId);
+		if(consumables == null || consumables.isEmpty()) {
+			items.put("consumables", null);
+			return;
+		}
+		
+		List<Map<String, Object>> consumableList = new ArrayList<Map<String, Object>>();
+		for(Entity consumable : consumables) {
+			Map<String, Object> item = new HashMap<String, Object>();
+			item.put("consumable_item", consumable.getProperty("consumable_item"));
+			item.put("health_rate", consumable.getProperty("health_rate"));
+			consumableList.add(item);
+		}
+		
+		items.put("consumables", consumableList);
+	}
+	
+	/**
+	 * vehicle 정비 정보 
+	 * 
+	 * @param items
+	 * @param companyKey
+	 * @param vehicleId
+	 * @throws Exception
+	 */
+	private void getMaintanence(Map<String, Object> items, Key companyKey, String vehicleId) throws Exception {
+		
+		Map<String, Object> params = DataUtils.newMap("vehicle_id", vehicleId);
+		List<Sorter> sorters = new ArrayList<Sorter>();
+		Sorter sorter = new Sorter();
+		sorter.setProperty("repair_date");
+		sorter.setDirection("desc");
+		Iterator<Entity> repairs = DatastoreUtils.findEntities(companyKey, "Repair", params, sorters);
+		
+		if(repairs == null || !repairs.hasNext()) {
+			items.put("maint", null);
+		} else {
+			if(repairs.hasNext()) {
+				Entity repair = repairs.next();
+				Map<String, Object> item = new HashMap<String, Object>();
+				Date repairDate = (Date)repair.getProperty("repair_date");
+				Date nextRepairDate = (Date)repair.getProperty("next_repair_date");
+				item.put("repair_date", DataUtils.dateToString(repairDate, GreenFleetConstant.DEFAULT_DATE_FORMAT));
+				item.put("next_repair_date", DataUtils.dateToString(nextRepairDate, GreenFleetConstant.DEFAULT_DATE_FORMAT));
+				items.put("maint", item);
+			}
+		}
+	}	
 }

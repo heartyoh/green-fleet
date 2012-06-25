@@ -405,6 +405,20 @@ public class DatastoreUtils {
 	}
 	
 	/**
+	 * companyKey, vehicleId로 consumable list 조회 
+	 * 
+	 * @param companyKey
+	 * @param vehicleId
+	 * @return
+	 */
+	public static List<Entity> findConsumables(Key companyKey, String vehicleId) {
+		
+		Query q = createDefaultQuery(companyKey, "VehicleConsumable");
+		q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+		return findMultiEntityByList(q);
+	}	
+	
+	/**
 	 * companyKey, entityName, filters로 총 개수를 리턴
 	 * 
 	 * @param companyKey
@@ -440,13 +454,7 @@ public class DatastoreUtils {
 	private static List<Entity> findMultiEntityByList(Query q) {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
-		List<Entity> entityList = new ArrayList<Entity>();
-		
-		for(Entity entity : pq.asIterable()) {
-			entityList.add(entity);
-		}
-			
-		return entityList;
+		return pq.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 	}	
 	
 	private static int getTotalCount(Query q) {

@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -658,12 +659,6 @@ public class ConsumableService extends HistoricEntityService {
 		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, healthRate);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
-		
-		List<Entity> consumables = new ArrayList<Entity>();
-		for(Entity consumable : pq.asIterable()) {
-			consumables.add(consumable);
-		}
-		
-		return consumables;
+		return pq.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 	}
 }

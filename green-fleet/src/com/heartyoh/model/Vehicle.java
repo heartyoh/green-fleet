@@ -65,6 +65,10 @@ public class Vehicle extends AbstractEntity {
 	 */
 	private float totalDistance;
 	/**
+	 * 총 주행시간
+	 */
+	private int totalRunTime;
+	/**
 	 * 남은 기름량  
 	 */
 	private float remainingFuel;
@@ -80,6 +84,10 @@ public class Vehicle extends AbstractEntity {
 	 * 에코 지수
 	 */
 	private int ecoIndex;
+	/**
+	 * 경제 주행 비율 
+	 */
+	private int ecoRunRate;
 	/**
 	 * 차량 위치 : 위도 
 	 */
@@ -222,6 +230,14 @@ public class Vehicle extends AbstractEntity {
 		this.totalDistance = totalDistance;
 	}
 
+	public int getTotalRunTime() {
+		return totalRunTime;
+	}
+
+	public void setTotalRunTime(int totalRunTime) {
+		this.totalRunTime = totalRunTime;
+	}
+
 	public float getOfficialEffcc() {
 		return officialEffcc;
 	}
@@ -244,6 +260,14 @@ public class Vehicle extends AbstractEntity {
 
 	public void setEcoIndex(int ecoIndex) {
 		this.ecoIndex = ecoIndex;
+	}
+
+	public int getEcoRunRate() {
+		return ecoRunRate;
+	}
+
+	public void setEcoRunRate(int ecoRunRate) {
+		this.ecoRunRate = ecoRunRate;
 	}
 
 	public float getRemainingFuel() {

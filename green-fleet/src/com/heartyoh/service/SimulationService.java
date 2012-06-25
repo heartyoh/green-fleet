@@ -106,7 +106,8 @@ public class SimulationService {
 		for(Entity company : companies) {
 			String companyId = (String)company.getProperty("id");
 			
-			if(!this.checkCompany(companyId)) 
+			// 일단 vitizen에 대해서만 ...
+			if(!"vitizen".equalsIgnoreCase(companyId)) 
 				continue;
 			
 			List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyId);
@@ -202,7 +203,8 @@ public class SimulationService {
 		
 		String url = "http://" + request.getServerName() + ":" + request.getServerPort() + "/checkin_data/save";		
 		List<Entity> companies = DatastoreUtils.findAllCompany();
-		Date currentDate = DataUtils.addDate(DataUtils.getToday(), -1);
+		//Date currentDate = DataUtils.addDate(DataUtils.getToday(), -1);
+		Date currentDate = DataUtils.getToday();
 		String currentDateStr = 
 				DataUtils.dateToString(currentDate, GreenFleetConstant.DEFAULT_DATE_FORMAT);
 		

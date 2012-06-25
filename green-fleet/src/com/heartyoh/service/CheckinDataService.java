@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -194,36 +193,6 @@ public class CheckinDataService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
-	/**
-	 * 임시적으로 체크인 데이터를 수집하기 위해 만듦 TODO 추후 제거 
-	 * 
-	 * @param map
-	 * @return
-	 * @throws Exception
-	 */
-	public String create(Map<String, Object> map) throws Exception {		
-		String company = (String)map.get("company");
-		Key companyKey = KeyFactory.createKey("Company", company);
-		map.put("_company_key", companyKey);
-		map.put("_now", new Date());
-		
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		this.adjustRequestMap(datastore, map);
-		
-		Key objKey = KeyFactory.createKey(companyKey, getEntityName(), getIdValue(map));
-		Entity obj = null;
-		try {
-			obj = datastore.get(objKey);
-		} catch (EntityNotFoundException e) {
-			obj = new Entity(objKey);
-			onCreate(obj, map, datastore);
-		}
-
-		onSave(obj, map, datastore);
-		this.saveEntity(obj, map, datastore);
-		return this.getCreateResultMsg(true, obj);
-	}
-	
 	@Override
 	protected void addFilter(Query q, String property, Object value) {
 		
@@ -269,7 +238,7 @@ public class CheckinDataService extends EntityService {
 		
 		Key companyKey = KeyFactory.createKey("Company", company);
 		// 이틀 전 데이터를 서머리한다. 
-		Date stDate = DataUtils.addDate(DataUtils.getToday(), - 2);		
+		Date stDate = DataUtils.addDate(DataUtils.getToday(), - 2);
 		Calendar c = Calendar.getInstance();
 		c.setTime(stDate);
 		int year = c.get(Calendar.YEAR);
@@ -397,8 +366,9 @@ public class CheckinDataService extends EntityService {
 			speedSum.setSpdLt160(speedMap.get("less_than_160km") + speedSum.getSpdLt160());
 			dml.upsert(speedSum);
 			
-			// 3. Vehicle - 총 주행거리 
+			// 3. Vehicle - 총 주행거리, 총 주행시간 
 			vehicle.setTotalDistance(vehicle.getTotalDistance() + runDist);
+			vehicle.setTotalRunTime(vehicle.getTotalRunTime() + runTime);
 			dml.upsert(vehicle);
 		}
 	}
@@ -459,6 +429,7 @@ public class CheckinDataService extends EntityService {
 	 * @throws Exception
 	 */
 	private void updateDriverSumInfo(Driver driver, int year, int month, List<Entity> checkins) throws Exception {
+		
 		Dml dml = ConnectionManager.getInstance().getDml();
 		Map<String, Object> params = DataUtils.newMap("company", driver.getCompany());
 		params.put("driver", driver.getId());
@@ -545,7 +516,12 @@ public class CheckinDataService extends EntityService {
 			speedSum.setSpdLt140(speedMap.get("less_than_140km") + speedSum.getSpdLt140());
 			speedSum.setSpdLt150(speedMap.get("less_than_150km") + speedSum.getSpdLt150());
 			speedSum.setSpdLt160(speedMap.get("less_than_160km") + speedSum.getSpdLt160());
-			dml.upsert(speedSum);			
-		}		
+			dml.upsert(speedSum);
+			
+			// 3. Driver - 총 주행거리, 총 주행시간 
+			driver.setTotalDistance(driver.getTotalDistance() + runDist);
+			driver.setTotalRunTime(driver.getTotalRunTime() + runTime);
+			dml.upsert(driver);
+		}
 	}	
 }

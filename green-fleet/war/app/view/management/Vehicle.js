@@ -139,30 +139,46 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			}, {
 				dataIndex : 'official_effcc',
 				text : T('label.official_effcc'),
-				type : 'float'
+				type : 'float',
+				xtype: 'numbercolumn'
 			}, {
 				dataIndex : 'avg_effcc',
 				text : T('label.avg_effcc'),
-				type : 'float'
+				type : 'float',
+				xtype: 'numbercolumn'
 			}, {
 				dataIndex : 'eco_index',
 				text : T('label.eco_index') + '(%)',
-				type : 'int'
-			}, {
-				xtype: 'numbercolumn',
+				type : 'int',
+				xtype: 'numbercolumn'
+			},{
+				dataIndex : 'eco_run_rate',
+				text : T('label.eco_run_rate') + '(%)',
+				type : 'int',
+				xtype: 'numbercolumn'
+			}, {				
 				dataIndex : 'total_distance',
 				text : T('label.total_distance') + '(km)',
-				type : 'string'
+				type : 'float',
+				xtype: 'numbercolumn'
+			}, {
+				dataIndex : 'total_run_time',
+				text : T('label.total_run_time') + T('label.parentheses_min'),
+				xtype: 'numbercolumn',
+				type : 'int'
 			}, {
 				dataIndex : 'remaining_fuel',
 				text : T('label.remaining_fuel'),
-				type : 'string'
+				type : 'string',
+				xtype: 'numbercolumn'
 			}, {
 				dataIndex : 'lat',
-				text : T('label.latitude')
+				text : T('label.latitude'),
+				xtype: 'numbercolumn'
 			}, {
 				dataIndex : 'lng',
-				text : T('label.longitude')
+				text : T('label.longitude'),
+				xtype: 'numbercolumn'
 			} ],
 			viewConfig : {
 
@@ -282,6 +298,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'total_distance',
 							fieldLabel : T('label.total_distance')
 						}, {
+							name : 'total_run_time',
+							fieldLabel : T('label.total_run_time')
+						}, {
 							name : 'official_effcc',
 							fieldLabel : T('label.official_effcc')
 						}, {
@@ -290,6 +309,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 						}, {
 							name : 'eco_index',
 							fieldLabel : T('label.eco_index')
+						}, {
+							name : 'eco_run_rate',
+							fieldLabel : T('label.eco_run_rate')
 						}, {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
