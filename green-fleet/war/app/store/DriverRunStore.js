@@ -46,6 +46,9 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 		name : 'ovr_spd_time',
 		type : 'integer'
 	}, {
+		name : 'idle_time',
+		type : 'integer'
+	}, {
 		name : 'inc_cnt',
 		type : 'integer'
 	} ],

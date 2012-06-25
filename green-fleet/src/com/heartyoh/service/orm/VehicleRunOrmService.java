@@ -112,32 +112,35 @@ public class VehicleRunOrmService extends OrmEntityService {
 					sum.setEffcc(DataUtils.toFloat(value));
 					
 				} else if(key.equalsIgnoreCase("eco_index")) {
-					sum.setEffcc(DataUtils.toFloat(value));					
+					sum.setEcoIndex(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("sud_accel_cnt")) {
+					sum.setSudAccelCnt(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("sud_brake_cnt")) {
+					sum.setSudBrakeCnt(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("eco_drv_time")) {
+					sum.setEcoDrvTime(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("ovr_spd_time")) {
+					sum.setOvrSpdTime(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("idle_time")) {
+					sum.setIdleTime(DataUtils.toInt(value));					
+					
+				} else if(key.equalsIgnoreCase("inc_cnt")) {
+					sum.setIncCnt(DataUtils.toInt(value));
 					
 				} else if(key.equalsIgnoreCase("oos_cnt")) {
 					sum.setOosCnt(DataUtils.toInt(value));
-					
+				
 				} else if(key.equalsIgnoreCase("mnt_cnt")) {
 					sum.setMntCnt(DataUtils.toInt(value));
-					
+				
 				} else if(key.equalsIgnoreCase("mnt_time")) {
-					sum.setMntTime(DataUtils.toInt(value));
-					
-				} else if(key.equalsIgnoreCase("sud_accel_cnt")) {
-					sum.setMntTime(DataUtils.toInt(value));
-					
-				} else if(key.equalsIgnoreCase("sud_brake_cnt")) {
-					sum.setMntTime(DataUtils.toInt(value));
-					
-				} else if(key.equalsIgnoreCase("eco_drv_time")) {
-					sum.setMntTime(DataUtils.toInt(value));
-					
-				} else if(key.equalsIgnoreCase("ovr_spd_time")) {
-					sum.setMntTime(DataUtils.toInt(value));
-					
-				} else if(key.equalsIgnoreCase("inc_cnt")) {
-					sum.setMntTime(DataUtils.toInt(value));
-				}				
+					sum.setMntTime(DataUtils.toInt(value));				
+				}
 			}
 
 			sum.beforeSave();
@@ -226,14 +229,15 @@ public class VehicleRunOrmService extends OrmEntityService {
 		sum.setConsmpt(DataUtils.toFloat(request.getParameter("consmpt")));
 		sum.setEffcc(DataUtils.toFloat(request.getParameter("effcc")));
 		sum.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
+		sum.setSudAccelCnt(DataUtils.toInt(request.getParameter("sud_accel_cnt")));
+		sum.setSudBrakeCnt(DataUtils.toInt(request.getParameter("sud_brake_cnt")));
+		sum.setEcoDrvTime(DataUtils.toInt(request.getParameter("eco_drv_time")));
+		sum.setOvrSpdTime(DataUtils.toInt(request.getParameter("ovr_spd_time")));
+		sum.setIdleTime(DataUtils.toInt(request.getParameter("idle_time")));
+		sum.setIncCnt(DataUtils.toInt(request.getParameter("inc_cnt")));
 		sum.setOosCnt(DataUtils.toInt(request.getParameter("oos_cnt")));
 		sum.setMntCnt(DataUtils.toInt(request.getParameter("mnt_cnt")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("mnt_time")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("sud_accel_cnt")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("sud_brake_cnt")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("eco_drv_time")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("ovr_spd_time")));
-		sum.setMntTime(DataUtils.toInt(request.getParameter("inc_cnt")));
+		sum.setMntTime(DataUtils.toInt(request.getParameter("mnt_time")));		
 		
 		sum.beforeUpdate();
 		return sum;

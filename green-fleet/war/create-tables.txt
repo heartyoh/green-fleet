@@ -130,6 +130,7 @@ CREATE TABLE vehicle_run_sum (
 	sud_brake_cnt INT,
 	eco_drv_time INT,
 	ovr_spd_time INT,
+	idle_time INT,
 	inc_cnt INT,
 	oos_cnt INT,
 	mnt_cnt INT,
@@ -180,6 +181,7 @@ CREATE TABLE driver_run_sum (
 	sud_brake_cnt INT,
 	eco_drv_time INT,
 	ovr_spd_time INT,
+	idle_time INT,
 	inc_cnt INT,
 	PRIMARY KEY(company, driver, year, month)
 ) DEFAULT CHARSET=utf8;

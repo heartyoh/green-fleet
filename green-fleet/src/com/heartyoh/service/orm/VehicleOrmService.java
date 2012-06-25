@@ -355,13 +355,11 @@ public class VehicleOrmService extends OrmEntityService {
 		sql.append("select ");
 		sql.append("v.id, v.registration_number, v.birth_year, v.vehicle_type, v.manufacturer, v.image_clip, v.fuel_type, ");
 		sql.append("v.remaining_fuel, v.total_run_time, v.total_distance, v.official_effcc, v.avg_effcc, v.eco_index, ");
-		//sql.append("v.eco_run_rate, vs.run_time_of_month, vs.eco_drv_time_of_month, vs.run_dist_of_month, ");
-		sql.append("v.eco_run_rate, vs.run_time_of_month, vs.run_dist_of_month, ");
+		sql.append("v.eco_run_rate, vs.run_time_of_month, vs.eco_drv_time_of_month, vs.run_dist_of_month, ");
 		sql.append("vs.consmpt_of_month, vs.effcc_of_month, vs.co2_emss_of_month ");
 		sql.append("from ");
 		sql.append("vehicle v LEFT OUTER JOIN ");
-		//sql.append("(select vehicle, run_time as run_time_of_month, eco_drv_time as eco_drv_time_of_month, run_dist as run_dist_of_month, ");
-		sql.append("(select vehicle, run_time as run_time_of_month, run_dist as run_dist_of_month, ");
+		sql.append("(select vehicle, run_time as run_time_of_month, eco_drv_time as eco_drv_time_of_month, run_dist as run_dist_of_month, ");
 		sql.append("consmpt as consmpt_of_month, effcc as effcc_of_month, co2_emss as co2_emss_of_month ");
 		sql.append("from vehicle_run_sum where company = :company and year = :year and month = :month and vehicle = :id) vs ");
 		sql.append("ON v.id = vs.vehicle ");

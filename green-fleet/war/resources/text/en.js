@@ -233,6 +233,7 @@ T({
 		avg_effcc : 'Average Efficiency',
 		eco_drv_time : 'Eco Driving Time',
 		ovr_spd_time : 'Over Speed Time',
+		idle_time : 'Idle Time',
 		inc_cnt : 'Incident Count',
 		sud_accel_cnt : 'Sudden Accel Count',
 		sud_brake_cnt : 'Sudden Brake Count',		

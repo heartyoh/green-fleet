@@ -301,11 +301,11 @@ public class CheckinDataService extends EntityService {
 		float runDist = 0;
 		float consmpt = 0;
 		float co2Emss = 0;
-		float effcc = 0;
 		int sudAccelCnt = 0;
 		int sudBrakeCnt = 0;
 		int ecoDrvTime = 0;
 		int ovrSpdTime = 0;
+		int idleTime = 0;
 		Map<String, Integer> speedMap = new HashMap<String, Integer>();
 		
 		for(Entity checkin : checkins) {
@@ -313,11 +313,11 @@ public class CheckinDataService extends EntityService {
 			runDist += DataUtils.toFloat(checkin.getProperty("distance"));
 			consmpt += DataUtils.toFloat(checkin.getProperty("fuel_consumption"));
 			co2Emss += DataUtils.toFloat(checkin.getProperty("co2_emissions"));	
-			effcc += DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
 			sudAccelCnt += DataUtils.toInt(checkin.getProperty("sudden_accel_count"));
 			sudBrakeCnt += DataUtils.toInt(checkin.getProperty("sudden_brake_count"));
 			ecoDrvTime += DataUtils.toInt(checkin.getProperty("eco_driving_time"));
 			ovrSpdTime += DataUtils.toInt(checkin.getProperty("over_speed_time"));
+			idleTime += DataUtils.toInt(checkin.getProperty("idle_time"));
 			
 			for(int i = 1 ; i <= 16 ; i++) {
 				String key = "less_than_" + i + "0km";
@@ -341,7 +341,8 @@ public class CheckinDataService extends EntityService {
 			runSum.setSudBrakeCnt(sudBrakeCnt);
 			runSum.setEcoDrvTime(ecoDrvTime);
 			runSum.setOvrSpdTime(ovrSpdTime);
-			runSum.setEffcc((float)(effcc / checkInCount));
+			runSum.setIdleTime(idleTime);
+			runSum.setEffcc((float)(runDist / consmpt));
 			float officialEffcc = vehicle.getOfficialEffcc();
 			int ecoIndex = Math.round((runSum.getEffcc() / officialEffcc) * 100);
 			runSum.setEcoIndex(ecoIndex);
@@ -449,24 +450,24 @@ public class CheckinDataService extends EntityService {
 		float runDist = 0;
 		float consmpt = 0;
 		float co2Emss = 0;
-		float effcc = 0;
 		int sudAccelCnt = 0;
 		int sudBrakeCnt = 0;
 		int ecoDrvTime = 0;
 		int ovrSpdTime = 0;
+		int idleTime = 0;
 		int ecoIndex = 0;
 		Map<String, Integer> speedMap = new HashMap<String, Integer>();
 		
 		for(Entity checkin : checkins) {
-			runTime += DataUtils.toInt(checkin.getProperty("running_time"));	
+			runTime += DataUtils.toInt(checkin.getProperty("running_time"));
 			runDist += DataUtils.toFloat(checkin.getProperty("distance"));
 			consmpt += DataUtils.toFloat(checkin.getProperty("fuel_consumption"));
 			co2Emss += DataUtils.toFloat(checkin.getProperty("co2_emissions"));	
-			effcc += DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));	
 			sudAccelCnt += DataUtils.toInt(checkin.getProperty("sudden_accel_count"));
 			sudBrakeCnt += DataUtils.toInt(checkin.getProperty("sudden_brake_count"));
 			ecoDrvTime += DataUtils.toInt(checkin.getProperty("eco_driving_time"));
 			ovrSpdTime += DataUtils.toInt(checkin.getProperty("over_speed_time"));
+			idleTime += DataUtils.toInt(checkin.getProperty("idle_time"));
 			
 			if(checkin.hasProperty("eco_index")) {
 				int ecoIndexValue = DataUtils.toInt(checkin.getProperty("eco_index"));
@@ -495,7 +496,8 @@ public class CheckinDataService extends EntityService {
 			runSum.setSudBrakeCnt(sudBrakeCnt);
 			runSum.setEcoDrvTime(ecoDrvTime);
 			runSum.setOvrSpdTime(ovrSpdTime);
-			runSum.setEffcc((float)(effcc / checkInCount));			
+			runSum.setIdleTime(idleTime);
+			runSum.setEffcc((float)(runDist / consmpt));			
 			runSum.setEcoIndex(Math.round((ecoIndex / checkInCount) * 100));
 			dml.upsert(runSum);
 			

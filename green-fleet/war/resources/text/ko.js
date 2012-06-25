@@ -233,6 +233,7 @@ T({
 		avg_effcc : '평균 연비',
 		eco_drv_time : '경제운전 시간',
 		ovr_spd_time : '과속 시간',
+		idle_time : '공회전 시간',
 		inc_cnt : '이상상황 횟수',
 		sud_accel_cnt : '급가속 횟수',
 		sud_brake_cnt : '급감속 횟수',

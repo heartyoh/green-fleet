@@ -126,7 +126,10 @@ public class DriverRunOrmService extends OrmEntityService {
 					sum.setIncCnt(DataUtils.toInt(value));
 					
 				} else if(key.equalsIgnoreCase("eco_index")) {
-					sum.setEcoIndex(DataUtils.toInt(value));					
+					sum.setEcoIndex(DataUtils.toInt(value));
+					
+				} else if(key.equalsIgnoreCase("idle_time")) {
+					sum.setIdleTime(DataUtils.toInt(value));					
 				} 
 			}
 
@@ -216,8 +219,9 @@ public class DriverRunOrmService extends OrmEntityService {
 		sum.setSudBrakeCnt(DataUtils.toInt(request.getParameter("sud_brake_cnt")));
 		sum.setEcoDrvTime(DataUtils.toInt(request.getParameter("eco_drv_time")));
 		sum.setOvrSpdTime(DataUtils.toInt(request.getParameter("ovr_spd_time")));
-		sum.setIncCnt(DataUtils.toInt(request.getParameter("inc_cnt")));
+		sum.setIdleTime(DataUtils.toInt(request.getParameter("idle_time")));		
 		sum.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
+		sum.setIncCnt(DataUtils.toInt(request.getParameter("inc_cnt")));
 
 		sum.beforeUpdate();
 		return sum;

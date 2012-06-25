@@ -55,18 +55,6 @@ public class VehicleRunSum extends AbstractEntity {
 	 */
 	private int ecoIndex;
 	/**
-	 * 고장 횟수 
-	 */
-	private int oosCnt;
-	/**
-	 * 정비 횟수 
-	 */
-	private int mntCnt;
-	/**
-	 * 정비 시간 
-	 */
-	private int mntTime;
-	/**
 	 * 급가속 횟수 
 	 */
 	private int sudAccelCnt;
@@ -83,9 +71,25 @@ public class VehicleRunSum extends AbstractEntity {
 	 */
 	private int ovrSpdTime;
 	/**
+	 * 공회전 시간 
+	 */
+	private int idleTime;
+	/**
 	 * 사고횟수 
 	 */
 	private int incCnt;	
+	/**
+	 * 고장 횟수 
+	 */
+	private int oosCnt;
+	/**
+	 * 정비 횟수 
+	 */
+	private int mntCnt;
+	/**
+	 * 정비 시간 
+	 */
+	private int mntTime;
 	
 	/**
 	 * 기본 생성자 
@@ -190,30 +194,6 @@ public class VehicleRunSum extends AbstractEntity {
 		this.ecoIndex = ecoIndex;
 	}
 
-	public int getOosCnt() {
-		return oosCnt;
-	}
-
-	public void setOosCnt(int oosCnt) {
-		this.oosCnt = oosCnt;
-	}
-
-	public int getMntCnt() {
-		return mntCnt;
-	}
-
-	public void setMntCnt(int mntCnt) {
-		this.mntCnt = mntCnt;
-	}
-
-	public int getMntTime() {
-		return mntTime;
-	}
-
-	public void setMntTime(int mntTime) {
-		this.mntTime = mntTime;
-	}
-
 	public int getSudAccelCnt() {
 		return sudAccelCnt;
 	}
@@ -246,6 +226,14 @@ public class VehicleRunSum extends AbstractEntity {
 		this.ovrSpdTime = ovrSpdTime;
 	}
 
+	public int getIdleTime() {
+		return idleTime;
+	}
+
+	public void setIdleTime(int idleTime) {
+		this.idleTime = idleTime;
+	}
+
 	public int getIncCnt() {
 		return incCnt;
 	}
@@ -253,6 +241,30 @@ public class VehicleRunSum extends AbstractEntity {
 	public void setIncCnt(int incCnt) {
 		this.incCnt = incCnt;
 	}
+	
+	public int getOosCnt() {
+		return oosCnt;
+	}
+
+	public void setOosCnt(int oosCnt) {
+		this.oosCnt = oosCnt;
+	}
+
+	public int getMntCnt() {
+		return mntCnt;
+	}
+
+	public void setMntCnt(int mntCnt) {
+		this.mntCnt = mntCnt;
+	}
+
+	public int getMntTime() {
+		return mntTime;
+	}
+
+	public void setMntTime(int mntTime) {
+		this.mntTime = mntTime;
+	}	
 
 	@Override
 	public String getUniqueValue() {

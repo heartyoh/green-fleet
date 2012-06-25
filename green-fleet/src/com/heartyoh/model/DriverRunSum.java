@@ -70,6 +70,10 @@ public class DriverRunSum extends AbstractEntity {
 	 */
 	private int ovrSpdTime;
 	/**
+	 * 공회전 시간 
+	 */
+	private int idleTime;
+	/**
 	 * 사고횟수 
 	 */
 	private int incCnt;
@@ -208,6 +212,14 @@ public class DriverRunSum extends AbstractEntity {
 
 	public void setOvrSpdTime(int ovrSpdTime) {
 		this.ovrSpdTime = ovrSpdTime;
+	}
+
+	public int getIdleTime() {
+		return idleTime;
+	}
+
+	public void setIdleTime(int idleTime) {
+		this.idleTime = idleTime;
 	}
 
 	public int getIncCnt() {
