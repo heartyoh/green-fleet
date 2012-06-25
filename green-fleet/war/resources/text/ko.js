@@ -152,7 +152,8 @@ T({
         mtbf_by_vehicles : '차량별 평균고장간격',
         by_vehicles : '차량 관점',
         by_drivers : '운전자별 관점',
-        by_years : '년도 관점'
+        by_years : '년도 관점',
+        daily_driving_report : '운전자 일일 주행 리포트'
 	},
 	
 	portlet : {
@@ -251,7 +252,8 @@ T({
 		longitude_max : '최대 경도',
 		driver : '운전자',
 		vehicle : '차량',
-		vehicle_id : '차량 아이디',
+		vehicle_id : '차량 ID',
+		driver_id : '운전자 ID',
 		incident : '이상상황',
 		velocity : '속도',
 		impulse : '충격량',		
@@ -408,7 +410,10 @@ T({
 		weekly : '주별',
 		monthly : '월별',
 		yearly : '년별',
-		vehicle_model : '차량 모델'
+		vehicle_model : '차량 모델',
+		eco_level : '경제주행 레벨',
+		mileage_of_month : '이달 주행거리',
+		consumption_of_month : '이달 연료소모량'
 	},
 	
 	format : {
@@ -433,6 +438,10 @@ T({
 		select_a_consumable : '소모품 종류를 선택하세요',
 		select_users : '알람을 보내고자 하는 사용자의 이메일 주소를 ,로 구분하여 입력...',
 		none_selected : '선택된 항목이 없습니다!',
-		select_x_first : '{x}를 먼저 선택해주세요'
+		select_x_first : '{x}를 먼저 선택해주세요',
+		no_maint_history : '정비 이력이 없습니다.',
+		maint_on_x_next_y : '{x}에 정비를 하였으며 <br/> 다음 정비 예정일은 {y}입니다.',
+		vehicle_eco_drv_result_msg : '이 차의 에코드라이브 지수는 {x}레벨입니다.<br/> 공회전시간을 적절하게 관리하면, <span>연간 {y}만원</span> 이상의 유류비 절약이 가능합니다.',
+		driver_eco_drv_result_msg : '이 운전자의 에코드라이브 지수는 {x}레벨입니다.<br/> 운전습관을 적절하게 관리하면, <span>연간 {y}만원</span> 이상의유류비 절약이 가능하며, 사고 위험을 현저히 낮출 수 있습니다'
 	}
 });

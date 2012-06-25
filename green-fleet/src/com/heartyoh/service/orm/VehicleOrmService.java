@@ -106,16 +106,12 @@ public class VehicleOrmService extends OrmEntityService {
 		vehicle.setStatus(request.getParameter("status"));
 		vehicle.setHealthStatus(request.getParameter("health_status"));
 		vehicle.setTotalDistance(DataUtils.toFloat(request.getParameter("total_distance")));
+		vehicle.setTotalRunTime(DataUtils.toInt(request.getParameter("total_run_time")));
 		vehicle.setRemainingFuel(DataUtils.toFloat(request.getParameter("remaining_fuel")));
-		
-		if(request.getParameter("eco_index") != null)
-			vehicle.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
-		
-		if(request.getParameter("official_effcc") != null)
-			vehicle.setOfficialEffcc(DataUtils.toFloat(request.getParameter("official_effcc")));
-		
-		if(request.getParameter("avg_effcc") != null)
-			vehicle.setAvgEffcc(DataUtils.toFloat(request.getParameter("avg_effcc")));		
+		vehicle.setEcoRunRate(DataUtils.toInt(request.getParameter("eco_run_rate")));
+		vehicle.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
+		vehicle.setOfficialEffcc(DataUtils.toFloat(request.getParameter("official_effcc")));		
+		vehicle.setAvgEffcc(DataUtils.toFloat(request.getParameter("avg_effcc")));
 		
 		if(!DataUtils.isEmpty(request.getParameter("lat")))
 			vehicle.setLat(DataUtils.toFloat(request.getParameter("lat")));
@@ -359,12 +355,14 @@ public class VehicleOrmService extends OrmEntityService {
 		sql.append("select ");
 		sql.append("v.id, v.registration_number, v.birth_year, v.vehicle_type, v.manufacturer, v.image_clip, v.fuel_type, ");
 		sql.append("v.remaining_fuel, v.total_run_time, v.total_distance, v.official_effcc, v.avg_effcc, v.eco_index, ");
-		sql.append("v.eco_run_rate, vs.run_time_of_month, vs.eco_drv_time_of_month, vs.run_dist_of_month, ");
+		//sql.append("v.eco_run_rate, vs.run_time_of_month, vs.eco_drv_time_of_month, vs.run_dist_of_month, ");
+		sql.append("v.eco_run_rate, vs.run_time_of_month, vs.run_dist_of_month, ");
 		sql.append("vs.consmpt_of_month, vs.effcc_of_month, vs.co2_emss_of_month ");
 		sql.append("from ");
 		sql.append("vehicle v LEFT OUTER JOIN ");
-		sql.append("(select vehicle, run_time run_time_of_month, eco_drv_time eco_drv_time_of_month, ");
-		sql.append("run_dist run_dist_of_month, consmpt consmpt_of_month, effcc effcc_of_month, co2_emss co2_emss_of_month ");
+		//sql.append("(select vehicle, run_time as run_time_of_month, eco_drv_time as eco_drv_time_of_month, run_dist as run_dist_of_month, ");
+		sql.append("(select vehicle, run_time as run_time_of_month, run_dist as run_dist_of_month, ");
+		sql.append("consmpt as consmpt_of_month, effcc as effcc_of_month, co2_emss as co2_emss_of_month ");
 		sql.append("from vehicle_run_sum where company = :company and year = :year and month = :month and vehicle = :id) vs ");
 		sql.append("ON v.id = vs.vehicle ");
 		sql.append("where v.company = :company and v.id = :id");

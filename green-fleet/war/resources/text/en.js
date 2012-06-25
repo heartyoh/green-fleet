@@ -153,6 +153,7 @@ T({
         by_vehicles : 'By Vehicles',
         by_drivers : 'By Drivers',
         by_years : 'By Year',
+        daily_driving_report : 'Daily Driving Report'
 	},
 	
 	portlet : {
@@ -248,10 +249,11 @@ T({
 		latitude_min  : 'Min. Lat.',
 		longitude_min : 'Min. Lng',
 		latitude_max  : 'Max. Lat',
-		longitude_max : 'Max. Lng',		
+		longitude_max : 'Max. Lng',	
 		driver : 'Driver',
 		vehicle : 'Vehicle',
 		vehicle_id : 'Vehicle Id',
+		driver_id : 'Driver Id',
 		incident : 'Incident',
 		velocity : 'Velocity',
 		impulse : 'Impulse',		
@@ -408,7 +410,10 @@ T({
 		weekly : 'Weekly',
 		monthly : 'Monthly',
 		yearly : 'Yearly',
-		vehicle_model : 'Vehicle Model'
+		vehicle_model : 'Vehicle Model',
+		eco_level : 'Eco Driving Level',
+		mileage_of_month : 'Mileage of the month',
+		consumption_of_month : 'Consumption of the month'
 	},
 	
 	format : {
@@ -434,5 +439,9 @@ T({
 		select_users : 'Enter email addresses of users that you want to send an alarm, separated by , ...',
 		none_selected : 'None Selected!',
 		select_x_first : 'Select {x} First!',
+		no_maint_history : 'No maintenance history!',
+		maint_on_x_next_y : 'Maintenance on {x} and {y} is the next service date.',
+		vehicle_eco_drv_result_msg : 'Eco-drive index of this car is {x} level. <br/> If you manage idle time, annual <span>cost savings of ${y}</span> or more are available.',
+		driver_eco_drv_result_msg : 'Eco-drive index of this driver is {x} level.<br/> If you manage driving habits, annual <span>cost savings of ${y}</span> or more are available and reducing the risk of accidents.'
 	}
 });

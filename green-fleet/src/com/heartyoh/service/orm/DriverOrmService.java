@@ -99,6 +99,11 @@ public class DriverOrmService extends OrmEntityService {
 		driver.setSocialId(request.getParameter("social_id"));
 		driver.setPhoneNo1(request.getParameter("phone_no_1"));
 		driver.setPhoneNo2(request.getParameter("phone_no_2"));
+		driver.setTotalDistance(DataUtils.toFloat(request.getParameter("total_distance")));
+		driver.setTotalRunTime(DataUtils.toInt(request.getParameter("total_run_time")));
+		driver.setEcoRunRate(DataUtils.toInt(request.getParameter("eco_run_rate")));
+		driver.setEcoIndex(DataUtils.toInt(request.getParameter("eco_index")));
+		driver.setAvgEffcc(DataUtils.toFloat(request.getParameter("avg_effcc")));		
 		driver.beforeUpdate();
 		return driver;
 	}
@@ -172,7 +177,7 @@ public class DriverOrmService extends OrmEntityService {
 			throw new Exception("Parameter [id] required!");
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select d.id, d.name, d.division, d.social_id, d.phone_no_1, d.image_clip, d.total_distance, d.total_run_time, d.avg_effcc, ");
+		sql.append("select d.id, d.name, d.division, d.title, d.social_id, d.phone_no_1, d.image_clip, d.total_distance, d.total_run_time, d.avg_effcc, ");
 		sql.append("d.eco_index, d.eco_run_rate, ds.run_time_of_month, ds.eco_drv_time_of_month, ds.run_dist_of_month, ds.consmpt_of_month, ds.effcc_of_month from ");
 		sql.append("driver d LEFT OUTER JOIN ");
 		sql.append("(select driver, run_time run_time_of_month, eco_drv_time eco_drv_time_of_month, run_dist run_dist_of_month, consmpt consmpt_of_month, effcc effcc_of_month ");
