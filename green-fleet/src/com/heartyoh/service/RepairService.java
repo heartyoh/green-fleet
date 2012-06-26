@@ -35,6 +35,11 @@ import com.heartyoh.util.SessionUtils;
 public class RepairService extends EntityService {
 
 	@Override
+	protected boolean useFilter() {
+		return true;
+	}
+	
+	@Override
 	protected String getEntityName() {
 		return "Repair";
 	}
