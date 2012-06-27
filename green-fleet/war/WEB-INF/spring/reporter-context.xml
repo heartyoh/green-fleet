@@ -18,6 +18,7 @@
                 <entry key="repair_list" value="com.heartyoh.report.DailyMaintReporter" />
                 <entry key="fuel" value="com.heartyoh.report.FuelReporter" />
                 <entry key="vehicle_health" value="com.heartyoh.report.VehicleHealthReporter" />
+                <entry key="monthly_driving_log" value="com.heartyoh.report.MonthlyDrivingReporter" />
             </map>
         </property>		
 	</bean>
