@@ -1592,14 +1592,15 @@ Ext.define('GreenFleet.view.SideMenu', {
 		handler : function() {
 			new Ext.Window({
 			    title : "Live Video",
-			    width : 720,
-			    height: 446,
+			    width : 690,
+			    height: 560,
 			    layout : 'fit',
 			    items : [{
 			        xtype : "component",
 			        autoEl : {
 			            tag : "iframe",
-			            src : "http://www.ustream.tv/embed/10627186"
+//			            src : "http://www.ustream.tv/embed/10627186"
+			            src : "http://61.33.6.173/smart"
 			        }
 			    }]
 			}).show();
