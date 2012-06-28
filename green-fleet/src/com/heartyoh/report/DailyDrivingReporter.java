@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Controller;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -27,6 +29,7 @@ import com.heartyoh.util.GreenFleetConstant;
  * 
  * @author jhnam
  */
+@Controller
 public class DailyDrivingReporter extends AbstractReporter {
 
 	/**
@@ -89,8 +92,8 @@ public class DailyDrivingReporter extends AbstractReporter {
 		Date fromDate = c.getTime();
 		c.add(Calendar.SECOND, 60 * 60 * 24);
 		Date toDate = c.getTime();
-		List<Object> results = new ArrayList<Object>();
 		
+		List<Object> results = new ArrayList<Object>();		
 		Map<String, String> vehicleInfoMap = this.getVehicleMap(company);
 		Map<String, Object> totalItems = new HashMap<String, Object>();
 		List<Object> drvItems = this.getDrivingInfo(companyKey, fromDate, toDate, vehicleInfoMap);		
@@ -257,5 +260,107 @@ public class DailyDrivingReporter extends AbstractReporter {
 		}
 		
 		return maintItems;
-	}	
+	}
+
+	/**
+	 * report content를 얻는다. 
+	 * 
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public String getReportContent(Map<String, Object> params) throws Exception {
+		
+		List<Object> results = this.report(params);
+		if(!DataUtils.isEmpty(results))
+			return this.adjustDataToTemplate(results);
+		else
+			return null;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private String adjustDataToTemplate(List<Object> results) throws Exception {
+		
+		Date currentDate = DataUtils.addDate(DataUtils.getToday(), -1);
+		String template = this.getReportTemplate();
+		StringBuffer content = new StringBuffer();
+		Map<String, Object> items = (Map<String, Object>)results.get(0);
+		List<Object> drivings = (List<Object>)items.get("driving");
+
+		if(DataUtils.isEmpty(drivings)) {
+			content.append("<tr>\n");
+			for(int i = 0 ; i < 6 ; i++) {
+				this.appendTd(content, "");
+			}
+			content.append("</tr>\n");
+		} else {
+			for(Object obj : drivings) {
+				Map item = (Map)obj;
+				content.append("<tr>\n");				
+				this.appendTd(content, item.get("driver_id"));
+				this.appendTd(content, item.get("driver_name"));
+				this.appendTd(content, item.get("vehicle_id"));
+				this.appendTd(content, item.get("reg_no"));				
+				this.appendTd(content, item.get("run_dist"));
+				this.appendTd(content, item.get("run_time"));
+				this.appendTd(content, item.get("consmpt"));
+				this.appendTd(content, item.get("effcc"));
+				content.append("</tr>\n");
+			}
+		}
+		
+		template = template.replaceAll("\\{date\\}", DataUtils.dateToString(currentDate, GreenFleetConstant.DEFAULT_DATE_FORMAT));
+		template = template.replaceAll("\\{DRIVINGS\\}", content.toString());
+		content.delete(0, content.length() - 1);
+		
+		List<Object> consumables = (List<Object>)items.get("consumable");
+		if(DataUtils.isEmpty(consumables)) {
+			content.append("<tr>\n");
+			for(int i = 0 ; i < 6 ; i++) {
+				this.appendTd(content, "");
+			}
+			content.append("</tr>\n");
+		} else {
+			for(Object obj : consumables) {
+				Map item = (Map)obj;
+				content.append("<tr>\n");				
+				this.appendTd(content, item.get("vehicle_id"));
+				this.appendTd(content, item.get("reg_no"));
+				this.appendTd(content, item.get("item"));
+				content.append("</tr>\n");
+			}
+		}
+		
+		template = template.replaceAll("\\{CONSUMABLES\\}", content.toString());
+		content.delete(0, content.length() - 1);
+		
+		List<Object> maints = (List<Object>)items.get("maint");
+		if(DataUtils.isEmpty(maints)) {
+			content.append("<tr>\n");
+			for(int i = 0 ; i < 6 ; i++) {
+				this.appendTd(content, "");
+			}
+			content.append("</tr>\n");
+		} else {
+			for(Object obj : maints) {
+				Map item = (Map)obj;
+				content.append("<tr>\n");				
+				this.appendTd(content, item.get("vehicle_id"));
+				this.appendTd(content, item.get("reg_no"));
+				this.appendTd(content, item.get("comment"));
+				content.append("</tr>\n");
+			}
+		}
+		
+		return template.replaceAll("\\{MAINTENANCES\\}", content.toString());		
+	}
+	
+	/**
+	 * <td>data</td> 추가 
+	 * @param buffer
+	 * @param data
+	 */
+	private void appendTd(StringBuffer buffer, Object data) {
+		buffer.append("<td class='alignCenter'>").append(data).append("</td>\n");
+	}
 }

@@ -99,7 +99,7 @@ public class MonthlyDrivingReporter extends AbstractReporter {
 	private List<Map> getMonthlyDriving(String company, Date fromDate, Date toDate) throws Exception {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("year, month, sum(run_dist) run_dist, sum(run_time) run_time, sum(consmpt) consmpt, sum(effcc) effcc ");
+		sql.append("year, month, sum(run_dist) run_dist, sum(run_time) run_time, sum(consmpt) consmpt, format(sum(effcc) / count(vehicle), 2) effcc ");
 		sql.append("from ");
 		sql.append("vehicle_run_sum "); 
 		sql.append("where ");

@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.common.util.ResourceUtils;
+
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.util.DataUtils;
@@ -72,5 +74,25 @@ public abstract class AbstractReporter implements IReporter {
 		// 기본으로는 company만 체크함 
 		if(!params.containsKey("company"))
 			throw new Exception("Parameter [company] not found!");
+	}
+	
+	/**
+	 * report template path로 부터 템플릿 파일을 읽어 내용을 리턴한다.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	protected String getReportTemplate() throws Exception {
+		String path = "com/heartyoh/report/template/" + this.getId() + ".html";
+		if (path.endsWith("/") || ResourceUtils.isDirectory(path)) {
+			if (!path.endsWith("/"))
+				path += "/";
+		}
+		return ResourceUtils.readText(path);
+	}	
+	
+	@Override
+	public String getReportContent(Map<String, Object> params) throws Exception {
+		return null;
 	}
 }

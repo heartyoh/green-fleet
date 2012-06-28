@@ -52,5 +52,14 @@ public interface IReporter {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Object> report(HttpServletRequest request) throws Exception;	
+	public List<Object> report(HttpServletRequest request) throws Exception;
+	
+	/**
+	 * report html content를 리턴 
+	 * 
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public String getReportContent(Map<String, Object> params) throws Exception;
 }

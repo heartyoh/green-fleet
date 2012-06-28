@@ -132,7 +132,7 @@ public class ReportOrmService extends OrmEntityService {
 		try {						
 			List<Entity> companies = DatastoreUtils.findAllCompany();
 			for(Entity company : companies) {
-				this.sendReport((String)company.getProperty("id"), DAILY_REPORT);
+				this.sendReport(request, (String)company.getProperty("id"), DAILY_REPORT);
 			}	
 			return "{ \"success\" : true, \"msg\" : \"OK\" }";
 		} catch(Throwable e) {
@@ -150,7 +150,7 @@ public class ReportOrmService extends OrmEntityService {
 		DataUtils.checkHeader(request);
 		List<Entity> companies = DatastoreUtils.findAllCompany();
 		for(Entity company : companies) {
-			this.sendReport((String)company.getProperty("id"), WEEKLY_REPORT);
+			this.sendReport(request, (String)company.getProperty("id"), WEEKLY_REPORT);
 		}		
 		return "{ \"success\" : true, \"msg\" : \"OK\" }";
 	}
@@ -160,7 +160,7 @@ public class ReportOrmService extends OrmEntityService {
 		DataUtils.checkHeader(request);
 		List<Entity> companies = DatastoreUtils.findAllCompany();
 		for(Entity company : companies) {
-			this.sendReport((String)company.getProperty("id"), MONTHLY_REPORT);
+			this.sendReport(request, (String)company.getProperty("id"), MONTHLY_REPORT);
 		}		
 		return "{ \"success\" : true, \"msg\" : \"OK\" }";
 	}
@@ -179,11 +179,12 @@ public class ReportOrmService extends OrmEntityService {
 	/**
 	 * daily, weekly, monthly 등의 주기로 리포트를 찾아서 설정된 사용자에게 리포트
 	 * 
+	 * @param request
 	 * @param company
 	 * @param reportCycle
 	 * @throws Exception
 	 */
-	private void sendReport(String company, String reportCycle) throws Exception {		
+	private void sendReport(HttpServletRequest request, String company, String reportCycle) throws Exception {		
 
 		String sql = "select company, id, name, send_to, expl from report where company = '" + company + "' and " + reportCycle + " = true"; 
 		List<Report> reportList = dml.selectListBySql(sql, null, Report.class, 0, 0);
@@ -194,7 +195,7 @@ public class ReportOrmService extends OrmEntityService {
 		ReporterService service = ReporterService.getInstance();
 		for(Report report : reportList) {
 			try {				
-				service.reportCyclic(company, reportCycle, report);
+				service.reportCyclic(request, company, reportCycle, report);
 			} catch(Exception e) {
 				logger.error("Failed to send " + reportCycle + "!", e);
 			} 				

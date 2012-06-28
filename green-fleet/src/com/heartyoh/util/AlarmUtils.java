@@ -18,6 +18,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -248,7 +249,7 @@ public class AlarmUtils {
         	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmails[i], receiverName));
         }
         
-        msg.setSubject(subject);
+        subject = MimeUtility.encodeText(subject, "utf-8", "B");
         
         if(htmlType)
         	msg.setContent(msgBody, "text/html;charset=utf-8");
@@ -258,7 +259,55 @@ public class AlarmUtils {
         if(mp != null)
         	msg.setContent(mp);
         
-        Transport.send(msg);		
+        Transport.send(msg);
+	}
+	
+	/**
+	 * html attachment mail 전송 
+	 * 
+	 * @param senderName
+	 * @param senderEmail
+	 * @param receiverNames
+	 * @param receiverEmails
+	 * @param subject
+	 * @param content
+	 * @throws Exception
+	 */
+	public static void sendHtmlAttachMail(String senderName, 
+			String senderEmail, 
+			String[] receiverNames, 
+			String[] receiverEmails, 
+			String subject, 
+			String content) throws Exception {
+		
+		if(DataUtils.isEmpty(receiverEmails)) 
+			throw new Exception("Receiver Email is required!");
+		
+		senderName = DataUtils.isEmpty(senderName) ? "GreenFleet" : senderName;
+		senderEmail = DataUtils.isEmpty(senderEmail) ? "heartyoh@gmail.com" : senderEmail;
+		
+		boolean existReceiverNames = DataUtils.isEmpty(receiverNames) ? false : true;
+		if(existReceiverNames && receiverEmails.length != receiverNames.length)
+			throw new Exception("Receiver Emails count is not equal Receiver Names count!");
+		
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+        Message msg = new MimeMessage(session);
+        msg.setFrom(new InternetAddress(senderEmail, senderName));
+        
+        for(int i = 0 ; i < receiverEmails.length ; i++) {
+        	String receiverName = existReceiverNames ? receiverNames[i] : "";
+        	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmails[i], receiverName));
+        }
+        
+        subject = MimeUtility.encodeText(subject, "utf-8", "B");
+        msg.setSubject(subject);
+        MimeMultipart mp = new MimeMultipart();
+        MimeBodyPart htmlPart = new MimeBodyPart();
+        htmlPart.setContent(content, "text/html;charset=utf-8");
+        mp.addBodyPart(htmlPart);
+        msg.setContent(mp);
+        Transport.send(msg);
 	}
 
 	/**

@@ -7,9 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 
 import com.heartyoh.model.Report;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 
 /**
@@ -80,31 +83,31 @@ public class ReporterService {
 	/**
 	 * 주기적으로 관리자에게 리포트 
 	 * 
+	 * @param request
 	 * @param company
 	 * @param reportCycle
 	 * @param report
 	 * @throws Exception
 	 */
-	public void reportCyclic(String company, String reportCycle, Report report) throws Exception {
+	public void reportCyclic(HttpServletRequest request, String company, String reportCycle, Report report) throws Exception {
 				
-		/*String reporterClass = this.reporterMappings.get(report.getId());
+		String reporterClass = this.reporterMappings.get(report.getId());
 		Class<?> reporterKlazz = Class.forName(reporterClass);
 		IReporter reporter = (IReporter)reporterKlazz.newInstance();
 		Map<String, Object> params = DataUtils.newMap("_report_cycle", reportCycle);
 		params.put("_today", DataUtils.getToday());
 		params.put("_report", report);
-		List<Map<String, Object>> results = reporter.report(params);*/
+		params.put("company", company);
+		String content = reporter.getReportContent(params);
 		
-		// TODO 리포터 서비스를 데이터 가져오는 것으로만 이용하고 나머지 변환은 개별 구현으로 한다.
-		/*ExcelConverter converter = new ExcelConverter();
-		Workbook workbook = converter.convert(reporter.getSelectFields(), reporter.getFieldTypes(), results);
-		String sendTo = report.getSendTo();
+		if(content != null) {
+			String sendTo = report.getSendTo();
+			if(DataUtils.isEmpty(sendTo))
+				return;
 		
-		if(DataUtils.isEmpty(sendTo))
-			return;
-		
-		String[] receivers = sendTo.split(",");
-		AlarmUtils.sendExcelAttachMail(null, null, null, receivers, report.getName(), true, report.getExpl(), workbook);*/
+			String[] receivers = sendTo.split(",");
+			AlarmUtils.sendHtmlAttachMail(null, null, null, receivers, report.getName(), content);
+		}
 	}
 	
 	/**
