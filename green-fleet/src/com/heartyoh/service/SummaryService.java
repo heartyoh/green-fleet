@@ -58,6 +58,9 @@ public class SummaryService {
 				// 1. 소모품 상태 업데이트 서머리	
 				ConsumableService consumableStatusUpdate = new ConsumableService();
 				consumableStatusUpdate.dailySummary(companyId);
+				
+				// 2. TODO 정비횟수, 정비시간을 VehicleRunSum 테이블에 업데이트
+				
 			} catch (Exception e) {
 				success = false;
 				msg = "Failed to consumable daily summary!";

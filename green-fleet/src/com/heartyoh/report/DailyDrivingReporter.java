@@ -112,10 +112,12 @@ public class DailyDrivingReporter extends AbstractReporter {
 	 * @param companyKey
 	 * @param fromDate
 	 * @param toDate
+	 * @param vehicleInfo
 	 * @return
 	 * @throws Exception
 	 */
-	private List<Object> getDrivingInfo(Key companyKey, Date fromDate, Date toDate, Map<String, String> vehicleInfoMap) throws Exception {
+	private List<Object> getDrivingInfo(Key companyKey, Date fromDate, Date toDate, Map<String, String> vehicleInfo) 
+			throws Exception {
 		
 		DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 		Query q = new Query("CheckinData");
@@ -125,7 +127,6 @@ public class DailyDrivingReporter extends AbstractReporter {
 		PreparedQuery pq = datastoreService.prepare(q);
 		
 		List<Object> drvItems = new ArrayList<Object>();
-		List<String> vehicles = new ArrayList<String>();
 		List<String> drivers = new ArrayList<String>();
 		
 		for(Entity consumable : pq.asIterable()) {
@@ -138,7 +139,7 @@ public class DailyDrivingReporter extends AbstractReporter {
 			map.put("run_dist", consumable.getProperty("distance"));
 			map.put("consmpt", consumable.getProperty("fuel_consumption"));
 			map.put("effcc", consumable.getProperty("fuel_efficiency"));
-			map.put("reg_no", vehicleInfoMap.get(vehicleId));			
+			map.put("reg_no", vehicleInfo.get(vehicleId));			
 			
 			if(!drivers.contains(driverId)) {
 				drivers.add(driverId);
@@ -148,13 +149,13 @@ public class DailyDrivingReporter extends AbstractReporter {
 		}
 		
 		if(drvItems != null && !drvItems.isEmpty())
-			this.addInfo(companyKey.getName(), vehicles, drivers, drvItems);
+			this.addInfo(companyKey.getName(), drivers, drvItems);
 		
 		return drvItems;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void addInfo(String company, List<String> vehicles, List<String> drivers, List<Object> results) throws Exception {
+	private void addInfo(String company, List<String> drivers, List<Object> results) throws Exception {
 		
 		Map<String, Object> params = DataUtils.newMap("company", company);
 		params.put("drivers", drivers);
@@ -203,10 +204,10 @@ public class DailyDrivingReporter extends AbstractReporter {
 	 * vehicle 소모품 정보 
 	 * 
 	 * @param companyKey
-	 * @param vehicleInfoMap
+	 * @param vehicleInfo
 	 * @throws Exception
 	 */
-	private List<Object> getConsumables(Key companyKey, Map<String, String> vehicleInfoMap) throws Exception {
+	private List<Object> getConsumables(Key companyKey, Map<String, String> vehicleInfo) throws Exception {
 		
 		Query q = new Query("VehicleConsumable");
 		q.setAncestor(companyKey);
@@ -217,7 +218,7 @@ public class DailyDrivingReporter extends AbstractReporter {
 		
 		for(Entity consumable : pq.asIterable()) {
 			String vehicleId = (String)consumable.getProperty("vehicle_id");
-			String regNo = vehicleInfoMap.get(vehicleId);
+			String regNo = vehicleInfo.get(vehicleId);
 			String consumableItem = (String)consumable.getProperty("consumable_item");
 			Map<String, Object> item = DataUtils.newMap("vehicle_id", vehicleId);
 			item.put("reg_no", regNo);
@@ -262,13 +263,7 @@ public class DailyDrivingReporter extends AbstractReporter {
 		return maintItems;
 	}
 
-	/**
-	 * report content를 얻는다. 
-	 * 
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
+	@Override
 	public String getReportContent(Map<String, Object> params) throws Exception {
 		
 		List<Object> results = this.report(params);

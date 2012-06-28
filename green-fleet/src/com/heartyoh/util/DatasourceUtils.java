@@ -296,4 +296,14 @@ public class DatasourceUtils {
 	public static Object findEntity(Class<?> cls, Map<String, Object> params) throws Exception {
 		return dml.select(cls, params);
 	}
+	
+	/**
+	 * upsert entity
+	 * 
+	 * @param obj
+	 * @throws Exception
+	 */
+	public static void upsertEntity(Object obj) throws Exception {
+		dml.upsert(obj);
+	}
 }

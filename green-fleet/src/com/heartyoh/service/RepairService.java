@@ -3,6 +3,7 @@
  */
 package com.heartyoh.service;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Task;
+import com.heartyoh.model.VehicleRunSum;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.GreenFleetConstant;
@@ -74,8 +76,23 @@ public class RepairService extends EntityService {
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
 		this.checkRepairDate(map);
+		
 		// 수리 시간
-		entity.setProperty("repair_time", map.get("repair_time"));
+		if(map.containsKey("repair_time") && !DataUtils.isEmpty(map.get("repair_time"))) {			
+			Object repairTime = map.get("repair_time");
+			if(repairTime instanceof Integer) {
+				entity.setProperty("repair_time", repairTime);
+			} else if(repairTime instanceof String) {
+				try {
+					entity.setProperty("repair_time", Integer.parseInt(repairTime.toString()));
+				} catch(Exception e) {
+					entity.setProperty("repair_time", 0);
+				}
+			}
+		} else {
+			map.put("repair_time", 0);
+		}
+		
 		// 다음 정비일 
 		entity.setProperty("next_repair_date", map.get("next_repair_date"));
 		// 수리시 주행거리
@@ -113,7 +130,7 @@ public class RepairService extends EntityService {
 				task.setEndDate(nextRepairDate);
 				task.setUrl(url);
 				task.setTitle("Vehicle [" + repair.getProperty("vehicle_id") + "] maintenence");
-				DatasourceUtils.createTask(task);
+				DatasourceUtils.upsertEntity(task);
 				Map<String, Object> params = DataUtils.newMap("company", company);
 				params.put("url", url);
 				task = DatasourceUtils.findTask(params);
@@ -135,8 +152,39 @@ public class RepairService extends EntityService {
 			}
 		}
 		
+		this.updateVehicleRunSum(repair);
 		datastore.put(repair);
-	}	
+	}
+	
+	/**
+	 * vehicle_run_sum 테이블에 mnt_cnt, mnt_time 정보를 업데이트한다. 
+	 * 
+	 * @param repair
+	 * @throws Exception
+	 */
+	private void updateVehicleRunSum(Entity repair) throws Exception {
+		String vehicleId = (String)repair.getProperty("vehicle_id");
+		int repairTime = (Integer)repair.getProperty("repair_time");
+		Map<String, Object> params = DataUtils.newMap("company", repair.getParent().getName());
+		Calendar c = Calendar.getInstance();
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH) + 1;
+		params.put("vehicle", vehicleId);
+		params.put("year", year);
+		params.put("month", month);
+		VehicleRunSum runSum = (VehicleRunSum)DatasourceUtils.findEntity(VehicleRunSum.class, params);
+		
+		if(runSum == null) {
+			runSum = new VehicleRunSum(repair.getParent().getName(), vehicleId, year, month);			
+		}
+		
+		int mntCnt = runSum.getMntCnt();
+		int mntTime = runSum.getMntTime();
+		
+		runSum.setMntCnt(mntCnt + 1);
+		runSum.setMntTime(mntTime + repairTime);
+		DatasourceUtils.upsertEntity(runSum);
+	}
 	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
 	public @ResponseBody

@@ -128,5 +128,96 @@ public class MonthlyDrivingReporter extends AbstractReporter {
 	private List<Object> getMonthlyConsumable(String company, Date fromDate, Date toDate) throws Exception {
 		// TODO 
 		return new ArrayList<Object>();
+	}
+	
+	@Override
+	public String getReportContent(Map<String, Object> params) throws Exception {
+		
+		List<Object> results = this.report(params);
+		if(!DataUtils.isEmpty(results))
+			return this.adjustDataToTemplate(results);
+		else
+			return null;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private String adjustDataToTemplate(List<Object> results) throws Exception {
+		
+		String template = this.getReportTemplate();
+		StringBuffer content = new StringBuffer();
+		Map<String, Object> items = (Map<String, Object>)results.get(0);
+		List<Object> drivings = (List<Object>)items.get("driving");
+
+		if(DataUtils.isEmpty(drivings)) {
+			content.append("<tr>\n");
+			for(int i = 0 ; i < 6 ; i++) {
+				this.appendTd(content, "");
+			}
+			content.append("</tr>\n");
+		} else {
+			for(Object obj : drivings) {
+				Map item = (Map)obj;
+				content.append("<tr>\n");				
+				this.appendTd(content, item.get("year"));
+				this.appendTd(content, item.get("month"));
+				this.appendTd(content, item.get("run_dist"));
+				this.appendTd(content, item.get("run_time"));
+				this.appendTd(content, item.get("consmpt"));
+				this.appendTd(content, item.get("effcc"));
+				content.append("</tr>\n");
+			}
+		}
+		
+		template = template.replaceAll("\\{DRIVINGS\\}", content.toString());
+		content.delete(0, content.length() - 1);
+		
+		List<Object> consumables = (List<Object>)items.get("consumable");
+		if(DataUtils.isEmpty(consumables)) {
+			content.append("<tr>\n");
+			for(int i = 0 ; i < 6 ; i++) {
+				this.appendTd(content, "");
+			}
+			content.append("</tr>\n");
+		} else {
+			for(Object obj : consumables) {
+				Map item = (Map)obj;
+				content.append("<tr>\n");				
+				this.appendTd(content, item.get("part"));
+				this.appendTd(content, item.get("count"));
+				content.append("</tr>\n");
+			}
+		}
+		
+		template = template.replaceAll("\\{CONSUMABLES\\}", content.toString());
+		content.delete(0, content.length() - 1);
+		
+		List<Object> maints = (List<Object>)items.get("maint");
+		if(DataUtils.isEmpty(maints)) {
+			content.append("<tr>\n");
+			for(int i = 0 ; i < 6 ; i++) {
+				this.appendTd(content, "");
+			}
+			content.append("</tr>\n");
+		} else {
+			for(Object obj : maints) {
+				Map item = (Map)obj;
+				content.append("<tr>\n");				
+				this.appendTd(content, item.get("year"));
+				this.appendTd(content, item.get("month"));
+				this.appendTd(content, item.get("count"));
+				content.append("</tr>\n");
+			}
+		}
+		
+		return template.replaceAll("\\{MAINTENANCES\\}", content.toString());		
+	}
+	
+	/**
+	 * <td>data</td> 추가 
+	 * @param buffer
+	 * @param data
+	 */
+	private void appendTd(StringBuffer buffer, Object data) {
+		buffer.append("<td class='alignCenter'>").append(data).append("</td>\n");
 	}	
 }
