@@ -57,7 +57,6 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			proxy.extraParams.to_year = self.sub('to_year').getValue();
 			proxy.extraParams.from_month = self.sub('from_month').getValue();
 			proxy.extraParams.to_month = self.sub('to_month').getValue();
-			proxy.extraParams.select = ['driver', 'year', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'eco_index', 'sud_accel_cnt', 'sud_brake_cnt', 'eco_drv_time', 'ovr_spd_time', 'inc_cnt'];
 			runStatusStore.load({
 				scope : self,
 				callback : function() {
@@ -209,17 +208,20 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				header : T('label.eco_index') + ' (%)',
 				dataIndex : 'eco_index'
 			}, {
+				header : T('label.eco_drv_time') + T('label.parentheses_min'),
+				dataIndex : 'eco_drv_time'	
+			}, {
+				header : T('label.ovr_spd_time') + T('label.parentheses_min'),
+				dataIndex : 'ovr_spd_time'
+			}, {
+				header : T('label.idle_time') + T('label.parentheses_min'),
+				dataIndex : 'idle_time'
+			}, {
 				header : T('label.sud_accel_cnt'),
 				dataIndex : 'sud_accel_cnt'
 			}, {
 				header : T('label.sud_brake_cnt'),
 				dataIndex : 'sud_brake_cnt'
-			}, {
-				header : T('label.eco_drv_time') + ' (min)',
-				dataIndex : 'eco_drv_time'	
-			}, {
-				header : T('label.ovr_spd_time') + ' (min)',
-				dataIndex : 'ovr_spd_time'
 			}, {
 				header : T('label.inc_cnt'),
 				dataIndex : 'inc_cnt'
@@ -315,16 +317,17 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ],					
 					data : [{ "name" : "run_dist", 		"desc" : T('label.run_dist'),			"unit" : "(km)" },
-					        { "name" : "run_time", 		"desc" : T('label.run_time'),			"unit" : "(min)" },
+					        { "name" : "run_time", 		"desc" : T('label.run_time'),			"unit" : T('label.parentheses_min') },
 							{ "name" : "consmpt", 		"desc" : T('label.fuel_consumption'),	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"desc" : T('label.co2_emissions'),		"unit" : "(g/km)" },
 							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
-							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },
+							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },							
+							{ "name" : "eco_drv_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "idle_time", 	"desc" : T('label.idle_time'), 			"unit" : T('label.parentheses_min') },							
 							{ "name" : "sud_accel_cnt", "desc" : T('label.sud_accel_cnt'), 		"unit" : "" },
-							{ "name" : "sud_brake_cnt", "desc" : T('label.sud_brake_cnt'),		"unit" : "" },
-							{ "name" : "eco_drv_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : "(min)" },
-							{ "name" : "ovr_spd_time",  "desc" : T('label.ovr_spd_time'), 		"unit" : "(min)" },
-							{ "name" : "inc_cnt",  		"desc" : T('label.inc_cnt'), 			"unit" : "" },
+							{ "name" : "sud_brake_cnt", "desc" : T('label.sud_brake_cnt'), 		"unit" : "" },
+							{ "name" : "inc_cnt", 		"desc" : T('label.inc_cnt'), 			"unit" : "" },							
 							{ "name" : "driving_habit", "desc" : T('label.driving_habit'), 		"unit" : "" }]
 				}),
 				listeners: {

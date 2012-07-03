@@ -28,6 +28,9 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		name : 'consmpt',
 		type : 'float'
 	}, {
+		name : 'effcc',
+		type : 'float'
+	}, {
 		name : 'co2_emss',
 		type : 'float'
 	}, {
@@ -47,6 +50,9 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		type : 'integer'
 	}, {
 		name : 'idle_time',
+		type : 'integer'
+	}, {
+		name : 'inc_cnt',
 		type : 'integer'
 	}, {
 		name : 'oos_cnt',
@@ -70,9 +76,6 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 	proxy : {
 		type : 'ajax',
 		url : 'vehicle_run',
-		extraParams : {
-			select : [ 'vehicle', 'year', 'month', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'eco_index', 'oos_cnt', 'mnt_cnt', 'mnt_time' ]
-		},		
 		reader : {
 			type : 'json',
 			root : 'items',

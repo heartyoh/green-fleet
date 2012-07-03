@@ -52,7 +52,6 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
 			var runStatusStore = self.sub('runstatus_grid').store;
 			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.select = ['vehicle', 'month', 'month_str', 'run_dist', 'run_time', 'consmpt', 'co2_emss', 'effcc', 'eco_index', 'oos_cnt', 'mnt_cnt', 'mnt_time'];
 			proxy.extraParams.vehicle = record.data.id;
 			proxy.extraParams.from_year = self.sub('from_year').getValue();
 			proxy.extraParams.to_year = self.sub('to_year').getValue();
@@ -195,7 +194,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				header : T('label.run_dist') + ' (km)',
 				dataIndex : 'run_dist'
 			}, {
-				header : T('label.run_time') + ' (min)',
+				header : T('label.run_time') + T('label.parentheses_min'),
 				dataIndex : 'run_time'
 			}, {
 				header : T('label.fuel_consumption') + ' (l)',
@@ -210,13 +209,31 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				header : T('label.eco_index') + ' (%)',
 				dataIndex : 'eco_index'
 			}, {
+				header : T('label.sud_accel_cnt'),
+				dataIndex : 'sud_accel_cnt'
+			}, {
+				header : T('label.sud_brake_cnt'),
+				dataIndex : 'sud_brake_cnt'
+			}, {
+				header : T('label.eco_drv_time') + T('label.parentheses_min'),
+				dataIndex : 'eco_drv_time'
+			}, {
+				header : T('label.ovr_spd_time') + T('label.parentheses_min'),
+				dataIndex : 'ovr_spd_time'
+			}, {
+				header : T('label.idle_time') + T('label.parentheses_min'),
+				dataIndex : 'idle_time'					
+			}, {
+				header : T('label.inc_cnt'),
+				dataIndex : 'inc_cnt'
+			}, {
 				header : T('label.outofservice_count'),
 				dataIndex : 'oos_cnt'
 			}, {
 				header : T('label.maintenance_count'),
 				dataIndex : 'mnt_cnt'
 			}, {
-				header : T('label.maintenance_time') + ' (min)',
+				header : T('label.maintenance_time') + T('label.parentheses_min'),
 				dataIndex : 'mnt_time'
 			} ]
 		}],
@@ -311,15 +328,21 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc', 'unit' ], 
 					data : [{ "name" : "run_dist", 		"desc" : T('label.run_dist'), 			"unit" : "(km)" },
-					        { "name" : "run_time", 		"desc" : T('label.run_time'), 			"unit" : "(min)" },
+					        { "name" : "run_time", 		"desc" : T('label.run_time'), 			"unit" : T('label.parentheses_min') },
 					        { "name" : "rate_of_oper", 	"desc" : T('label.rate_of_oper'), 		"unit" : "(%)" },
 							{ "name" : "consmpt", 		"desc" : T('label.fuel_consumption'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"desc" : T('label.co2_emissions'), 		"unit" : "(g/km)" },
 							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
-							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },
+							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },							
+							{ "name" : "eco_drv_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "idle_time", 	"desc" : T('label.idle_time'), 			"unit" : T('label.parentheses_min') },							
+							{ "name" : "sud_accel_cnt", "desc" : T('label.sud_accel_cnt'), 		"unit" : "" },
+							{ "name" : "sud_brake_cnt", "desc" : T('label.sud_brake_cnt'), 		"unit" : "" },
+							{ "name" : "inc_cnt", 		"desc" : T('label.inc_cnt'), 			"unit" : "" },							
 							{ "name" : "oos_cnt", 		"desc" : T('label.outofservice_count'), "unit" : "" },
 							{ "name" : "mnt_cnt", 		"desc" : T('label.maintenance_count'), 	"unit" : "" },
-							{ "name" : "mnt_time", 		"desc" : T('label.maintenance_time'), 	"unit" : "" }]
+							{ "name" : "mnt_time", 		"desc" : T('label.maintenance_time'), 	"unit" : T('label.parentheses_min') }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {

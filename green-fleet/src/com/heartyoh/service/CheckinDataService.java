@@ -498,7 +498,7 @@ public class CheckinDataService extends EntityService {
 			runSum.setOvrSpdTime(ovrSpdTime);
 			runSum.setIdleTime(idleTime);
 			runSum.setEffcc((float)(runDist / consmpt));			
-			runSum.setEcoIndex(Math.round((ecoIndex / checkInCount) * 100));
+			runSum.setEcoIndex(Math.round(ecoIndex / checkInCount));
 			dml.upsert(runSum);
 			
 			// 2. DriverSpeedSum
