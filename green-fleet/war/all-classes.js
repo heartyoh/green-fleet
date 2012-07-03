@@ -9509,8 +9509,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 						items : [ this.zrunstatus, this.zrunstatus_chart ]
 					} 
 				]
-		    }
-		],
+		    }],
 
 		this.callParent();
 			
@@ -9561,7 +9560,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		/**
 		 * combo_view에 값을 기본값(monthly_view)을 설정
 		 */
-		this.sub('combo_view').setValue('monthly_view');		
+		this.sub('combo_view').setValue('monthly');		
 	},
 	
 	/**
@@ -9656,22 +9655,22 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				text : T('label.month'),
 				dataIndex : 'month_str'
 			}, {
-				header : T('label.run_dist') + ' (km)',
+				header : T('label.run_dist') + '(km)',
 				dataIndex : 'run_dist'
 			}, {
 				header : T('label.run_time') + T('label.parentheses_min'),
 				dataIndex : 'run_time'
 			}, {
-				header : T('label.fuel_consumption') + ' (l)',
+				header : T('label.fuel_consumption') + '(l)',
 				dataIndex : 'consmpt'
 			}, {
-				header : T('label.co2_emissions') + ' (g/km)',
+				header : T('label.co2_emissions') + '(g/km)',
 				dataIndex : 'co2_emss'
 			}, {
-				header : T('label.fuel_efficiency') + ' (km/l)',
+				header : T('label.fuel_efficiency') + '(km/l)',
 				dataIndex : 'effcc'
 			}, {
-				header : T('label.eco_index') + ' (%)',
+				header : T('label.eco_index') + '(%)',
 				dataIndex : 'eco_index'
 			}, {
 				header : T('label.sud_accel_cnt'),
@@ -9713,8 +9712,8 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			    valueField: 'name',
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc' ],
-					data : [{ "name" : "monthly_view",	"desc" : T('label.monthly_view') },
-					        { "name" : "yearly_view",	"desc" : T('label.yearly_view')  }]
+					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -10080,7 +10079,13 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		type : 'vbox'
 	},
 	
-	chartPanel : null,
+	chartXTitle : 'month',
+	
+	driver : '',
+	
+	timeView : 'monthly',
+	
+	chartPanel : null,	
 
 	initComponent : function() {
 		var self = this;
@@ -10095,7 +10100,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 					align : 'stretch'
 				},
 				items : [ 
-				    this.zvehiclelist(self), 
+				    this.zdriverlist(self), 
 				    {
 						xtype : 'container',
 						flex : 1,
@@ -10113,20 +10118,17 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		this.callParent();
 
 		this.sub('driver_list').on('itemclick', function(grid, record) {
-			var runStatusStore = self.sub('runstatus_grid').store;
-			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.driver = record.data.id;
-			proxy.extraParams.from_year = self.sub('from_year').getValue();
-			proxy.extraParams.to_year = self.sub('to_year').getValue();
-			proxy.extraParams.from_month = self.sub('from_month').getValue();
-			proxy.extraParams.to_month = self.sub('to_month').getValue();
-			runStatusStore.load({
-				scope : self,
-				callback : function() {
-					self.setGridTitle(record.get('name'));
-					self.refreshChart();
-				}
-			});
+			self.driver = record.data.id;
+			self.searchSummary(record.data.id, record.data.name, null, null, null);
+		});
+		
+		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
+			if(record.data.time_view == "yearly") {
+				self.searchSummary(record.data.driver, null, "monthly", record.data.year, null);
+				
+			} else if(record.data.time_view == "monthly") {
+				self.searchSummary(record.data.driver, null, "daily", record.data.year, record.data.month);
+			}
 		});
 		
 		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
@@ -10160,14 +10162,20 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		/**
 		 * combo_view에 값을 기본값(monthly_view)을 설정
 		 */
-		this.sub('combo_view').setValue('monthly_view');
+		this.sub('combo_view').setValue('monthly');
 	},
 	
+	/**
+	 * grid title을 설정 
+	 */
 	setGridTitle : function(name) {
 		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
 		this.sub('runstatus_panel').setTitle(title);
 	},	
 	
+	/**
+	 * drivers 조회 
+	 */
 	searchDrivers : function(searchRemote) {
 		
 		if(searchRemote) {
@@ -10188,9 +10196,66 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				} ]);
 			}			
 		}		
-	},		
+	},
 	
-	zvehiclelist : function(self) {
+	/**
+	 * driver run summary 조회 
+	 */
+	searchSummary : function(driverId, driverName, timeView, year, month) {
+		
+		if(!driverId) {
+			driverId = this.driver;
+			
+			if(!driverId)
+				return;
+		}
+		
+		if(!timeView) {
+			timeView = this.sub('combo_view').getValue();
+		}
+		
+		var runStatusStore = this.sub('runstatus_grid').store;
+		var proxy = runStatusStore.getProxy();
+		proxy.extraParams.driver = driverId;
+		proxy.extraParams.time_view = timeView;
+		
+		if(timeView == "monthly") {
+			this.chartXTitle = "month";
+			if(year == null) {
+				proxy.extraParams.from_year = this.sub('from_year').getValue();
+				proxy.extraParams.to_year = this.sub('to_year').getValue();
+				proxy.extraParams.from_month = this.sub('from_month').getValue();
+				proxy.extraParams.to_month = this.sub('to_month').getValue();
+			} else {
+				proxy.extraParams.from_year = year;
+				proxy.extraParams.to_year = year;
+				proxy.extraParams.from_month = 1;
+				proxy.extraParams.to_month = 12;
+			}					
+		} else if(timeView == "daily") {
+			this.chartXTitle = "date";
+			proxy.extraParams.year = year;
+			proxy.extraParams.month = month;
+			
+		} else if(timeView == "yearly") {
+			this.chartXTitle = "year";
+		}
+				
+		runStatusStore.load({
+			scope : this,
+			callback : function() {
+				if(driverName) {
+					this.setGridTitle(driverName);
+				}
+				this.refreshChart();
+			}
+		});		
+	},
+	
+	/**
+	 * drivers grid
+	 */
+	zdriverlist : function(self) {
 		return {
 			xtype : 'gridpanel',
 			itemId : 'driver_list',
@@ -10236,6 +10301,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		}
 	},
 
+	/**
+	 * 운행이력 그리드 패널 
+	 */
 	zrunstatus : {
 		xtype : 'panel',
 		itemId : 'runstatus_panel',
@@ -10248,27 +10316,28 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			itemId : 'runstatus_grid',
 			store : 'DriverRunStore',
 			columns : [ {
-				dataIndex : 'month_str',
-				text : T('label.datetime'),
-				xtype:'datecolumn',
-				format:F('date')
+				dataIndex : 'time_view',
+				hidden : true
 			}, {
-				header : T('label.run_dist') + ' (km)',
+				dataIndex : 'month_str',
+				text : T('label.datetime')
+			}, {
+				header : T('label.run_dist') + '(km)',
 				dataIndex : 'run_dist'
 			}, {
-				header : T('label.run_time') + ' (min)',
+				header : T('label.run_time') + T('label.parentheses_min'),
 				dataIndex : 'run_time'
 			}, {
-				header : T('label.fuel_consumption') + ' (l)',
+				header : T('label.fuel_consumption') + '(l)',
 				dataIndex : 'consmpt'
 			}, {
-				header : T('label.co2_emissions') + ' (g/km)',
+				header : T('label.co2_emissions') + '(g/km)',
 				dataIndex : 'co2_emss'
 			}, {
-				header : T('label.fuel_efficiency') + ' (km/l)',
+				header : T('label.fuel_efficiency') + '(km/l)',
 				dataIndex : 'effcc'
 			}, {
-				header : T('label.eco_index') + ' (%)',
+				header : T('label.eco_index') + '(%)',
 				dataIndex : 'eco_index'
 			}, {
 				header : T('label.eco_drv_time') + T('label.parentheses_min'),
@@ -10300,12 +10369,15 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			    valueField: 'name',
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc' ],
-					data : [{ "name" : "monthly_view",	"desc" : T('label.monthly_view') },
-					        { "name" : "yearly_view",	"desc" : T('label.yearly_view')  }]
+					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						// TODO 월간보기에서 년간보기로 변경시 년 설정으로 변경 ...
+						if(currentValue != beforeValue) {
+							var thisView = combo.up('management_driver_runstatus');
+							thisView.searchSummary(null, null, null, null, null);
+						}
 					}
 			    }
 			},
@@ -10402,6 +10474,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		]
 	},
 
+	/**
+	 * 차트 패널 
+	 */
 	zrunstatus_chart : {
 		xtype : 'panel',
 		itemId : 'chart_panel',
@@ -10415,6 +10490,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		}
 	},
 	
+	/**
+	 * 차트 패널을 리사이즈 
+	 */
 	resizeChart : function(width, height) {
 		
 		var chartContainer = this.sub('chart_panel');
@@ -10434,6 +10512,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		chart.setHeight(height - 50);
 	},	
 	
+	/**
+	 * 차트를 리사이즈 
+	 */
 	refreshChart : function() {
 		
 		var chartValue = this.sub('combo_chart').getValue();
@@ -10444,6 +10525,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			this.refreshColumnChart();		
 	},
 	
+	/**
+	 * 컬럼 차트를 리프레쉬 
+	 */
 	refreshColumnChart : function() {
 		
 		var chartPanel = this.sub('chart_panel');
@@ -10480,26 +10564,29 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 레이더 차트를 리프레쉬 
+	 */
 	refreshRadarChart : function() {
 		
 		var store = this.sub('runstatus_grid').store;
 		var totalRecordCnt = 0;
-		var ecoDrvTime = 0;
-		var efficiency = 0;
+		var ecoIndex = 0;
 		var overSpdCnt = 0;
 		var sudAccelCnt = 0;
 		var sudBrakeCnt = 0;
+		var idleTime = 0;
+		var ecoDrvTime = 0;
+		var efficiency = 0;
+		var ecoLevel = 0;
 		
 		store.each(function(record) {
 			if(record.get('driver'))
 				totalRecordCnt += 1;
 			
-			if(record.get('eco_drv_time'))
-				ecoDrvTime += record.get('eco_drv_time');
-			
-			if(record.get('effcc'))
-				efficiency += record.get('effcc');
-			
+			if(record.get('eco_index'))
+				ecoIndex += record.get('eco_index')
+
 			if(record.get('ovr_spd_time'))
 				overSpdCnt += record.get('ovr_spd_time');
 			
@@ -10507,21 +10594,39 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				sudAccelCnt += record.get('sud_accel_cnt');
 			
 			if(record.get('sud_brake_cnt'))
-				sudBrakeCnt += record.get('sud_brake_cnt');			
+				sudBrakeCnt += record.get('sud_brake_cnt');
+			
+			if(record.get('idle_time'))
+				idleTime += record.get('idle_time');
+			
+			if(record.get('eco_drv_time'))
+				ecoDrvTime += record.get('eco_drv_time');
+			
+			if(record.get('effcc'))
+				efficiency += record.get('effcc');			
 		});
 		
-		ecoDrvTime = ecoDrvTime / totalRecordCnt;
-		efficiency = efficiency / totalRecordCnt;
+		ecoIndex = ecoIndex / totalRecordCnt;
 		overSpdCnt = overSpdCnt / totalRecordCnt;
 		sudAccelCnt = sudAccelCnt / totalRecordCnt;
 		sudBrakeCnt = sudBrakeCnt / totalRecordCnt;
+		idleTime = idleTime /totalRecordCnt;
+		ecoDrvTime = ecoDrvTime / totalRecordCnt;
+		efficiency = efficiency / totalRecordCnt;
+		ecoLevel = Math.floor(ecoIndex / 20);
 		
 		var radarData = [
-		    { 'name' : T('label.eco_drv_time'), 	'value' : ecoDrvTime },
-		    { 'name' : T('label.fuel_efficiency'), 	'value' : efficiency },
-		    { 'name' : T('label.ovr_spd_time'), 	'value' : overSpdCnt },
+		    { 'name' : T('label.eco_index'), 		'value' : ecoIndex },
+		    { 'name' : T('label.ovr_spd_time'), 	'value' : overSpdCnt },		    
 		    { 'name' : T('label.sud_accel_cnt'), 	'value' : sudAccelCnt },
-		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt }
+		    { 'name' : T('label.sud_brake_cnt'),	'value' : sudBrakeCnt },
+		    { 'name' : T('label.idle_time'), 		'value' : idleTime },
+		    { 'name' : T('label.eco_drv_time'), 	'value' : ecoDrvTime },		    
+		    { 'name' : T('label.fuel_efficiency'), 	'value' : efficiency }		    
+		];
+		
+		var guageData = [
+		    { 'name' : T('label.eco_index'), 'value' : ecoLevel }
 		];
 		
 		var radarStore = Ext.create('Ext.data.JsonStore', {
@@ -10533,21 +10638,25 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		var guageStore = Ext.create('Ext.data.JsonStore', {
 			fields : ['name', 'value'],
 			autoDestroy : true,
-			data : [ {'name' : T('label.eco_index'), 'value' : 3 } ]
+			data : guageData
 		});		
 		
 		var chartPanel = this.sub('chart_panel');
 		var width = chartPanel.getWidth();
 		var height = chartPanel.getHeight();
 		chartPanel.removeAll();
-		var chart1 = this.buildRadar(radarStore, width, height);
+		var chart1 = this.buildRadarChart(radarStore, width, height);
 		var chart2 = this.buildGuageChart(guageStore, width, height);
 		chartPanel.add(chart1);
 		chartPanel.add(chart2);
 		this.chartPanel = chart1;
 	},
 	
+	/**
+	 * 일반 컬럼, 라인 차트 
+	 */
 	buildChart : function(chartType, store, yField, yTitle, unit, minValue, width, height) {
+		
 		return {
 			xtype : 'panel',
 			cls : 'paddingPanel healthDashboard paddingAll10',
@@ -10573,7 +10682,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
-	                title: T('label.month')
+	                title: T('label.' + this.chartXTitle)
 				}],
 				series : [{
 					type : chartType,
@@ -10606,7 +10715,10 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		}
 	},
 	
-	buildRadar : function(store, width, height) {
+	/**
+	 * 레이더 차트 
+	 */
+	buildRadarChart : function(store, width, height) {
 		width = width / 2;
 		return {
 			xtype : 'panel',
@@ -10656,6 +10768,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		};
 	},	
 	
+	/**
+	 * 게이지 차트 
+	 */
 	buildGuageChart : function(store, width, height) {
 		width = width / 2;
 		return {
@@ -11577,7 +11692,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.runtime_by_vehicles') + T('label.parentheses_x', {x : T('label.minute_s')}),
+		title : T('report.runtime_by_vehicles') + T('label.parentheses_min'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -11751,17 +11866,17 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "%" },
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_min') },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
 							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
 							{ "name" : "oos_cnt", 		"type": "int",		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
 							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : "" },
-							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : "" }]
+							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : T('label.parentheses_min') },
+							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : T('label.parentheses_min') }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
@@ -12171,7 +12286,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.runtime_by_drivers') + T('label.parentheses_x', {x : T('label.minute_s')}),
+		title : T('report.runtime_by_drivers') + T('label.parentheses_min'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -12345,7 +12460,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_min') },
 					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
@@ -12353,8 +12468,8 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
 							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
 							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
-							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_min') },
 							{ "name" : "inc_cnt",  		"type": "int",		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
 				}),
 				listeners: {
@@ -12501,7 +12616,9 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByDriver(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? 
+				this.refreshChartByYear(records, width, height, yTitle, unit) : 
+				this.refreshChartByDriver(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;
@@ -19138,6 +19255,9 @@ Ext.define('GreenFleet.store.DriverRunStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
+		type : 'string'
+	}, {
+		name : 'time_view',
 		type : 'string'
 	}, {
 		name : 'run_dist',

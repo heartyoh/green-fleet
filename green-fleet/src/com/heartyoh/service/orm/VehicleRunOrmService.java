@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -167,10 +166,28 @@ public class VehicleRunOrmService extends OrmEntityService {
 	public @ResponseBody
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		response.setContentType("text/html; charset=UTF-8");
+		String timeView = request.getParameter("time_view");
+		
+		if(DataUtils.isEmpty(timeView))
+			timeView = "monthly";
+				
+		try {
+			@SuppressWarnings("rawtypes")
+			List<Map> items = ("yearly".equalsIgnoreCase(timeView)) ? this.retrieveByYearly(request) : this.retrieveByMonthly(request);
+			return this.getResultSet(true, items.size(), items);
+			
+		} catch(Exception e) {
+			return this.getResultSet(false, 0, null);
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private List<Map> retrieveByMonthly(HttpServletRequest request) throws Exception {
+		
 		String company = this.getCompany(request);
-		Map<String, Object> queryParams = new HashMap<String, Object>();
 		StringBuffer query = new StringBuffer("select *, CONCAT_WS('-', year, month) month_str from vehicle_run_sum where company = :company");
-		queryParams.put("company", company);
+		Map<String, Object> queryParams = DataUtils.newMap("company", company);
 		
 		if(!DataUtils.isEmpty(request.getParameter("from_year")) && !DataUtils.isEmpty(request.getParameter("from_month"))) {
 			String fromDate = request.getParameter("from_year") + "-" + request.getParameter("from_month") + "-01";
@@ -194,17 +211,29 @@ public class VehicleRunOrmService extends OrmEntityService {
 			queryParams.put("vehicle_group", request.getParameter("vehicle_group"));
 		}
 		
-		query.append(" order by year asc, month asc, vehicle asc");
-		response.setContentType("text/html; charset=UTF-8");
+		query.append(" order by year asc, month asc, vehicle asc");		
+		return this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private List<Map> retrieveByYearly(HttpServletRequest request) throws Exception {
 		
-		try {
-			@SuppressWarnings("rawtypes")
-			List<Map> items = this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);		
-			return this.getResultSet(true, items.size(), items);
-			
-		} catch(Exception e) {
-			return this.getResultSet(false, 0, null);
+		String company = this.getCompany(request);
+		StringBuffer query = new StringBuffer("select *, year month_str from vehicle_run_sum where company = :company");
+		Map<String, Object> queryParams = DataUtils.newMap("company", company);
+		
+		if(!DataUtils.isEmpty(request.getParameter("vehicle"))) {
+			query.append(" and vehicle = :vehicle");
+			queryParams.put("vehicle", request.getParameter("vehicle"));
 		}
+		
+		if(!DataUtils.isEmpty(request.getParameter("vehicle_group"))) {
+			query.append(" and vehicle in (select vehicle_id from vehicle_relation where group_id = (select id from vehicle_group where company = :company and name= :vehicle_group))");
+			queryParams.put("vehicle_group", request.getParameter("vehicle_group"));
+		}
+		
+		query.append(" group by year, vehicle order by year asc, vehicle asc");		
+		return this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);
 	}
 	
 	@RequestMapping(value = "/vehicle_run/save", method = RequestMethod.POST)

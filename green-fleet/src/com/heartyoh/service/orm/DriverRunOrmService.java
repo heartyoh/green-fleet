@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dbist.dml.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,9 +26,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.heartyoh.model.DriverRunSum;
 import com.heartyoh.model.IEntity;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.GreenFleetConstant;
 
 /**
  * 운전자별 운행 정보 서비스
@@ -35,6 +45,13 @@ import com.heartyoh.util.DataUtils;
 @Controller
 public class DriverRunOrmService extends OrmEntityService {
 
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(DriverRunOrmService.class);
+	/**
+	 * key fields
+	 */
 	private static final String[] KEY_FIELDS = new String[] { "company", "driver", "year", "month" };
 	
 	@Override
@@ -160,20 +177,103 @@ public class DriverRunOrmService extends OrmEntityService {
 	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		response.setContentType("text/html; charset=UTF-8");
+		String timeView = request.getParameter("time_view");
+		
+		if(DataUtils.isEmpty(timeView))
+			timeView = "monthly";
+				
+		try {
+			@SuppressWarnings("rawtypes")
+			List<Map> items = null;			
+			if("daily".equalsIgnoreCase(timeView)) {
+				items = this.retrieveByDaily(request);
+			} else if("monthly".equalsIgnoreCase(timeView)) {
+				items = this.retrieveByMonthly(request);
+			} else {
+				items = this.retrieveByYearly(request);
+			}
+			return this.getResultSet(true, items.size(), items);
+			
+		} catch(Exception e) {
+			logger.error("Failed to retrieve driver_run_sum!", e);
+			return this.getResultSet(false, 0, null);
+		}
+	}
+	
+	private Date toFromDate(HttpServletRequest request) {		
+		String fromDateStr = request.getParameter("from_year") + "-" + request.getParameter("from_month") + "-01";
+		return DataUtils.toDate(fromDateStr);
+	}
+	
+	private Date toDateStr(HttpServletRequest request) {
+		int monthInt = Integer.parseInt(request.getParameter("to_month"));
+		String toDateStr = request.getParameter("to_year") + "-" + (monthInt + 1) + "-01";
+		return DataUtils.toDate(toDateStr);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private List<Map> retrieveByDaily(HttpServletRequest request) throws Exception {
+		
+		Date fromDate = DataUtils.toDate(request.getParameter("year") + "-" + request.getParameter("month") + "-01");
+		Calendar c = Calendar.getInstance();
+		c.setTime(fromDate);
+		int lastDay = c.getMaximum(Calendar.DAY_OF_MONTH);
+		c.add(Calendar.DAY_OF_MONTH, lastDay - 1);
+		Date toDate = c.getTime();
+		Key companyKey = KeyFactory.createKey("Company", this.getCompany(request));
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		com.google.appengine.api.datastore.Query q = 
+				new com.google.appengine.api.datastore.Query("CheckinData");
+		q.setAncestor(companyKey);		
+		q.addFilter("engine_end_time", com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+		q.addFilter("engine_end_time", com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		q.addFilter("driver_id", com.google.appengine.api.datastore.Query.FilterOperator.EQUAL, request.getParameter("driver"));
+		PreparedQuery pq = datastore.prepare(q);
+		Iterator<Entity> checkins = pq.asIterable().iterator();
+		
+		List<Map> items = new ArrayList<Map>();
+		while(checkins.hasNext()) {
+			Entity checkin = checkins.next();
+			Map<String, Object> item = new HashMap<String, Object>();
+			item.put("driver", checkin.getProperty("driver_id"));
+			item.put("month_date", checkin.getProperty("engine_end_time"));
+			item.put("eco_index", checkin.getProperty("eco_index"));
+			item.put("effcc", checkin.getProperty("fuel_efficiency"));
+			item.put("co2_emss", checkin.getProperty("co2_emissions"));
+			item.put("run_dist", checkin.getProperty("distance"));
+			item.put("run_time", checkin.getProperty("running_time"));
+			item.put("eco_drv_time", checkin.getProperty("eco_driving_time"));
+			item.put("idle_time", checkin.getProperty("idle_time"));
+			item.put("ovr_spd_time", checkin.getProperty("over_speed_time"));
+			item.put("sud_accel_cnt", checkin.getProperty("sudden_accel_count"));
+			item.put("sud_brake_cnt", checkin.getProperty("sudden_brake_count"));
+			item.put("year", c.get(Calendar.YEAR));
+			item.put("month_str", DataUtils.dateToString((Date)item.get("month_date"), GreenFleetConstant.DEFAULT_DATE_FORMAT));
+			item.put("month", c.get(Calendar.MONTH) + 1);
+			item.put("time_view", "daily");
+			items.add(item);
+		}
+		return items;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private List<Map> retrieveByMonthly(HttpServletRequest request) throws Exception {
+		
 		String company = this.getCompany(request);
+		Date fromDate = this.toFromDate(request);
+		Date toDate = this.toDateStr(request);
+		
 		Map<String, Object> queryParams = new HashMap<String, Object>();
-		StringBuffer query = new StringBuffer("select *, CONCAT_WS('-', year, month) month_str from driver_run_sum where company = :company");
+		StringBuffer query = new StringBuffer("select *, CONCAT_WS('-', year, month) month_str, 'monthly' time_view from driver_run_sum where company = :company");
 		queryParams.put("company", company);
 		
 		if(!DataUtils.isEmpty(request.getParameter("from_year")) && !DataUtils.isEmpty(request.getParameter("from_month"))) {
-			String fromDate = request.getParameter("from_year") + "-" + request.getParameter("from_month") + "-01";
-			query.append(" and month_date >= STR_TO_DATE(:from_date, '%Y-%m-%d')");
+			query.append(" and month_date >= :from_date");
 			queryParams.put("from_date", fromDate);
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("to_year")) && !DataUtils.isEmpty(request.getParameter("to_month"))) {
-			String toDate = request.getParameter("to_year") + "-" + request.getParameter("to_month") + "-01";
-			query.append(" and month_date <= STR_TO_DATE(:to_date, '%Y-%m-%d')");
+			query.append(" and month_date < :to_date");
 			queryParams.put("to_date", toDate);
 		}
 		
@@ -188,10 +288,32 @@ public class DriverRunOrmService extends OrmEntityService {
 		}
 		
 		query.append(" order by year asc, month asc, driver asc");
+		return this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private List<Map> retrieveByYearly(HttpServletRequest request) throws Exception {
 		
-		@SuppressWarnings("rawtypes")
-		List<Map> items = this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);
-		return this.getResultSet(true, items.size(), items);
+		String company = this.getCompany(request);
+		String driver = request.getParameter("driver");
+		Map<String, Object> queryParams = new HashMap<String, Object>();
+		
+		StringBuffer query = new StringBuffer("select * from (");
+		query.append("select year, year month_str, 0 month, 'yearly' time_view, '" + driver + "' driver, format(sum(eco_index) / count(driver), 2) eco_index, format(sum(effcc) / count(driver), 2) effcc, sum(co2_emss) co2_emss, sum(consmpt) consmpt, sum(eco_drv_time) eco_drv_time, sum(idle_time) idle_time, sum(inc_cnt) inc_cnt, sum(ovr_spd_time) ovr_spd_time, sum(run_dist) run_dist, sum(run_time) run_time, sum(sud_accel_cnt) sud_accel_cnt, sum(sud_brake_cnt) sud_brake_cnt from driver_run_sum where company = :company");
+		queryParams.put("company", company);
+		
+		if(!DataUtils.isEmpty(request.getParameter("driver"))) {
+			query.append(" and driver = :driver");
+			queryParams.put("driver", request.getParameter("driver"));
+		}
+		
+		if(!DataUtils.isEmpty(request.getParameter("driver_group"))) {
+			query.append(" and driver in (select driver_id from driver_relation where group_id = (select id from driver_group where company = :company and name= :driver_group))");
+			queryParams.put("driver_group", request.getParameter("driver_group"));			
+		}
+		
+		query.append(" group by year, driver order by year asc, driver asc) a");		
+		return this.dml.selectListBySql(query.toString(), queryParams, Map.class, 0, 0);
 	}
 	
 	@RequestMapping(value = "/driver_run/save", method = RequestMethod.POST)

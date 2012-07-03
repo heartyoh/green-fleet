@@ -41,7 +41,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.runtime_by_drivers') + T('label.parentheses_x', {x : T('label.minute_s')}),
+		title : T('report.runtime_by_drivers') + T('label.parentheses_min'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -215,7 +215,7 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_min') },
 					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
@@ -223,8 +223,8 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
 							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
 							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
-							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
-							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_x', {x : T('label.minute_s')}) },
+							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_min') },
 							{ "name" : "inc_cnt",  		"type": "int",		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
 				}),
 				listeners: {
@@ -371,7 +371,9 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		}
 		
 		var chartType = this.sub('combo_chart_type').getValue();
-		var chart = ('by_years' == chartType) ? this.refreshChartByYear(records, width, height, yTitle, unit) : this.refreshChartByDriver(records, width, height, yTitle, unit);
+		var chart = ('by_years' == chartType) ? 
+				this.refreshChartByYear(records, width, height, yTitle, unit) : 
+				this.refreshChartByDriver(records, width, height, yTitle, unit);
 		chartPanel.removeAll();
 		chartPanel.add(chart);
 		this.chartPanel = chart;

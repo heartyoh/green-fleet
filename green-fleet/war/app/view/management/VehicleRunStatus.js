@@ -44,8 +44,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 						items : [ this.zrunstatus, this.zrunstatus_chart ]
 					} 
 				]
-		    }
-		],
+		    }],
 
 		this.callParent();
 			
@@ -96,7 +95,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		/**
 		 * combo_view에 값을 기본값(monthly_view)을 설정
 		 */
-		this.sub('combo_view').setValue('monthly_view');		
+		this.sub('combo_view').setValue('monthly');		
 	},
 	
 	/**
@@ -191,22 +190,22 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				text : T('label.month'),
 				dataIndex : 'month_str'
 			}, {
-				header : T('label.run_dist') + ' (km)',
+				header : T('label.run_dist') + '(km)',
 				dataIndex : 'run_dist'
 			}, {
 				header : T('label.run_time') + T('label.parentheses_min'),
 				dataIndex : 'run_time'
 			}, {
-				header : T('label.fuel_consumption') + ' (l)',
+				header : T('label.fuel_consumption') + '(l)',
 				dataIndex : 'consmpt'
 			}, {
-				header : T('label.co2_emissions') + ' (g/km)',
+				header : T('label.co2_emissions') + '(g/km)',
 				dataIndex : 'co2_emss'
 			}, {
-				header : T('label.fuel_efficiency') + ' (km/l)',
+				header : T('label.fuel_efficiency') + '(km/l)',
 				dataIndex : 'effcc'
 			}, {
-				header : T('label.eco_index') + ' (%)',
+				header : T('label.eco_index') + '(%)',
 				dataIndex : 'eco_index'
 			}, {
 				header : T('label.sud_accel_cnt'),
@@ -248,8 +247,8 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			    valueField: 'name',
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc' ],
-					data : [{ "name" : "monthly_view",	"desc" : T('label.monthly_view') },
-					        { "name" : "yearly_view",	"desc" : T('label.yearly_view')  }]
+					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
