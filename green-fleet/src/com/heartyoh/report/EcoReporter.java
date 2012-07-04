@@ -46,13 +46,7 @@ public class EcoReporter extends AbstractReporter {
 		return this.averagefuelEffcc(params);
 	}
 
-	/**
-	 * 연비 Top 5
-	 * 
-	 * @param params
-	 * @return
-	 * @throws Exception
-	 */
+	
 	private List<Object> averagefuelEffcc(Map<String, Object> params)
 			throws Exception {
 
@@ -73,11 +67,6 @@ public class EcoReporter extends AbstractReporter {
 				GreenFleetConstant.DEFAULT_DATE_FORMAT);
 		Date toDate = DataUtils.toDate(toDateStr,
 				GreenFleetConstant.DEFAULT_DATE_FORMAT);
-
-		// select year, month, format(sum(effcc) / count(company), 2) as effcc,
-		// format(sum(consmpt) / count(company), 2) as consmpt from
-		// vehicle_run_sum where company='palmvision' and month_date >=
-		// '2011-07-01' and month_date <= '2012-06-30' group by year, month
 
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
