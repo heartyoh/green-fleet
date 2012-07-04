@@ -9482,6 +9482,12 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		type : 'vbox'
 	},
 	
+	chartXTitle : 'month',
+	
+	vehicle : '',
+	
+	timeView : 'monthly',
+	
 	chartPanel : null,
 
 	initComponent : function() {
@@ -9514,19 +9520,17 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		this.callParent();
 			
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
-			var runStatusStore = self.sub('runstatus_grid').store;
-			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.vehicle = record.data.id;
-			proxy.extraParams.from_year = self.sub('from_year').getValue();
-			proxy.extraParams.to_year = self.sub('to_year').getValue();
-			proxy.extraParams.from_month = self.sub('from_month').getValue();
-			proxy.extraParams.to_month = self.sub('to_month').getValue();
-			runStatusStore.load({
-				scope : self,
-				callback : function() {					
-					self.refreshChart();
-				}
-			});
+			self.vehicle = record.data.id;
+			self.searchSummary(record.data.id, record.data.registration_number, null, null, null);
+		});
+		
+		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
+			if(record.data.time_view == "yearly") {
+				self.searchSummary(record.data.vehicle, null, "monthly", record.data.year, null);
+				
+			} else if(record.data.time_view == "monthly") {
+				self.searchSummary(record.data.vehicle, null, "daily", record.data.year, record.data.month);
+			}
 		});
 		
 		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
@@ -9564,6 +9568,14 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	},
 	
 	/**
+	 * grid title을 설정 
+	 */
+	setGridTitle : function(name) {
+		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
+		this.sub('runstatus_panel').setTitle(title);
+	},	
+	
+	/**
 	 * 차량 조회 
 	 */
 	searchVehicles : function(searchRemote) {
@@ -9586,7 +9598,61 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				} ]);
 			}			
 		}		
-	},		
+	},
+	
+	/**
+	 * vehicle run summary 조회 
+	 */
+	searchSummary : function(vehicleId, vehicleName, timeView, year, month) {
+		
+		if(!vehicleId) {
+			vehicleId = this.vehicle;
+			
+			if(!vehicleId)
+				return;
+		}
+		
+		if(!timeView) {
+			timeView = this.sub('combo_view').getValue();
+		}
+		
+		var runStatusStore = this.sub('runstatus_grid').store;
+		var proxy = runStatusStore.getProxy();
+		proxy.extraParams.vehicle = vehicleId;
+		proxy.extraParams.time_view = timeView;
+		
+		if(timeView == "monthly") {
+			this.chartXTitle = "month";
+			if(year == null) {
+				proxy.extraParams.from_year = this.sub('from_year').getValue();
+				proxy.extraParams.to_year = this.sub('to_year').getValue();
+				proxy.extraParams.from_month = this.sub('from_month').getValue();
+				proxy.extraParams.to_month = this.sub('to_month').getValue();
+			} else {
+				proxy.extraParams.from_year = year;
+				proxy.extraParams.to_year = year;
+				proxy.extraParams.from_month = 1;
+				proxy.extraParams.to_month = 12;
+			}					
+		} else if(timeView == "daily") {
+			this.chartXTitle = "date";
+			proxy.extraParams.year = year;
+			proxy.extraParams.month = month;
+			
+		} else if(timeView == "yearly") {
+			this.chartXTitle = "year";
+		}
+				
+		runStatusStore.load({
+			scope : this,
+			callback : function() {
+				if(vehicleName) {
+					this.setGridTitle(vehicleName);
+				}
+				this.refreshChart();
+			}
+		});		
+	},
 	
 	/**
 	 * 차량 리스트 그리드 
@@ -9642,6 +9708,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	 */
 	zrunstatus : {
 		xtype : 'panel',
+		itemId : 'runstatus_panel',
 		cls : 'hIndexbar',
 		title : T('title.runstatus_history'),
 		flex : 1,
@@ -9652,6 +9719,9 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			store : 'VehicleRunStore',
 			flex : 1,
 			columns : [ {
+				dataIndex : 'time_view',
+				hidden : true
+			}, {
 				text : T('label.month'),
 				dataIndex : 'month_str'
 			}, {
@@ -9717,7 +9787,8 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						// TODO 월간보기에서 년간보기로 변경시 년 설정으로 변경 ...
+						var thisView = combo.up('management_vehicle_runstatus');
+						thisView.searchSummary(null, null, null, null, null);
 					}
 			    }
 			},
@@ -9799,7 +9870,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
 							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },							
 							{ "name" : "eco_drv_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
-							{ "name" : "ovr_spd_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time", 	"desc" : T('label.ovr_spd_time'), 		"unit" : T('label.parentheses_min') },
 							{ "name" : "idle_time", 	"desc" : T('label.idle_time'), 			"unit" : T('label.parentheses_min') },							
 							{ "name" : "sud_accel_cnt", "desc" : T('label.sud_accel_cnt'), 		"unit" : "" },
 							{ "name" : "sud_brake_cnt", "desc" : T('label.sud_brake_cnt'), 		"unit" : "" },
@@ -10027,7 +10098,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
-	                title: T('label.month')
+	                title: T('label.' + this.chartXTitle)
 				}],
 				series : [{
 					type : chartType,
@@ -10458,7 +10529,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 							{ "name" : "effcc", 		"desc" : T('label.fuel_efficiency'), 	"unit" : "(km/l)" },
 							{ "name" : "eco_index", 	"desc" : T('label.eco_index'), 			"unit" : "(%)" },							
 							{ "name" : "eco_drv_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
-							{ "name" : "ovr_spd_time", 	"desc" : T('label.eco_drv_time'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time", 	"desc" : T('label.ovr_spd_time'), 		"unit" : T('label.parentheses_min') },
 							{ "name" : "idle_time", 	"desc" : T('label.idle_time'), 			"unit" : T('label.parentheses_min') },							
 							{ "name" : "sud_accel_cnt", "desc" : T('label.sud_accel_cnt'), 		"unit" : "" },
 							{ "name" : "sud_brake_cnt", "desc" : T('label.sud_brake_cnt'), 		"unit" : "" },
@@ -10828,6 +10899,10 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		type : 'vbox'
 	},
 	
+	driver : '',
+	
+	timeView : 'monthly',
+	
 	chartPanel : null,
 
 	initComponent : function() {
@@ -10843,7 +10918,7 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 					align : 'stretch'
 				},
 				items : [ 
-				    this.zvehiclelist(self), 
+				    this.zdriverlist(self), 
 				    {
 						xtype : 'container',
 						flex : 1,
@@ -10853,34 +10928,27 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 							type : 'vbox'
 						},
 						items : [ this.zrunstatus, this.zrunstatus_chart ]
-					} 
-				]
-		    }
-		],
+					} ]
+		    }],
 
 		this.callParent();
 
 		this.sub('driver_list').on('itemclick', function(grid, record) {
-			var runStatusStore = self.sub('runstatus_grid').store;
-			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.driver = record.data.id;
-			proxy.extraParams.from_year = self.sub('from_year').getValue();
-			proxy.extraParams.to_year = self.sub('to_year').getValue();
-			proxy.extraParams.from_month = self.sub('from_month').getValue();
-			proxy.extraParams.to_month = self.sub('to_month').getValue();
-			runStatusStore.load({
-				scope : self,
-				callback : function() {
-					self.setGridTitle(record.get('name'));
-					self.setChartTitle();
-					self.refreshChart();
-				}
-			});
+			self.driver = record.data.id;
+			self.searchSummary(self.vehicle, record.data.name, null, null, null);			
 		});
 		
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {
-			self.setChartTitle(record.get('month_str'));
-			self.refreshByMonth(record);
+			if(record.data.time_view == "yearly") {
+				self.searchSummary(record.data.driver, null, "monthly", record.data.year, null);
+				
+			} else if(record.data.time_view == "monthly") {
+				self.searchSummary(record.data.driver, null, "daily", record.data.year, record.data.month);
+				
+			} else if(record.data.time_view == "daily") {
+				self.setChartTitle(record.data.month_str);
+				self.refreshByMonth(record);				
+			}			
 		});
 		
 		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
@@ -10910,19 +10978,28 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		/**
 		 * combo_view에 값을 기본값(monthly_view)을 설정
 		 */
-		this.sub('combo_view').setValue('monthly_view');
+		this.sub('combo_view').setValue('monthly');
 	},
 	
+	/**
+	 * 운행이력 그리드 타이틀 
+	 */	
 	setGridTitle : function(name) {
 		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
 		this.sub('runstatus_grid').setTitle(title);
 	},
 	
+	/**
+	 * 차트 그리드 타이틀 
+	 */	
 	setChartTitle : function(month) {
 		var title = month ? T('label.speed_section') + ' (' + month + ') ' + T('label.chart') : T('label.speed_section') + T('label.chart');
 		this.sub('chart_panel').setTitle(title);
 	},
 	
+	/**
+	 * 운전자 조회 
+	 */	
 	searchDrivers : function(searchRemote) {
 		
 		if(searchRemote) {
@@ -10945,7 +11022,64 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		}		
 	},		
 	
-	zvehiclelist : function(self) {
+	/**
+	 * driver speed summary 조회 
+	 */
+	searchSummary : function(driverId, driverName, timeView, year, month) {
+		
+		if(!driverId) {
+			driverId = this.driver;
+			
+			if(!driverId)
+				return;
+		}
+		
+		if(!timeView) {
+			timeView = this.sub('combo_view').getValue();
+		}
+		
+		var runStatusStore = this.sub('runstatus_grid').store;
+		var proxy = runStatusStore.getProxy();
+		proxy.extraParams.driver = driverId;
+		proxy.extraParams.time_view = timeView;
+		
+		if(timeView == "monthly") {
+			if(year == null) {
+				proxy.extraParams.from_year = this.sub('from_year').getValue();
+				proxy.extraParams.to_year = this.sub('to_year').getValue();
+				proxy.extraParams.from_month = this.sub('from_month').getValue();
+				proxy.extraParams.to_month = this.sub('to_month').getValue();
+			} else {
+				proxy.extraParams.from_year = year;
+				proxy.extraParams.to_year = year;
+				proxy.extraParams.from_month = 1;
+				proxy.extraParams.to_month = 12;
+			}					
+		} else if(timeView == "daily") {
+			proxy.extraParams.year = year;
+			proxy.extraParams.month = month;			
+		} 
+				
+		runStatusStore.load({
+			scope : this,
+			callback : function() {
+				if(driverName) {
+					this.setGridTitle(driverName);
+				}
+				
+				if(year && month) {
+					this.setChartTitle(year + '-' + month);
+				}
+				
+				this.refreshChart();
+			}
+		});
+	},	
+	
+	/**
+	 * 운전자 리스트 그리드 패널 
+	 */	
+	zdriverlist : function(self) {
 		return {
 			xtype : 'gridpanel',
 			itemId : 'driver_list',
@@ -10991,6 +11125,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		}
 	},
 	
+	/**
+	 * 운행이력 그리드 패널 
+	 */	
 	zrunstatus : {
 		xtype : 'gridpanel',
 		itemId : 'runstatus_grid',
@@ -11062,12 +11199,13 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			    valueField: 'name',
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc' ],
-					data : [{ "name" : "monthly_view",	"desc" : T('label.monthly_view') },
-					        { "name" : "yearly_view",	"desc" : T('label.yearly_view')  }]
+					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						// TODO 월간보기에서 년간보기로 변경시 년 설정으로 변경 ...
+						var thisView = combo.up('management_driver_speed');
+						thisView.searchSummary(null, null, null, null, null);
 					}
 			    }
 			},
@@ -11135,6 +11273,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		]
 	},
 
+	/**
+	 * 차트 패널 
+	 */	
 	zrunstatus_chart : {
 		xtype : 'panel',
 		itemId : 'chart_panel',
@@ -11144,6 +11285,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		autoScroll : true
 	},
 	
+	/**
+	 * 차트 리프레쉬 
+	 */	
 	refreshChart : function() {
 				
 		var chartType = this.sub('combo_chart_type').getValue();
@@ -11153,6 +11297,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			this.refreshColumnChart();
 	},
 	
+	/**
+	 * 컬럼 차트 리프레쉬 
+	 */	
 	refreshColumnChart : function() {
 		
 		var chartPanel = this.sub('chart_panel');
@@ -11201,6 +11348,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 레이더 차트 리프레쉬 
+	 */	
 	refreshRadarChart : function() {
 		
 		var store = this.sub('runstatus_grid').store;
@@ -11270,6 +11420,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 차트 리사이즈 
+	 */	
 	resizeChart : function(width, height) {
 		
 		var chartContainer = this.sub('chart_panel');
@@ -11289,6 +11442,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		chart.setHeight(height - 50);
 	},
 	
+	/**
+	 * 레이더 차트 생성 
+	 */	
 	buildRadarChart : function(store, width, height) {
 		return {
 			xtype : 'panel',
@@ -11330,6 +11486,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		};
 	},
 	
+	/**
+	 * 컬럼 차트 생성 
+	 */	
 	buildColumnChart : function(store, minValue, width, height) {
 		return {
 			xtype : 'panel',
@@ -11388,6 +11547,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		}
 	},
 	
+	/**
+	 * 월별 리프레쉬 
+	 */	
 	refreshByMonth : function(record) {
 				
 		var chartType = this.sub('combo_chart_type').getValue();		
@@ -11397,6 +11559,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			this.refreshColumnChartByMonth(record);
 	},
 	
+	/**
+	 * 월별 레이더 차트 리프레쉬 
+	 */	
 	refreshRadarChartByMonth : function(record) {
 		
 		var chartData = this.createChartData(record);
@@ -11415,6 +11580,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		this.chartPanel = chart;
 	},	
 	
+	/**
+	 * 월별 컬럼 차트 리프레쉬 
+	 */	
 	refreshColumnChartByMonth : function(record) {
 		
 		var chartPanel = this.sub('chart_panel');
@@ -11434,6 +11602,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 차트 데이터 생성 
+	 */	
 	createChartData : function(record) {
 		return [ { 'name' : '0~10(km)', 		'value' : record.get('spd_lt10') },
 		         { 'name' : '10~20(km)', 		'value' : record.get('spd_lt20') },
@@ -11453,6 +11624,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		         { 'name' : '150(km)~', 		'value' : record.get('spd_lt160') }];
 	},
 	
+	/**
+	 * 월별 레이더 차트 생성 
+	 */	
 	buildRadarByMonth : function(store, width, height) {
 		return {
 			xtype : 'panel',
@@ -11494,6 +11668,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		};
 	},	
 	
+	/**
+	 * 월별 차트 생성 
+	 */	
 	buildChartByMonth : function(store, minValue, width, height) {
 		return {
 			xtype : 'panel',
@@ -11867,14 +12044,20 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
 					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_min') },
-					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "(%)" },
+							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "eco_index", 	"type": "int",		"desc" : T('report.eco_index_by_vehicles'), 	"unit" : "(%)" },
+							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
+							{ "name" : "idle_time", 	"type": "int",		"desc" : T('report.idle_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time", 	"type": "int",		"desc" : T('report.ovr_spd_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
+							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_vehicles'), "unit" : "" },
+							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_vehicles'), "unit" : "" },
 							{ "name" : "oos_cnt", 		"type": "int",		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
 							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_min') },
 							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : T('label.parentheses_min') },
 							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : T('label.parentheses_min') }]
 				}),
@@ -11947,7 +12130,6 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
 		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
-		//proxy.extraParams.select = ['vehicle', 'month_str', chartInfo.name];
 		proxy.extraParams.from_year = fromYear;
 		proxy.extraParams.from_month = fromMonth;
 		proxy.extraParams.to_year = toYear;
@@ -11983,7 +12165,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 						var runTime = record.data.run_time;
 						var mntTime = record.data.mnt_time;
 						var oosCnt = record.data.oos_cnt;
-						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;
+						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;										
 					}
 					
 					if(chartInfo.type == 'float') {
@@ -12005,11 +12187,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					} else {
 						newRecord[monthStr] = runData;
 						if(runData && runData > 0) {
-							newRecord['sum'] = newRecord.sum + runData;
+							newRecord['sum'] = newRecord.sum + runData;														
 						}
 					}
 				});
-				
+
 				if(chartInfo.type == 'float') {
 					Ext.each(newRecords, function(nr) {
 						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));
@@ -12460,16 +12642,18 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 			    valueField: 'name',				
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_min') },
-					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "(%)" },
+					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_drivers'),		"unit" : T('label.parentheses_min') },					        
 					        { "name" : "run_dist", 		"type": "float",	"desc" : T('report.rundist_by_drivers'), 		"unit" : "(km)" },
-							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_drivers'), 		"unit" : "(%)" },
+					        { "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
+					        { "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_drivers'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_drivers'), 	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_drivers'), 	"unit" : "(km/l)" },
+							{ "name" : "eco_index", 	"type": "int",		"desc" : T('report.eco_index_by_drivers'), 		"unit" : "(%)" },														
 							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_drivers'),  "unit" : "" },
 							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_drivers'), 	"unit" : "" },
 							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_drivers'),  	"unit" : T('label.parentheses_min') },
 							{ "name" : "ovr_spd_time",  "type": "int",		"desc" : T('report.ovr_spd_time_by_drivers'),  	"unit" : T('label.parentheses_min') },
+							{ "name" : "idle_time", 	"type": "int",		"desc" : T('report.idle_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
 							{ "name" : "inc_cnt",  		"type": "int",		"desc" : T('report.inc_cnt_by_drivers'), 		"unit" : "" }]
 				}),
 				listeners: {
@@ -16222,13 +16406,17 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		type : 'vbox'
 	},
 	
+	vehicle : '',
+	
+	timeView : 'monthly',
+	
 	chartPanel : null,
 
 	initComponent : function() {
 		var self = this;
 
 		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.vehicle_speed_section') + "</div>"}, 
+		    { html : "<div class='listTitle'>" + T('title.vehicle_speed_section') + "</div>" }, 
 		    {
 				xtype : 'container',
 				flex : 1,
@@ -16247,34 +16435,27 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 							type : 'vbox'
 						},
 						items : [ this.zrunstatus, this.zrunstatus_chart ]
-					} 
-				]
-		    }
-		],
+					} ]
+		    } ],
 
 		this.callParent();
 
 		this.sub('vehicle_list').on('itemclick', function(grid, record) {
-			var runStatusStore = self.sub('runstatus_grid').store;
-			var proxy = runStatusStore.getProxy();
-			proxy.extraParams.vehicle = record.data.id;
-			proxy.extraParams.from_year = self.sub('from_year').getValue();
-			proxy.extraParams.to_year = self.sub('to_year').getValue();
-			proxy.extraParams.from_month = self.sub('from_month').getValue();
-			proxy.extraParams.to_month = self.sub('to_month').getValue();
-			runStatusStore.load({
-				scope : self,
-				callback : function() {
-					self.setGridTitle(record.get('name'));
-					self.setChartTitle();
-					self.refreshChart();
-				}
-			});
+			self.vehicle = record.data.id;
+			self.searchSummary(self.vehicle, record.data.registration_number, null, null, null);
 		});
 		
-		this.sub('runstatus_grid').on('itemclick', function(grid, record) {
-			self.setChartTitle(record.get('month_str'));
-			self.refreshByMonth(record);
+		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
+			if(record.data.time_view == "yearly") {
+				self.searchSummary(record.data.vehicle, null, "monthly", record.data.year, null);
+				
+			} else if(record.data.time_view == "monthly") {
+				self.searchSummary(record.data.vehicle, null, "daily", record.data.year, record.data.month);
+				
+			} else if(record.data.time_view == "daily") {
+				self.setChartTitle(record.data.month_str);
+				self.refreshByMonth(record);				
+			}
 		});
 		
 		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
@@ -16304,19 +16485,28 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		/**
 		 * combo_view에 값을 기본값(monthly_view)을 설정
 		 */
-		this.sub('combo_view').setValue('monthly_view');
+		this.sub('combo_view').setValue('monthly');
 	},
 	
+	/**
+	 * 운행이력 그리드 타이틀 
+	 */
 	setGridTitle : function(name) {
 		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
 		this.sub('runstatus_grid').setTitle(title);
 	},
 	
+	/**
+	 * 차트 그리드 타이틀 
+	 */
 	setChartTitle : function(month) {
 		var title = month ? T('label.speed_section') + ' (' + month + ') ' + T('label.chart') : T('label.speed_section') + T('label.chart');
 		this.sub('chart_panel').setTitle(title);
 	},
 	
+	/**
+	 * 차량 조회 
+	 */
 	searchVehicles : function(searchRemote) {
 		
 		if(searchRemote) {
@@ -16337,8 +16527,65 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 				} ]);
 			}			
 		}		
-	},		
+	},
 	
+	/**
+	 * vehicle speed summary 조회 
+	 */
+	searchSummary : function(vehicleId, vehicleName, timeView, year, month) {
+		
+		if(!vehicleId) {
+			vehicleId = this.vehicle;
+			
+			if(!vehicleId)
+				return;
+		}
+		
+		if(!timeView) {
+			timeView = this.sub('combo_view').getValue();
+		}
+		
+		var runStatusStore = this.sub('runstatus_grid').store;
+		var proxy = runStatusStore.getProxy();
+		proxy.extraParams.vehicle = vehicleId;
+		proxy.extraParams.time_view = timeView;
+		
+		if(timeView == "monthly") {
+			if(year == null) {
+				proxy.extraParams.from_year = this.sub('from_year').getValue();
+				proxy.extraParams.to_year = this.sub('to_year').getValue();
+				proxy.extraParams.from_month = this.sub('from_month').getValue();
+				proxy.extraParams.to_month = this.sub('to_month').getValue();
+			} else {
+				proxy.extraParams.from_year = year;
+				proxy.extraParams.to_year = year;
+				proxy.extraParams.from_month = 1;
+				proxy.extraParams.to_month = 12;
+			}					
+		} else if(timeView == "daily") {
+			proxy.extraParams.year = year;
+			proxy.extraParams.month = month;			
+		} 
+				
+		runStatusStore.load({
+			scope : this,
+			callback : function() {
+				if(vehicleName) {
+					this.setGridTitle(vehicleName);
+				}
+				
+				if(year && month) {
+					this.setChartTitle(year + '-' + month);
+				}
+				
+				this.refreshChart();
+			}
+		});
+	},
+	
+	/**
+	 * 차량 리스트 그리드 패널 
+	 */
 	zvehiclelist : function(self) {
 		return {
 			xtype : 'gridpanel',
@@ -16385,6 +16632,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		}
 	},
 	
+	/**
+	 * 운행이력 그리드 패널 
+	 */
 	zrunstatus : {
 		xtype : 'gridpanel',
 		itemId : 'runstatus_grid',
@@ -16456,12 +16706,13 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 			    valueField: 'name',
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'desc' ],
-					data : [{ "name" : "monthly_view",	"desc" : T('label.monthly_view') },
-					        { "name" : "yearly_view",	"desc" : T('label.yearly_view')  }]
+					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						// TODO 월간보기에서 년간보기로 변경시 년 설정으로 변경 ...
+						var thisView = combo.up('management_vehicle_speed');
+						thisView.searchSummary(null, null, null, null, null);
 					}
 			    }
 			},
@@ -16529,6 +16780,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		]
 	},
 
+	/**
+	 * 차트 패널 
+	 */
 	zrunstatus_chart : {
 		xtype : 'panel',
 		itemId : 'chart_panel',
@@ -16538,6 +16792,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		autoScroll : true
 	},
 	
+	/**
+	 * 차트 리프레쉬 
+	 */
 	refreshChart : function() {
 				
 		var chartType = this.sub('combo_chart_type').getValue();
@@ -16547,6 +16804,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 			this.refreshColumnChart();
 	},
 	
+	/**
+	 * 컬럼 차트 리프레쉬 
+	 */
 	refreshColumnChart : function() {
 		
 		var chartPanel = this.sub('chart_panel');
@@ -16595,6 +16855,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 레이더 차트 리프레쉬 
+	 */
 	refreshRadarChart : function() {
 		
 		var store = this.sub('runstatus_grid').store;
@@ -16664,6 +16927,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 차트 리사이즈 
+	 */
 	resizeChart : function(width, height) {
 		
 		var chartContainer = this.sub('chart_panel');
@@ -16683,6 +16949,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		chart.setHeight(height - 50);
 	},
 	
+	/**
+	 * 레이더 차트 생성 
+	 */
 	buildRadarChart : function(store, width, height) {
 		return {
 			xtype : 'panel',
@@ -16724,6 +16993,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		};
 	},
 	
+	/**
+	 * 컬럼 차트 생성 
+	 */
 	buildColumnChart : function(store, minValue, width, height) {
 		return {
 			xtype : 'panel',
@@ -16782,6 +17054,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		}
 	},
 	
+	/**
+	 * 월별 리프레쉬 
+	 */
 	refreshByMonth : function(record) {
 				
 		var chartType = this.sub('combo_chart_type').getValue();		
@@ -16791,6 +17066,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 			this.refreshColumnChartByMonth(record);
 	},
 	
+	/**
+	 * 월별 레이더 차트 리프레쉬 
+	 */
 	refreshRadarChartByMonth : function(record) {
 		
 		var chartData = this.createChartData(record);
@@ -16809,6 +17087,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		this.chartPanel = chart;
 	},	
 	
+	/**
+	 * 월별 컬럼 차트 리프레쉬 
+	 */
 	refreshColumnChartByMonth : function(record) {
 		
 		var chartPanel = this.sub('chart_panel');
@@ -16828,25 +17109,31 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		this.chartPanel = chart;
 	},
 	
+	/**
+	 * 차트 데이터 생성 
+	 */
 	createChartData : function(record) {
-		return [ { 'name' : '0~10(km)', 		'value' : record.get('spd_lt10') },
-		         { 'name' : '10~20(km)', 		'value' : record.get('spd_lt20') },
-		         { 'name' : '20~30(km)', 		'value' : record.get('spd_lt30') },
-		         { 'name' : '30~40(km)', 		'value' : record.get('spd_lt40') },
-		         { 'name' : '40~50(km)', 		'value' : record.get('spd_lt50') },
-		         { 'name' : '50~60(km)', 		'value' : record.get('spd_lt60') },
-		         { 'name' : '60~70(km)', 		'value' : record.get('spd_lt70') },
-		         { 'name' : '70~80(km)', 		'value' : record.get('spd_lt80') },
-		         { 'name' : '80~90(km)', 		'value' : record.get('spd_lt90') },
-		         { 'name' : '90~100(km)', 		'value' : record.get('spd_lt100') },
-		         { 'name' : '100~110(km)', 		'value' : record.get('spd_lt110') },
-		         { 'name' : '110~120(km)', 		'value' : record.get('spd_lt120') },
-		         { 'name' : '120~130(km)', 		'value' : record.get('spd_lt130') },
-		         { 'name' : '130~140(km)', 		'value' : record.get('spd_lt140') },
-		         { 'name' : '140~150(km)', 		'value' : record.get('spd_lt150') },
-		         { 'name' : '150(km)~', 		'value' : record.get('spd_lt160') }];
+		return [ { 'name' : '0~10(km)', 	'value' : record.get('spd_lt10') },
+		         { 'name' : '10~20(km)', 	'value' : record.get('spd_lt20') },
+		         { 'name' : '20~30(km)', 	'value' : record.get('spd_lt30') },
+		         { 'name' : '30~40(km)', 	'value' : record.get('spd_lt40') },
+		         { 'name' : '40~50(km)', 	'value' : record.get('spd_lt50') },
+		         { 'name' : '50~60(km)', 	'value' : record.get('spd_lt60') },
+		         { 'name' : '60~70(km)', 	'value' : record.get('spd_lt70') },
+		         { 'name' : '70~80(km)', 	'value' : record.get('spd_lt80') },
+		         { 'name' : '80~90(km)', 	'value' : record.get('spd_lt90') },
+		         { 'name' : '90~100(km)', 	'value' : record.get('spd_lt100') },
+		         { 'name' : '100~110(km)', 	'value' : record.get('spd_lt110') },
+		         { 'name' : '110~120(km)', 	'value' : record.get('spd_lt120') },
+		         { 'name' : '120~130(km)', 	'value' : record.get('spd_lt130') },
+		         { 'name' : '130~140(km)', 	'value' : record.get('spd_lt140') },
+		         { 'name' : '140~150(km)', 	'value' : record.get('spd_lt150') },
+		         { 'name' : '150(km)~', 	'value' : record.get('spd_lt160') } ];
 	},
 	
+	/**
+	 * 월별 레이더 차트 생성 
+	 */
 	buildRadarByMonth : function(store, width, height) {
 		return {
 			xtype : 'panel',
@@ -16888,6 +17175,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		};
 	},	
 	
+	/**
+	 * 월별 차트 생성 
+	 */
 	buildChartByMonth : function(store, minValue, width, height) {
 		return {
 			xtype : 'panel',
@@ -19175,6 +19465,9 @@ Ext.define('GreenFleet.store.VehicleRunStore', {
 		name : 'month_str',
 		type : 'string'
 	}, {
+		name : 'time_view',
+		type : 'string'
+	}, {
 		name : 'run_dist',
 		type : 'float'
 	}, {
@@ -19331,6 +19624,9 @@ Ext.define('GreenFleet.store.DriverSpeedStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
+		type : 'string'
+	}, {
+		name : 'time_view',
 		type : 'string'
 	}, {
 		name : 'spd_lt10',
@@ -19689,6 +19985,9 @@ Ext.define('GreenFleet.store.VehicleSpeedStore', {
 		type : 'integer'
 	}, {
 		name : 'month_str',
+		type : 'string'
+	}, {
+		name : 'time_view',
 		type : 'string'
 	}, {
 		name : 'spd_lt10',

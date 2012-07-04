@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,15 +25,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.heartyoh.model.DriverRunSum;
 import com.heartyoh.model.IEntity;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.GreenFleetConstant;
 
 /**
@@ -200,17 +197,6 @@ public class DriverRunOrmService extends OrmEntityService {
 		}
 	}
 	
-	private Date toFromDate(HttpServletRequest request) {		
-		String fromDateStr = request.getParameter("from_year") + "-" + request.getParameter("from_month") + "-01";
-		return DataUtils.toDate(fromDateStr);
-	}
-	
-	private Date toDateStr(HttpServletRequest request) {
-		int monthInt = Integer.parseInt(request.getParameter("to_month"));
-		String toDateStr = request.getParameter("to_year") + "-" + (monthInt + 1) + "-01";
-		return DataUtils.toDate(toDateStr);
-	}
-	
 	@SuppressWarnings("rawtypes")
 	private List<Map> retrieveByDaily(HttpServletRequest request) throws Exception {
 		
@@ -220,23 +206,20 @@ public class DriverRunOrmService extends OrmEntityService {
 		int lastDay = c.getMaximum(Calendar.DAY_OF_MONTH);
 		c.add(Calendar.DAY_OF_MONTH, lastDay - 1);
 		Date toDate = c.getTime();
-		Key companyKey = KeyFactory.createKey("Company", this.getCompany(request));
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		com.google.appengine.api.datastore.Query q = 
-				new com.google.appengine.api.datastore.Query("CheckinData");
-		q.setAncestor(companyKey);		
-		q.addFilter("engine_end_time", com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-		q.addFilter("engine_end_time", com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
-		q.addFilter("driver_id", com.google.appengine.api.datastore.Query.FilterOperator.EQUAL, request.getParameter("driver"));
-		PreparedQuery pq = datastore.prepare(q);
-		Iterator<Entity> checkins = pq.asIterable().iterator();
+		Key companyKey = KeyFactory.createKey("Company", this.getCompany(request));		
+		List<Entity> checkins = 
+				DatastoreUtils.findCheckinsByDriver(companyKey, request.getParameter("driver"), fromDate, toDate);
 		
 		List<Map> items = new ArrayList<Map>();
-		while(checkins.hasNext()) {
-			Entity checkin = checkins.next();
+		for(Entity checkin : checkins) {
 			Map<String, Object> item = new HashMap<String, Object>();
+			Object monthDateObj = checkin.getProperty("engine_end_time");
 			item.put("driver", checkin.getProperty("driver_id"));
-			item.put("month_date", checkin.getProperty("engine_end_time"));
+			item.put("year", c.get(Calendar.YEAR));
+			item.put("month", c.get(Calendar.MONTH) + 1);
+			item.put("month_date", monthDateObj);
+			item.put("month_str", DataUtils.dateToString((Date)monthDateObj, GreenFleetConstant.DEFAULT_DATE_FORMAT));
+			item.put("time_view", "daily");
 			item.put("eco_index", checkin.getProperty("eco_index"));
 			item.put("effcc", checkin.getProperty("fuel_efficiency"));
 			item.put("co2_emss", checkin.getProperty("co2_emissions"));
@@ -247,12 +230,9 @@ public class DriverRunOrmService extends OrmEntityService {
 			item.put("ovr_spd_time", checkin.getProperty("over_speed_time"));
 			item.put("sud_accel_cnt", checkin.getProperty("sudden_accel_count"));
 			item.put("sud_brake_cnt", checkin.getProperty("sudden_brake_count"));
-			item.put("year", c.get(Calendar.YEAR));
-			item.put("month_str", DataUtils.dateToString((Date)item.get("month_date"), GreenFleetConstant.DEFAULT_DATE_FORMAT));
-			item.put("month", c.get(Calendar.MONTH) + 1);
-			item.put("time_view", "daily");
 			items.add(item);
 		}
+		
 		return items;
 	}
 	
@@ -260,21 +240,24 @@ public class DriverRunOrmService extends OrmEntityService {
 	private List<Map> retrieveByMonthly(HttpServletRequest request) throws Exception {
 		
 		String company = this.getCompany(request);
-		Date fromDate = this.toFromDate(request);
-		Date toDate = this.toDateStr(request);
-		
 		Map<String, Object> queryParams = new HashMap<String, Object>();
 		StringBuffer query = new StringBuffer("select *, CONCAT_WS('-', year, month) month_str, 'monthly' time_view from driver_run_sum where company = :company");
 		queryParams.put("company", company);
 		
 		if(!DataUtils.isEmpty(request.getParameter("from_year")) && !DataUtils.isEmpty(request.getParameter("from_month"))) {
+			String fromDateStr = request.getParameter("from_year") + "-" + request.getParameter("from_month") + "-01";
+			Date fromDate = DataUtils.toDate(fromDateStr);			
 			query.append(" and month_date >= :from_date");
 			queryParams.put("from_date", fromDate);
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("to_year")) && !DataUtils.isEmpty(request.getParameter("to_month"))) {
+			Calendar c = Calendar.getInstance();
+			String toDateStr = request.getParameter("to_year") + "-" + request.getParameter("to_month") + "-01";			
+			c.setTime(DataUtils.toDate(toDateStr));
+			c.add(Calendar.MONTH, 1);
 			query.append(" and month_date < :to_date");
-			queryParams.put("to_date", toDate);
+			queryParams.put("to_date", c.getTime());
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("driver"))) {
@@ -283,8 +266,8 @@ public class DriverRunOrmService extends OrmEntityService {
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("driver_group"))) {
-			query.append(" and driver in (select driver_id from driver_relation where group_id = (select id from driver_group where company = :company and name= :driver_group))");
-			queryParams.put("driver_group", request.getParameter("driver_group"));			
+			query.append(" and driver in (select driver_id from driver_relation where group_id = :driver_group)");
+			queryParams.put("driver_group", request.getParameter("driver_group"));
 		}
 		
 		query.append(" order by year asc, month asc, driver asc");
@@ -299,7 +282,12 @@ public class DriverRunOrmService extends OrmEntityService {
 		Map<String, Object> queryParams = new HashMap<String, Object>();
 		
 		StringBuffer query = new StringBuffer("select * from (");
-		query.append("select year, year month_str, 0 month, 'yearly' time_view, '" + driver + "' driver, format(sum(eco_index) / count(driver), 2) eco_index, format(sum(effcc) / count(driver), 2) effcc, sum(co2_emss) co2_emss, sum(consmpt) consmpt, sum(eco_drv_time) eco_drv_time, sum(idle_time) idle_time, sum(inc_cnt) inc_cnt, sum(ovr_spd_time) ovr_spd_time, sum(run_dist) run_dist, sum(run_time) run_time, sum(sud_accel_cnt) sud_accel_cnt, sum(sud_brake_cnt) sud_brake_cnt from driver_run_sum where company = :company");
+		query.append("select year, year month_str, 0 month, 'yearly' time_view, '" + driver + "' driver, ");
+		query.append("format(sum(eco_index) / count(driver), 2) eco_index, format(sum(effcc) / count(driver), 2) effcc, ");
+		query.append("sum(co2_emss) co2_emss, sum(consmpt) consmpt, sum(eco_drv_time) eco_drv_time, ");
+		query.append("sum(idle_time) idle_time, sum(inc_cnt) inc_cnt, sum(ovr_spd_time) ovr_spd_time, ");
+		query.append("sum(run_dist) run_dist, sum(run_time) run_time, sum(sud_accel_cnt) sud_accel_cnt, ");
+		query.append("sum(sud_brake_cnt) sud_brake_cnt from driver_run_sum where company = :company");
 		queryParams.put("company", company);
 		
 		if(!DataUtils.isEmpty(request.getParameter("driver"))) {
@@ -308,7 +296,7 @@ public class DriverRunOrmService extends OrmEntityService {
 		}
 		
 		if(!DataUtils.isEmpty(request.getParameter("driver_group"))) {
-			query.append(" and driver in (select driver_id from driver_relation where group_id = (select id from driver_group where company = :company and name= :driver_group))");
+			query.append(" and driver in (select driver_id from driver_relation where group_id = :driver_group)");
 			queryParams.put("driver_group", request.getParameter("driver_group"));			
 		}
 		

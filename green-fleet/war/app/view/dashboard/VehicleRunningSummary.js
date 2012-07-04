@@ -216,14 +216,20 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				store :  Ext.create('Ext.data.Store', { 
 					fields : [ 'name', 'type', 'desc', 'unit' ], 
 					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_min') },
-					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "(%)" },
 					        { "name" : "run_dist", 		"type": "float", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },
+					        { "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "(%)" },
+							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
 							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
 							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
-							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
+							{ "name" : "eco_index", 	"type": "int",		"desc" : T('report.eco_index_by_vehicles'), 	"unit" : "(%)" },
+							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
+							{ "name" : "idle_time", 	"type": "int",		"desc" : T('report.idle_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
+							{ "name" : "ovr_spd_time", 	"type": "int",		"desc" : T('report.ovr_spd_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
+							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_min') },
+							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_vehicles'), "unit" : "" },
+							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_vehicles'), "unit" : "" },
 							{ "name" : "oos_cnt", 		"type": "int",		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
 							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_min') },
 							{ "name" : "mttr", 			"type": "float",	"desc" : T('report.mttr_by_vehicles'), 			"unit" : T('label.parentheses_min') },
 							{ "name" : "mtbf", 			"type": "float",	"desc" : T('report.mtbf_by_vehicles'), 			"unit" : T('label.parentheses_min') }]
 				}),
@@ -296,7 +302,6 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		this.sub('datagrid_panel').setTitle(chartInfo.desc + chartInfo.unit);
 		var store = Ext.getStore('VehicleRunStore');
 		var proxy = store.getProxy();
-		//proxy.extraParams.select = ['vehicle', 'month_str', chartInfo.name];
 		proxy.extraParams.from_year = fromYear;
 		proxy.extraParams.from_month = fromMonth;
 		proxy.extraParams.to_year = toYear;
@@ -332,7 +337,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 						var runTime = record.data.run_time;
 						var mntTime = record.data.mnt_time;
 						var oosCnt = record.data.oos_cnt;
-						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;
+						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;										
 					}
 					
 					if(chartInfo.type == 'float') {
@@ -354,11 +359,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					} else {
 						newRecord[monthStr] = runData;
 						if(runData && runData > 0) {
-							newRecord['sum'] = newRecord.sum + runData;
+							newRecord['sum'] = newRecord.sum + runData;														
 						}
 					}
 				});
-				
+
 				if(chartInfo.type == 'float') {
 					Ext.each(newRecords, function(nr) {
 						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));

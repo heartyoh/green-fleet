@@ -5,6 +5,7 @@ package com.heartyoh.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -416,6 +417,46 @@ public class DatastoreUtils {
 		Query q = createDefaultQuery(companyKey, "VehicleConsumable");
 		q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 		return findMultiEntityByList(q);
+	}
+	
+	/**
+	 * driverId로 checkin data를 조회
+	 * 
+	 * @param companyKey
+	 * @param driverId
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	public static List<Entity> findCheckinsByDriver(Key companyKey, String driverId, Date fromDate, Date toDate) {
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Query q = new Query("CheckinData");
+		q.setAncestor(companyKey);		
+		q.addFilter("engine_end_time", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		q.addFilter("driver_id", Query.FilterOperator.EQUAL, driverId);
+		PreparedQuery pq = datastore.prepare(q);
+		return pq.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
+	}
+	
+	/**
+	 * vehicleId로 checkin data를 조회 
+	 * 
+	 * @param companyKey
+	 * @param vehicleId
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	public static List<Entity> findCheckinsByVehicle(Key companyKey, String vehicleId, Date fromDate, Date toDate) {
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Query q = new Query("CheckinData");
+		q.setAncestor(companyKey);
+		q.addFilter("engine_end_time", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
+		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		q.addFilter("vehicle_id", Query.FilterOperator.EQUAL, vehicleId);
+		PreparedQuery pq = datastore.prepare(q);
+		return pq.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 	}	
 	
 	/**
