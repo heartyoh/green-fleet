@@ -140,6 +140,91 @@
                     "path": "app/view/"
                 },
                 {
+                    "clsName": "GreenFleet.view.common.CodeCombo",
+                    "name": "CodeCombo.js",
+                    "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.form.TimeZoneCombo",
+                    "name": "TimeZoneCombo.js",
+                    "path": "app/view/form/"
+                },
+                {
+                    "clsName": "GreenFleet.view.form.DateTimeField",
+                    "name": "DateTimeField.js",
+                    "path": "app/view/form/"
+                },
+                {
+                    "clsName": "GreenFleet.view.common.EntityFormButtons",
+                    "name": "EntityFormButtons.js",
+                    "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.common.ProgressColumn",
+                    "name": "ProgressColumn.js",
+                    "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.common.MultiSelect",
+                    "name": "MultiSelect.js",
+                    "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.common.ItemSelector",
+                    "name": "ItemSelector.js",
+                    "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.common.UserSelector",
+                    "name": "UserSelector.js",
+                    "path": "app/view/common/"
+                },
+                {
+                    "clsName": "GreenFleet.view.form.SearchField",
+                    "name": "SearchField.js",
+                    "path": "app/view/form/"
+                },
+                {
+                    "clsName": "GreenFleet.view.form.RepairForm",
+                    "name": "RepairForm.js",
+                    "path": "app/view/form/"
+                },
+                {
+                    "clsName": "GreenFleet.view.overview.Overview",
+                    "name": "Overview.js",
+                    "path": "app/view/overview/"
+                },
+                {
+                    "clsName": "GreenFleet.view.pm.Consumable",
+                    "name": "Consumable.js",
+                    "path": "app/view/pm/"
+                },
+                {
+                    "clsName": "GreenFleet.view.pm.Maintenance",
+                    "name": "Maintenance.js",
+                    "path": "app/view/pm/"
+                },
+                {
+                    "clsName": "GreenFleet.view.monitor.Map",
+                    "name": "Map.js",
+                    "path": "app/view/monitor/"
+                },
+                {
+                    "clsName": "GreenFleet.view.monitor.InfoByVehicle",
+                    "name": "InfoByVehicle.js",
+                    "path": "app/view/monitor/"
+                },
+                {
+                    "clsName": "GreenFleet.view.monitor.Information",
+                    "name": "Information.js",
+                    "path": "app/view/monitor/"
+                },
+                {
+                    "clsName": "GreenFleet.view.monitor.IncidentView",
+                    "name": "IncidentView.js",
+                    "path": "app/view/monitor/"
+                },
+                {
                     "clsName": "GreenFleet.view.management.Company",
                     "name": "Company.js",
                     "path": "app/view/management/"
@@ -200,79 +285,9 @@
                     "path": "app/view/management/"
                 },
                 {
-                    "clsName": "GreenFleet.view.monitor.Map",
-                    "name": "Map.js",
-                    "path": "app/view/monitor/"
-                },
-                {
-                    "clsName": "GreenFleet.view.monitor.InfoByVehicle",
-                    "name": "InfoByVehicle.js",
-                    "path": "app/view/monitor/"
-                },
-                {
-                    "clsName": "GreenFleet.view.monitor.Information",
-                    "name": "Information.js",
-                    "path": "app/view/monitor/"
-                },
-                {
-                    "clsName": "GreenFleet.view.monitor.IncidentView",
-                    "name": "IncidentView.js",
-                    "path": "app/view/monitor/"
-                },
-                {
-                    "clsName": "GreenFleet.view.common.CodeCombo",
-                    "name": "CodeCombo.js",
-                    "path": "app/view/common/"
-                },
-                {
-                    "clsName": "GreenFleet.view.form.TimeZoneCombo",
-                    "name": "TimeZoneCombo.js",
-                    "path": "app/view/form/"
-                },
-                {
-                    "clsName": "GreenFleet.view.form.DateTimeField",
-                    "name": "DateTimeField.js",
-                    "path": "app/view/form/"
-                },
-                {
-                    "clsName": "GreenFleet.view.form.SearchField",
-                    "name": "SearchField.js",
-                    "path": "app/view/form/"
-                },
-                {
-                    "clsName": "GreenFleet.view.common.EntityFormButtons",
-                    "name": "EntityFormButtons.js",
-                    "path": "app/view/common/"
-                },
-                {
-                    "clsName": "GreenFleet.view.dashboard.VehicleHealth",
-                    "name": "VehicleHealth.js",
-                    "path": "app/view/dashboard/"
-                },
-                {
-                    "clsName": "GreenFleet.view.dashboard.ConsumableHealth",
-                    "name": "ConsumableHealth.js",
-                    "path": "app/view/dashboard/"
-                },
-                {
-                    "clsName": "GreenFleet.view.pm.Consumable",
-                    "name": "Consumable.js",
-                    "path": "app/view/pm/"
-                },
-                {
-                    "clsName": "GreenFleet.view.common.ProgressColumn",
-                    "name": "ProgressColumn.js",
-                    "path": "app/view/common/"
-                },
-                {
                     "clsName": "GreenFleet.view.management.VehicleConsumableGrid",
                     "name": "VehicleConsumableGrid.js",
                     "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.form.RepairForm",
-                    "name": "RepairForm.js",
-                    "path": "app/view/form/"
                 },
                 {
                     "clsName": "GreenFleet.view.management.Location",
@@ -300,8 +315,43 @@
                     "path": "app/view/management/"
                 },
                 {
+                    "clsName": "GreenFleet.view.management.DriverGroup",
+                    "name": "DriverGroup.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.Schedule",
+                    "name": "Schedule.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleOverview",
+                    "name": "VehicleOverview.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.Report",
+                    "name": "Report.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleSpeedSection",
+                    "name": "VehicleSpeedSection.js",
+                    "path": "app/view/management/"
+                },
+                {
                     "clsName": "GreenFleet.view.dashboard.Reports",
                     "name": "Reports.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
+                    "clsName": "GreenFleet.view.dashboard.VehicleHealth",
+                    "name": "VehicleHealth.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
+                    "clsName": "GreenFleet.view.dashboard.ConsumableHealth",
+                    "name": "ConsumableHealth.js",
                     "path": "app/view/dashboard/"
                 },
                 {
@@ -315,24 +365,14 @@
                     "path": "app/view/dashboard/"
                 },
                 {
-                    "clsName": "GreenFleet.view.management.DriverGroup",
-                    "name": "DriverGroup.js",
-                    "path": "app/view/management/"
+                    "clsName": "GreenFleet.view.dashboard.EfficiencyTrend",
+                    "name": "EfficiencyTrend.js",
+                    "path": "app/view/dashboard/"
                 },
                 {
-                    "clsName": "GreenFleet.view.pm.Maintenance",
-                    "name": "Maintenance.js",
-                    "path": "app/view/pm/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.Schedule",
-                    "name": "Schedule.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.overview.Overview",
-                    "name": "Overview.js",
-                    "path": "app/view/overview/"
+                    "clsName": "GreenFleet.view.dashboard.EffccConsumption",
+                    "name": "EffccConsumption.js",
+                    "path": "app/view/dashboard/"
                 },
                 {
                     "clsName": "GreenFleet.view.portlet.Portlet",
@@ -385,31 +425,6 @@
                     "path": "app/view/portlet/"
                 },
                 {
-                    "clsName": "GreenFleet.view.management.Report",
-                    "name": "Report.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.common.MultiSelect",
-                    "name": "MultiSelect.js",
-                    "path": "app/view/common/"
-                },
-                {
-                    "clsName": "GreenFleet.view.common.ItemSelector",
-                    "name": "ItemSelector.js",
-                    "path": "app/view/common/"
-                },
-                {
-                    "clsName": "GreenFleet.view.common.UserSelector",
-                    "name": "UserSelector.js",
-                    "path": "app/view/common/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.VehicleOverview",
-                    "name": "VehicleOverview.js",
-                    "path": "app/view/management/"
-                },
-                {
                     "clsName": "GreenFleet.view.portlet.GridM1Portlet",
                     "name": "GridM1Portlet.js",
                     "path": "app/view/portlet/"
@@ -418,11 +433,6 @@
                     "clsName": "GreenFleet.view.portlet.ChartF1Portlet",
                     "name": "ChartF1Portlet.js",
                     "path": "app/view/portlet/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.VehicleSpeedSection",
-                    "name": "VehicleSpeedSection.js",
-                    "path": "app/view/management/"
                 },
                 {
                     "clsName": "GreenFleet.store.CompanyStore",

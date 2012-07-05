@@ -38,11 +38,12 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 				var healthRecord = this.findRecord(records, "health");
 				var ageRecord = this.findRecord(records, "age");
 				var mileageRecord = this.findRecord(records, "mileage");
+				var runtimeRecord = this.findRecord(records, "runtime");
 				
 				this.addHealthChartToRow(row1, T('title.vehicle_health'), healthRecord);
-				this.addChartToRow(row1, T('title.running_distance'), mileageRecord);
-				this.addChartToRow(row2, T('title.vehicle_age'), ageRecord);
-				row2.add(this.buildEmptyChart());
+				this.addChartToRow(row1, T('title.running_distance') + '(km)', mileageRecord);
+				this.addChartToRow(row2, T('title.vehicle_age') + T('label.parentheses_year'), ageRecord);
+				this.addChartToRow(row2, T('title.vehicle_runtime') + T('label.parentheses_hour'), runtimeRecord);
 			}
 		});
 	},

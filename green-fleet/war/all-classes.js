@@ -1626,6 +1626,4266 @@ Ext.define('GreenFleet.view.SideMenu', {
 		}
 	} ]
 });
+Ext.define('GreenFleet.view.common.CodeCombo', {
+	extend : 'Ext.form.field.ComboBox',
+
+	alias : 'widget.codecombo',
+	
+	queryMode : 'local',
+	
+	displayField: 'code',
+	
+	matchFieldWidth : false,
+
+    typeAhead: true,
+    
+    emptyText : 'Alt+Q',
+    
+	group : 'V-Maker',
+	
+    initComponent : function() {
+    	this.store = Ext.getStore('CodeStore').substore(this.group);
+    	this.emptyText = this.fieldLabel;
+    	this.callParent();
+    },
+	
+	listConfig : {
+		getInnerTpl : function() {
+			return '<div class="codelist"><span class="code">{code}</span> ({desc})</div>'; 
+		}, 
+		minWidth : 200
+	}
+});
+
+Ext.define('GreenFleet.view.form.TimeZoneCombo', {
+	extend : 'Ext.form.field.ComboBox',
+	
+	alias : 'widget.tzcombo',
+	
+	fieldLabel: 'Choose TimeZone',
+	
+    store: 'TimeZoneStore',
+    
+    queryMode: 'local',
+    
+    displayField: 'display',
+    
+    valueField: 'value'
+});
+Ext.define('GreenFleet.view.form.DateTimeField', {
+	extend : 'Ext.form.FieldContainer',
+	alias: 'widget.datetimex',
+	
+	cls :'hboxLine',
+	
+	layout: {
+        type: 'hbox',
+        align:'top'
+    },
+	
+    defaults:{margins:'0 3 0 0'},
+	
+	initComponent:function() {
+		this.items = this.buildItems();
+		
+		this.callParent();
+	},
+	buildItems : function(){
+		//var type = this.type; // date,time,datetime,datetimeto,dateto,timeto,
+		var fieldId = 'valueField'; // + 1
+		var items= [this.buildValue(fieldId)];
+		if(this.type == 'date')			items.push(this.buildDate(fieldId,1));
+		else if(this.type == 'time')	items.push(this.buildTime(fieldId,1));
+		else if(this.type == 'datetime')	items.push(this.buildDate(fieldId,3),this.buildTime(fieldId,2));
+		
+		return items;
+	},
+	buildValue : function(fieldId){
+		return {
+			xtype : 'textfield',
+			hidden : true,
+			name : this.name,
+			itemId : fieldId,
+			value : this.getDefaultValue()
+		};
+	},
+	buildDate : function(fieldId,flex){
+		var valueDateFormat = this.getValueDateFormat();
+		var valueTimeFormat = this.getValueTimeFormat();
+		return {
+			listeners : {
+				change : function(field, newValue, oldValue){ 
+					var targetField = this.up('fieldcontainer').getComponent(fieldId);
+					var timeField = this.up('fieldcontainer').getComponent('time'+fieldId);
+					var timeVal = '';
+					var dateString = '';
+					
+					if(newValue)
+						dateString = Ext.Date.format(newValue,valueDateFormat);
+					
+					if(timeField){
+						timeVal = timeField.getValue();
+						if (!timeVal)	timeVal = ''; 
+						else timeVal = Ext.Date.format(timeVal,valueTimeFormat);
+						targetField.setValue(dateString+timeVal);
+					}
+					else
+						targetField.setValue(dateString);
+                }
+			},
+			xtype: 'datefield',
+			format : this.getDateFormat(), 
+			name :  this.name+'_date',
+			value : this.defaultValue,
+			itemId : 'date'+fieldId,
+			flex: flex
+		};
+	},
+	
+	buildTime : function(fieldId,flex){
+		var valueDateFormat = this.getValueDateFormat();
+		var valueTimeFormat = this.getValueTimeFormat();
+		return {
+			listeners : {
+				change : function(field, newValue, oldValue){ 
+					var targetField = this.up('fieldcontainer').getComponent(fieldId);
+					var dateField = this.up('fieldcontainer').getComponent('date'+fieldId);
+					var dateVal = '';
+					var timeString = '';
+					
+					if(newValue)
+						timeString = Ext.Date.format(newValue,valueTimeFormat);
+					
+					if(dateField){
+						dateVal = dateField.getValue();
+						if (!dateVal)	return; 
+						dateVal = Ext.Date.format(dateVal,valueDateFormat);
+						targetField.setValue(dateVal+timeString);
+					}
+					else
+						targetField.setValue(timeString);
+				}
+			},
+			xtype: 'timefield',
+			format : this.getTimeFormat(),
+			name : this.name+'_time',
+			value : this.defaultValue,
+			itemId : 'time'+fieldId,
+			flex: flex
+		};
+	},
+	getDefaultValue : function(){
+		var valueFormat = this.getDateFormat()+this.getTimeFormat();
+		if(this.defaultValue){	
+			if (this.type == 'date'){
+				valueFormatthis.getDateFormat();
+			}
+			else if (this.type == 'time'){
+				valueFormat = this.getTimeFormat();
+			}
+			return Ext.Date.format(this.defaultValue,valueFormat);
+		}
+		return '';
+	},
+	getValueDateFormat : function(){
+		if (this.valueDateFormat)
+			return this.valueDateFormat;
+		return 'Ymd'; //99991231
+	},
+	getValueTimeFormat : function(){
+		if (this.valueTimeFormat)
+			return this.valueTimeFormat;
+		return 'Hi'; //2301
+	},
+	getDateFormat : function(){
+		if (this.dateFormat)
+			return this.dateFormat;
+		return 'Y-m-d';// 9999-12-31
+	},
+	getTimeFormat : function(){
+		if (this.timeFormat)
+			return this.timeFormat;
+		return 'H:i'; //23:01
+	}
+});
+Ext.define('GreenFleet.view.common.EntityFormButtons', {
+	extend : 'Ext.toolbar.Toolbar',
+	
+	alias : 'widget.entity_form_buttons',
+	
+	dock : 'bottom',
+	
+	layout : {
+		align : 'middle',
+		type : 'hbox'
+	},
+	
+	items : [ {
+		xtype : 'tbfill'
+	}, {
+		text : T('button.save'),
+		itemId : 'save'
+	}, {
+		text : T('button.del'),
+		itemId : 'delete'
+	}, {
+		text : T('button.reset'),
+		itemId : 'reset'
+	} ],
+	
+	confirmMsgSave : T('msg.confirm_save'),
+	
+	confirmMsgDelete : T('msg.confirm_delete'),
+	
+	initComponent : function() {
+		this.callParent();
+		
+		var self = this;
+		
+		this.down('#save').on('click', function() {
+			
+			Ext.MessageBox.show({
+				title : T('title.confirmation'),
+				buttons : Ext.MessageBox.YESNO,
+				msg : self.confirmMsgSave,
+				modal : true,
+				fn : function(btn) {
+					
+					if(btn != 'yes') 
+						return;
+					
+					var client = self.up('[entityUrl]');
+					var url = client.entityUrl;						
+					var form = client.sub('form').getForm();
+
+					if (form.isValid()) {
+						form.submit({
+							url : url + '/save',
+							success : function(form, action) {
+								if(self.loader && typeof(self.loader.fn) === 'function') {
+									self.loader.fn.call(self.loader.scope || client, function(records) {
+										var store = client.sub('grid').store;
+										form.loadRecord(store.findRecord('key', action.result.key));
+									});
+								}
+								
+								if(action.result.success)
+									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+								else
+									Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
+							},
+							failure : function(form, action) {
+								Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
+							}
+						});
+					}					
+				}
+			});
+		});
+
+		this.down('#delete').on('click', function() {
+			
+			Ext.MessageBox.show({
+				title : T('title.confirmation'),
+				buttons : Ext.MessageBox.YESNO,
+				msg : self.confirmMsgDelete,
+				modal : true,
+				fn : function(btn) {
+					
+					if(btn != 'yes') 
+						return;
+					
+					var client = self.up('[entityUrl]');
+					var url = client.entityUrl;				
+					var form = client.sub('form').getForm();
+
+					if (form.isValid()) {
+						form.submit({
+							url : url + '/delete',
+							success : function(form, action) {
+								//client.sub('grid').store.load();
+								if(self.loader && typeof(self.loader.fn) === 'function') {
+									self.loader.fn.call(self.loader.scope || client, null);
+								}
+								form.reset();
+							},
+							failure : function(form, action) {
+								Ext.Msg.alert(T('msg.failed_to_delete'), action.result.msg);
+							}
+						});
+					}					
+				}
+			});			
+		});
+
+		this.down('#reset').on('click', function() {
+			var client = self.up('[entityUrl]');
+			client.sub('form').getForm().reset();
+		});
+
+	}
+});
+/**
+ * @class Ext.ux.grid.column.Progress
+ * @extends Ext.grid.Column
+ * <p>
+ * A Grid column type which renders a numeric value as a progress bar.
+ * </p>
+ * <p>
+ * <b>Notes:</b><ul>
+ * <li>Compatible with Ext 4.0</li>
+ * </ul>
+ * </p>
+ * Example usage:
+ * <pre><code>
+    var grid = new Ext.grid.Panel({
+        columns: [{
+            dataIndex: 'progress'
+            ,xtype: 'progresscolumn'
+        },{
+           ...
+        ]}
+        ...
+    });
+ * </code></pre>
+ * <p>The column can be at any index in the columns array, and a grid can have any number of progress columns.</p>
+ * @author Phil Crawford
+ * @license Licensed under the terms of the Open Source <a href="http://www.gnu.org/licenses/lgpl.html">LGPL 3.0 license</a>.  Commercial use is permitted to the extent that the code/component(s) do NOT become part of another Open Source or Commercially licensed development library or toolkit without explicit permission.
+ * @version 0.1 (June 30, 2011)
+ * @constructor
+ * @param {Object} config 
+ */
+Ext.define('GreenFleet.view.common.ProgressColumn', {
+    extend: 'Ext.grid.column.Column'
+    ,alias: 'widget.progresscolumn'
+    
+    ,cls: 'x-progress-column'
+    
+    /**
+     * @cfg {String} progressCls
+     */
+    ,progressCls: 'x-progress'
+    /**
+     * @cfg {String} progressText
+     */
+    ,progressText: '{0} %'
+    
+    /**
+     * @private
+     * @param {Object} config
+     */
+    ,constructor: function(config){
+        var me = this
+            ,cfg = Ext.apply({}, config)
+            ,cls = me.progressCls;
+
+        me.callParent([cfg]);
+
+//      Renderer closure iterates through items creating an <img> element for each and tagging with an identifying 
+//      class name x-action-col-{n}
+        me.renderer = function(v, meta) {
+            var text, newWidth;
+            
+            newWidth = Math.floor(v * me.getWidth(true)); //me = column
+            
+            if(newWidth > 120)
+            	newWidth = 120;
+            
+//          Allow a configured renderer to create initial value (And set the other values in the "metadata" argument!)
+            v = Ext.isFunction(cfg.renderer) ? cfg.renderer.apply(this, arguments)||v : v; //this = renderer scope
+            text = Ext.String.format(me.progressText,Math.round(v*100));
+            
+            meta.tdCls += ' ' + cls + ' ' + cls + '-' + me.ui;
+            v = '<div class="' + cls + '-text ' + cls + '-text-back">' +
+                    '<div>' + text + '</div>' +
+                '</div>' +
+                '<div class="' + cls + '-bar" style="width: '+ newWidth + 'px;">' +
+                    '<div class="' + cls + '-text">' +
+                        '<div>' + text + '</div>' +
+                    '</div>' +
+                '</div>' 
+            return v;
+        };    
+        
+    }//eof constructor
+    
+
+    /**
+     * @private
+     */
+    ,destroy: function() {
+        delete this.renderer;
+        return this.callParent(arguments);
+    }//eof destroy
+    
+}); //eo extend
+
+//end of file
+Ext.define('GreenFleet.view.common.MultiSelect', {
+    
+    extend: 'Ext.form.FieldContainer',
+    
+    mixins: {
+        bindable: 'Ext.util.Bindable',
+        field: 'Ext.form.field.Field'    
+    },
+    
+    alias: ['widget.multiselectfield', 'widget.multiselect'],
+    
+    requires: ['Ext.panel.Panel', 'Ext.view.BoundList'],
+    
+    uses: ['Ext.view.DragZone', 'Ext.view.DropZone'],
+    
+    /**
+     * @cfg {String} [dragGroup=""] The ddgroup name for the MultiSelect DragZone.
+     */
+
+    /**
+     * @cfg {String} [dropGroup=""] The ddgroup name for the MultiSelect DropZone.
+     */
+    
+    /**
+     * @cfg {String} [title=""] A title for the underlying panel.
+     */
+    
+    /**
+     * @cfg {Boolean} [ddReorder=false] Whether the items in the MultiSelect list are drag/drop reorderable.
+     */
+    ddReorder: false,
+
+    /**
+     * @cfg {Object/Array} tbar An optional toolbar to be inserted at the top of the control's selection list.
+     * This can be a {@link Ext.toolbar.Toolbar} object, a toolbar config, or an array of buttons/button configs
+     * to be added to the toolbar. See {@link Ext.panel.Panel#tbar}.
+     */
+
+    /**
+     * @cfg {String} [appendOnly=false] True if the list should only allow append drops when drag/drop is enabled.
+     * This is useful for lists which are sorted.
+     */
+    appendOnly: false,
+
+    /**
+     * @cfg {String} [displayField="text"] Name of the desired display field in the dataset.
+     */
+    displayField: 'text',
+
+    /**
+     * @cfg {String} [valueField="text"] Name of the desired value field in the dataset.
+     */
+
+    /**
+     * @cfg {Boolean} [allowBlank=true] False to require at least one item in the list to be selected, true to allow no
+     * selection.
+     */
+    allowBlank: true,
+
+    /**
+     * @cfg {Number} [minSelections=0] Minimum number of selections allowed.
+     */
+    minSelections: 0,
+
+    /**
+     * @cfg {Number} [maxSelections=Number.MAX_VALUE] Maximum number of selections allowed.
+     */
+    maxSelections: Number.MAX_VALUE,
+
+    /**
+     * @cfg {String} [blankText="This field is required"] Default text displayed when the control contains no items.
+     */
+    blankText: 'This field is required',
+
+    /**
+     * @cfg {String} [minSelectionsText="Minimum {0}item(s) required"] 
+     * Validation message displayed when {@link #minSelections} is not met. 
+     * The {0} token will be replaced by the value of {@link #minSelections}.
+     */
+    minSelectionsText: 'Minimum {0} item(s) required',
+    
+    /**
+     * @cfg {String} [maxSelectionsText="Maximum {0}item(s) allowed"] 
+     * Validation message displayed when {@link #maxSelections} is not met
+     * The {0} token will be replaced by the value of {@link #maxSelections}.
+     */
+    maxSelectionsText: 'Minimum {0} item(s) required',
+
+    /**
+     * @cfg {String} [delimiter=","] The string used to delimit the selected values when {@link #getSubmitValue submitting}
+     * the field as part of a form. If you wish to have the selected values submitted as separate
+     * parameters rather than a single delimited parameter, set this to <tt>null</tt>.
+     */
+    delimiter: ',',
+
+    /**
+     * @cfg {Ext.data.Store/Array} store The data source to which this MultiSelect is bound (defaults to <tt>undefined</tt>).
+     * Acceptable values for this property are:
+     * <div class="mdetail-params"><ul>
+     * <li><b>any {@link Ext.data.Store Store} subclass</b></li>
+     * <li><b>an Array</b> : Arrays will be converted to a {@link Ext.data.ArrayStore} internally.
+     * <div class="mdetail-params"><ul>
+     * <li><b>1-dimensional array</b> : (e.g., <tt>['Foo','Bar']</tt>)<div class="sub-desc">
+     * A 1-dimensional array will automatically be expanded (each array item will be the combo
+     * {@link #valueField value} and {@link #displayField text})</div></li>
+     * <li><b>2-dimensional array</b> : (e.g., <tt>[['f','Foo'],['b','Bar']]</tt>)<div class="sub-desc">
+     * For a multi-dimensional array, the value in index 0 of each item will be assumed to be the combo
+     * {@link #valueField value}, while the value at index 1 is assumed to be the combo {@link #displayField text}.
+     * </div></li></ul></div></li></ul></div>
+     */
+    
+    ignoreSelectChange: 0,
+    
+    initComponent: function(){
+        var me = this;
+
+        me.bindStore(me.store, true);
+        if (me.store.autoCreated) {
+            me.valueField = me.displayField = 'field1';
+            if (!me.store.expanded) {
+                me.displayField = 'field2';
+            }
+        }
+
+        if (!Ext.isDefined(me.valueField)) {
+            me.valueField = me.displayField;
+        }
+        Ext.apply(me, me.setupItems());
+        
+        
+        me.callParent();
+        me.initField();
+        me.addEvents('drop');    
+    },
+    
+    setupItems: function() {
+        var me = this;
+        
+        me.boundList = Ext.create('Ext.view.BoundList', {
+            deferInitialRefresh: false,
+            multiSelect: true,
+            store: me.store,
+            displayField: me.displayField,
+            disabled: me.disabled
+        });
+        
+        me.boundList.getSelectionModel().on('selectionchange', me.onSelectChange, me);
+        return {
+            layout: 'fit',
+            title: me.title,
+            tbar: me.tbar,
+            items: me.boundList
+        };
+    },
+    
+    onSelectChange: function(selModel, selections){
+        if (!this.ignoreSelectChange) {
+            this.setValue(selections);
+        }    
+    },
+    
+    getSelected: function(){
+        return this.boundList.getSelectionModel().getSelection();
+    },
+    
+    // compare array values
+    isEqual: function(v1, v2) {
+        var fromArray = Ext.Array.from,
+            i = 0, 
+            len;
+
+        v1 = fromArray(v1);
+        v2 = fromArray(v2);
+        len = v1.length;
+
+        if (len !== v2.length) {
+            return false;
+        }
+
+        for(; i < len; i++) {
+            if (v2[i] !== v1[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+    
+    afterRender: function(){
+        var me = this;
+        
+        me.callParent();
+        if (me.selectOnRender) {
+            ++me.ignoreSelectChange;
+            me.boundList.getSelectionModel().select(me.getRecordsForValue(me.value));
+            --me.ignoreSelectChange;
+            delete me.toSelect;
+        }    
+        
+        if (me.ddReorder && !me.dragGroup && !me.dropGroup){
+            me.dragGroup = me.dropGroup = 'MultiselectDD-' + Ext.id();
+        }
+
+        if (me.draggable || me.dragGroup){
+            me.dragZone = Ext.create('Ext.view.DragZone', {
+                view: me.boundList,
+                ddGroup: me.dragGroup,
+                dragText: '{0} Item{1}'
+            });
+        }
+        if (me.droppable || me.dropGroup){
+            me.dropZone = Ext.create('Ext.view.DropZone', {
+                view: me.boundList,
+                ddGroup: me.dropGroup,
+                handleNodeDrop: function(data, dropRecord, position) {
+                    var view = this.view,
+                        store = view.getStore(),
+                        records = data.records,
+                        index;
+
+                    // remove the Models from the source Store
+                    data.view.store.remove(records);
+
+                    index = store.indexOf(dropRecord);
+                    if (position === 'after') {
+                        index++;
+                    }
+                    store.insert(index, records);
+                    view.getSelectionModel().select(records);
+                    me.fireEvent('drop', me, records);
+                }
+            });
+        }
+    },
+    
+    isValid : function() {
+        var me = this,
+            disabled = me.disabled,
+            validate = me.forceValidation || !disabled;
+            
+        
+        return validate ? me.validateValue(me.value) : disabled;
+    },
+    
+    validateValue: function(value) {
+        var me = this,
+            errors = me.getErrors(value),
+            isValid = Ext.isEmpty(errors);
+            
+        if (!me.preventMark) {
+            if (isValid) {
+                me.clearInvalid();
+            } else {
+                me.markInvalid(errors);
+            }
+        }
+
+        return isValid;
+    },
+    
+    markInvalid : function(errors) {
+        // Save the message and fire the 'invalid' event
+        var me = this,
+            oldMsg = me.getActiveError();
+        me.setActiveErrors(Ext.Array.from(errors));
+        if (oldMsg !== me.getActiveError()) {
+            me.updateLayout();
+        }
+    },
+
+    /**
+     * Clear any invalid styles/messages for this field.
+     *
+     * **Note**: this method does not cause the Field's {@link #validate} or {@link #isValid} methods to return `true`
+     * if the value does not _pass_ validation. So simply clearing a field's errors will not necessarily allow
+     * submission of forms submitted with the {@link Ext.form.action.Submit#clientValidation} option set.
+     */
+    clearInvalid : function() {
+        // Clear the message and fire the 'valid' event
+        var me = this,
+            hadError = me.hasActiveError();
+        me.unsetActiveError();
+        if (hadError) {
+            me.updateLayout();
+        }
+    },
+    
+    getSubmitData: function() {
+        var me = this,
+            data = null,
+            val;
+        if (!me.disabled && me.submitValue && !me.isFileUpload()) {
+            val = me.getSubmitValue();
+            if (val !== null) {
+                data = {};
+                data[me.getName()] = val;
+            }
+        }
+        return data;
+    },
+
+    /**
+     * Returns the value that would be included in a standard form submit for this field.
+     *
+     * @return {String} The value to be submitted, or null.
+     */
+    getSubmitValue: function() {
+        var me = this,
+            delimiter = me.delimiter,
+            val = me.getValue();
+            
+        return Ext.isString(delimiter) ? val.join(delimiter) : val;
+    },
+    
+    getValue: function(){
+        return this.value;
+    },
+    
+    getRecordsForValue: function(value){
+        var me = this,
+            records = [],
+            all = me.store.getRange(),
+            valueField = me.valueField,
+            i = 0,
+            allLen = all.length,
+            rec,
+            j,
+            valueLen;
+            
+        for (valueLen = value.length; i < valueLen; ++i) {
+            for (j = 0; j < allLen; ++j) {
+                rec = all[j];   
+                if (rec.get(valueField) == value[i]) {
+                    records.push(rec);
+                }
+            }    
+        }
+            
+        return records;
+    },
+    
+    setupValue: function(value){
+        var delimiter = this.delimiter,
+            valueField = this.valueField,
+            i = 0,
+            out,
+            len,
+            item;
+            
+        if (Ext.isDefined(value)) {
+            if (delimiter && Ext.isString(value)) {
+                value = value.split(delimiter);
+            } else if (!Ext.isArray(value)) {
+                value = [value];
+            }
+        
+            for (len = value.length; i < len; ++i) {
+                item = value[i];
+                if (item && item.isModel) {
+                    value[i] = item.get(valueField);
+                }
+            }
+            out = Ext.Array.unique(value);
+        } else {
+            out = [];
+        }
+        return out;
+    },
+    
+    setValue: function(value){
+        var me = this,
+            selModel = me.boundList.getSelectionModel();
+
+        // Store not loaded yet - we cannot set the value
+        if (!me.store.getCount()) {
+            me.store.on({
+                load: Ext.Function.bind(me.setValue, me, [value]),
+                single: true
+            });
+            return;
+        }
+
+        value = me.setupValue(value);
+        me.mixins.field.setValue.call(me, value);
+        
+        if (me.rendered) {
+            ++me.ignoreSelectChange;
+            selModel.deselectAll();
+            selModel.select(me.getRecordsForValue(value));
+            --me.ignoreSelectChange;
+        } else {
+            me.selectOnRender = true;
+        }
+    },
+    
+    clearValue: function(){
+        this.setValue([]);    
+    },
+    
+    onEnable: function(){
+        var list = this.boundList;
+        this.callParent();
+        if (list) {
+            list.enable();
+        }
+    },
+    
+    onDisable: function(){
+        var list = this.boundList;
+        this.callParent();
+        if (list) {
+            list.disable();
+        }
+    },
+    
+    getErrors : function(value) {
+        var me = this,
+            format = Ext.String.format,
+            errors = [],
+            numSelected;
+
+        value = Ext.Array.from(value || me.getValue());
+        numSelected = value.length;
+
+        if (!me.allowBlank && numSelected < 1) {
+            errors.push(me.blankText);
+        }
+        if (numSelected < me.minSelections) {
+            errors.push(format(me.minSelectionsText, me.minSelections));
+        }
+        if (numSelected > me.maxSelections) {
+            errors.push(format(me.maxSelectionsText, me.maxSelections));
+        }
+        return errors;
+    },
+    
+    onDestroy: function(){
+        var me = this;
+        
+        me.bindStore(null);
+        Ext.destroy(me.dragZone, me.dropZone);
+        me.callParent();
+    },
+    
+    onBindStore: function(store){
+        var boundList = this.boundList;
+        
+        if (boundList) {
+            boundList.bindStore(store);
+        }
+    }
+    
+});
+
+/*
+ * Note that this control will most likely remain as an example, and not as a core Ext form
+ * control.  However, the API will be changing in a future release and so should not yet be
+ * treated as a final, stable API at this time.
+ */
+
+/**
+ * A control that allows selection of between two Ext.ux.form.MultiSelect controls.
+ */
+Ext.define('GreenFleet.view.common.ItemSelector', {
+    
+	extend: 'GreenFleet.view.common.MultiSelect',
+    
+    alias: ['widget.itemselectorfield', 'widget.itemselector'],
+    
+    /**
+     * @cfg {Boolean} [hideNavIcons=false] True to hide the navigation icons
+     */
+    hideNavIcons:false,
+
+    /**
+     * @cfg {Array} buttons Defines the set of buttons that should be displayed in between the ItemSelector
+     * fields. Defaults to <tt>['top', 'up', 'add', 'remove', 'down', 'bottom']</tt>. These names are used
+     * to build the button CSS class names, and to look up the button text labels in {@link #buttonsText}.
+     * This can be overridden with a custom Array to change which buttons are displayed or their order.
+     */
+    buttons: ['top', 'up', 'add', 'remove', 'down', 'bottom'],
+
+    /**
+     * @cfg {Object} buttonsText The tooltips for the {@link #buttons}.
+     * Labels for buttons.
+     */
+    buttonsText: {
+        top: "Move to Top",
+        up: "Move Up",
+        add: "Add to Selected",
+        remove: "Remove from Selected",
+        down: "Move Down",
+        bottom: "Move to Bottom"
+    },
+
+    initComponent: function() {
+        var me = this;
+
+        me.ddGroup = me.id + '-dd';
+        me.callParent();
+
+        // bindStore must be called after the fromField has been created because
+        // it copies records from our configured Store into the fromField's Store
+        me.bindStore(me.store);
+    },
+
+    createList: function(){
+        var me = this;
+
+        return Ext.create('GreenFleet.view.common.MultiSelect', {
+            submitValue: false,
+            flex: 1,
+            dragGroup: me.ddGroup,
+            dropGroup: me.ddGroup,
+            store: {
+                model: me.store.model,
+                data: []
+            },
+            displayField: me.displayField,
+            disabled: me.disabled,
+            listeners: {
+                boundList: {
+                    scope: me,
+                    itemdblclick: me.onItemDblClick,
+                    drop: me.syncValue
+                }
+            }
+        });
+    },
+
+    setupItems: function() {
+        var me = this;
+
+        me.fromField = me.createList();
+        me.toField = me.createList();
+
+        return {
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                me.fromField,
+                {
+                    xtype: 'container',
+                    margins: '0 4',
+                    width: 22,
+                    layout: {
+                        type: 'vbox',
+                        pack: 'center'
+                    },
+                    items: me.createButtons()
+                },
+                me.toField
+            ]
+        };
+    },
+
+    createButtons: function(){
+        var me = this,
+            buttons = [];
+
+        if (!me.hideNavIcons) {
+            Ext.Array.forEach(me.buttons, function(name) {
+                buttons.push({
+                    xtype: 'button',
+                    tooltip: me.buttonsText[name],
+                    handler: me['on' + Ext.String.capitalize(name) + 'BtnClick'],
+                    cls: Ext.baseCSSPrefix + 'form-itemselector-btn',
+                    iconCls: Ext.baseCSSPrefix + 'form-itemselector-' + name,
+                    navBtn: true,
+                    scope: me,
+                    margin: '4 0 0 0'
+                });
+            });
+        }
+        return buttons;
+    },
+
+    getSelections: function(list){
+        var store = list.getStore(),
+            selections = list.getSelectionModel().getSelection();
+
+        return Ext.Array.sort(selections, function(a, b){
+            a = store.indexOf(a);
+            b = store.indexOf(b);
+
+            if (a < b) {
+                return -1;
+            } else if (a > b) {
+                return 1;
+            }
+            return 0;
+        });
+    },
+
+    onTopBtnClick : function() {
+        var list = this.toField.boundList,
+            store = list.getStore(),
+            selected = this.getSelections(list);
+
+        store.suspendEvents();
+        store.remove(selected, true);
+        store.insert(0, selected);
+        store.resumeEvents();
+        list.refresh();
+        this.syncValue(); 
+        list.getSelectionModel().select(selected);
+    },
+
+    onBottomBtnClick : function() {
+        var list = this.toField.boundList,
+            store = list.getStore(),
+            selected = this.getSelections(list);
+
+        store.suspendEvents();
+        store.remove(selected, true);
+        store.add(selected);
+        store.resumeEvents();
+        list.refresh();
+        this.syncValue();
+        list.getSelectionModel().select(selected);
+    },
+
+    onUpBtnClick : function() {
+        var list = this.toField.boundList,
+            store = list.getStore(),
+            selected = this.getSelections(list),
+            i = 0,
+            len = selected.length,
+            index = store.getCount();
+
+        // Find index of first selection
+        for (; i < len; ++i) {
+            index = Math.min(index, store.indexOf(selected[i]));
+        }
+        // If first selection is not at the top, move the whole lot up
+        if (index > 0) {
+            store.suspendEvents();
+            store.remove(selected, true);
+            store.insert(index - 1, selected);
+            store.resumeEvents();
+            list.refresh();
+            this.syncValue();
+            list.getSelectionModel().select(selected);
+        }
+    },
+
+    onDownBtnClick : function() {
+        var list = this.toField.boundList,
+            store = list.getStore(),
+            selected = this.getSelections(list),
+            i = 0,
+            len = selected.length,
+            index = 0;
+
+        // Find index of last selection
+        for (; i < len; ++i) {
+            index = Math.max(index, store.indexOf(selected[i]));
+        }
+        // If last selection is not at the bottom, move the whole lot down
+        if (index < store.getCount() - 1) {
+            store.suspendEvents();
+            store.remove(selected, true);
+            store.insert(index + 2 - len, selected);
+            store.resumeEvents();
+            list.refresh();
+            this.syncValue();
+            list.getSelectionModel().select(selected);
+        }
+    },
+
+    onAddBtnClick : function() {
+        var me = this,
+            fromList = me.fromField.boundList,
+            selected = this.getSelections(fromList);
+
+        fromList.getStore().remove(selected);
+        this.toField.boundList.getStore().add(selected);
+        this.syncValue();
+    },
+
+    onRemoveBtnClick : function() {
+        var me = this,
+            toList = me.toField.boundList,
+            selected = this.getSelections(toList);
+
+        toList.getStore().remove(selected);
+        this.fromField.boundList.getStore().add(selected);
+        this.syncValue();
+    },
+
+    syncValue: function() {
+        this.setValue(this.toField.store.getRange()); 
+    },
+
+    onItemDblClick: function(view, rec){
+        var me = this,
+            from = me.fromField.store,
+            to = me.toField.store,
+            current,
+            destination;
+
+        if (view === me.fromField.boundList) {
+            current = from;
+            destination = to;
+        } else {
+            current = to;
+            destination = from;
+        }
+        current.remove(rec);
+        destination.add(rec);
+        me.syncValue();
+    },
+
+    setValue: function(value){
+        var me = this,
+            fromStore = me.fromField.store,
+            toStore = me.toField.store,
+            selected;
+
+        // Wait for from store to be loaded
+        if (!me.fromField.store.getCount()) {
+            me.fromField.store.on({
+                load: Ext.Function.bind(me.setValue, me, [value]),
+                single: true
+            });
+            return;
+        }
+
+        value = me.setupValue(value);
+        me.mixins.field.setValue.call(me, value);
+
+        selected = me.getRecordsForValue(value);
+
+        Ext.Array.forEach(toStore.getRange(), function(rec){
+            if (!Ext.Array.contains(selected, rec)) {
+                // not in the selected group, remove it from the toStore
+                toStore.remove(rec);
+                fromStore.add(rec);
+            }
+        });
+        toStore.removeAll();
+
+        Ext.Array.forEach(selected, function(rec){
+            // In the from store, move it over
+            if (fromStore.indexOf(rec) > -1) {
+                fromStore.remove(rec);     
+            }
+            toStore.add(rec);
+        });
+    },
+
+    onBindStore: function(store, initial) {
+        var me = this;
+
+        if (me.fromField) {
+            me.fromField.store.removeAll()
+            me.toField.store.removeAll();
+
+            // Add everything to the from field as soon as the Store is loaded
+            if (store.getCount()) {
+                me.populateFromStore(store);
+            } else {
+                me.store.on('load', me.populateFromStore, me);
+            }
+        }
+    },
+
+    populateFromStore: function(store) {
+        this.fromField.store.add(store.getRange());
+        
+        // setValue wait for the from Store to be loaded
+        this.fromField.store.fireEvent('load', this.fromField.store);
+    },
+
+    onEnable: function(){
+        var me = this;
+
+        me.callParent();
+        me.fromField.enable();
+        me.toField.enable();
+
+        Ext.Array.forEach(me.query('[navBtn]'), function(btn){
+            btn.enable();
+        });
+    },
+
+    onDisable: function(){
+        var me = this;
+
+        me.callParent();
+        me.fromField.disable();
+        me.toField.disable();
+
+        Ext.Array.forEach(me.query('[navBtn]'), function(btn){
+            btn.disable();
+        });
+    },
+
+    onDestroy: function(){
+        this.bindStore(null);
+        this.callParent();
+    }
+});
+
+Ext.define('GreenFleet.view.common.UserSelector', {
+	extend : 'Ext.panel.Panel',
+
+	alias : 'widget.user_selector',
+	
+	selector_label : 'Select User',
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	initComponent : function() {
+		var self = this;
+		this.callParent(arguments);
+		var store = Ext.getStore('UserStore');
+		this.add({
+            xtype: 'itemselector',
+            name: 'itemselector',
+            id: 'itemselector-field',
+            anchor: '100%',
+            fieldLabel: this.selector_label,
+            store: store,
+            displayField: 'name',
+            valueField: 'email',
+            allowBlank: false,
+            msgTarget: 'side'
+        });
+		store.load();
+	}
+});
+
+Ext.define('GreenFleet.view.form.SearchField', {
+	extend : 'Ext.form.field.ComboBox',
+	
+	alias : 'widget.searchfield',
+	
+	queryMode : 'local',
+	
+	displayField : 'id',
+	
+	matchFieldWidth : false,
+	
+	typeAhead: true,
+	
+	emptyText : 'Alt+Q',
+	
+	store : 'VehicleBriefStore',
+	
+	initComponent : function() {
+		
+		this.callParent();
+		
+		var self = this;
+		
+		new Ext.util.KeyMap(document, {
+			key : 'q',
+			alt : true,
+			fn : this.focus,
+			scope : this
+		});
+		
+		this.store.load();
+	},
+	
+	listConfig : {
+		loadingText : T('msg.searching'),
+		emptyText : T('msg.no_matching_data_found'),
+		getInnerTpl : function() {
+			return '<div class="appSearchItem"><span class="id">{id}</span> <span class="registration_number">{registration_number}</span></div>';
+		},
+		minWidth : 190
+	},
+	
+	listeners : {
+		'select' : function(combo, records, eOpts) {
+			GreenFleet.doMenu('monitor_map');
+
+			var store = Ext.getStore('VehicleFilteredStore');
+			
+			store.clearFilter(true);
+			
+			store.filter([ {
+				property : 'id',
+				value : records[0].get('id')
+			} ]);
+		}
+	}
+	
+});
+
+Ext.define('GreenFleet.view.form.RepairForm', {
+	extend : 'Ext.form.Panel',
+
+	alias : 'widget.repair_form',
+	
+	autoScroll : true,
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	initComponent : function() {
+		var self = this;		
+		this.callParent();
+	},
+	
+	setVehicleId : function(vehicleId) {
+		this.sub('vehicle_id').setValue(vehicleId);
+	},
+	
+	items : [
+		{
+		    xtype: 'fieldset',
+		    title: 'Vehicle',
+		    defaultType: 'textfield',
+		    layout: 'anchor',
+		    collapsible: true,
+		    padding : '10,5,5,5',
+		    defaults: {
+		        anchor: '100%'
+		    },
+		    items: [
+		        {
+					name : 'key',
+					fieldLabel : 'Key',
+					hidden : true
+		        },						            
+				{
+		        	itemId : 'vehicle_id',
+					name : 'vehicle_id',
+					fieldLabel : T('label.vehicle_id')
+				}
+		    ]
+		},
+		{
+		    xtype: 'fieldset',
+		    title: 'Repair',
+		    defaultType: 'textfield',
+		    layout: 'anchor',
+		    padding : '10,5,5,5',
+		    defaults: {
+		        anchor: '100%'
+		    },				
+		    items: [
+				{
+					name : 'repair_date',
+					fieldLabel : T('label.repair_date'),
+					xtype : 'datefield',
+					format : F('date'),
+					value : new Date()
+				}, {
+					xtype : 'numberfield',
+					name : 'repair_mileage',
+					fieldLabel : T('label.repair_mileage') + ' (km)'
+				}, {
+					name : 'repair_man',
+					fieldLabel : T('label.repair_man')
+				}, {
+					name : 'repair_shop',
+					fieldLabel : T('label.repair_shop')
+				}, {
+					xtype : 'numberfield',
+					name : 'cost',
+					fieldLabel : T('label.cost'),
+					minValue : 0					
+				}, {
+					xtype : 'textarea',
+					name : 'content',
+					fieldLabel : T('label.content')
+				}, {				
+					name : 'comment',
+					xtype : 'textarea',
+					fieldLabel : T('label.comment')
+				}						        
+		    ]							
+		}        
+	],
+	
+	buttons: [
+	    {
+	    	text: T('button.save'),
+	    	handler : function() {
+        		var thisForm = this.up('form');
+        		
+	    		thisForm.getForm().submit({
+                    url: '/repair/save',
+                    submitEmptyText: false,
+                    waitMsg: T('msg.saving'),
+                    success: function(form, action) {
+                    	if(action.result.success) {		                    		
+                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
+                    	} else {
+                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
+                    	}
+                     },
+                     failure: function(form, action) {
+                         switch (action.failureType) {
+                             case Ext.form.action.Action.CLIENT_INVALID:
+                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
+                                 break;
+                             case Ext.form.action.Action.CONNECT_FAILURE:
+                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
+                                 break;
+                             case Ext.form.action.Action.SERVER_INVALID:
+                                Ext.Msg.alert(T('label.failure'), action.result.msg);
+                        }
+                     }		                    
+                });	    		
+	    	}
+        }, {
+        	text: T('button.cancel'),
+        	handler : function() {
+        	}
+        }
+    ]
+	
+});
+
+Ext.define('GreenFleet.view.overview.Overview', {
+	
+	extend : 'Ext.Container',
+	
+	alias : 'widget.overview',
+	
+	id : 'overview',
+    
+	layout: {
+        type: 'border',
+        padding: '0 5 5 5'
+    },
+    
+	initComponent : function() {
+		this.items = [{		    
+		    id: 'overview-header',
+		    region: 'north',
+		    xtype : 'box',
+			cls : 'pageTitle',
+			html : '<h1>' + T('menu.overview') + '</h1>',
+			height : 35		    
+		}, {
+            xtype: 'container',
+            region: 'center',
+            layout: 'border',
+            //items: [ this.zwest, this.zportal(), this.zeast ]
+            items : [ this.zportal() ]
+		}];
+		this.callParent(arguments);
+		var self = this;
+	},
+	
+	/*zwest : {
+        id: 'overview-vehicle-group',
+        xtype : 'grid_vg1_portlet',
+        region: 'west',
+        animCollapse: true,
+        width: 280,
+        minWidth: 150,
+        maxWidth: 310,
+        split: true,
+        collapsible: true
+	},
+	
+	zeast :  {
+        id: 'overview-driver-group',
+        xtype : 'grid_dg1_portlet',
+        region: 'east',
+        animCollapse: true,
+        width: 280,
+        minWidth: 150,
+        maxWidth: 310,
+        split: true,
+        collapsible: true
+	},*/
+	
+	zportal : function() {
+		
+		var today = new Date();
+		var year = today.getFullYear();
+		var month = today.getMonth() + 1;
+		
+		return {
+	        id: 'overview-portal',
+	        xtype: 'portalpanel',
+	        region: 'center',
+	        items: [{
+	            id: 'col-1',
+	            items: [{
+	                id: 'portlet-1-1',
+	                title: T('title.running_distance'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'chart_v1_portlet',
+	                	height : 220,
+	                	chartType : 'mileage'
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-1-2',
+	                title: T('portlet.today_maint_list'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'grid_m1_portlet',
+	                	height : 220
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-1-3',
+	                title: T('title.schedule'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'calendar_portlet',
+	                	height : 220
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }]
+	        },{
+	            id: 'col-2',
+	            items: [{
+	                id: 'portlet-2-1',
+	                title: T('title.vehicle_health'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'chart_v1_portlet',
+	                	height : 220,
+	                	chartType : 'health'
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            },{
+	                id: 'portlet-2-2',
+	                title : T('portlet.latest_incident_x', {x : '5'}),
+	                tools: this.getTools(),
+	                height : 220,
+	                items: {
+	                	xtype : 'grid_i1_portlet',
+	                	height : 220
+	                },	                
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-2-3',
+	                title : T('portlet.vehicle_group_driving_summary') + ' ('+ year + '/' + month + ')', 
+	                tools: this.getTools(),
+	                height : 220,
+	                items: {
+	                    id: 'overview-vehicle-group',
+	                    xtype : 'grid_vg1_portlet',
+	                    width: 220
+	                },	                
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	        	}]
+	        },{
+	            id: 'col-3',
+	            items: [{
+	                id: 'portlet-3-1',
+	                title: T('title.vehicle_age'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'chart_v1_portlet',
+	                	height : 220,
+	                	chartType : 'age'
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-3-2',
+	                title: T('portlet.upcomming_x_replacement', {x : T('label.consumable_item')}),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'grid_c1_portlet',
+	                	height : 220	                	
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }, {
+	                id: 'portlet-3-3',
+	                title: T('portlet.avg_fuel_effcc'),
+	                tools: this.getTools(),
+	                height : 220,
+	                items : {
+	                	xtype : 'chart_f1_portlet',
+	                	height : 220
+	                },
+	                listeners: {
+	                    close : Ext.bind(this.onPortletClose, this)
+	                }
+	            }]
+	        }]
+		};
+	},
+	
+	getTools: function() {
+        return [{
+            xtype: 'tool',
+            type: 'gear',
+            handler: function(e, target, panelHeader, tool) {
+                var portlet = panelHeader.ownerCt;
+                portlet.items.items[0].reload();
+            }
+        }];
+    },
+        
+    onPortletClose: function(portlet) {
+    	GreenFleet.msg('Close', "'" + portlet.title + "' was removed");
+    }
+});
+
+Ext.define('GreenFleet.view.pm.Consumable', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.pm_consumable',
+
+	title : T('title.consumables'),
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [ {
+			html : "<div class='listTitle'>" + T('title.consumables_management') + "</div>"
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ this.zvehiclelist(self), {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : {
+					align : 'stretch',
+					type : 'vbox'
+				},
+				items : [ this.zvehicleinfo, {
+					xtype : 'container',
+					flex : 1.8,
+					layout : {
+						type : 'hbox',
+						align : 'stretch'
+					},
+					items : [ this.zconsumables, this.zcenter_separator, this.zconsumable_form ]
+				}, this.zconsumable_history ]
+			} ]
+		} ],
+
+		this.callParent();
+
+		this.sub('vehicle_info').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+			self.sub('consumable_history_grid').store.loadRecords([]);
+			var consumChangeStore = self.sub('consumable_grid').store;
+			consumChangeStore.getProxy().extraParams.vehicle_id = record.data.id;
+			consumChangeStore.load();
+		});
+
+		this.sub('consumable_grid').on('itemclick', function(grid, record) {
+			self.sub('consumable_form').loadRecord(record);
+			self.refreshConsumableHistory(record.data.vehicle_id, record.data.consumable_item);			
+		});
+		
+		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
+			var consumable = this.up('pm_consumable');
+			consumable.showConsumableStatus(record);			
+		});
+	},
+	
+	setConsumable : function(consumable, status) {
+		var vehicleListGrid = this.sub('vehicle_info');
+		vehicleListGrid.vehicleList(vehicleListGrid, consumable, status);
+	},
+
+	refreshConsumableHistory : function(vehicleId, consumableItem) {
+		var store = this.sub('consumable_history_grid').store;
+		store.getProxy().extraParams.vehicle_id = vehicleId;
+		store.getProxy().extraParams.consumable_item = consumableItem;
+		store.load();
+	},
+
+	zvehiclelist : function(self) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'vehicle_info',
+			store : 'VehicleByHealthStore',
+			title : T('title.vehicle_list'),
+			width : 270,
+			autoScroll : true,
+			
+			vehicleList : function(grid, consumable, status) {
+				
+				if(status == 'Healthy') {					
+					grid.sub('check_impending').setValue(false);
+					grid.sub('check_overdue').setValue(false);
+					grid.sub('check_healthy').setValue(true);
+					
+				} else if(status == 'Impending') {
+					grid.sub('check_healthy').setValue(false);					
+					grid.sub('check_overdue').setValue(false);
+					grid.sub('check_impending').setValue(true);
+					
+				} else if(status == 'Overdue') {
+					grid.sub('check_healthy').setValue(false);
+					grid.sub('check_impending').setValue(false);
+					grid.sub('check_overdue').setValue(true);
+				}
+				
+				grid.sub('consumables_combo').setValue(consumable);
+			},
+
+			filterVehicleList : function(grid) {
+
+				var consumable = grid.sub('consumables_combo').getValue();
+				var healthHvalue = grid.sub('check_healthy').getValue();
+				var healthIvalue = grid.sub('check_impending').getValue();
+				var healthOvalue = grid.sub('check_overdue').getValue();
+
+				var healthStatus = [];
+
+				if (healthHvalue)
+					healthStatus.push('Healthy');
+
+				if (healthIvalue)
+					healthStatus.push('Impending');
+
+				if (healthOvalue)
+					healthStatus.push('Overdue');
+
+				if (healthStatus.length > 0) {
+					var vehicleStore = grid.store;
+					var proxy = vehicleStore.getProxy();
+					proxy.extraParams.consumable_item = consumable;
+					proxy.extraParams.health_status = healthStatus;
+					vehicleStore.load();
+
+				} else {
+					grid.store.loadRecords([]);
+				}
+			},
+
+			columns : [ {
+				xtype : 'templatecolumn',
+				tpl : '<div class="iconHealth{health_status}" style="width:20px;height:20px;background-position:5px 3px"></div>',
+				width : 35
+			}, {
+				dataIndex : 'id',
+				text : T('label.id'),
+				flex : 1
+			}, {
+				dataIndex : 'registration_number',
+				text : T('label.reg_no'),
+				flex : 1
+			} ],
+
+			tbar : [ {
+				xtype : 'combo',
+				itemId : 'consumables_combo',
+				store : 'ConsumableCodeStore',
+				queryMode : 'local',
+				displayField : 'name',
+				valueField : 'name',
+				emptyText : T('msg.select_a_consumable'),
+				listeners : {
+					render : function(combo) {
+						combo.store.load();
+					},
+					change : function(combo, currentValue, beforeValue) {
+						var grid = combo.up('grid');
+						grid.filterVehicleList(grid);
+					}
+				}
+			}, '   ', {
+				xtype : 'fieldcontainer',
+				defaultType : 'checkboxfield',
+				cls : 'paddingLeft5',
+				items : [ {
+					cls : 'iconHealthHealthy floatLeft',
+					name : 'healthy',
+					inputValue : '1',
+					itemId : 'check_healthy',
+					width : 40,
+					checked : true,
+					handler : function(check) {
+						var grid = check.up('grid');
+						grid.filterVehicleList(grid);
+					}
+				}, {
+					cls : 'iconHealthImpending floatLeft',
+					name : 'impending',
+					inputValue : '1',
+					itemId : 'check_impending',
+					width : 40,
+					checked : true,
+					handler : function(check) {
+						var grid = check.up('grid');
+						grid.filterVehicleList(grid);
+					}
+				}, {
+					cls : 'iconHealthOverdue floatLeft',
+					name : 'overdue',
+					inputValue : '1',
+					itemId : 'check_overdue',
+					width : 40,
+					checked : true,
+					handler : function(check) {
+						var grid = check.up('grid');
+						grid.filterVehicleList(grid);
+					}
+				} ]
+			} ]
+		}
+	},
+
+	zvehicleinfo : {
+		xtype : 'form',
+		itemId : 'form',
+		cls : 'hIndexbarZero',
+		bodyCls : 'paddingAll10',
+		title : T('title.vehicle_details'),
+		height : 90,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		items : [ {
+			xtype : 'panel',
+			flex : 1,
+			defaultType : 'textfield',
+			items : [ {
+				fieldLabel : T('label.id'),
+				name : 'id'
+			}, {
+				fieldLabel : T('label.health'),
+				name : 'health_status'
+			} ]
+		}, {
+			xtype : 'panel',
+			flex : 1,
+			defaultType : 'textfield',
+			items : [ {
+				fieldLabel : T('label.reg_no'),
+				name : 'registration_number'
+			}, {
+				fieldLabel : T('label.total_x', {
+					x : T('label.dist')
+				}),
+				name : 'total_distance',
+				itemId : 'vehicle_mileage'
+			} ]
+		} ]
+	},
+
+	zconsumables : {
+		xtype : 'grid',
+		itemId : 'consumable_grid',
+		store : 'VehicleConsumableStore',
+		cls : 'hIndexbar',
+		title : T('title.consumable_item'),
+		flex : 1,
+		columns : [ {
+			header : 'Key',
+			dataIndex : 'key',
+			hidden : true
+		}, {
+			header : T('label.item'),
+			dataIndex : 'consumable_item'
+		}, {
+			header : T('label.health_rate'),
+			dataIndex : 'health_rate',
+			xtype : 'progresscolumn'
+		}, {
+			header : T('label.status'),
+			dataIndex : 'status',
+			align : 'right',
+			renderer : function(value) {
+				if (value)
+					return T('label.' + value);
+				return '';
+			}
+		}, {
+			xtype : 'actioncolumn',
+			width : 50,
+			align : 'center',
+			items : [ {
+				icon : '/resources/image/iconAddOn.png',
+				tooltip : 'Consumables replacement',
+				handler : function(grid, rowIndex, colIndex) {
+					var vehicleMileage = grid.up('pm_consumable').sub('vehicle_mileage').getValue();
+					var record = grid.store.getAt(rowIndex);
+					var consumable = this.up('pm_consumable');
+					var newRecord = {
+						data : {
+							vehicle_id : record.data.vehicle_id,
+							consumable_item : record.data.consumable_item,
+							miles_last_repl : vehicleMileage,
+							last_repl_date : new Date()
+						}
+					};
+
+					consumable.showConsumableChange(newRecord);
+				}
+			} ]
+		}, {
+			xtype : 'actioncolumn',
+			width : 50,
+			align : 'center',
+			items : [ {
+				icon : '/resources/image/iconRefreshOn.png',
+				tooltip : 'Reset',
+				handler : function(grid, rowIndex, colIndex) {
+					var record = grid.store.getAt(rowIndex);
+					Ext.Ajax.request({
+						url : '/vehicle_consumable/reset',
+						method : 'POST',
+						params : {
+							vehicle_id : record.data.vehicle_id,
+							consumable_item : record.data.consumable_item
+						},
+						success : function(response) {
+							var resultObj = Ext.JSON.decode(response.responseText);
+							if (resultObj.success) {
+								GreenFleet.msg(T('label.success'), resultObj.msg);
+								var store = Ext.getStore('VehicleConsumableStore');
+								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+								store.load();
+							} else {
+								Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+							}
+						},
+						failure : function(response) {
+							Ext.MessageBox.alert(T('label.failure'), response.responseText);
+						}
+					});
+				}
+			} ]
+		} ]
+	},
+
+	zconsumable_history : {
+		xtype : 'grid',
+		itemId : 'consumable_history_grid',
+		store : 'ConsumableHistoryStore',
+		cls : 'hIndexbar',
+		title : T('title.consumable_change_history'),
+		flex : 1,
+		autoScroll : true,
+		columns : [ {
+			header : T('label.item'),
+			dataIndex : 'consumable_item'
+		}, {
+			header : T('label.repl_date'),
+			dataIndex : 'last_repl_date',
+			xtype : 'datecolumn',
+			format : F('date')
+		}, {
+			header : T('label.repl_mileage') + " (km)",
+			dataIndex : 'miles_last_repl'
+		}, {
+			header : T('label.worker'),
+			dataIndex : 'worker'
+		}, {
+			header : T('label.component'),
+			dataIndex : 'component'
+		}, {
+			header : T('label.cost'),
+			dataIndex : 'cost'
+		}, {
+			header : T('label.comment'),
+			dataIndex : 'comment'
+		} ],
+		listeners : {
+			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
+				grid.up('pm_consumable').showConsumableChange(record);
+			}
+		}
+	},
+	
+	zcenter_separator : {
+		xtype : 'panel',
+		width : 5
+	},
+	
+	zconsumable_form : {
+		xtype : 'form',
+		itemId : 'consumable_form',
+		cls : 'hIndexbarZero',
+		bodyPadding : 10,
+		title : T('title.consumable_details'),
+		flex : 1,
+		layout : {
+			type : 'vbox',
+			align : 'stretch'
+		},
+		defaults : {
+			xtype : 'textfield',
+			anchor : '100%'
+		},
+		items : [{ name : 'consumable_item',
+			fieldLabel : T('label.item')
+		}, {
+			name : 'repl_unit',
+			fieldLabel : T('label.repl_unit')
+		}, {
+			name : 'repl_mileage',
+			fieldLabel : T('label.repl_mileage') + " (km)"
+		}, {
+			name : 'repl_time',
+			fieldLabel : T('label.repl_time') + T('label.parentheses_month')
+		}, {
+			fieldLabel : T('label.last_repl_date'),
+			name : 'last_repl_date',
+			xtype : 'datefield',
+			format : F('date')
+		}, {
+			fieldLabel : T('label.miles_last_repl') + ' (km)',
+			name : 'miles_last_repl'
+		}, {
+			fieldLabel : T('label.miles_since_last_repl') + ' (km)',
+			name : 'miles_since_last_repl'
+		}, {
+			fieldLabel : T('label.next_repl_date'),
+			name : 'next_repl_date',
+			xtype : 'datefield',
+			format : F('date')			
+		}, {
+			fieldLabel : T('label.next_repl_mileage') + ' (km)',
+			name : 'next_repl_mileage'	
+		}, {
+			fieldLabel : T('label.accrued_cost'),
+			name : 'accrued_cost'
+		}, {
+			fieldLabel : T('label.status'),
+			name : 'status'
+		}]		
+	},
+
+	showConsumableStatus : function(selectedRecord) {
+		this.consumableStatusWin(selectedRecord).show();
+	},
+
+	showConsumableChange : function(selectedRecord) {
+		this.consumableChangeWin(selectedRecord).show();
+	},
+
+	consumableStatusWin : function(record) {
+		return new Ext.Window({
+			title : record.data.consumable_item + ' ' + T('label.status'),
+			modal : true,
+			listeners : {
+				show : function(win, opts) {
+					win.down('form').loadRecord(record);
+				}
+			},
+			items : [ {
+				xtype : 'form',
+				itemId : 'consumable_status_form',
+				bodyPadding : 10,
+				cls : 'hIndexbar',
+				width : 500,
+				defaults : {
+					xtype : 'textfield',
+					anchor : '100%'
+				},
+				items : [ {
+					xtype : 'fieldset',
+					title : T('label.consumable_item'),
+					defaultType : 'textfield',
+					layout : 'anchor',
+					collapsible : true,
+					padding : '10,5,5,5',
+					defaults : {
+						anchor : '100%'
+					},
+					items : [ {
+						name : 'key',
+						fieldLabel : 'Key',
+						hidden : true
+					}, {
+						name : 'vehicle_id',
+						fieldLabel : T('label.vehicle_id'),
+						disabled : true
+					}, {
+						name : 'consumable_item',
+						fieldLabel : T('label.consumable_item'),
+						disabled : true
+					}, {
+						name : 'repl_unit',
+						fieldLabel : T('label.repl_unit'),
+						disabled : true
+					}, {
+						name : 'repl_mileage',
+						fieldLabel : T('label.repl_mileage'),
+						disabled : true
+					}, {
+						name : 'repl_time',
+						fieldLabel : T('label.repl_time') + T('parentheses_month'),
+						disabled : true
+					} ]
+				}, {
+					xtype : 'fieldset',
+					title : record.data.consumable_item,
+					defaultType : 'textfield',
+					layout : 'anchor',
+					padding : '10,5,5,5',
+					defaults : {
+						anchor : '100%'
+					},
+					items : [ {
+						name : 'last_repl_date',
+						fieldLabel : T('label.last_repl_date'),
+						xtype : 'datefield',
+						format : F('date'),
+						value : new Date()
+					}, {
+						xtype : 'numberfield',
+						name : 'miles_last_repl',
+						fieldLabel : T('label.miles_last_repl'),
+						minValue : 0,
+						step : 1000
+					}, {
+						name : 'next_repl_date',
+						fieldLabel : T('label.next_repl_date'),
+						xtype : 'datefield',
+						format : F('date'),
+						value : new Date()
+					}, {
+						xtype : 'numberfield',
+						name : 'next_repl_mileage',
+						fieldLabel : T('label.next_repl_mileage'),
+						minValue : 0,
+						step : 1000
+					}, {
+						xtype : 'numberfield',
+						name : 'accrued_cost',
+						fieldLabel : T('label.accrued_cost'),
+						minValue : 0,
+						step : 1000
+					}, {
+						xtype : 'numberfield',
+						name : 'health_rate',
+						fieldLabel : T('label.health_rate'),
+						minValue : 0,
+						step : 0.1
+					}, {
+						name : 'status',
+						xtype : 'textfield',
+						fieldLabel : T('label.status')
+					} ]
+				} ],
+				fbar : [ {
+					xtype : 'button',
+					text : T('button.save'),
+					handler : function() {
+						var win = this.up('window');
+						var thisForm = win.down('form');
+
+						thisForm.getForm().submit({
+							url : '/vehicle_consumable/save',
+							submitEmptyText : false,
+							waitMsg : T('msg.saving'),
+							params : {
+								vehicle_id : record.data.vehicle_id,
+								consumable_item : record.data.consumable_item
+							},
+							success : function(form, action) {
+								if (action.result.success) {
+									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+									win.close();
+
+									// refresh consumable grid
+									var store = Ext.getStore('VehicleConsumableStore');
+									store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+									store.load();
+								} else {
+									Ext.Msg.alert(T('label.failure'), action.result.msg);
+								}
+							},
+							failure : function(form, action) {
+								switch (action.failureType) {
+								case Ext.form.action.Action.CLIENT_INVALID:
+									Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
+									break;
+								case Ext.form.action.Action.CONNECT_FAILURE:
+									Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
+									break;
+								case Ext.form.action.Action.SERVER_INVALID:
+									Ext.Msg.alert(T('label.failure'), action.result.msg);
+								}
+							}
+						});
+					}
+				}, {
+					xtype : 'button',
+					text : T('button.cancel'),
+					handler : function() {
+						this.up('window').close();
+					}
+				} ]
+			} ]
+		});
+	},
+
+	consumableChangeWin : function(record) {
+		return new Ext.Window({
+			title : record.data.consumable_item + ' ' + T('label.replacement'),
+			modal : true,
+			listeners : {
+				show : function(win, opts) {
+					win.down('form').loadRecord(record);
+				}
+			},
+			items : [ {
+				xtype : 'form',
+				itemId : 'consumable_change_form',
+				bodyPadding : 10,
+				cls : 'hIndexbar',
+				width : 500,
+				defaults : {
+					xtype : 'textfield',
+					anchor : '100%'
+				},
+
+				items : [ {
+					xtype : 'fieldset',
+					title : T('label.consumable_item'),
+					defaultType : 'textfield',
+					layout : 'anchor',
+					collapsible : true,
+					padding : '10,5,5,5',
+					defaults : {
+						anchor : '100%'
+					},
+					items : [ {
+						name : 'vehicle_id',
+						fieldLabel : T('label.vehicle_id'),
+						disabled : true
+					}, {
+						name : 'consumable_item',
+						fieldLabel : T('label.consumable_item'),
+						disabled : true
+					} ]
+				}, {
+					xtype : 'fieldset',
+					title : T('label.replacement'),
+					defaultType : 'textfield',
+					layout : 'anchor',
+					padding : '10,5,5,5',
+					defaults : {
+						anchor : '100%'
+					},
+					items : [ {
+						xtype : 'datefield',
+						name : 'last_repl_date',
+						fieldLabel : T('label.repl_date'),
+						format : F('date'),
+						maxValue : new Date()
+					}, {
+						xtype : 'numberfield',
+						name : 'miles_last_repl',
+						fieldLabel : T('label.repl_mileage'),
+						minValue : 0,
+						step : 1000,
+						maxValue : 500000
+					}, {
+						xtype : 'numberfield',
+						name : 'cost',
+						fieldLabel : T('label.cost'),
+						minValue : 0,
+						step : 1000,
+						value : 0,
+						allowBlank : false
+					}, {
+						name : 'worker',
+						fieldLabel : T('label.worker')
+					}, {
+						name : 'component',
+						fieldLabel : T('label.component')
+					}, {
+						xtype : 'textarea',
+						rows : 8,
+						name : 'comment',
+						fieldLabel : T('label.comment')
+					} ]
+				} ]
+			} ],
+			fbar : [ {
+				xtype : 'button',
+				text : T('button.save'),
+				handler : function() {
+					var win = this.up('window');
+					var thisForm = win.down('form');
+
+					thisForm.getForm().submit({
+						url : '/vehicle_consumable/replace',
+						submitEmptyText : false,
+						waitMsg : T('msg.saving'),
+						params : {
+							vehicle_id : record.data.vehicle_id,
+							consumable_item : record.data.consumable_item
+						},
+						success : function(form, action) {
+							if (action.result.success) {
+								GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+								win.close();
+
+								// refresh consumable grid
+								var store = Ext.getStore('VehicleConsumableStore');
+								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+								store.load();
+
+								// refresh consumable history grid
+								store = Ext.getStore('ConsumableHistoryStore');
+								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
+								store.getProxy().extraParams.consumable_item = record.data.consumable_item;
+								store.load();
+							} else {
+								Ext.Msg.alert(T('label.failure'), action.result.msg);
+							}
+						},
+						failure : function(form, action) {
+							switch (action.failureType) {
+							case Ext.form.action.Action.CLIENT_INVALID:
+								Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
+								break;
+							case Ext.form.action.Action.CONNECT_FAILURE:
+								Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
+								break;
+							case Ext.form.action.Action.SERVER_INVALID:
+								Ext.Msg.alert(T('label.failure'), action.result.msg);
+							}
+						}
+					});
+				}
+			}, {
+				xtype : 'button',
+				text : T('button.cancel'),
+				handler : function() {
+					this.up('window').close();
+				}
+			} ]
+		});
+	}
+});
+Ext.define('GreenFleet.view.pm.Maintenance', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.pm_maintenance',
+
+	title : T('title.maintenance'),
+
+	layout : { align : 'stretch', type : 'vbox' },
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [ {
+			html : "<div class='listTitle'>" + T('title.maintenance') + "</div>"
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : { type : 'hbox', align : 'stretch' },
+			items : [ this.zvehiclelist(self), {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : { align : 'stretch', type : 'vbox' },
+				items : [ this.zmaintenances ]
+			} ]
+		} ],
+
+		this.callParent();
+
+		/**
+		 * vehicle 선택시
+		 */
+		this.sub('vehicle_info').on('itemdblclick', function(grid, record) {
+			var selVehicleId = (selectionModel.lastSelected) ? selectionModel.lastSelected.data.id : '';
+			// TODO 1. 확인 alert
+			// 		2. 트랜잭션 ...
+		}); 
+		
+		/**
+		 * vehicle 선택시
+		 */
+		this.sub('vehicle_info').on('selectionchange', function(selectionModel, selected, eOpts) {
+			var selVehicleId = (selectionModel.lastSelected) ? selectionModel.lastSelected.data.id : '';
+			self.sub('maintenance_grid').setTitle(T('title.maintenance_history') + '(' + selVehicleId + ')');
+			self.refresh_maintenance_grid(selVehicleId);			
+		});
+
+		/**
+		 * 정비 이력을 더블 클릭시  
+		 */
+		this.sub('maintenance_grid').on('itemdblclick', function(grid, record) {
+			self.popup_maint(record);
+		});
+		
+		/**
+		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		this.sub('id_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});		
+
+		/**
+		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('reg_no_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});
+		
+		/**
+		 * Status 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		/*this.sub('status_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});*/
+	},
+	
+	/**
+	 * vehicle list를 조회 
+	 */
+	searchVehicles : function(searchRemote) {
+		
+		var store = this.sub('vehicle_info').store;
+		
+		if(searchRemote) {
+			store.load();
+		
+		} else {			
+			store.clearFilter(true);			
+			var idValue = this.sub('id_filter').getValue();
+			var regNoValue = this.sub('reg_no_filter').getValue();
+			//var statusValue = this.sub('status_filter').getValue();
+			
+			store.filter([ {
+				property : 'id',
+				value : idValue
+			}, {
+				property : 'registration_number',
+				value : regNoValue
+			}/*, {
+				property : 'status',
+				value : statusValue
+			}*/ ]);
+		}
+	},
+	
+	/**
+	 * 좌측 vehicle list
+	 */
+	zvehiclelist : function(self) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'vehicle_info',
+			store : 'VehicleImageBriefStore',
+			title : T('title.vehicle_list'),
+			width : 300,
+			autoScroll : true,
+			startRepair : function() {
+				alert('정비시작');
+			},
+			columns : [ /*{
+				dataIndex : 'status',
+				width : 70,
+				renderer : function(value) {
+					if('Idle' == value || 'Incident' == value) {
+						return "<a href='#'>[정비시작]</a>";
+					} else if('Maint' == value) {
+						return "<a href='#'>[정비종료]</a>";
+					}
+				}
+            }, */{
+				dataIndex : 'id',
+				text : T('label.id'),
+				width : 100
+			}, {
+				dataIndex : 'registration_number',
+				text : T('label.reg_no'),
+				width : 100
+			}, {
+				dataIndex : 'status',
+				text : T('label.status')
+			} ],
+			
+			tbar : [ T('label.id'),
+				{
+					xtype : 'textfield',
+					name : 'id_filter',
+					itemId : 'id_filter',
+					width : 65
+				}, 
+				T('label.reg_no'),
+				{
+					xtype : 'textfield',
+					name : 'reg_no_filter',
+					itemId : 'reg_no_filter',
+					width : 70
+				},
+				/*T('label.status'),
+				{
+					xtype : 'combo',
+					store : 'VehicleStatusStore',
+					name : 'status_filter',
+					itemId : 'status_filter',					
+					displayField: 'desc',
+				    valueField: 'status',
+				    width : 50
+				},*/
+				{
+					xtype : 'button',
+					text : T('button.search'),
+					handler : function(btn) {
+						btn.up('pm_maintenance').searchVehicles(true);
+					}
+				}
+			]
+		}
+	},
+
+	/**
+	 * maintenance history grid
+	 */
+	zmaintenances : {
+		xtype : 'grid',
+		itemId : 'maintenance_grid',
+		store : 'RepairStore',
+		cls : 'hIndexbar',
+		title : T('title.maintenance_history'),
+		flex : 1,
+		columns : [ {
+			header : 'Key',
+			dataIndex : 'key',
+			hidden : true
+		}, {
+			header : T('label.vehicle_id'),
+			dataIndex : 'vehicle_id',
+			hidden : true
+		}, {
+			header : T('label.repair_date'),
+			dataIndex : 'repair_date',
+			xtype : 'datecolumn',
+			format : F('date')
+		}, {
+			header : T('label.repair_time') + T('label.parentheses_min'),
+			dataIndex : 'repair_time'
+		}, {
+			header : T('label.next_repair_date'),
+			dataIndex : 'next_repair_date',
+			xtype : 'datecolumn',
+			format : F('date')
+		}, {
+			header : T('label.repair_mileage') + " (km)",
+			dataIndex : 'repair_mileage',
+			width : 120
+		}, {
+			header : T('label.repair_man'),
+			dataIndex : 'repair_man'
+		}, {
+			header : T('label.repair_shop'),
+			dataIndex : 'repair_shop'
+		}, {
+			header : T('label.cost'),
+			dataIndex : 'cost'
+		}, {
+			header : T('label.content'),
+			dataIndex : 'content',
+			flex : 1
+		} ],
+		bbar : [ { xtype : 'tbfill' }, 
+		{
+			xtype : 'button',
+			text : T('button.add'),
+			handler : function(btn, event) {
+				var thisView = btn.up('pm_maintenance');
+				thisView.popup_maint();
+			}
+		} ]
+	},
+	
+	/**
+	 * 정비 그리드 리프레쉬 
+	 */
+	refresh_maintenance_grid : function(selectedVehicleId) {
+		
+		var maintenanceStore = this.sub('maintenance_grid').store;
+		maintenanceStore.getProxy().extraParams.vehicle_id = selectedVehicleId;
+		maintenanceStore.load();
+	},
+	
+	/**
+	 * 정비 추가 팝업 show
+	 */
+	popup_maint : function(record) {
+		
+		var selModel = this.sub('vehicle_info').getSelectionModel();
+		var selVehicleId = (selModel.lastSelected) ? selModel.lastSelected.data.id : '';
+		var nextRepairDate = new Date();
+		nextRepairDate.setMilliseconds(nextRepairDate.getMilliseconds() + (1000 * 60 * 60 * 24 * 30 * 3));		
+		if(!record)
+			record = { 'data' : { 'vehicle_id' : selVehicleId, 'repair_date' : new Date(), 'next_repair_date' : nextRepairDate } };
+		var win = this.maintwin(this, record);
+		win.show();
+	},
+	
+	/**
+	 * 정비 팝업 리턴
+	 */
+	maintwin : function(self, record) {
+		
+		return new Ext.Window({
+			title : T('title.add_repair'),
+			modal : true,
+			listeners : {
+				show : function(win, opts) {
+					win.down('form').loadRecord(record);
+				}
+			},
+			items : [ {
+				xtype : 'form',
+				itemId : 'repair_win',
+				bodyPadding : 10,
+				cls : 'hIndexbar',
+				width : 500,
+				defaults : {
+					xtype : 'textfield',
+					anchor : '100%'
+				},
+				items : [ {
+					xtype : 'fieldset',
+					title : T('label.vehicle'),
+					defaultType : 'textfield',
+					layout : 'anchor',
+					collapsible : true,
+					padding : '10,5,5,5',
+					defaults : { anchor : '100%' },
+					items : [ {
+						name : 'key',
+						fieldLabel : 'Key',
+						hidden : true
+					}, {
+						itemId : 'vehicle_id',
+						name : 'vehicle_id',
+						fieldLabel : T('label.vehicle_id')
+					} ]
+				}, {
+					xtype : 'fieldset',
+					title : T('label.repair'),
+					defaultType : 'textfield',
+					layout : 'anchor',
+					padding : '10,5,5,5',
+					defaults : { anchor : '100%' },
+					items : [ {
+						name : 'repair_date',
+						fieldLabel : T('label.repair_date'),
+						xtype : 'datefield',
+						format : F('date')
+					}, {
+						name : 'repair_time',
+						fieldLabel : T('label.x_time', {x : T('label.repair')}) + T('label.parentheses_x', {x : T('label.minute_s')}),
+						xtype : 'numberfield'
+					}, {
+						name : 'next_repair_date',
+						fieldLabel : T('label.next_repair_date'),
+						xtype : 'datefield',
+						format : F('date')
+					}, {
+						xtype : 'numberfield',
+						name : 'repair_mileage',
+						fieldLabel : T('label.repair_mileage') + ' (km)',
+						minValue : 0,
+						step : 1000
+					}, {
+						name : 'repair_man',
+						fieldLabel : T('label.repair_man')
+					}, {
+						name : 'repair_shop',
+						fieldLabel : T('label.repair_shop')
+					}, {
+						xtype : 'numberfield',
+						name : 'cost',
+						fieldLabel : T('label.cost'),
+						minValue : 0,
+						step : 1000
+					}, {
+						xtype : 'textarea',
+						name : 'content',
+						fieldLabel : T('label.content')
+					}, {
+						name : 'comment',
+						xtype : 'textarea',
+						fieldLabel : T('label.comment')
+					} ]
+				} ]
+			} ],
+			
+			buttons : [ {
+				text : T('button.save'),
+				handler : function() {
+					var thisWin = this.up('window');
+					var thisForm = thisWin.down('form');
+
+					thisForm.getForm().submit({
+						url : '/repair/save',
+						submitEmptyText : false,
+						waitMsg : T('msg.saving'),
+						success : function(form, action) {
+							if (action.result.success) {
+								GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+								self.refresh_maintenance_grid(form.getRecord().data.vehicle_id);
+								thisWin.close();
+							} else {
+								Ext.Msg.alert(T('label.failure'), action.result.msg);
+							}
+						},
+						failure : function(form, action) {
+							switch (action.failureType) {
+								case Ext.form.action.Action.CLIENT_INVALID:
+									Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
+									break;
+								case Ext.form.action.Action.CONNECT_FAILURE:
+									Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
+									break;
+								case Ext.form.action.Action.SERVER_INVALID:
+									Ext.Msg.alert(T('label.failure'), action.result.msg);
+							}
+						}
+					});
+				}
+			}, {
+				text : T('button.cancel'),
+				handler : function() {
+					this.up('window').close();
+				}
+			} ]
+		});		
+	}
+	
+});
+Ext.define('GreenFleet.view.monitor.Map', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.monitor_map',
+	
+	id : 'monitor_map',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	initComponent : function() {
+		this.items = [ this.ztitle(), this.zmap ];
+		
+		this.callParent();
+		
+		var self = this;
+		
+		var interval = null;
+		var vehicleMapStore = null;
+		var incidentStore = null;
+		
+		this.on('afterrender', function() {
+			vehicleMapStore = Ext.getStore('VehicleMapStore');
+			incidentStore = Ext.getStore('RecentIncidentStore');
+			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
+			
+			vehicleFilteredStore.on('datachanged', function() {
+				if(self.isVisible()) {
+					self.refreshMap(vehicleFilteredStore, GreenFleet.setting.get('autofit'));
+				}
+			});
+			
+			vehicleMapStore.load();
+			
+			/*
+			 * TODO 디폴트로 1분에 한번씩 리프레쉬하도록 함.
+			 */
+			interval = setInterval(function() {
+				vehicleMapStore.load();
+				incidentStore.load();
+			}, GreenFleet.setting.get('refreshTerm') * 1000);
+		});
+		
+		this.on('resize', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+		
+		this.on('activate', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+			if(GreenFleet.setting.get('autofit'))
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'), true);
+		});
+		
+		this.down('[itemId=autofit]').on('change', function(check, newValue) {
+			if(newValue) {
+				GreenFleet.setting.set('autofit', newValue);
+				
+				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
+			}
+		});
+
+		this.down('[itemId=refreshterm]').on('change', function(combo, newValue) {
+			if(newValue) {
+				GreenFleet.setting.set('refreshTerm', newValue);
+
+				clearInterval(interval);
+				interval = setInterval(function() {
+					vehicleMapStore.load();
+					incidentStore.load();
+				}, newValue * 1000);
+			}
+		});
+	},
+	
+	getMap : function() {
+		if(!this.map) {
+			this.map = new google.maps.Map(this.sub('mapbox').getEl().down('.map').dom, {
+				zoom : 10,
+				maxZoom : 19,
+				minZoom : 3,
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			});
+		}
+		return this.map;
+	},
+	
+	getMarkers : function() {
+		if(!this.markers)
+			this.markers = {};
+		return this.markers;
+	},
+	
+	getLabels : function() {
+		if(!this.labels)
+			this.labels = {};
+		return this.labels;
+	},
+	
+	resetLabels : function() {
+		for ( var vehicle in this.labels) {
+			this.labels[vehicle].setMap(null);
+		}
+		this.labels = {};
+	},
+	
+	resetMarkers : function() {
+		for ( var vehicle in this.markers) {
+			google.maps.event.clearListeners(this.markers[vehicle]);
+			this.markers[vehicle].setMap(null);
+		}
+		this.markers = {};
+	},
+	
+	/*
+	 * refreshMap : scope
+	 */
+	refreshMap : function(store, autofit) {
+		this.resetMarkers();
+		this.resetLabels();
+		
+		var images = {
+			'Running' : 'resources/image/statusDriving.png',
+			'Idle' : 'resources/image/statusStop.png',
+			'Incident' : 'resources/image/statusIncident.png',
+			'Maint' : 'resources/image/statusMaint.png'
+		};
+
+		var bounds;
+		
+		store.each(function(record) {
+			var vehicle = record.get('id');
+			var driver = record.get('driver_id');
+			var driverRecord = Ext.getStore('DriverBriefStore').findRecord('id', driver);
+			
+			var latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
+			
+			var marker = new google.maps.Marker({
+				position : latlng,
+				map : this.getMap(),
+				status : record.get('status'),
+				icon : images[record.get('status')],
+				title : driverRecord ? driverRecord.get('name') : driver,
+				tooltip : record.get('registration_number') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
+			});
+
+			if(!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+			
+			var label = GreenFleet.label.create({
+				map : this.getMap()
+			});
+			label.bindTo('position', marker, 'position');
+			label.bindTo('text', marker, 'tooltip');
+
+			this.getMarkers()[vehicle] = marker;
+			this.getLabels()[vehicle] = label;
+
+			google.maps.event.addListener(marker, 'click', function() {
+				GreenFleet.doMenu('information');
+				GreenFleet.getMenu('information').setVehicle(record);
+			});
+		}, this);
+		
+		if(!bounds) {
+			this.getMap().setCenter(new google.maps.LatLng(System.props.lat, System.props.lng));
+		} else if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else if(autofit){ // 자동 스케일 조정 경우 
+			this.getMap().fitBounds(bounds);
+//		} else { // 자동 스케일 조정이 아니어도, 센터에 맞추기를 한다면, 이렇게.
+//			this.getMap().setCenter(bounds.getCenter());
+		}
+	},
+	
+	ztitle : function() {
+		return {
+			xtype : 'container',
+			cls :'pageTitle',
+			height: 35,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [{
+				flex : 1,
+				html : '<h1>' + T('title.map') + '</h1>'
+			}, {
+				xtype : 'combo',
+				valueField : 'value',
+				displayField : 'display',
+				value : GreenFleet.setting.get('refreshTerm'),
+				width : 180,
+				labelWidth : 110,
+				labelAlign : 'right',
+				labelSeparator : '',
+				store : Ext.create('Ext.data.Store', {
+					data : [{
+						value : 3,
+						display : '3' + T('label.second_s')
+					}, {
+						value : 5,
+						display : '5' + T('label.second_s')
+					}, {
+						value : 10,
+						display : '10' + T('label.second_s')
+					}, {
+						value : 30,
+						display : '30' + T('label.second_s')
+					}, {
+						value : 60,
+						display : '1' + T('label.minute_s')
+					}, {
+						value : 300,
+						display : '5' + T('label.minute_s')
+					}],
+					fields : [
+						'value', 'display'
+					]
+				}),
+				queryMode : 'local',
+				fieldLabel : T('label.refreshterm'),
+				itemId : 'refreshterm'
+			}, {
+				xtype : 'checkboxgroup',
+				width : 80,
+				defaults : {
+					boxLabelAlign : 'before',
+					width : 80,
+					checked : GreenFleet.setting.get('autofit'),
+					labelWidth : 60,
+					labelAlign : 'right',
+					labelSeparator : ''
+				},
+				items : [{
+					fieldLabel : T('label.autofit'),
+					itemId : 'autofit'
+				}]
+			}]
+		};
+	},
+	
+	zmap : {
+		xtype : 'panel',
+		flex : 1,
+		itemId : 'mapbox',
+		html : '<div class="map" style="height:100%"></div>'
+	}
+});
+
+Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
+	extend : 'Ext.grid.Panel',
+	
+	alias : 'widget.monitor_info_by_vehicle',
+	
+	title : T('tab.info_by_vehicle'),
+
+	store : 'VehicleInfoStore',
+
+	autoScroll : true,
+
+	columns : [ new Ext.grid.RowNumberer(), {
+		dataIndex : 'key',
+		text : 'Key',
+		type : 'string',
+		hidden : true
+	}, {
+		dataIndex : 'id',
+		text : T('label.id'),
+		type : 'string'
+	}, {
+		dataIndex : 'registration_number',
+		text : T('label.reg_no'),
+		type : 'string'
+	}, {
+		dataIndex : 'manufacturer',
+		text : T('label.manufacturer'),
+		type : 'string'
+	}, {
+		dataIndex : 'vehicle_model',
+		text : T('label.vehicle_model'),
+		type : 'string'
+	}, /*{
+		dataIndex : 'vehicle_type',
+		text : T('label.vehicle_type'),
+		type : 'string'
+	}, {
+		dataIndex : 'ownership_type',
+		text : T('label.ownership_type'),
+		type : 'string'
+	},*/ {
+		dataIndex : 'birth_year',
+		text : T('label.birth_year'),
+		type : 'string'		
+	}, {
+		dataIndex : 'status',
+		text : T('label.status'),
+		type : 'string'
+	}, {
+		dataIndex : 'health_status',
+		text : T('label.health'),
+		type : 'string'
+	}, {
+		dataIndex : 'total_distance',
+		text : T('label.total_distance'),
+		type : 'string'
+	}, {
+		dataIndex : 'official_effcc',
+		text : T('label.official_effcc'),
+		type : 'float'
+	}, {
+		dataIndex : 'avg_effcc',
+		text : T('label.avg_effcc'),
+		type : 'float'
+	}, {
+		dataIndex : 'eco_index',
+		text : T('label.eco_index') + '(%)',
+		type : 'int'			
+	}, {
+		dataIndex : 'remaining_fuel',
+		text : T('label.remaining_fuel'),
+		type : 'string'
+	}, {
+		dataIndex : 'lat',
+		text : T('label.latitude')
+	}, {
+		dataIndex : 'lng',
+		text : T('label.longitude')
+	} ],
+	viewConfig : {
+
+	},
+	listeners : {
+		render : function(grid) {
+			grid.store.load();
+		},
+		itemclick : function(grid, record) {
+			var form = grid.up('monitor_information').down('form');
+			form.loadRecord(record);
+		}
+	},
+	onSearch : function(grid) {
+		var id_filter = grid.down('textfield[name=id_filter]');
+		var namefilter = grid.down('textfield[name=registration_number_field]');
+		grid.store.clearFilter();
+
+		grid.store.filter([ {
+			property : 'id',
+			value : id_filter.getValue()
+		}, {
+			property : 'registration_number',
+			value : namefilter.getValue()
+		} ]);
+	},
+	onReset : function(grid) {
+		grid.down('textfield[name=id_filter]').setValue('');
+		grid.down('textfield[name=registration_number_field]').setValue('');
+	},
+	tbar : [ T('label.id'), {
+		xtype : 'textfield',
+		name : 'id_filter',
+		hideLabel : true,
+		width : 200,
+		listeners : {
+			specialkey : function(field, e) {
+				if (e.getKey() == e.ENTER) {
+					var grid = this.up('gridpanel');
+					grid.onSearch(grid);
+				}
+			}
+		}
+	}, T('label.reg_no'), {
+		xtype : 'textfield',
+		name : 'registration_number_field',
+		hideLabel : true,
+		width : 200,
+		listeners : {
+			specialkey : function(field, e) {
+				if (e.getKey() == e.ENTER) {
+					var grid = this.up('gridpanel');
+					grid.onSearch(grid);
+				}
+			}
+		}
+	}, {
+		xtype : 'button',
+		text : T('button.search'),
+		tooltip : 'Find Vehicle',
+		handler : function() {
+			var grid = this.up('gridpanel');
+			grid.onSearch(grid);
+		}
+	}, {
+		text : T('button.reset'),
+		handler : function() {
+			var grid = this.up('gridpanel');
+			grid.onReset(grid);
+		}
+	} ]
+
+});
+Ext.define('GreenFleet.view.monitor.Information', {
+	extend : 'Ext.Container',
+	alias : 'widget.monitor_information',
+
+	id : 'monitor_information',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	initComponent : function() {
+		this.items = [ this.ztitle, {
+			xtype : 'container',
+			height : 320,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ {
+				xtype : 'container',
+				width : 620,
+				layout : {
+					type : 'vbox',
+					align : 'stretch'
+				},
+				items : [ this.zvehicleinfo, this.zincidents ]
+			}, this.zmap ]
+		}, this.ztabpanel ];
+
+		this.callParent();
+
+		var self = this;
+
+		this.sub('map').on('afterrender', function(mapbox) {
+			var options = {
+				zoom : 10,
+				minZoom : 3,
+				maxZoom : 19,
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+
+			self.setMap(new google.maps.Map(mapbox.getEl().down('.map').dom, options));
+
+			/*
+			 * For test only.
+			 */
+//			google.maps.event.addListener(self.getMap(), 'click', function(e) {
+//				Ext.Ajax.request({
+//					url : 'track/save',
+//					method : 'POST',
+//					params : {
+//						vehicle_id : self.getVehicle(),
+//						driver_id : self.getDriver(),
+//						terminal_id : self.getTerminal(),
+//						lat : e.latLng.lat(),
+//						lng : e.latLng.lng()
+//					},
+//					success : function(resp, opts) {
+//						var path = self.getTrackLine().getPath();
+//						path.insertAt(0, e.latLng);
+//						Ext.getStore('VehicleStore').load();
+//					},
+//					failure : function(resp, opts) {
+//						console.log('Failed');
+//						console.log(resp);
+//					}
+//				});
+//			});
+		});
+
+		this.on('activate', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+
+		this.getTrackStore().on('load', function() {
+			self.refreshTrack();
+		});
+
+		this.getIncidentStore().on('load', function() {
+			if (self.isVisible(true))
+				self.refreshIncidents();
+		});
+
+		this.sub('id').on('change', function(field, vehicle) {
+			var record = self.getForm().getRecord();
+
+			/*
+			 * Get Vehicle Information (Image, Registration #, ..) from
+			 * VehicleStore
+			 */
+			var vehicleStore = Ext.getStore('VehicleBriefStore');
+			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
+			var vehicleImageClip = vehicleRecord.get('image_clip');
+			if (vehicleImageClip) {
+				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
+			} else {
+				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
+			}
+
+			/*
+			 * Get Driver Information (Image, Name, ..) from DriverStore
+			 */
+			var driverStore = Ext.getStore('DriverBriefStore');
+			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
+			var driver = driverRecord.get('id');
+			var driverImageClip = driverRecord.get('image_clip');
+			if (driverImageClip) {
+				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+			} else {
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+			}
+
+			self.sub('title').update({
+				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
+				driver : driver + ' (' + driverRecord.get('name') + ')'
+			});
+
+			/*
+			 * Get Address of the location by ReverseGeoCode.
+			 */
+			var location = record.get('location');
+			if (location == null || location.length == 0) {
+				var lat = record.get('lat');
+				var lng = record.get('lng');
+
+				if (lat !== undefined && lng !== undefined) {
+					var latlng = new google.maps.LatLng(lat, lng);
+
+					geocoder = new google.maps.Geocoder();
+					geocoder.geocode({
+						'latLng' : latlng
+					}, function(results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+							if (results[0]) {
+								var address = results[0].formatted_address
+								record.set('location', address);
+								self.sub('location').setValue(address);
+							}
+						} else {
+							console.log("Geocoder failed due to: " + status);
+						}
+					});
+				}
+			}
+
+			/*
+			 * TrackStore를 다시 로드함.
+			 */
+			self.getTrackStore().load({
+				params : {
+					start : 0,
+					limit : 1000
+				},
+				filters : [ {
+					property : 'vehicle_id',
+					value : vehicle
+				}, {
+					property : 'date',
+					/* for Unix timestamp (in seconds) */
+					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
+				} ]
+			});
+
+			/*
+			 * IncidentStore를 다시 로드함.
+			 */
+			self.getIncidentStore().load({
+				filters : [
+				    {
+				    	property : 'vehicle_id',
+				    	value : vehicle 
+				    }, {
+				    	property : 'confirm',
+				    	value : false
+				    }
+				]
+			});
+		});
+	},
+
+	setVehicle : function(vehicleRecord) {
+		this.getForm().loadRecord(vehicleRecord);
+	},
+
+	getForm : function() {
+		if (!this.form)
+			this.form = this.down('form');
+		return this.form;
+	},
+
+	getMap : function() {
+		return this.map;
+	},
+
+	setMap : function(map) {
+		this.map = map;
+	},
+
+	getTrackLine : function() {
+		return this.trackline;
+	},
+
+	setTrackLine : function(trackline) {
+		if (this.trackline)
+			this.trackline.setMap(null);
+		this.trackline = trackline;
+	},
+
+	getMarkers : function() {
+		return this.markers;
+	},
+
+	setMarkers : function(markers) {
+		if (this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.markers = markers;
+	},
+
+	resetMarkers : function() {
+		if (this.markers) {
+			Ext.each(this.markers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.markers = null;
+	},
+
+	getTrackStore : function() {
+		if (!this.trackStore)
+			this.trackStore = Ext.getStore('TrackByVehicleStore');
+		return this.trackStore;
+	},
+
+	getIncidentStore : function() {
+		if (!this.incidentStore)
+			this.incidentStore = Ext.getStore('IncidentByVehicleStore');
+		return this.incidentStore;
+	},
+
+	getVehicle : function() {
+		return this.sub('id').getValue();
+	},
+
+	getDriver : function() {
+		return this.sub('driver').getValue();
+	},
+
+	getTerminal : function() {
+		return this.sub('terminal').getValue();
+	},
+
+	refreshTrack : function() {
+		this.setTrackLine(new google.maps.Polyline({
+			map : this.getMap(),
+			strokeColor : '#FF0000',
+			strokeOpacity : 1.0,
+			strokeWeight : 4
+		}));
+		this.setMarkers(null);
+
+		var path = this.getTrackLine().getPath();
+		var bounds;
+		var latlng;
+
+		this.getTrackStore().each(function(record) {
+			var lat = record.get('lat');
+			var lng = record.get('lng');
+
+			if(lat !== 0 || lng !== 0) {
+				latlng = new google.maps.LatLng(lat, lng);
+				path.push(latlng);
+				if (!bounds)
+					bounds = new google.maps.LatLngBounds(latlng, latlng);
+				else
+					bounds.extend(latlng);
+			}
+		});
+
+		if (path.getLength() === 0) {
+			var record = this.getForm().getRecord();
+			var lat = record.get('lat');
+			var lng = record.get('lng');
+			var defaultLatlng = null;
+			
+			if(lat === 0 && lng === 0) {
+				defaultLatlng = new google.maps.LatLng(System.props.lat, System.props.lng);
+			} else {
+				defaultLatlng = new google.maps.LatLng(lat, lng);
+			}
+			path.push(defaultLatlng);
+			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
+		}
+
+		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else {
+			this.getMap().fitBounds(bounds);
+		}
+
+		var first = path.getAt(0);
+
+		if (first) {
+			var start = new google.maps.Marker({
+				position : new google.maps.LatLng(first.lat(), first.lng()),
+				map : this.getMap()
+			});
+
+			var last = path.getAt(path.getLength() - 1);
+
+			var end = new google.maps.Marker({
+				position : new google.maps.LatLng(last.lat(), last.lng()),
+				icon : 'resources/image/iconStartPoint.png',
+				map : this.getMap()
+			});
+
+			this.setMarkers([ start, end ]);
+		}
+	},
+
+	incidentHandler : function(e, el, incident) {
+		GreenFleet.doMenu('monitor_incident');
+		GreenFleet.getMenu('monitor_incident').setIncident(incident, true);
+	},
+
+	refreshIncidents : function() {
+		this.sub('incidents').removeAll();
+		var max = this.getIncidentStore().count() > 4 ? 4 : this.getIncidentStore().count();
+		for ( var i = 0; i < max; i++) {
+			var incident = this.getIncidentStore().getAt(i);
+			var self = this;
+			this.sub('incidents').add(
+					{
+						xtype : 'box',
+						cls : 'incidentThumb',
+						listeners : {
+							'render' : function() {
+								this.getEl().on('click', self.incidentHandler, self, incident);
+							}
+						},
+						data : {
+							vehicle_id : incident.get('vehicle_id'),
+							driver_id : incident.get('driver_id'),
+							datetime : Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s')
+						},
+						tpl : [ '<div class="vehicle">{vehicle_id}</div>', '<div class="driver">{driver_id}</div>',
+								'<div class="date">{datetime}</div>' ]
+					})
+		}
+	},
+
+	ztitle : {
+		xtype : 'box',
+		cls : 'pageTitle',
+		itemId : 'title',
+		data : {
+			vehicle : 'Vehicle',
+			driver : 'Driver'
+		},
+		tpl : '<h1>' + T('label.vehicle') + ' : <span class="vehicle">{vehicle}</span>, ' + T('label.driver') + ' : <span class="driver">{driver}</span></h1>',
+		height : 35
+	},
+
+	ztabpanel : {
+		xtype : 'tabpanel',
+		flex : 1,
+		items : [ {
+			xtype : 'monitor_info_by_vehicle'
+		}/*, {
+			xtype : 'monitor_control_by_vehicle',
+			title : T('tab.ctrl_by_vehicle')
+		}, {
+			xtype : 'monitor_control_by_vehicle',
+			title : T('tab.ctrl_by_driver')
+		}, {
+			xtype : 'monitor_control_by_vehicle',
+			title : T('tab.maintenance')
+		}*/ ]
+	},
+
+	zvehicleinfo : {
+		xtype : 'panel',
+		title : T('title.vehicle_information'),
+		cls : 'paddingPanel',
+		layout : {
+			type : 'hbox'
+		},
+		items : [ {
+			xtype : 'image',
+			itemId : 'vehicleImage',
+			cls : 'imgVehicle'
+		}, {
+			xtype : 'image',
+			itemId : 'driverImage',
+			cls : 'imgDriver'
+		}, {
+			xtype : 'form',
+			height : 160,
+			flex : 1,
+			defaults : {
+				labelWidth : 60,
+				labelSeparator : '',
+				anchor : '100%'
+			},
+			items : [ {
+				xtype : 'displayfield',
+				name : 'id',
+				fieldLabel : T('label.vehicle'),
+				cls : 'dotUnderline',
+				itemId : 'id'
+			}, {
+				xtype : 'displayfield',
+				name : 'driver_id',
+				fieldLabel : T('label.driver'),
+				cls : 'dotUnderline',
+				itemId : 'driver'
+			}, {
+				xtype : 'displayfield',
+				name : 'terminal_id',
+				fieldLabel : T('label.terminal'),
+				cls : 'dotUnderline',
+				itemId : 'terminal'
+			}, {
+				xtype : 'displayfield',
+				name : 'location',
+				fieldLabel : T('label.location'),
+				cls : 'dotUnderline',
+				itemId : 'location'
+			}, {
+				xtype : 'displayfield',
+				name : 'distance',
+				cls : 'dotUnderline',
+				fieldLabel : T('label.run_dist')
+			}, {
+				xtype : 'displayfield',
+				name : 'running_time',
+				fieldLabel : T('label.run_time'),
+				cls : 'dotUnderline'
+			} ]
+		} ]
+	},
+
+	zincidents : {
+		xtype : 'panel',
+		title : T('title.incidents'),
+		layout : 'fit',
+		cls : 'paddingPanel',
+		height : 115,
+		items : [ {
+			xtype : 'container',
+			itemId : 'incidents',
+			layout : {
+				type : 'hbox',
+				align : 'left'
+			}
+		} ]
+	},
+
+	zmap : {
+		xtype : 'panel',
+		title : T('title.tracking_recent_driving'),
+		cls : 'paddingPanel backgroundGray borderLeftGray',
+		itemId : 'map',
+		flex : 1,
+		html : '<div class="map"></div>'
+	}
+});
+
+Ext.define('GreenFleet.view.monitor.IncidentView', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.monitor_incident',
+
+	title : T('title.incident_view'),
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	initComponent : function() {
+		this.items = [ {
+			xtype : 'container',
+			autoScroll : true,
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			},
+			height : 460,
+			items : [ this.zInfo, this.zVideoAndMap ]
+		}, {
+			xtype : 'container',
+			autoScroll : true,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			flex : 1,
+			items : [ this.zList ]
+		} ];
+
+		this.callParent(arguments);
+
+		/*
+		 * Content
+		 */
+
+		var self = this;
+
+		this.sub('map').on('afterrender', function() {
+			var options = {
+				zoom : 12,
+				minZoom : 3,
+				maxZoom : 19,
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+
+			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
+
+			self.getLogStore().on('load', function(store, records, success) {
+				if(success)
+					self.refreshTrack();
+			});
+		});
+
+		this.on('activate', function(comp) {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+
+		this.down('button[itemId=search]').on('click', function() {
+			self.refreshIncidentList();
+		});
+
+		this.down('button[itemId=reset]').on('click', function() {
+			self.sub('vehicle_filter').reset();
+			self.sub('driver_filter').reset();
+		});
+
+		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
+			var url = '';
+			if (value != null && value.length > 1) {
+				if (value.indexOf('http') == 0)
+					url = 'src=' + value;
+				else
+					url = 'src="download?blob-key=' + value + '"';
+			}
+
+			self.sub('video').update({
+				value : url
+			});
+		});
+
+		this.down('datefield[name=datetime]').on('change', function(field, value) {
+			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
+		});
+
+		this.down('displayfield[name=driver_id]').on('change', function(field, value) {
+			/*
+			 * Get Driver Information (Image, Name, ..) from DriverStore
+			 */
+			var driverStore = Ext.getStore('DriverBriefStore');
+			var driverRecord = driverStore.findRecord('id', value);
+			var driver = driverRecord.get('id');
+			var driverImageClip = driverRecord.get('image_clip');
+			if (driverImageClip) {
+				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+			} else {
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+			}
+		});
+
+		this.sub('driver_filter').on('specialkey', function(fleld, e) {
+			if (e.getKey() == e.ENTER) {
+				self.refreshIncidentList();
+			}
+		});
+
+		this.sub('vehicle_filter').on('specialkey', function(field, e) {
+			if (e.getKey() == e.ENTER) {
+				self.refreshIncidentList();
+			}
+		});
+
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.setIncident(record, false);
+		});
+
+		this.sub('fullscreen').on('afterrender', function(comp) {
+			comp.getEl().on('click', function() {
+				if (!Ext.isWebKit)
+					return;
+				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
+			});
+		});
+
+		this.sub('incident_form').on(
+				'afterrender',
+				function() {
+					this.down('[itemId=confirm]').getEl().on(
+							'click',
+							function(e, t) {
+								var form = self.sub('incident_form').getForm();
+
+								if (form.getRecord() != null) {
+									form.submit({
+										url : 'incident/save',
+										success : function(form, action) {
+											self.sub('grid').store.findRecord('key', action.result.key).set('confirm',
+													form.findField('confirm').getValue());
+										},
+										failure : function(form, action) {
+											GreenFleet.msg('Failed', action.result.msg);
+											form.reset();
+										}
+									});
+								}
+							});
+				});
+
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
+			operation.params['driver_id'] = self.sub('driver_filter').getSubmitValue();
+		});
+
+	},
+
+	getLogStore : function() {
+		if (!this.logStore)
+			this.logStore = Ext.getStore('IncidentLogStore');
+		return this.logStore;
+	},
+
+	setIncident : function(incident, refresh) {
+		this.incident = incident;
+		if (refresh) {
+			this.sub('vehicle_filter').setValue(incident.get('vehicle_id'));
+			this.sub('driver_filter').reset();
+			this.refreshIncidentList();
+		}
+
+		this.sub('incident_form').loadRecord(incident);
+		this.refreshMap();
+	},
+
+	getIncident : function() {
+		return this.incident;
+	},
+
+	refreshIncidentList : function() {
+		this.sub('pagingtoolbar').moveFirst();
+	},
+
+	getTrackLine : function() {
+		return this.trackline;
+	},
+
+	setTrackLine : function(trackline) {
+		if (this.trackline)
+			this.trackline.setMap(null);
+		this.trackline = trackline;
+	},
+
+	getMarker : function() {
+		return this.marker;
+	},
+
+	setMarker : function(marker) {
+		if (this.marker)
+			this.marker.setMap(null);
+		this.marker = marker;
+	},
+
+	refreshMap : function() {
+		this.setMarker(null);
+
+		var incident = this.getIncident();
+		var location = null;
+		if (!incident)
+			location = new google.maps.LatLng(System.props.lat, System.props.lng);
+		else
+			location = new google.maps.LatLng(incident.get('lat'), incident.get('lng'));
+
+		this.getMap().setCenter(location);
+
+		if (!incident)
+			return;
+
+		this.setMarker(new google.maps.Marker({
+			position : location,
+			map : this.getMap()
+		}));
+
+		this.getLogStore().clearFilter(true);
+		this.getLogStore().filter([ {
+			property : "incident",
+			value : incident.get('key')
+		} ]);
+		this.getLogStore().load();
+	},
+
+	refreshTrack : function() {
+		this.setTrackLine(new google.maps.Polyline({
+			map : this.getMap(),
+			strokeColor : '#FF0000',
+			strokeOpacity : 1.0,
+			strokeWeight : 4
+		}));
+
+		var path = this.getTrackLine().getPath();
+		var bounds;
+		var latlng;
+
+		this.getLogStore().each(function(record) {
+			latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
+			path.push(latlng);
+			if (!bounds)
+				bounds = new google.maps.LatLngBounds(latlng, latlng);
+			else
+				bounds.extend(latlng);
+		});
+
+		if (!bounds)
+			return;
+
+		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			this.getMap().setCenter(bounds.getNorthEast());
+		} else {
+			this.getMap().fitBounds(bounds);
+		}
+	},
+
+	getMap : function() {
+		return this.map;
+	},
+
+	zInfo : {
+		xtype : 'form',
+		itemId : 'incident_form',
+		cls : 'incidentSummary',
+		height : 50,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		autoScroll : true,
+		defaults : {
+			anchor : '100%',
+			labelAlign : 'top',
+			cls : 'summaryCell'
+		},
+		items : [ {
+			xtype : 'textfield',
+			name : 'key',
+			hidden : true
+		}, {
+			xtype : 'image',
+			itemId : 'driverImage',
+			cls : 'imgDriverSmall',
+			height : 37
+		}, {
+			xtype : 'datefield',
+			name : 'datetime',
+			hidden : true,
+			format : 'd-m-Y H:i:s'
+		}, {
+			xtype : 'displayfield',
+			itemId : 'incident_time',
+			width : 160,
+			fieldLabel : T('label.x_time', {
+				x : T('label.incident')
+			})
+		}, {
+			xtype : 'displayfield',
+			name : 'vehicle_id',
+			width : 100,
+			fieldLabel : T('label.vehicle')
+		}, {
+			xtype : 'displayfield',
+			name : 'driver_id',
+			width : 100,
+			fieldLabel : T('label.driver')
+		}, {
+			xtype : 'displayfield',
+			name : 'impulse_abs',
+			width : 100,
+			fieldLabel : T('label.impulse')
+		}, {
+			xtype : 'displayfield',
+			name : 'engine_temp',
+			width : 100,
+			fieldLabel : T('label.engine_temp')
+		}, {
+			xtype : 'checkbox',
+			name : 'confirm',
+			itemId : 'confirm',
+			fieldLabel : T('label.confirm'),
+			uncheckedValue : 'off',
+			labelCls : 'labelStyle1',
+			cls : 'backgroundNone'
+		}, {
+			xtype : 'displayfield',
+			name : 'video_clip',
+			hidden : true
+		} ]
+	},
+
+	zVideoAndMap : {
+		xtype : 'container',
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
+		flex : 1,
+		items : [
+				{
+					xtype : 'panel',
+					// title : T('title.incident_details'),
+					cls : 'paddingAll10 incidentVOD',
+					width : 690,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'
+					},
+					items : [
+							{
+								xtype : 'box',
+								itemId : 'fullscreen',
+								html : '<div class="btnFullscreen"></div>'
+							},
+							{
+								xtype : 'box',
+								cls : 'incidentDetail',
+								flex : 1,
+								itemId : 'video',
+								tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
+										'Your browser does not support the video tag.', '</video>' ]
+							} ]
+				}, {
+					xtype : 'panel',
+					// title : T('title.position_of_incident'),
+					cls : 'backgroundGray borderLeftGray',
+					flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'stretch'
+					},
+					items : [ {
+						xtype : 'box',
+						itemId : 'map',
+						html : '<div class="map"></div>',
+						flex : 3
+					}, {
+						xtype : 'chart',
+						itemId : 'chart',
+						flex : 1,
+						legend : {
+							position : 'bottom',
+							itemSpacing : 5,
+							padding : 0,
+							labelFont : "10px Helvetica, sans-serif",
+							boxStroke : "transparent",
+							boxFill : "transparent"
+						},
+						store : 'IncidentLogStore',
+						axes : [ {
+							// title : T('label.acceleration'),
+							type : 'Numeric',
+							position : 'left',
+							fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
+						}, {
+							// title : T('label.acceleration'),
+							type : 'Numeric',
+							position : 'right',
+							fields : [ 'velocity' ]
+						}, {
+							// title : T('label.time'),
+							type : 'Time',
+							position : 'bottom',
+							fields : [ 'datetime' ],
+							dateFormat : 'H:i:s',
+							step : [ Ext.Date.SECOND, 1 ],
+							label : {
+								rotate : {
+									degrees : 45
+								}
+							}
+						} ],
+						series : [ {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'accelate_x',
+							axis : 'left',
+							smooth : true
+						}, {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'accelate_y',
+							axis : 'left',
+							smooth : true
+						}, {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'accelate_z',
+							axis : 'left',
+							smooth : true
+						}, {
+							type : 'line',
+							xField : 'datetime',
+							yField : 'velocity',
+							axis : 'right',
+							smooth : true
+						} ],
+						flex : 2
+					} ]
+				} ]
+	},
+
+	zList : {
+		xtype : 'gridpanel',
+		itemId : 'grid',
+		cls : 'hIndexbar',
+		title : T('title.incident_list'),
+		store : 'IncidentViewStore',
+		autoScroll : true,
+		flex : 1,
+		columns : [ new Ext.grid.RowNumberer(), {
+			dataIndex : 'key',
+			text : 'Key',
+			type : 'string',
+			hidden : true
+		}, {
+			dataIndex : 'video_clip',
+			text : 'V',
+			renderer : function(value, cell) {
+				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			width : 20
+		}, {
+			dataIndex : 'confirm',
+			text : T('label.confirm'),
+			renderer : function(value, cell) {
+				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			align : 'center',
+			width : 50
+		}, {
+			dataIndex : 'datetime',
+			text : T('label.x_time', {
+				x : T('label.incident')
+			}),
+			xtype : 'datecolumn',
+			width : 120,
+			format : F('datetime')
+		}, {
+			dataIndex : 'driver_id',
+			text : T('label.driver'),
+			type : 'string',
+			width : 80
+		}, {
+			dataIndex : 'vehicle_id',
+			text : T('label.vehicle'),
+			type : 'string',
+			width : 80
+		}, {
+			dataIndex : 'terminal_id',
+			text : T('label.terminal'),
+			type : 'string',
+			width : 80
+		}, {
+			dataIndex : 'lat',
+			text : T('label.latitude'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'lng',
+			text : T('label.longitude'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'velocity',
+			text : T('label.velocity'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_abs',
+			text : T('label.impulse'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_x',
+			text : T('label.impulse_x', {
+				x : 'X'
+			}),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_y',
+			text : T('label.impulse_x', {
+				x : 'Y'
+			}),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_z',
+			text : T('label.impulse_x', {
+				x : 'Z'
+			}),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'impulse_threshold',
+			text : T('label.impulse_threshold'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'obd_connected',
+			text : T('label.obd'),
+			renderer : function(value, cell) {
+				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
+			},
+			align : 'center',
+			width : 40
+		}, {
+			dataIndex : 'engine_temp',
+			text : T('label.engine_temp'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'engine_temp_threshold',
+			text : T('label.engine_temp_threshold'),
+			type : 'number',
+			width : 80
+		}, {
+			dataIndex : 'created_at',
+			text : T('label.created_at'),
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		}, {
+			dataIndex : 'updated_at',
+			text : T('label.updated_at'),
+			xtype : 'datecolumn',
+			format : F('datetime'),
+			width : 120
+		} ],
+		viewConfig : {},
+		tbar : [ {
+			xtype : 'combo',
+			queryMode : 'local',
+			store : 'VehicleBriefStore',
+			displayField : 'id',
+			valueField : 'id',
+			fieldLabel : T('label.vehicle'),
+			itemId : 'vehicle_filter',
+			width : 200
+		}, {
+			xtype : 'combo',
+			queryMode : 'local',
+			store : 'DriverBriefStore',
+			displayField : 'id',
+			valueField : 'id',
+			fieldLabel : T('label.driver'),
+			itemId : 'driver_filter',
+			width : 200
+		}, {
+			itemId : 'search',
+			text : T('button.search')
+		}, {
+			itemId : 'reset',
+			text : T('button.reset')
+		} ],
+		bbar : {
+			xtype : 'pagingtoolbar',
+			itemId : 'pagingtoolbar',
+			cls : 'pagingtoolbar', // 하단 page tool bar에 대한 아이콘 버튼 class
+			store : 'IncidentViewStore',
+			displayInfo : true,
+			displayMsg : 'Displaying incidents {0} - {1} of {2}',
+			emptyMsg : "No incidents to display"
+		}
+	}
+});
+
 Ext.define('GreenFleet.view.management.Company', {
 	extend : 'Ext.container.Container',
 
@@ -5335,3026 +9595,6 @@ Ext.define('GreenFleet.view.management.CheckinData', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.monitor.Map', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.monitor_map',
-	
-	id : 'monitor_map',
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	initComponent : function() {
-		this.items = [ this.ztitle(), this.zmap ];
-		
-		this.callParent();
-		
-		var self = this;
-		
-		var interval = null;
-		var vehicleMapStore = null;
-		var incidentStore = null;
-		
-		this.on('afterrender', function() {
-			vehicleMapStore = Ext.getStore('VehicleMapStore');
-			incidentStore = Ext.getStore('RecentIncidentStore');
-			var vehicleFilteredStore = Ext.getStore('VehicleFilteredStore');
-			
-			vehicleFilteredStore.on('datachanged', function() {
-				if(self.isVisible()) {
-					self.refreshMap(vehicleFilteredStore, GreenFleet.setting.get('autofit'));
-				}
-			});
-			
-			vehicleMapStore.load();
-			
-			/*
-			 * TODO 디폴트로 1분에 한번씩 리프레쉬하도록 함.
-			 */
-			interval = setInterval(function() {
-				vehicleMapStore.load();
-				incidentStore.load();
-			}, GreenFleet.setting.get('refreshTerm') * 1000);
-		});
-		
-		this.on('resize', function() {
-			google.maps.event.trigger(self.getMap(), 'resize');
-		});
-		
-		this.on('activate', function() {
-			google.maps.event.trigger(self.getMap(), 'resize');
-			if(GreenFleet.setting.get('autofit'))
-				self.refreshMap(Ext.getStore('VehicleFilteredStore'), true);
-		});
-		
-		this.down('[itemId=autofit]').on('change', function(check, newValue) {
-			if(newValue) {
-				GreenFleet.setting.set('autofit', newValue);
-				
-				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
-			}
-		});
-
-		this.down('[itemId=refreshterm]').on('change', function(combo, newValue) {
-			if(newValue) {
-				GreenFleet.setting.set('refreshTerm', newValue);
-
-				clearInterval(interval);
-				interval = setInterval(function() {
-					vehicleMapStore.load();
-					incidentStore.load();
-				}, newValue * 1000);
-			}
-		});
-	},
-	
-	getMap : function() {
-		if(!this.map) {
-			this.map = new google.maps.Map(this.sub('mapbox').getEl().down('.map').dom, {
-				zoom : 10,
-				maxZoom : 19,
-				minZoom : 3,
-				center : new google.maps.LatLng(System.props.lat, System.props.lng),
-				mapTypeId : google.maps.MapTypeId.ROADMAP
-			});
-		}
-		return this.map;
-	},
-	
-	getMarkers : function() {
-		if(!this.markers)
-			this.markers = {};
-		return this.markers;
-	},
-	
-	getLabels : function() {
-		if(!this.labels)
-			this.labels = {};
-		return this.labels;
-	},
-	
-	resetLabels : function() {
-		for ( var vehicle in this.labels) {
-			this.labels[vehicle].setMap(null);
-		}
-		this.labels = {};
-	},
-	
-	resetMarkers : function() {
-		for ( var vehicle in this.markers) {
-			google.maps.event.clearListeners(this.markers[vehicle]);
-			this.markers[vehicle].setMap(null);
-		}
-		this.markers = {};
-	},
-	
-	/*
-	 * refreshMap : scope
-	 */
-	refreshMap : function(store, autofit) {
-		this.resetMarkers();
-		this.resetLabels();
-		
-		var images = {
-			'Running' : 'resources/image/statusDriving.png',
-			'Idle' : 'resources/image/statusStop.png',
-			'Incident' : 'resources/image/statusIncident.png',
-			'Maint' : 'resources/image/statusMaint.png'
-		};
-
-		var bounds;
-		
-		store.each(function(record) {
-			var vehicle = record.get('id');
-			var driver = record.get('driver_id');
-			var driverRecord = Ext.getStore('DriverBriefStore').findRecord('id', driver);
-			
-			var latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
-			
-			var marker = new google.maps.Marker({
-				position : latlng,
-				map : this.getMap(),
-				status : record.get('status'),
-				icon : images[record.get('status')],
-				title : driverRecord ? driverRecord.get('name') : driver,
-				tooltip : record.get('registration_number') + "(" + (driverRecord ? driverRecord.get('name') : driver) + ")"
-			});
-
-			if(!bounds)
-				bounds = new google.maps.LatLngBounds(latlng, latlng);
-			else
-				bounds.extend(latlng);
-			
-			var label = GreenFleet.label.create({
-				map : this.getMap()
-			});
-			label.bindTo('position', marker, 'position');
-			label.bindTo('text', marker, 'tooltip');
-
-			this.getMarkers()[vehicle] = marker;
-			this.getLabels()[vehicle] = label;
-
-			google.maps.event.addListener(marker, 'click', function() {
-				GreenFleet.doMenu('information');
-				GreenFleet.getMenu('information').setVehicle(record);
-			});
-		}, this);
-		
-		if(!bounds) {
-			this.getMap().setCenter(new google.maps.LatLng(System.props.lat, System.props.lng));
-		} else if(bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
-			this.getMap().setCenter(bounds.getNorthEast());
-		} else if(autofit){ // 자동 스케일 조정 경우 
-			this.getMap().fitBounds(bounds);
-//		} else { // 자동 스케일 조정이 아니어도, 센터에 맞추기를 한다면, 이렇게.
-//			this.getMap().setCenter(bounds.getCenter());
-		}
-	},
-	
-	ztitle : function() {
-		return {
-			xtype : 'container',
-			cls :'pageTitle',
-			height: 35,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [{
-				flex : 1,
-				html : '<h1>' + T('title.map') + '</h1>'
-			}, {
-				xtype : 'combo',
-				valueField : 'value',
-				displayField : 'display',
-				value : GreenFleet.setting.get('refreshTerm'),
-				width : 180,
-				labelWidth : 110,
-				labelAlign : 'right',
-				labelSeparator : '',
-				store : Ext.create('Ext.data.Store', {
-					data : [{
-						value : 3,
-						display : '3' + T('label.second_s')
-					}, {
-						value : 5,
-						display : '5' + T('label.second_s')
-					}, {
-						value : 10,
-						display : '10' + T('label.second_s')
-					}, {
-						value : 30,
-						display : '30' + T('label.second_s')
-					}, {
-						value : 60,
-						display : '1' + T('label.minute_s')
-					}, {
-						value : 300,
-						display : '5' + T('label.minute_s')
-					}],
-					fields : [
-						'value', 'display'
-					]
-				}),
-				queryMode : 'local',
-				fieldLabel : T('label.refreshterm'),
-				itemId : 'refreshterm'
-			}, {
-				xtype : 'checkboxgroup',
-				width : 80,
-				defaults : {
-					boxLabelAlign : 'before',
-					width : 80,
-					checked : GreenFleet.setting.get('autofit'),
-					labelWidth : 60,
-					labelAlign : 'right',
-					labelSeparator : ''
-				},
-				items : [{
-					fieldLabel : T('label.autofit'),
-					itemId : 'autofit'
-				}]
-			}]
-		};
-	},
-	
-	zmap : {
-		xtype : 'panel',
-		flex : 1,
-		itemId : 'mapbox',
-		html : '<div class="map" style="height:100%"></div>'
-	}
-});
-
-Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
-	extend : 'Ext.grid.Panel',
-	
-	alias : 'widget.monitor_info_by_vehicle',
-	
-	title : T('tab.info_by_vehicle'),
-
-	store : 'VehicleInfoStore',
-
-	autoScroll : true,
-
-	columns : [ new Ext.grid.RowNumberer(), {
-		dataIndex : 'key',
-		text : 'Key',
-		type : 'string',
-		hidden : true
-	}, {
-		dataIndex : 'id',
-		text : T('label.id'),
-		type : 'string'
-	}, {
-		dataIndex : 'registration_number',
-		text : T('label.reg_no'),
-		type : 'string'
-	}, {
-		dataIndex : 'manufacturer',
-		text : T('label.manufacturer'),
-		type : 'string'
-	}, {
-		dataIndex : 'vehicle_model',
-		text : T('label.vehicle_model'),
-		type : 'string'
-	}, /*{
-		dataIndex : 'vehicle_type',
-		text : T('label.vehicle_type'),
-		type : 'string'
-	}, {
-		dataIndex : 'ownership_type',
-		text : T('label.ownership_type'),
-		type : 'string'
-	},*/ {
-		dataIndex : 'birth_year',
-		text : T('label.birth_year'),
-		type : 'string'		
-	}, {
-		dataIndex : 'status',
-		text : T('label.status'),
-		type : 'string'
-	}, {
-		dataIndex : 'health_status',
-		text : T('label.health'),
-		type : 'string'
-	}, {
-		dataIndex : 'total_distance',
-		text : T('label.total_distance'),
-		type : 'string'
-	}, {
-		dataIndex : 'official_effcc',
-		text : T('label.official_effcc'),
-		type : 'float'
-	}, {
-		dataIndex : 'avg_effcc',
-		text : T('label.avg_effcc'),
-		type : 'float'
-	}, {
-		dataIndex : 'eco_index',
-		text : T('label.eco_index') + '(%)',
-		type : 'int'			
-	}, {
-		dataIndex : 'remaining_fuel',
-		text : T('label.remaining_fuel'),
-		type : 'string'
-	}, {
-		dataIndex : 'lat',
-		text : T('label.latitude')
-	}, {
-		dataIndex : 'lng',
-		text : T('label.longitude')
-	} ],
-	viewConfig : {
-
-	},
-	listeners : {
-		render : function(grid) {
-			grid.store.load();
-		},
-		itemclick : function(grid, record) {
-			var form = grid.up('monitor_information').down('form');
-			form.loadRecord(record);
-		}
-	},
-	onSearch : function(grid) {
-		var id_filter = grid.down('textfield[name=id_filter]');
-		var namefilter = grid.down('textfield[name=registration_number_field]');
-		grid.store.clearFilter();
-
-		grid.store.filter([ {
-			property : 'id',
-			value : id_filter.getValue()
-		}, {
-			property : 'registration_number',
-			value : namefilter.getValue()
-		} ]);
-	},
-	onReset : function(grid) {
-		grid.down('textfield[name=id_filter]').setValue('');
-		grid.down('textfield[name=registration_number_field]').setValue('');
-	},
-	tbar : [ T('label.id'), {
-		xtype : 'textfield',
-		name : 'id_filter',
-		hideLabel : true,
-		width : 200,
-		listeners : {
-			specialkey : function(field, e) {
-				if (e.getKey() == e.ENTER) {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
-			}
-		}
-	}, T('label.reg_no'), {
-		xtype : 'textfield',
-		name : 'registration_number_field',
-		hideLabel : true,
-		width : 200,
-		listeners : {
-			specialkey : function(field, e) {
-				if (e.getKey() == e.ENTER) {
-					var grid = this.up('gridpanel');
-					grid.onSearch(grid);
-				}
-			}
-		}
-	}, {
-		xtype : 'button',
-		text : T('button.search'),
-		tooltip : 'Find Vehicle',
-		handler : function() {
-			var grid = this.up('gridpanel');
-			grid.onSearch(grid);
-		}
-	}, {
-		text : T('button.reset'),
-		handler : function() {
-			var grid = this.up('gridpanel');
-			grid.onReset(grid);
-		}
-	} ]
-
-});
-Ext.define('GreenFleet.view.monitor.Information', {
-	extend : 'Ext.Container',
-	alias : 'widget.monitor_information',
-
-	id : 'monitor_information',
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	initComponent : function() {
-		this.items = [ this.ztitle, {
-			xtype : 'container',
-			height : 320,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [ {
-				xtype : 'container',
-				width : 620,
-				layout : {
-					type : 'vbox',
-					align : 'stretch'
-				},
-				items : [ this.zvehicleinfo, this.zincidents ]
-			}, this.zmap ]
-		}, this.ztabpanel ];
-
-		this.callParent();
-
-		var self = this;
-
-		this.sub('map').on('afterrender', function(mapbox) {
-			var options = {
-				zoom : 10,
-				minZoom : 3,
-				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lat, System.props.lng),
-				mapTypeId : google.maps.MapTypeId.ROADMAP
-			};
-
-			self.setMap(new google.maps.Map(mapbox.getEl().down('.map').dom, options));
-
-			/*
-			 * For test only.
-			 */
-//			google.maps.event.addListener(self.getMap(), 'click', function(e) {
-//				Ext.Ajax.request({
-//					url : 'track/save',
-//					method : 'POST',
-//					params : {
-//						vehicle_id : self.getVehicle(),
-//						driver_id : self.getDriver(),
-//						terminal_id : self.getTerminal(),
-//						lat : e.latLng.lat(),
-//						lng : e.latLng.lng()
-//					},
-//					success : function(resp, opts) {
-//						var path = self.getTrackLine().getPath();
-//						path.insertAt(0, e.latLng);
-//						Ext.getStore('VehicleStore').load();
-//					},
-//					failure : function(resp, opts) {
-//						console.log('Failed');
-//						console.log(resp);
-//					}
-//				});
-//			});
-		});
-
-		this.on('activate', function() {
-			google.maps.event.trigger(self.getMap(), 'resize');
-		});
-
-		this.getTrackStore().on('load', function() {
-			self.refreshTrack();
-		});
-
-		this.getIncidentStore().on('load', function() {
-			if (self.isVisible(true))
-				self.refreshIncidents();
-		});
-
-		this.sub('id').on('change', function(field, vehicle) {
-			var record = self.getForm().getRecord();
-
-			/*
-			 * Get Vehicle Information (Image, Registration #, ..) from
-			 * VehicleStore
-			 */
-			var vehicleStore = Ext.getStore('VehicleBriefStore');
-			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
-			var vehicleImageClip = vehicleRecord.get('image_clip');
-			if (vehicleImageClip) {
-				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
-			} else {
-				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
-			}
-
-			/*
-			 * Get Driver Information (Image, Name, ..) from DriverStore
-			 */
-			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
-			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('image_clip');
-			if (driverImageClip) {
-				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-			}
-
-			self.sub('title').update({
-				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : driver + ' (' + driverRecord.get('name') + ')'
-			});
-
-			/*
-			 * Get Address of the location by ReverseGeoCode.
-			 */
-			var location = record.get('location');
-			if (location == null || location.length == 0) {
-				var lat = record.get('lat');
-				var lng = record.get('lng');
-
-				if (lat !== undefined && lng !== undefined) {
-					var latlng = new google.maps.LatLng(lat, lng);
-
-					geocoder = new google.maps.Geocoder();
-					geocoder.geocode({
-						'latLng' : latlng
-					}, function(results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
-							if (results[0]) {
-								var address = results[0].formatted_address
-								record.set('location', address);
-								self.sub('location').setValue(address);
-							}
-						} else {
-							console.log("Geocoder failed due to: " + status);
-						}
-					});
-				}
-			}
-
-			/*
-			 * TrackStore를 다시 로드함.
-			 */
-			self.getTrackStore().load({
-				params : {
-					start : 0,
-					limit : 1000
-				},
-				filters : [ {
-					property : 'vehicle_id',
-					value : vehicle
-				}, {
-					property : 'date',
-					/* for Unix timestamp (in seconds) */
-					value : Math.round((new Date().getTime() - (60 * 60 * 24 * 1000)) / 1000)
-				} ]
-			});
-
-			/*
-			 * IncidentStore를 다시 로드함.
-			 */
-			self.getIncidentStore().load({
-				filters : [
-				    {
-				    	property : 'vehicle_id',
-				    	value : vehicle 
-				    }, {
-				    	property : 'confirm',
-				    	value : false
-				    }
-				]
-			});
-		});
-	},
-
-	setVehicle : function(vehicleRecord) {
-		this.getForm().loadRecord(vehicleRecord);
-	},
-
-	getForm : function() {
-		if (!this.form)
-			this.form = this.down('form');
-		return this.form;
-	},
-
-	getMap : function() {
-		return this.map;
-	},
-
-	setMap : function(map) {
-		this.map = map;
-	},
-
-	getTrackLine : function() {
-		return this.trackline;
-	},
-
-	setTrackLine : function(trackline) {
-		if (this.trackline)
-			this.trackline.setMap(null);
-		this.trackline = trackline;
-	},
-
-	getMarkers : function() {
-		return this.markers;
-	},
-
-	setMarkers : function(markers) {
-		if (this.markers) {
-			Ext.each(this.markers, function(marker) {
-				marker.setMap(null);
-			});
-		}
-
-		this.markers = markers;
-	},
-
-	resetMarkers : function() {
-		if (this.markers) {
-			Ext.each(this.markers, function(marker) {
-				marker.setMap(null);
-			});
-		}
-
-		this.markers = null;
-	},
-
-	getTrackStore : function() {
-		if (!this.trackStore)
-			this.trackStore = Ext.getStore('TrackByVehicleStore');
-		return this.trackStore;
-	},
-
-	getIncidentStore : function() {
-		if (!this.incidentStore)
-			this.incidentStore = Ext.getStore('IncidentByVehicleStore');
-		return this.incidentStore;
-	},
-
-	getVehicle : function() {
-		return this.sub('id').getValue();
-	},
-
-	getDriver : function() {
-		return this.sub('driver').getValue();
-	},
-
-	getTerminal : function() {
-		return this.sub('terminal').getValue();
-	},
-
-	refreshTrack : function() {
-		this.setTrackLine(new google.maps.Polyline({
-			map : this.getMap(),
-			strokeColor : '#FF0000',
-			strokeOpacity : 1.0,
-			strokeWeight : 4
-		}));
-		this.setMarkers(null);
-
-		var path = this.getTrackLine().getPath();
-		var bounds;
-		var latlng;
-
-		this.getTrackStore().each(function(record) {
-			var lat = record.get('lat');
-			var lng = record.get('lng');
-
-			if(lat !== 0 || lng !== 0) {
-				latlng = new google.maps.LatLng(lat, lng);
-				path.push(latlng);
-				if (!bounds)
-					bounds = new google.maps.LatLngBounds(latlng, latlng);
-				else
-					bounds.extend(latlng);
-			}
-		});
-
-		if (path.getLength() === 0) {
-			var record = this.getForm().getRecord();
-			var lat = record.get('lat');
-			var lng = record.get('lng');
-			var defaultLatlng = null;
-			
-			if(lat === 0 && lng === 0) {
-				defaultLatlng = new google.maps.LatLng(System.props.lat, System.props.lng);
-			} else {
-				defaultLatlng = new google.maps.LatLng(lat, lng);
-			}
-			path.push(defaultLatlng);
-			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
-		}
-
-		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
-			this.getMap().setCenter(bounds.getNorthEast());
-		} else {
-			this.getMap().fitBounds(bounds);
-		}
-
-		var first = path.getAt(0);
-
-		if (first) {
-			var start = new google.maps.Marker({
-				position : new google.maps.LatLng(first.lat(), first.lng()),
-				map : this.getMap()
-			});
-
-			var last = path.getAt(path.getLength() - 1);
-
-			var end = new google.maps.Marker({
-				position : new google.maps.LatLng(last.lat(), last.lng()),
-				icon : 'resources/image/iconStartPoint.png',
-				map : this.getMap()
-			});
-
-			this.setMarkers([ start, end ]);
-		}
-	},
-
-	incidentHandler : function(e, el, incident) {
-		GreenFleet.doMenu('monitor_incident');
-		GreenFleet.getMenu('monitor_incident').setIncident(incident, true);
-	},
-
-	refreshIncidents : function() {
-		this.sub('incidents').removeAll();
-		var max = this.getIncidentStore().count() > 4 ? 4 : this.getIncidentStore().count();
-		for ( var i = 0; i < max; i++) {
-			var incident = this.getIncidentStore().getAt(i);
-			var self = this;
-			this.sub('incidents').add(
-					{
-						xtype : 'box',
-						cls : 'incidentThumb',
-						listeners : {
-							'render' : function() {
-								this.getEl().on('click', self.incidentHandler, self, incident);
-							}
-						},
-						data : {
-							vehicle_id : incident.get('vehicle_id'),
-							driver_id : incident.get('driver_id'),
-							datetime : Ext.Date.format(incident.get('datetime'), 'Y-m-d H:i:s')
-						},
-						tpl : [ '<div class="vehicle">{vehicle_id}</div>', '<div class="driver">{driver_id}</div>',
-								'<div class="date">{datetime}</div>' ]
-					})
-		}
-	},
-
-	ztitle : {
-		xtype : 'box',
-		cls : 'pageTitle',
-		itemId : 'title',
-		data : {
-			vehicle : 'Vehicle',
-			driver : 'Driver'
-		},
-		tpl : '<h1>' + T('label.vehicle') + ' : <span class="vehicle">{vehicle}</span>, ' + T('label.driver') + ' : <span class="driver">{driver}</span></h1>',
-		height : 35
-	},
-
-	ztabpanel : {
-		xtype : 'tabpanel',
-		flex : 1,
-		items : [ {
-			xtype : 'monitor_info_by_vehicle'
-		}/*, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.ctrl_by_vehicle')
-		}, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.ctrl_by_driver')
-		}, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.maintenance')
-		}*/ ]
-	},
-
-	zvehicleinfo : {
-		xtype : 'panel',
-		title : T('title.vehicle_information'),
-		cls : 'paddingPanel',
-		layout : {
-			type : 'hbox'
-		},
-		items : [ {
-			xtype : 'image',
-			itemId : 'vehicleImage',
-			cls : 'imgVehicle'
-		}, {
-			xtype : 'image',
-			itemId : 'driverImage',
-			cls : 'imgDriver'
-		}, {
-			xtype : 'form',
-			height : 160,
-			flex : 1,
-			defaults : {
-				labelWidth : 60,
-				labelSeparator : '',
-				anchor : '100%'
-			},
-			items : [ {
-				xtype : 'displayfield',
-				name : 'id',
-				fieldLabel : T('label.vehicle'),
-				cls : 'dotUnderline',
-				itemId : 'id'
-			}, {
-				xtype : 'displayfield',
-				name : 'driver_id',
-				fieldLabel : T('label.driver'),
-				cls : 'dotUnderline',
-				itemId : 'driver'
-			}, {
-				xtype : 'displayfield',
-				name : 'terminal_id',
-				fieldLabel : T('label.terminal'),
-				cls : 'dotUnderline',
-				itemId : 'terminal'
-			}, {
-				xtype : 'displayfield',
-				name : 'location',
-				fieldLabel : T('label.location'),
-				cls : 'dotUnderline',
-				itemId : 'location'
-			}, {
-				xtype : 'displayfield',
-				name : 'distance',
-				cls : 'dotUnderline',
-				fieldLabel : T('label.run_dist')
-			}, {
-				xtype : 'displayfield',
-				name : 'running_time',
-				fieldLabel : T('label.run_time'),
-				cls : 'dotUnderline'
-			} ]
-		} ]
-	},
-
-	zincidents : {
-		xtype : 'panel',
-		title : T('title.incidents'),
-		layout : 'fit',
-		cls : 'paddingPanel',
-		height : 115,
-		items : [ {
-			xtype : 'container',
-			itemId : 'incidents',
-			layout : {
-				type : 'hbox',
-				align : 'left'
-			}
-		} ]
-	},
-
-	zmap : {
-		xtype : 'panel',
-		title : T('title.tracking_recent_driving'),
-		cls : 'paddingPanel backgroundGray borderLeftGray',
-		itemId : 'map',
-		flex : 1,
-		html : '<div class="map"></div>'
-	}
-});
-
-Ext.define('GreenFleet.view.monitor.IncidentView', {
-	extend : 'Ext.container.Container',
-
-	alias : 'widget.monitor_incident',
-
-	title : T('title.incident_view'),
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	initComponent : function() {
-		this.items = [ {
-			xtype : 'container',
-			autoScroll : true,
-			layout : {
-				type : 'vbox',
-				align : 'stretch'
-			},
-			height : 460,
-			items : [ this.zInfo, this.zVideoAndMap ]
-		}, {
-			xtype : 'container',
-			autoScroll : true,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			flex : 1,
-			items : [ this.zList ]
-		} ];
-
-		this.callParent(arguments);
-
-		/*
-		 * Content
-		 */
-
-		var self = this;
-
-		this.sub('map').on('afterrender', function() {
-			var options = {
-				zoom : 12,
-				minZoom : 3,
-				maxZoom : 19,
-				center : new google.maps.LatLng(System.props.lat, System.props.lng),
-				mapTypeId : google.maps.MapTypeId.ROADMAP
-			};
-
-			self.map = new google.maps.Map(self.sub('map').getEl().down('.map').dom, options);
-
-			self.getLogStore().on('load', function(store, records, success) {
-				if(success)
-					self.refreshTrack();
-			});
-		});
-
-		this.on('activate', function(comp) {
-			google.maps.event.trigger(self.getMap(), 'resize');
-		});
-
-		this.down('button[itemId=search]').on('click', function() {
-			self.refreshIncidentList();
-		});
-
-		this.down('button[itemId=reset]').on('click', function() {
-			self.sub('vehicle_filter').reset();
-			self.sub('driver_filter').reset();
-		});
-
-		this.down('displayfield[name=video_clip]').on('change', function(field, value) {
-			var url = '';
-			if (value != null && value.length > 1) {
-				if (value.indexOf('http') == 0)
-					url = 'src=' + value;
-				else
-					url = 'src="download?blob-key=' + value + '"';
-			}
-
-			self.sub('video').update({
-				value : url
-			});
-		});
-
-		this.down('datefield[name=datetime]').on('change', function(field, value) {
-			self.sub('incident_time').setValue(Ext.Date.format(value, 'D Y-m-d H:i:s'));
-		});
-
-		this.down('displayfield[name=driver_id]').on('change', function(field, value) {
-			/*
-			 * Get Driver Information (Image, Name, ..) from DriverStore
-			 */
-			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = driverStore.findRecord('id', value);
-			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('image_clip');
-			if (driverImageClip) {
-				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-			}
-		});
-
-		this.sub('driver_filter').on('specialkey', function(fleld, e) {
-			if (e.getKey() == e.ENTER) {
-				self.refreshIncidentList();
-			}
-		});
-
-		this.sub('vehicle_filter').on('specialkey', function(field, e) {
-			if (e.getKey() == e.ENTER) {
-				self.refreshIncidentList();
-			}
-		});
-
-		this.sub('grid').on('itemclick', function(grid, record) {
-			self.setIncident(record, false);
-		});
-
-		this.sub('fullscreen').on('afterrender', function(comp) {
-			comp.getEl().on('click', function() {
-				if (!Ext.isWebKit)
-					return;
-				self.sub('video').getEl().dom.getElementsByTagName('video')[0].webkitEnterFullscreen();
-			});
-		});
-
-		this.sub('incident_form').on(
-				'afterrender',
-				function() {
-					this.down('[itemId=confirm]').getEl().on(
-							'click',
-							function(e, t) {
-								var form = self.sub('incident_form').getForm();
-
-								if (form.getRecord() != null) {
-									form.submit({
-										url : 'incident/save',
-										success : function(form, action) {
-											self.sub('grid').store.findRecord('key', action.result.key).set('confirm',
-													form.findField('confirm').getValue());
-										},
-										failure : function(form, action) {
-											GreenFleet.msg('Failed', action.result.msg);
-											form.reset();
-										}
-									});
-								}
-							});
-				});
-
-		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
-			operation.params = operation.params || {};
-			operation.params['vehicle_id'] = self.sub('vehicle_filter').getSubmitValue();
-			operation.params['driver_id'] = self.sub('driver_filter').getSubmitValue();
-		});
-
-	},
-
-	getLogStore : function() {
-		if (!this.logStore)
-			this.logStore = Ext.getStore('IncidentLogStore');
-		return this.logStore;
-	},
-
-	setIncident : function(incident, refresh) {
-		this.incident = incident;
-		if (refresh) {
-			this.sub('vehicle_filter').setValue(incident.get('vehicle_id'));
-			this.sub('driver_filter').reset();
-			this.refreshIncidentList();
-		}
-
-		this.sub('incident_form').loadRecord(incident);
-		this.refreshMap();
-	},
-
-	getIncident : function() {
-		return this.incident;
-	},
-
-	refreshIncidentList : function() {
-		this.sub('pagingtoolbar').moveFirst();
-	},
-
-	getTrackLine : function() {
-		return this.trackline;
-	},
-
-	setTrackLine : function(trackline) {
-		if (this.trackline)
-			this.trackline.setMap(null);
-		this.trackline = trackline;
-	},
-
-	getMarker : function() {
-		return this.marker;
-	},
-
-	setMarker : function(marker) {
-		if (this.marker)
-			this.marker.setMap(null);
-		this.marker = marker;
-	},
-
-	refreshMap : function() {
-		this.setMarker(null);
-
-		var incident = this.getIncident();
-		var location = null;
-		if (!incident)
-			location = new google.maps.LatLng(System.props.lat, System.props.lng);
-		else
-			location = new google.maps.LatLng(incident.get('lat'), incident.get('lng'));
-
-		this.getMap().setCenter(location);
-
-		if (!incident)
-			return;
-
-		this.setMarker(new google.maps.Marker({
-			position : location,
-			map : this.getMap()
-		}));
-
-		this.getLogStore().clearFilter(true);
-		this.getLogStore().filter([ {
-			property : "incident",
-			value : incident.get('key')
-		} ]);
-		this.getLogStore().load();
-	},
-
-	refreshTrack : function() {
-		this.setTrackLine(new google.maps.Polyline({
-			map : this.getMap(),
-			strokeColor : '#FF0000',
-			strokeOpacity : 1.0,
-			strokeWeight : 4
-		}));
-
-		var path = this.getTrackLine().getPath();
-		var bounds;
-		var latlng;
-
-		this.getLogStore().each(function(record) {
-			latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
-			path.push(latlng);
-			if (!bounds)
-				bounds = new google.maps.LatLngBounds(latlng, latlng);
-			else
-				bounds.extend(latlng);
-		});
-
-		if (!bounds)
-			return;
-
-		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
-			this.getMap().setCenter(bounds.getNorthEast());
-		} else {
-			this.getMap().fitBounds(bounds);
-		}
-	},
-
-	getMap : function() {
-		return this.map;
-	},
-
-	zInfo : {
-		xtype : 'form',
-		itemId : 'incident_form',
-		cls : 'incidentSummary',
-		height : 50,
-		layout : {
-			type : 'hbox',
-			align : 'stretch'
-		},
-		autoScroll : true,
-		defaults : {
-			anchor : '100%',
-			labelAlign : 'top',
-			cls : 'summaryCell'
-		},
-		items : [ {
-			xtype : 'textfield',
-			name : 'key',
-			hidden : true
-		}, {
-			xtype : 'image',
-			itemId : 'driverImage',
-			cls : 'imgDriverSmall',
-			height : 37
-		}, {
-			xtype : 'datefield',
-			name : 'datetime',
-			hidden : true,
-			format : 'd-m-Y H:i:s'
-		}, {
-			xtype : 'displayfield',
-			itemId : 'incident_time',
-			width : 160,
-			fieldLabel : T('label.x_time', {
-				x : T('label.incident')
-			})
-		}, {
-			xtype : 'displayfield',
-			name : 'vehicle_id',
-			width : 100,
-			fieldLabel : T('label.vehicle')
-		}, {
-			xtype : 'displayfield',
-			name : 'driver_id',
-			width : 100,
-			fieldLabel : T('label.driver')
-		}, {
-			xtype : 'displayfield',
-			name : 'impulse_abs',
-			width : 100,
-			fieldLabel : T('label.impulse')
-		}, {
-			xtype : 'displayfield',
-			name : 'engine_temp',
-			width : 100,
-			fieldLabel : T('label.engine_temp')
-		}, {
-			xtype : 'checkbox',
-			name : 'confirm',
-			itemId : 'confirm',
-			fieldLabel : T('label.confirm'),
-			uncheckedValue : 'off',
-			labelCls : 'labelStyle1',
-			cls : 'backgroundNone'
-		}, {
-			xtype : 'displayfield',
-			name : 'video_clip',
-			hidden : true
-		} ]
-	},
-
-	zVideoAndMap : {
-		xtype : 'container',
-		layout : {
-			type : 'hbox',
-			align : 'stretch'
-		},
-		flex : 1,
-		items : [
-				{
-					xtype : 'panel',
-					// title : T('title.incident_details'),
-					cls : 'paddingAll10 incidentVOD',
-					width : 690,
-					layout : {
-						type : 'vbox',
-						align : 'stretch'
-					},
-					items : [
-							{
-								xtype : 'box',
-								itemId : 'fullscreen',
-								html : '<div class="btnFullscreen"></div>'
-							},
-							{
-								xtype : 'box',
-								cls : 'incidentDetail',
-								flex : 1,
-								itemId : 'video',
-								tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
-										'Your browser does not support the video tag.', '</video>' ]
-							} ]
-				}, {
-					xtype : 'panel',
-					// title : T('title.position_of_incident'),
-					cls : 'backgroundGray borderLeftGray',
-					flex : 1,
-					layout : {
-						type : 'vbox',
-						align : 'stretch'
-					},
-					items : [ {
-						xtype : 'box',
-						itemId : 'map',
-						html : '<div class="map"></div>',
-						flex : 3
-					}, {
-						xtype : 'chart',
-						itemId : 'chart',
-						flex : 1,
-						legend : {
-							position : 'bottom',
-							itemSpacing : 5,
-							padding : 0,
-							labelFont : "10px Helvetica, sans-serif",
-							boxStroke : "transparent",
-							boxFill : "transparent"
-						},
-						store : 'IncidentLogStore',
-						axes : [ {
-							// title : T('label.acceleration'),
-							type : 'Numeric',
-							position : 'left',
-							fields : [ 'accelate_x', 'accelate_y', 'accelate_z' ]
-						}, {
-							// title : T('label.acceleration'),
-							type : 'Numeric',
-							position : 'right',
-							fields : [ 'velocity' ]
-						}, {
-							// title : T('label.time'),
-							type : 'Time',
-							position : 'bottom',
-							fields : [ 'datetime' ],
-							dateFormat : 'H:i:s',
-							step : [ Ext.Date.SECOND, 1 ],
-							label : {
-								rotate : {
-									degrees : 45
-								}
-							}
-						} ],
-						series : [ {
-							type : 'line',
-							xField : 'datetime',
-							yField : 'accelate_x',
-							axis : 'left',
-							smooth : true
-						}, {
-							type : 'line',
-							xField : 'datetime',
-							yField : 'accelate_y',
-							axis : 'left',
-							smooth : true
-						}, {
-							type : 'line',
-							xField : 'datetime',
-							yField : 'accelate_z',
-							axis : 'left',
-							smooth : true
-						}, {
-							type : 'line',
-							xField : 'datetime',
-							yField : 'velocity',
-							axis : 'right',
-							smooth : true
-						} ],
-						flex : 2
-					} ]
-				} ]
-	},
-
-	zList : {
-		xtype : 'gridpanel',
-		itemId : 'grid',
-		cls : 'hIndexbar',
-		title : T('title.incident_list'),
-		store : 'IncidentViewStore',
-		autoScroll : true,
-		flex : 1,
-		columns : [ new Ext.grid.RowNumberer(), {
-			dataIndex : 'key',
-			text : 'Key',
-			type : 'string',
-			hidden : true
-		}, {
-			dataIndex : 'video_clip',
-			text : 'V',
-			renderer : function(value, cell) {
-				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
-			},
-			width : 20
-		}, {
-			dataIndex : 'confirm',
-			text : T('label.confirm'),
-			renderer : function(value, cell) {
-				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
-			},
-			align : 'center',
-			width : 50
-		}, {
-			dataIndex : 'datetime',
-			text : T('label.x_time', {
-				x : T('label.incident')
-			}),
-			xtype : 'datecolumn',
-			width : 120,
-			format : F('datetime')
-		}, {
-			dataIndex : 'driver_id',
-			text : T('label.driver'),
-			type : 'string',
-			width : 80
-		}, {
-			dataIndex : 'vehicle_id',
-			text : T('label.vehicle'),
-			type : 'string',
-			width : 80
-		}, {
-			dataIndex : 'terminal_id',
-			text : T('label.terminal'),
-			type : 'string',
-			width : 80
-		}, {
-			dataIndex : 'lat',
-			text : T('label.latitude'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'lng',
-			text : T('label.longitude'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'velocity',
-			text : T('label.velocity'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'impulse_abs',
-			text : T('label.impulse'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'impulse_x',
-			text : T('label.impulse_x', {
-				x : 'X'
-			}),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'impulse_y',
-			text : T('label.impulse_x', {
-				x : 'Y'
-			}),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'impulse_z',
-			text : T('label.impulse_x', {
-				x : 'Z'
-			}),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'impulse_threshold',
-			text : T('label.impulse_threshold'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'obd_connected',
-			text : T('label.obd'),
-			renderer : function(value, cell) {
-				return '<input type="checkbox" disabled="true" ' + (!!value ? 'checked ' : '') + '"/>';
-			},
-			align : 'center',
-			width : 40
-		}, {
-			dataIndex : 'engine_temp',
-			text : T('label.engine_temp'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'engine_temp_threshold',
-			text : T('label.engine_temp_threshold'),
-			type : 'number',
-			width : 80
-		}, {
-			dataIndex : 'created_at',
-			text : T('label.created_at'),
-			xtype : 'datecolumn',
-			format : F('datetime'),
-			width : 120
-		}, {
-			dataIndex : 'updated_at',
-			text : T('label.updated_at'),
-			xtype : 'datecolumn',
-			format : F('datetime'),
-			width : 120
-		} ],
-		viewConfig : {},
-		tbar : [ {
-			xtype : 'combo',
-			queryMode : 'local',
-			store : 'VehicleBriefStore',
-			displayField : 'id',
-			valueField : 'id',
-			fieldLabel : T('label.vehicle'),
-			itemId : 'vehicle_filter',
-			width : 200
-		}, {
-			xtype : 'combo',
-			queryMode : 'local',
-			store : 'DriverBriefStore',
-			displayField : 'id',
-			valueField : 'id',
-			fieldLabel : T('label.driver'),
-			itemId : 'driver_filter',
-			width : 200
-		}, {
-			itemId : 'search',
-			text : T('button.search')
-		}, {
-			itemId : 'reset',
-			text : T('button.reset')
-		} ],
-		bbar : {
-			xtype : 'pagingtoolbar',
-			itemId : 'pagingtoolbar',
-			cls : 'pagingtoolbar', // 하단 page tool bar에 대한 아이콘 버튼 class
-			store : 'IncidentViewStore',
-			displayInfo : true,
-			displayMsg : 'Displaying incidents {0} - {1} of {2}',
-			emptyMsg : "No incidents to display"
-		}
-	}
-});
-
-Ext.define('GreenFleet.view.common.CodeCombo', {
-	extend : 'Ext.form.field.ComboBox',
-
-	alias : 'widget.codecombo',
-	
-	queryMode : 'local',
-	
-	displayField: 'code',
-	
-	matchFieldWidth : false,
-
-    typeAhead: true,
-    
-    emptyText : 'Alt+Q',
-    
-	group : 'V-Maker',
-	
-    initComponent : function() {
-    	this.store = Ext.getStore('CodeStore').substore(this.group);
-    	this.emptyText = this.fieldLabel;
-    	this.callParent();
-    },
-	
-	listConfig : {
-		getInnerTpl : function() {
-			return '<div class="codelist"><span class="code">{code}</span> ({desc})</div>'; 
-		}, 
-		minWidth : 200
-	}
-});
-
-Ext.define('GreenFleet.view.form.TimeZoneCombo', {
-	extend : 'Ext.form.field.ComboBox',
-	
-	alias : 'widget.tzcombo',
-	
-	fieldLabel: 'Choose TimeZone',
-	
-    store: 'TimeZoneStore',
-    
-    queryMode: 'local',
-    
-    displayField: 'display',
-    
-    valueField: 'value'
-});
-Ext.define('GreenFleet.view.form.DateTimeField', {
-	extend : 'Ext.form.FieldContainer',
-	alias: 'widget.datetimex',
-	
-	cls :'hboxLine',
-	
-	layout: {
-        type: 'hbox',
-        align:'top'
-    },
-	
-    defaults:{margins:'0 3 0 0'},
-	
-	initComponent:function() {
-		this.items = this.buildItems();
-		
-		this.callParent();
-	},
-	buildItems : function(){
-		//var type = this.type; // date,time,datetime,datetimeto,dateto,timeto,
-		var fieldId = 'valueField'; // + 1
-		var items= [this.buildValue(fieldId)];
-		if(this.type == 'date')			items.push(this.buildDate(fieldId,1));
-		else if(this.type == 'time')	items.push(this.buildTime(fieldId,1));
-		else if(this.type == 'datetime')	items.push(this.buildDate(fieldId,3),this.buildTime(fieldId,2));
-		
-		return items;
-	},
-	buildValue : function(fieldId){
-		return {
-			xtype : 'textfield',
-			hidden : true,
-			name : this.name,
-			itemId : fieldId,
-			value : this.getDefaultValue()
-		};
-	},
-	buildDate : function(fieldId,flex){
-		var valueDateFormat = this.getValueDateFormat();
-		var valueTimeFormat = this.getValueTimeFormat();
-		return {
-			listeners : {
-				change : function(field, newValue, oldValue){ 
-					var targetField = this.up('fieldcontainer').getComponent(fieldId);
-					var timeField = this.up('fieldcontainer').getComponent('time'+fieldId);
-					var timeVal = '';
-					var dateString = '';
-					
-					if(newValue)
-						dateString = Ext.Date.format(newValue,valueDateFormat);
-					
-					if(timeField){
-						timeVal = timeField.getValue();
-						if (!timeVal)	timeVal = ''; 
-						else timeVal = Ext.Date.format(timeVal,valueTimeFormat);
-						targetField.setValue(dateString+timeVal);
-					}
-					else
-						targetField.setValue(dateString);
-                }
-			},
-			xtype: 'datefield',
-			format : this.getDateFormat(), 
-			name :  this.name+'_date',
-			value : this.defaultValue,
-			itemId : 'date'+fieldId,
-			flex: flex
-		};
-	},
-	
-	buildTime : function(fieldId,flex){
-		var valueDateFormat = this.getValueDateFormat();
-		var valueTimeFormat = this.getValueTimeFormat();
-		return {
-			listeners : {
-				change : function(field, newValue, oldValue){ 
-					var targetField = this.up('fieldcontainer').getComponent(fieldId);
-					var dateField = this.up('fieldcontainer').getComponent('date'+fieldId);
-					var dateVal = '';
-					var timeString = '';
-					
-					if(newValue)
-						timeString = Ext.Date.format(newValue,valueTimeFormat);
-					
-					if(dateField){
-						dateVal = dateField.getValue();
-						if (!dateVal)	return; 
-						dateVal = Ext.Date.format(dateVal,valueDateFormat);
-						targetField.setValue(dateVal+timeString);
-					}
-					else
-						targetField.setValue(timeString);
-				}
-			},
-			xtype: 'timefield',
-			format : this.getTimeFormat(),
-			name : this.name+'_time',
-			value : this.defaultValue,
-			itemId : 'time'+fieldId,
-			flex: flex
-		};
-	},
-	getDefaultValue : function(){
-		var valueFormat = this.getDateFormat()+this.getTimeFormat();
-		if(this.defaultValue){	
-			if (this.type == 'date'){
-				valueFormatthis.getDateFormat();
-			}
-			else if (this.type == 'time'){
-				valueFormat = this.getTimeFormat();
-			}
-			return Ext.Date.format(this.defaultValue,valueFormat);
-		}
-		return '';
-	},
-	getValueDateFormat : function(){
-		if (this.valueDateFormat)
-			return this.valueDateFormat;
-		return 'Ymd'; //99991231
-	},
-	getValueTimeFormat : function(){
-		if (this.valueTimeFormat)
-			return this.valueTimeFormat;
-		return 'Hi'; //2301
-	},
-	getDateFormat : function(){
-		if (this.dateFormat)
-			return this.dateFormat;
-		return 'Y-m-d';// 9999-12-31
-	},
-	getTimeFormat : function(){
-		if (this.timeFormat)
-			return this.timeFormat;
-		return 'H:i'; //23:01
-	}
-});
-Ext.define('GreenFleet.view.form.SearchField', {
-	extend : 'Ext.form.field.ComboBox',
-	
-	alias : 'widget.searchfield',
-	
-	queryMode : 'local',
-	
-	displayField : 'id',
-	
-	matchFieldWidth : false,
-	
-	typeAhead: true,
-	
-	emptyText : 'Alt+Q',
-	
-	store : 'VehicleBriefStore',
-	
-	initComponent : function() {
-		
-		this.callParent();
-		
-		var self = this;
-		
-		new Ext.util.KeyMap(document, {
-			key : 'q',
-			alt : true,
-			fn : this.focus,
-			scope : this
-		});
-		
-		this.store.load();
-	},
-	
-	listConfig : {
-		loadingText : T('msg.searching'),
-		emptyText : T('msg.no_matching_data_found'),
-		getInnerTpl : function() {
-			return '<div class="appSearchItem"><span class="id">{id}</span> <span class="registration_number">{registration_number}</span></div>';
-		},
-		minWidth : 190
-	},
-	
-	listeners : {
-		'select' : function(combo, records, eOpts) {
-			GreenFleet.doMenu('monitor_map');
-
-			var store = Ext.getStore('VehicleFilteredStore');
-			
-			store.clearFilter(true);
-			
-			store.filter([ {
-				property : 'id',
-				value : records[0].get('id')
-			} ]);
-		}
-	}
-	
-});
-
-Ext.define('GreenFleet.view.common.EntityFormButtons', {
-	extend : 'Ext.toolbar.Toolbar',
-	
-	alias : 'widget.entity_form_buttons',
-	
-	dock : 'bottom',
-	
-	layout : {
-		align : 'middle',
-		type : 'hbox'
-	},
-	
-	items : [ {
-		xtype : 'tbfill'
-	}, {
-		text : T('button.save'),
-		itemId : 'save'
-	}, {
-		text : T('button.del'),
-		itemId : 'delete'
-	}, {
-		text : T('button.reset'),
-		itemId : 'reset'
-	} ],
-	
-	confirmMsgSave : T('msg.confirm_save'),
-	
-	confirmMsgDelete : T('msg.confirm_delete'),
-	
-	initComponent : function() {
-		this.callParent();
-		
-		var self = this;
-		
-		this.down('#save').on('click', function() {
-			
-			Ext.MessageBox.show({
-				title : T('title.confirmation'),
-				buttons : Ext.MessageBox.YESNO,
-				msg : self.confirmMsgSave,
-				modal : true,
-				fn : function(btn) {
-					
-					if(btn != 'yes') 
-						return;
-					
-					var client = self.up('[entityUrl]');
-					var url = client.entityUrl;						
-					var form = client.sub('form').getForm();
-
-					if (form.isValid()) {
-						form.submit({
-							url : url + '/save',
-							success : function(form, action) {
-								if(self.loader && typeof(self.loader.fn) === 'function') {
-									self.loader.fn.call(self.loader.scope || client, function(records) {
-										var store = client.sub('grid').store;
-										form.loadRecord(store.findRecord('key', action.result.key));
-									});
-								}
-								
-								if(action.result.success)
-									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
-								else
-									Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
-							},
-							failure : function(form, action) {
-								Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
-							}
-						});
-					}					
-				}
-			});
-		});
-
-		this.down('#delete').on('click', function() {
-			
-			Ext.MessageBox.show({
-				title : T('title.confirmation'),
-				buttons : Ext.MessageBox.YESNO,
-				msg : self.confirmMsgDelete,
-				modal : true,
-				fn : function(btn) {
-					
-					if(btn != 'yes') 
-						return;
-					
-					var client = self.up('[entityUrl]');
-					var url = client.entityUrl;				
-					var form = client.sub('form').getForm();
-
-					if (form.isValid()) {
-						form.submit({
-							url : url + '/delete',
-							success : function(form, action) {
-								//client.sub('grid').store.load();
-								if(self.loader && typeof(self.loader.fn) === 'function') {
-									self.loader.fn.call(self.loader.scope || client, null);
-								}
-								form.reset();
-							},
-							failure : function(form, action) {
-								Ext.Msg.alert(T('msg.failed_to_delete'), action.result.msg);
-							}
-						});
-					}					
-				}
-			});			
-		});
-
-		this.down('#reset').on('click', function() {
-			var client = self.up('[entityUrl]');
-			client.sub('form').getForm().reset();
-		});
-
-	}
-});
-Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
-	extend : 'Ext.Container',
-	
-	alias : 'widget.dashboard_vehicle_health',
-	
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-	
-	items : [{
-		xtype : 'container',
-		cls :'pageTitle',
-		height: 35,
-		html : '<h1>' + T('title.vehicle_health') + '</h1>'
-	}],
-	
-	initComponent : function() {
-		this.callParent();
-
-		var content = this.add({
-			xtype : 'panel',
-			flex : 1,
-			cls : 'paddingAll10',
-			layout : {
-				type : 'vbox',
-				align : 'stretch'
-			}
-		});
-		
-		var row1 = this.createRow(content);
-		var row2 = this.createRow(content);		
-		var dashboardStore = Ext.getStore('DashboardVehicleStore');
-		
-		dashboardStore.load({
-			scope : this,
-			callback: function(records, operation, success) {
-				var healthRecord = this.findRecord(records, "health");
-				var ageRecord = this.findRecord(records, "age");
-				var mileageRecord = this.findRecord(records, "mileage");
-				
-				this.addHealthChartToRow(row1, T('title.vehicle_health'), healthRecord);
-				this.addChartToRow(row1, T('title.running_distance'), mileageRecord);
-				this.addChartToRow(row2, T('title.vehicle_age'), ageRecord);
-				row2.add(this.buildEmptyChart());
-			}
-		});
-	},
-	
-	addHealthChartToRow : function(row, title, record) {
-		var store = Ext.create('Ext.data.JsonStore', {
-		    fields: [
-		        {
-		        	name : 'name',
-		        	type : 'string',
-		        	convert : function(value, record) {
-		        		return T('label.' + value);
-		        	}
-				},  'value'],
-		    data: record.data.summary
-		});
-		
-		row.add(this.buildHealthChart(title, store, 'value'));		
-	},
-	
-	addChartToRow : function(row, title, record) {
-		var store = Ext.create('Ext.data.JsonStore', {
-		    fields: ['name', 'value'],
-		    data: record.data.summary
-		});
-		
-		row.add(this.buildHealthChart(title, store, 'value'));		
-	},
-	
-	findRecord : function(records, healthName) {
-		for(var i = 0 ; i < records.length ; i++) {
-			if(records[i].data.name == healthName) {
-				return records[i];
-			}
-		}
-		
-		return null;
-	},
-	
-	createRow : function(content) {
-		return content.add({
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			}
-		});		
-	},
-	
-	buildEmptyChart : function() {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard',
-			flex:1,
-			height : 280
-		}
-	},	
-	
-	buildHealthChart : function(title, store, idx) {
-		return {
-			xtype : 'panel',
-			title : title,
-			cls : 'paddingPanel healthDashboard',
-			flex:1,
-			height : 280,
-			items : [{
-				xtype: 'chart',
-		        animate: true,
-		        store: store,
-				width : 440,
-				height : 270,
-		        shadow: true,
-		        legend: {
-		            position: 'right',
-		            labelFont : '10px',
-		            boxStroke : '#cfcfcf'
-		        },
-		        insetPadding: 15,
-		        theme: 'Base:gradients',
-		        series: [{
-		            type: 'pie',
-		            field: idx,
-		            showInLegend: true,
-		            donut: false,
-		            tips: {
-		              trackMouse: true,
-		              width: 140,
-		              height: 25,
-		              renderer: function(storeItem, item) {
-		            	  // calculate percentage.
-		            	  var total = 0;
-		            	  store.each(function(rec) {
-		            		  total += rec.get(idx);
-		            	  });
-		            	  var name = storeItem.get('name');
-		            	  var count = storeItem.get('value');
-		            	  var percent = Math.round(count / total * 100);
-		            	  this.setTitle(name + ' : ' + count + '(' + percent + '%)');
-		              }
-		            },
-		            highlight: {
-		              segment: {
-		                margin: 20
-		              }
-		            },
-		            label: {
-		                field: 'name',
-		                display: 'rotate',
-		                contrast: true,
-		                font: '14px Arial'
-		            }
-		        }]
-			}]
-		}
-	}
-
-});
-Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.dashboard_consumable_health',
-
-	layout : {
-		type : 'vbox',
-		align : 'stretch'
-	},
-
-	items : [ {
-		xtype : 'container',
-		cls : 'pageTitle',
-		height : 35,
-		html : '<h1>' + T('title.consumable_health') + '</h1>'
-	} ],
-
-	initComponent : function() {
-		this.callParent();
-
-		var content = this.add({
-			xtype : 'panel',
-			flex : 1,
-			cls : 'paddingAll10',
-			layout : {
-				type : 'vbox',
-				align : 'stretch'
-			}
-		});
-
-		var dashboardStore = Ext.getStore('DashboardConsumableStore');
-
-		dashboardStore.load({
-			scope : this,
-			callback : function(records, operation, success) {
-
-				var columnCount = 0;
-				var row = null;
-
-				for ( var i = 0; i < records.length; i++) {
-					var record = records[i];
-					var consumableItem = record.data.consumable;				
-					
-					if (columnCount == 0) {
-						row = this.createRow(content);
-						columnCount++;
-					} else if (columnCount == 1) {
-						columnCount++;
-					} else if (columnCount == 2) {
-						columnCount = 0;
-					}
-					
-					this.addToRow(row, consumableItem, record);
-				}
-
-				var addCount = 3 - columnCount;
-				if (addCount < 3) {
-					for ( var j = 0; j < addCount; j++)
-						row.add(this.buildEmptyChart());
-				}
-			}
-		});
-	},
-	
-	addToRow : function(row, consumableItem, record) {
-		
-		var summaryRecords = record.data.summary;		
-		Ext.Array.each(summaryRecords, function(summaryRecord) {
-	        summaryRecord.consumable = consumableItem;
-	        summaryRecord.desc = T('label.' + summaryRecord.name);
-	    });
-		
-		var store = Ext.create('Ext.data.JsonStore', {
-			fields : ['consumable', 'name', 'desc', 'value' ],
-			autoDestroy : true,
-			data : summaryRecords
-		});
-		
-		row.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'value'));		
-	},	
-
-	createRow : function(content) {
-		return content.add({
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			}
-		});
-	},
-
-	buildEmptyChart : function() {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard',
-			flex : 1,
-			height : 280
-		}
-	},
-
-	buildHealthChart : function(title, store, idx) {
-		return {
-			xtype : 'panel',
-			title : title,
-			cls : 'paddingPanel healthDashboard',
-			flex : 1,
-			height : 280,
-			items : [ {
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : 290,
-				height : 150,
-				shadow : true,
-				legend : {
-					position : 'right',
-					labelFont : '10px',
-					boxStroke : '#cfcfcf'
-				},
-				insetPadding : 15,
-				theme : 'Base:gradients',
-				series : [ {
-					type : 'pie',
-					field : idx,
-					showInLegend : true,
-					donut : false,
-					tips : {
-						trackMouse : true,
-						width : 140,
-						height : 25,
-						renderer : function(storeItem, item) {
-							// calculate percentage.
-							var total = 0;
-							store.each(function(rec) {
-								total += rec.get(idx);
-							});
-							var name = storeItem.get('desc');
-							var count = storeItem.get('value');
-							var percent = Math.round(count / total * 100);
-							this.setTitle(name + ' : ' + count + '(' + percent + '%)');
-						}
-					},
-					highlight : {
-						segment : {
-							margin : 20
-						}
-					},
-					label : {
-						field : 'desc',
-						display : 'rotate',
-						contrast : true,
-						font : '14px Arial'
-					},
-					listeners : {
-						itemmousedown : function(target, event) {
-							GreenFleet.doMenu("consumable");
-							var menu = GreenFleet.getMenu('consumable');
-							menu.setConsumable(target.storeItem.data.consumable, target.storeItem.data.name);
-						}
-					}
-				} ]
-			} ]
-		}
-	}
-
-});
-Ext.define('GreenFleet.view.pm.Consumable', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.pm_consumable',
-
-	title : T('title.consumables'),
-
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-
-	initComponent : function() {
-		var self = this;
-
-		this.items = [ {
-			html : "<div class='listTitle'>" + T('title.consumables_management') + "</div>"
-		}, {
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [ this.zvehiclelist(self), {
-				xtype : 'container',
-				flex : 1,
-				cls : 'borderRightGray',
-				layout : {
-					align : 'stretch',
-					type : 'vbox'
-				},
-				items : [ this.zvehicleinfo, {
-					xtype : 'container',
-					flex : 1.8,
-					layout : {
-						type : 'hbox',
-						align : 'stretch'
-					},
-					items : [ this.zconsumables, this.zcenter_separator, this.zconsumable_form ]
-				}, this.zconsumable_history ]
-			} ]
-		} ],
-
-		this.callParent();
-
-		this.sub('vehicle_info').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
-			self.sub('consumable_history_grid').store.loadRecords([]);
-			var consumChangeStore = self.sub('consumable_grid').store;
-			consumChangeStore.getProxy().extraParams.vehicle_id = record.data.id;
-			consumChangeStore.load();
-		});
-
-		this.sub('consumable_grid').on('itemclick', function(grid, record) {
-			self.sub('consumable_form').loadRecord(record);
-			self.refreshConsumableHistory(record.data.vehicle_id, record.data.consumable_item);			
-		});
-		
-		this.sub('consumable_grid').on('itemdblclick', function(grid, record) {
-			var consumable = this.up('pm_consumable');
-			consumable.showConsumableStatus(record);			
-		});
-	},
-	
-	setConsumable : function(consumable, status) {
-		var vehicleListGrid = this.sub('vehicle_info');
-		vehicleListGrid.vehicleList(vehicleListGrid, consumable, status);
-	},
-
-	refreshConsumableHistory : function(vehicleId, consumableItem) {
-		var store = this.sub('consumable_history_grid').store;
-		store.getProxy().extraParams.vehicle_id = vehicleId;
-		store.getProxy().extraParams.consumable_item = consumableItem;
-		store.load();
-	},
-
-	zvehiclelist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'vehicle_info',
-			store : 'VehicleByHealthStore',
-			title : T('title.vehicle_list'),
-			width : 270,
-			autoScroll : true,
-			
-			vehicleList : function(grid, consumable, status) {
-				
-				if(status == 'Healthy') {					
-					grid.sub('check_impending').setValue(false);
-					grid.sub('check_overdue').setValue(false);
-					grid.sub('check_healthy').setValue(true);
-					
-				} else if(status == 'Impending') {
-					grid.sub('check_healthy').setValue(false);					
-					grid.sub('check_overdue').setValue(false);
-					grid.sub('check_impending').setValue(true);
-					
-				} else if(status == 'Overdue') {
-					grid.sub('check_healthy').setValue(false);
-					grid.sub('check_impending').setValue(false);
-					grid.sub('check_overdue').setValue(true);
-				}
-				
-				grid.sub('consumables_combo').setValue(consumable);
-			},
-
-			filterVehicleList : function(grid) {
-
-				var consumable = grid.sub('consumables_combo').getValue();
-				var healthHvalue = grid.sub('check_healthy').getValue();
-				var healthIvalue = grid.sub('check_impending').getValue();
-				var healthOvalue = grid.sub('check_overdue').getValue();
-
-				var healthStatus = [];
-
-				if (healthHvalue)
-					healthStatus.push('Healthy');
-
-				if (healthIvalue)
-					healthStatus.push('Impending');
-
-				if (healthOvalue)
-					healthStatus.push('Overdue');
-
-				if (healthStatus.length > 0) {
-					var vehicleStore = grid.store;
-					var proxy = vehicleStore.getProxy();
-					proxy.extraParams.consumable_item = consumable;
-					proxy.extraParams.health_status = healthStatus;
-					vehicleStore.load();
-
-				} else {
-					grid.store.loadRecords([]);
-				}
-			},
-
-			columns : [ {
-				xtype : 'templatecolumn',
-				tpl : '<div class="iconHealth{health_status}" style="width:20px;height:20px;background-position:5px 3px"></div>',
-				width : 35
-			}, {
-				dataIndex : 'id',
-				text : T('label.id'),
-				flex : 1
-			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
-				flex : 1
-			} ],
-
-			tbar : [ {
-				xtype : 'combo',
-				itemId : 'consumables_combo',
-				store : 'ConsumableCodeStore',
-				queryMode : 'local',
-				displayField : 'name',
-				valueField : 'name',
-				emptyText : T('msg.select_a_consumable'),
-				listeners : {
-					render : function(combo) {
-						combo.store.load();
-					},
-					change : function(combo, currentValue, beforeValue) {
-						var grid = combo.up('grid');
-						grid.filterVehicleList(grid);
-					}
-				}
-			}, '   ', {
-				xtype : 'fieldcontainer',
-				defaultType : 'checkboxfield',
-				cls : 'paddingLeft5',
-				items : [ {
-					cls : 'iconHealthHealthy floatLeft',
-					name : 'healthy',
-					inputValue : '1',
-					itemId : 'check_healthy',
-					width : 40,
-					checked : true,
-					handler : function(check) {
-						var grid = check.up('grid');
-						grid.filterVehicleList(grid);
-					}
-				}, {
-					cls : 'iconHealthImpending floatLeft',
-					name : 'impending',
-					inputValue : '1',
-					itemId : 'check_impending',
-					width : 40,
-					checked : true,
-					handler : function(check) {
-						var grid = check.up('grid');
-						grid.filterVehicleList(grid);
-					}
-				}, {
-					cls : 'iconHealthOverdue floatLeft',
-					name : 'overdue',
-					inputValue : '1',
-					itemId : 'check_overdue',
-					width : 40,
-					checked : true,
-					handler : function(check) {
-						var grid = check.up('grid');
-						grid.filterVehicleList(grid);
-					}
-				} ]
-			} ]
-		}
-	},
-
-	zvehicleinfo : {
-		xtype : 'form',
-		itemId : 'form',
-		cls : 'hIndexbarZero',
-		bodyCls : 'paddingAll10',
-		title : T('title.vehicle_details'),
-		height : 90,
-		layout : {
-			type : 'hbox',
-			align : 'stretch'
-		},
-		items : [ {
-			xtype : 'panel',
-			flex : 1,
-			defaultType : 'textfield',
-			items : [ {
-				fieldLabel : T('label.id'),
-				name : 'id'
-			}, {
-				fieldLabel : T('label.health'),
-				name : 'health_status'
-			} ]
-		}, {
-			xtype : 'panel',
-			flex : 1,
-			defaultType : 'textfield',
-			items : [ {
-				fieldLabel : T('label.reg_no'),
-				name : 'registration_number'
-			}, {
-				fieldLabel : T('label.total_x', {
-					x : T('label.dist')
-				}),
-				name : 'total_distance',
-				itemId : 'vehicle_mileage'
-			} ]
-		} ]
-	},
-
-	zconsumables : {
-		xtype : 'grid',
-		itemId : 'consumable_grid',
-		store : 'VehicleConsumableStore',
-		cls : 'hIndexbar',
-		title : T('title.consumable_item'),
-		flex : 1,
-		columns : [ {
-			header : 'Key',
-			dataIndex : 'key',
-			hidden : true
-		}, {
-			header : T('label.item'),
-			dataIndex : 'consumable_item'
-		}, {
-			header : T('label.health_rate'),
-			dataIndex : 'health_rate',
-			xtype : 'progresscolumn'
-		}, {
-			header : T('label.status'),
-			dataIndex : 'status',
-			align : 'right',
-			renderer : function(value) {
-				if (value)
-					return T('label.' + value);
-				return '';
-			}
-		}, {
-			xtype : 'actioncolumn',
-			width : 50,
-			align : 'center',
-			items : [ {
-				icon : '/resources/image/iconAddOn.png',
-				tooltip : 'Consumables replacement',
-				handler : function(grid, rowIndex, colIndex) {
-					var vehicleMileage = grid.up('pm_consumable').sub('vehicle_mileage').getValue();
-					var record = grid.store.getAt(rowIndex);
-					var consumable = this.up('pm_consumable');
-					var newRecord = {
-						data : {
-							vehicle_id : record.data.vehicle_id,
-							consumable_item : record.data.consumable_item,
-							miles_last_repl : vehicleMileage,
-							last_repl_date : new Date()
-						}
-					};
-
-					consumable.showConsumableChange(newRecord);
-				}
-			} ]
-		}, {
-			xtype : 'actioncolumn',
-			width : 50,
-			align : 'center',
-			items : [ {
-				icon : '/resources/image/iconRefreshOn.png',
-				tooltip : 'Reset',
-				handler : function(grid, rowIndex, colIndex) {
-					var record = grid.store.getAt(rowIndex);
-					Ext.Ajax.request({
-						url : '/vehicle_consumable/reset',
-						method : 'POST',
-						params : {
-							vehicle_id : record.data.vehicle_id,
-							consumable_item : record.data.consumable_item
-						},
-						success : function(response) {
-							var resultObj = Ext.JSON.decode(response.responseText);
-							if (resultObj.success) {
-								GreenFleet.msg(T('label.success'), resultObj.msg);
-								var store = Ext.getStore('VehicleConsumableStore');
-								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
-								store.load();
-							} else {
-								Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
-							}
-						},
-						failure : function(response) {
-							Ext.MessageBox.alert(T('label.failure'), response.responseText);
-						}
-					});
-				}
-			} ]
-		} ]
-	},
-
-	zconsumable_history : {
-		xtype : 'grid',
-		itemId : 'consumable_history_grid',
-		store : 'ConsumableHistoryStore',
-		cls : 'hIndexbar',
-		title : T('title.consumable_change_history'),
-		flex : 1,
-		autoScroll : true,
-		columns : [ {
-			header : T('label.item'),
-			dataIndex : 'consumable_item'
-		}, {
-			header : T('label.repl_date'),
-			dataIndex : 'last_repl_date',
-			xtype : 'datecolumn',
-			format : F('date')
-		}, {
-			header : T('label.repl_mileage') + " (km)",
-			dataIndex : 'miles_last_repl'
-		}, {
-			header : T('label.worker'),
-			dataIndex : 'worker'
-		}, {
-			header : T('label.component'),
-			dataIndex : 'component'
-		}, {
-			header : T('label.cost'),
-			dataIndex : 'cost'
-		}, {
-			header : T('label.comment'),
-			dataIndex : 'comment'
-		} ],
-		listeners : {
-			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
-				grid.up('pm_consumable').showConsumableChange(record);
-			}
-		}
-	},
-	
-	zcenter_separator : {
-		xtype : 'panel',
-		width : 5
-	},
-	
-	zconsumable_form : {
-		xtype : 'form',
-		itemId : 'consumable_form',
-		cls : 'hIndexbarZero',
-		bodyPadding : 10,
-		title : T('title.consumable_details'),
-		flex : 1,
-		layout : {
-			type : 'vbox',
-			align : 'stretch'
-		},
-		defaults : {
-			xtype : 'textfield',
-			anchor : '100%'
-		},
-		items : [{ name : 'consumable_item',
-			fieldLabel : T('label.item')
-		}, {
-			name : 'repl_unit',
-			fieldLabel : T('label.repl_unit')
-		}, {
-			name : 'repl_mileage',
-			fieldLabel : T('label.repl_mileage') + " (km)"
-		}, {
-			name : 'repl_time',
-			fieldLabel : T('label.repl_time') + T('label.parentheses_month')
-		}, {
-			fieldLabel : T('label.last_repl_date'),
-			name : 'last_repl_date',
-			xtype : 'datefield',
-			format : F('date')
-		}, {
-			fieldLabel : T('label.miles_last_repl') + ' (km)',
-			name : 'miles_last_repl'
-		}, {
-			fieldLabel : T('label.miles_since_last_repl') + ' (km)',
-			name : 'miles_since_last_repl'
-		}, {
-			fieldLabel : T('label.next_repl_date'),
-			name : 'next_repl_date',
-			xtype : 'datefield',
-			format : F('date')			
-		}, {
-			fieldLabel : T('label.next_repl_mileage') + ' (km)',
-			name : 'next_repl_mileage'	
-		}, {
-			fieldLabel : T('label.accrued_cost'),
-			name : 'accrued_cost'
-		}, {
-			fieldLabel : T('label.status'),
-			name : 'status'
-		}]		
-	},
-
-	showConsumableStatus : function(selectedRecord) {
-		this.consumableStatusWin(selectedRecord).show();
-	},
-
-	showConsumableChange : function(selectedRecord) {
-		this.consumableChangeWin(selectedRecord).show();
-	},
-
-	consumableStatusWin : function(record) {
-		return new Ext.Window({
-			title : record.data.consumable_item + ' ' + T('label.status'),
-			modal : true,
-			listeners : {
-				show : function(win, opts) {
-					win.down('form').loadRecord(record);
-				}
-			},
-			items : [ {
-				xtype : 'form',
-				itemId : 'consumable_status_form',
-				bodyPadding : 10,
-				cls : 'hIndexbar',
-				width : 500,
-				defaults : {
-					xtype : 'textfield',
-					anchor : '100%'
-				},
-				items : [ {
-					xtype : 'fieldset',
-					title : T('label.consumable_item'),
-					defaultType : 'textfield',
-					layout : 'anchor',
-					collapsible : true,
-					padding : '10,5,5,5',
-					defaults : {
-						anchor : '100%'
-					},
-					items : [ {
-						name : 'key',
-						fieldLabel : 'Key',
-						hidden : true
-					}, {
-						name : 'vehicle_id',
-						fieldLabel : T('label.vehicle_id'),
-						disabled : true
-					}, {
-						name : 'consumable_item',
-						fieldLabel : T('label.consumable_item'),
-						disabled : true
-					}, {
-						name : 'repl_unit',
-						fieldLabel : T('label.repl_unit'),
-						disabled : true
-					}, {
-						name : 'repl_mileage',
-						fieldLabel : T('label.repl_mileage'),
-						disabled : true
-					}, {
-						name : 'repl_time',
-						fieldLabel : T('label.repl_time') + T('parentheses_month'),
-						disabled : true
-					} ]
-				}, {
-					xtype : 'fieldset',
-					title : record.data.consumable_item,
-					defaultType : 'textfield',
-					layout : 'anchor',
-					padding : '10,5,5,5',
-					defaults : {
-						anchor : '100%'
-					},
-					items : [ {
-						name : 'last_repl_date',
-						fieldLabel : T('label.last_repl_date'),
-						xtype : 'datefield',
-						format : F('date'),
-						value : new Date()
-					}, {
-						xtype : 'numberfield',
-						name : 'miles_last_repl',
-						fieldLabel : T('label.miles_last_repl'),
-						minValue : 0,
-						step : 1000
-					}, {
-						name : 'next_repl_date',
-						fieldLabel : T('label.next_repl_date'),
-						xtype : 'datefield',
-						format : F('date'),
-						value : new Date()
-					}, {
-						xtype : 'numberfield',
-						name : 'next_repl_mileage',
-						fieldLabel : T('label.next_repl_mileage'),
-						minValue : 0,
-						step : 1000
-					}, {
-						xtype : 'numberfield',
-						name : 'accrued_cost',
-						fieldLabel : T('label.accrued_cost'),
-						minValue : 0,
-						step : 1000
-					}, {
-						xtype : 'numberfield',
-						name : 'health_rate',
-						fieldLabel : T('label.health_rate'),
-						minValue : 0,
-						step : 0.1
-					}, {
-						name : 'status',
-						xtype : 'textfield',
-						fieldLabel : T('label.status')
-					} ]
-				} ],
-				fbar : [ {
-					xtype : 'button',
-					text : T('button.save'),
-					handler : function() {
-						var win = this.up('window');
-						var thisForm = win.down('form');
-
-						thisForm.getForm().submit({
-							url : '/vehicle_consumable/save',
-							submitEmptyText : false,
-							waitMsg : T('msg.saving'),
-							params : {
-								vehicle_id : record.data.vehicle_id,
-								consumable_item : record.data.consumable_item
-							},
-							success : function(form, action) {
-								if (action.result.success) {
-									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
-									win.close();
-
-									// refresh consumable grid
-									var store = Ext.getStore('VehicleConsumableStore');
-									store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
-									store.load();
-								} else {
-									Ext.Msg.alert(T('label.failure'), action.result.msg);
-								}
-							},
-							failure : function(form, action) {
-								switch (action.failureType) {
-								case Ext.form.action.Action.CLIENT_INVALID:
-									Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
-									break;
-								case Ext.form.action.Action.CONNECT_FAILURE:
-									Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
-									break;
-								case Ext.form.action.Action.SERVER_INVALID:
-									Ext.Msg.alert(T('label.failure'), action.result.msg);
-								}
-							}
-						});
-					}
-				}, {
-					xtype : 'button',
-					text : T('button.cancel'),
-					handler : function() {
-						this.up('window').close();
-					}
-				} ]
-			} ]
-		});
-	},
-
-	consumableChangeWin : function(record) {
-		return new Ext.Window({
-			title : record.data.consumable_item + ' ' + T('label.replacement'),
-			modal : true,
-			listeners : {
-				show : function(win, opts) {
-					win.down('form').loadRecord(record);
-				}
-			},
-			items : [ {
-				xtype : 'form',
-				itemId : 'consumable_change_form',
-				bodyPadding : 10,
-				cls : 'hIndexbar',
-				width : 500,
-				defaults : {
-					xtype : 'textfield',
-					anchor : '100%'
-				},
-
-				items : [ {
-					xtype : 'fieldset',
-					title : T('label.consumable_item'),
-					defaultType : 'textfield',
-					layout : 'anchor',
-					collapsible : true,
-					padding : '10,5,5,5',
-					defaults : {
-						anchor : '100%'
-					},
-					items : [ {
-						name : 'vehicle_id',
-						fieldLabel : T('label.vehicle_id'),
-						disabled : true
-					}, {
-						name : 'consumable_item',
-						fieldLabel : T('label.consumable_item'),
-						disabled : true
-					} ]
-				}, {
-					xtype : 'fieldset',
-					title : T('label.replacement'),
-					defaultType : 'textfield',
-					layout : 'anchor',
-					padding : '10,5,5,5',
-					defaults : {
-						anchor : '100%'
-					},
-					items : [ {
-						xtype : 'datefield',
-						name : 'last_repl_date',
-						fieldLabel : T('label.repl_date'),
-						format : F('date'),
-						maxValue : new Date()
-					}, {
-						xtype : 'numberfield',
-						name : 'miles_last_repl',
-						fieldLabel : T('label.repl_mileage'),
-						minValue : 0,
-						step : 1000,
-						maxValue : 500000
-					}, {
-						xtype : 'numberfield',
-						name : 'cost',
-						fieldLabel : T('label.cost'),
-						minValue : 0,
-						step : 1000,
-						value : 0,
-						allowBlank : false
-					}, {
-						name : 'worker',
-						fieldLabel : T('label.worker')
-					}, {
-						name : 'component',
-						fieldLabel : T('label.component')
-					}, {
-						xtype : 'textarea',
-						rows : 8,
-						name : 'comment',
-						fieldLabel : T('label.comment')
-					} ]
-				} ]
-			} ],
-			fbar : [ {
-				xtype : 'button',
-				text : T('button.save'),
-				handler : function() {
-					var win = this.up('window');
-					var thisForm = win.down('form');
-
-					thisForm.getForm().submit({
-						url : '/vehicle_consumable/replace',
-						submitEmptyText : false,
-						waitMsg : T('msg.saving'),
-						params : {
-							vehicle_id : record.data.vehicle_id,
-							consumable_item : record.data.consumable_item
-						},
-						success : function(form, action) {
-							if (action.result.success) {
-								GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
-								win.close();
-
-								// refresh consumable grid
-								var store = Ext.getStore('VehicleConsumableStore');
-								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
-								store.load();
-
-								// refresh consumable history grid
-								store = Ext.getStore('ConsumableHistoryStore');
-								store.getProxy().extraParams.vehicle_id = record.data.vehicle_id;
-								store.getProxy().extraParams.consumable_item = record.data.consumable_item;
-								store.load();
-							} else {
-								Ext.Msg.alert(T('label.failure'), action.result.msg);
-							}
-						},
-						failure : function(form, action) {
-							switch (action.failureType) {
-							case Ext.form.action.Action.CLIENT_INVALID:
-								Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
-								break;
-							case Ext.form.action.Action.CONNECT_FAILURE:
-								Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
-								break;
-							case Ext.form.action.Action.SERVER_INVALID:
-								Ext.Msg.alert(T('label.failure'), action.result.msg);
-							}
-						}
-					});
-				}
-			}, {
-				xtype : 'button',
-				text : T('button.cancel'),
-				handler : function() {
-					this.up('window').close();
-				}
-			} ]
-		});
-	}
-});
-/**
- * @class Ext.ux.grid.column.Progress
- * @extends Ext.grid.Column
- * <p>
- * A Grid column type which renders a numeric value as a progress bar.
- * </p>
- * <p>
- * <b>Notes:</b><ul>
- * <li>Compatible with Ext 4.0</li>
- * </ul>
- * </p>
- * Example usage:
- * <pre><code>
-    var grid = new Ext.grid.Panel({
-        columns: [{
-            dataIndex: 'progress'
-            ,xtype: 'progresscolumn'
-        },{
-           ...
-        ]}
-        ...
-    });
- * </code></pre>
- * <p>The column can be at any index in the columns array, and a grid can have any number of progress columns.</p>
- * @author Phil Crawford
- * @license Licensed under the terms of the Open Source <a href="http://www.gnu.org/licenses/lgpl.html">LGPL 3.0 license</a>.  Commercial use is permitted to the extent that the code/component(s) do NOT become part of another Open Source or Commercially licensed development library or toolkit without explicit permission.
- * @version 0.1 (June 30, 2011)
- * @constructor
- * @param {Object} config 
- */
-Ext.define('GreenFleet.view.common.ProgressColumn', {
-    extend: 'Ext.grid.column.Column'
-    ,alias: 'widget.progresscolumn'
-    
-    ,cls: 'x-progress-column'
-    
-    /**
-     * @cfg {String} progressCls
-     */
-    ,progressCls: 'x-progress'
-    /**
-     * @cfg {String} progressText
-     */
-    ,progressText: '{0} %'
-    
-    /**
-     * @private
-     * @param {Object} config
-     */
-    ,constructor: function(config){
-        var me = this
-            ,cfg = Ext.apply({}, config)
-            ,cls = me.progressCls;
-
-        me.callParent([cfg]);
-
-//      Renderer closure iterates through items creating an <img> element for each and tagging with an identifying 
-//      class name x-action-col-{n}
-        me.renderer = function(v, meta) {
-            var text, newWidth;
-            
-            newWidth = Math.floor(v * me.getWidth(true)); //me = column
-            
-            if(newWidth > 120)
-            	newWidth = 120;
-            
-//          Allow a configured renderer to create initial value (And set the other values in the "metadata" argument!)
-            v = Ext.isFunction(cfg.renderer) ? cfg.renderer.apply(this, arguments)||v : v; //this = renderer scope
-            text = Ext.String.format(me.progressText,Math.round(v*100));
-            
-            meta.tdCls += ' ' + cls + ' ' + cls + '-' + me.ui;
-            v = '<div class="' + cls + '-text ' + cls + '-text-back">' +
-                    '<div>' + text + '</div>' +
-                '</div>' +
-                '<div class="' + cls + '-bar" style="width: '+ newWidth + 'px;">' +
-                    '<div class="' + cls + '-text">' +
-                        '<div>' + text + '</div>' +
-                    '</div>' +
-                '</div>' 
-            return v;
-        };    
-        
-    }//eof constructor
-    
-
-    /**
-     * @private
-     */
-    ,destroy: function() {
-        delete this.renderer;
-        return this.callParent(arguments);
-    }//eof destroy
-    
-}); //eo extend
-
-//end of file
 Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 	extend : 'Ext.container.Container',
 
@@ -8516,135 +9756,6 @@ Ext.define('GreenFleet.view.management.VehicleConsumableGrid', {
 	    return grid;
 	}
 });
-Ext.define('GreenFleet.view.form.RepairForm', {
-	extend : 'Ext.form.Panel',
-
-	alias : 'widget.repair_form',
-	
-	autoScroll : true,
-
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-
-	initComponent : function() {
-		var self = this;		
-		this.callParent();
-	},
-	
-	setVehicleId : function(vehicleId) {
-		this.sub('vehicle_id').setValue(vehicleId);
-	},
-	
-	items : [
-		{
-		    xtype: 'fieldset',
-		    title: 'Vehicle',
-		    defaultType: 'textfield',
-		    layout: 'anchor',
-		    collapsible: true,
-		    padding : '10,5,5,5',
-		    defaults: {
-		        anchor: '100%'
-		    },
-		    items: [
-		        {
-					name : 'key',
-					fieldLabel : 'Key',
-					hidden : true
-		        },						            
-				{
-		        	itemId : 'vehicle_id',
-					name : 'vehicle_id',
-					fieldLabel : T('label.vehicle_id')
-				}
-		    ]
-		},
-		{
-		    xtype: 'fieldset',
-		    title: 'Repair',
-		    defaultType: 'textfield',
-		    layout: 'anchor',
-		    padding : '10,5,5,5',
-		    defaults: {
-		        anchor: '100%'
-		    },				
-		    items: [
-				{
-					name : 'repair_date',
-					fieldLabel : T('label.repair_date'),
-					xtype : 'datefield',
-					format : F('date'),
-					value : new Date()
-				}, {
-					xtype : 'numberfield',
-					name : 'repair_mileage',
-					fieldLabel : T('label.repair_mileage') + ' (km)'
-				}, {
-					name : 'repair_man',
-					fieldLabel : T('label.repair_man')
-				}, {
-					name : 'repair_shop',
-					fieldLabel : T('label.repair_shop')
-				}, {
-					xtype : 'numberfield',
-					name : 'cost',
-					fieldLabel : T('label.cost'),
-					minValue : 0					
-				}, {
-					xtype : 'textarea',
-					name : 'content',
-					fieldLabel : T('label.content')
-				}, {				
-					name : 'comment',
-					xtype : 'textarea',
-					fieldLabel : T('label.comment')
-				}						        
-		    ]							
-		}        
-	],
-	
-	buttons: [
-	    {
-	    	text: T('button.save'),
-	    	handler : function() {
-        		var thisForm = this.up('form');
-        		
-	    		thisForm.getForm().submit({
-                    url: '/repair/save',
-                    submitEmptyText: false,
-                    waitMsg: T('msg.saving'),
-                    success: function(form, action) {
-                    	if(action.result.success) {		                    		
-                    		GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));		                    				                    		
-                    	} else {
-                    		Ext.Msg.alert(T('label.failure'), action.result.msg);
-                    	}
-                     },
-                     failure: function(form, action) {
-                         switch (action.failureType) {
-                             case Ext.form.action.Action.CLIENT_INVALID:
-                                 Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
-                                 break;
-                             case Ext.form.action.Action.CONNECT_FAILURE:
-                                 Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
-                                 break;
-                             case Ext.form.action.Action.SERVER_INVALID:
-                                Ext.Msg.alert(T('label.failure'), action.result.msg);
-                        }
-                     }		                    
-                });	    		
-	    	}
-        }, {
-        	text: T('button.cancel'),
-        	handler : function() {
-        	}
-        }
-    ]
-	
-});
-
 	Ext.define('GreenFleet.view.management.Location', {
 	extend : 'Ext.container.Container',
 
@@ -11721,6 +12832,1793 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		}
 	}	
 });
+Ext.define('GreenFleet.view.management.DriverGroup', {
+	extend : 'Ext.container.Container',
+	
+	alias : 'widget.management_driver_group',
+
+	title : T('title.driver_group'),
+
+	entityUrl : 'driver_group',
+
+	/*
+	 * importUrl, afterImport config properties for Import util function
+	 */
+	importUrl : 'driver_group/import',
+
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	/**
+	 * 선택한 Vehicle Group ID를 전역변수로 저장 
+	 */
+	currentDriverGroup : '',
+		
+	initComponent : function() {
+		var self = this;
+
+		this.items = [ {
+			html : "<div class='listTitle'>" + T('title.driver_group_list') + "</div>"
+		}, {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ this.buildDriverGroupList(this), {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : { align : 'stretch', type : 'vbox' },
+				items : [ this.buildDriverGroupForm(this), this.buildGroupedDriverList(this) ]
+			} ]
+		} ],
+
+		this.callParent(arguments);
+		
+		/**
+		 * Vehicle Group 그리드 선택시 선택한 데이터로 우측 폼 로드
+		 */  
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.currentDriverGroup = record.get('id');
+			self.sub('form').getForm().reset();
+			self.sub('form').loadRecord(record);
+		});
+		
+		/**
+		 * 우측 폼의 키가 변경될 때마다 빈 값으로 변경된 것이 아니라면 
+		 * 0. 선택한 Driver 전역변수를 설정 
+		 * 1. 두 개의 Grid에 어떤 Driver Group이 선택되었는지 표시하기 위해 타이틀을 Refresh 
+		 * 2. Driver List By Group가 그룹별로 Refresh
+		 * 3. TODO : 맨 우측의 Vehicle List가 그룹별로 필터링  
+		 */ 
+		this.sub('form_driver_group_key').on('change', function(field, value) {
+			if(value) {
+				var record = self.sub('grid').store.findRecord('key', value);
+				if(record) {
+					self.currentDriverGroup = record.get('id');
+					self.sub('grouped_drivers_grid').setTitle(T('title.drivers_by_group') + ' [' + record.get('id') + ']');
+					self.sub('form').setTitle(T('title.group_details') + ' [' + record.get('id') + ']');
+					self.searchGroupedDrivers();
+				}
+			}
+		});
+		
+		/**
+		 * Driver List By Group이 호출되기 전에 driver group id 파라미터 설정 
+		 */
+		this.sub('grouped_drivers_grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			operation.params['driver_group_id'] = self.currentDriverGroup;
+		});
+		
+		/**
+		 * Driver 검색 
+		 */
+		this.down('#search_all_drivers').on('click', function() {
+			self.searchAllDrivers(true);
+		});	
+		
+		/**
+		 * Reset 버튼 선택시 Driver 검색 조건 클리어 
+		 */
+		this.down('#search_reset_all_drivers').on('click', function() {
+			self.sub('all_drivers_id_filter').setValue('');
+			self.sub('all_drivers_name_filter').setValue('');
+		});
+		
+		/**
+		 * Driver Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		this.sub('all_drivers_id_filter').on('change', function(field, value) {
+			self.searchAllDrivers(false);
+		});
+
+		/**
+		 * Driver name 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('all_drivers_name_filter').on('change', function(field, value) {
+			self.searchAllDrivers(false);
+		});		
+		
+		/**
+		 * Driver List가 호출되기 전에 검색 조건이 파라미터에 설정 
+		 */
+		this.sub('all_drivers_grid').store.on('beforeload', function(store, operation, opt) {
+			operation.params = operation.params || {};
+			var driver_id_filter = self.sub('all_drivers_id_filter');
+			var name_filter = self.sub('all_drivers_name_filter');			
+			operation.params['driver_id'] = driver_id_filter.getSubmitValue();
+			operation.params['name'] = name_filter.getSubmitValue();
+		});
+		
+		/**
+		 * 선택한 Driver들을 그룹에 추가 
+		 */
+		this.down('button[itemId=moveLeft]').on('click', function(button) {
+			
+			if(!self.currentDriverGroup) {
+				Ext.MessageBox.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.driver_group')}));
+				return;				
+			}
+			
+			var selections = self.sub('all_drivers_grid').getSelectionModel().getSelection();
+			if(!selections || selections.length == 0) {
+				Ext.MessageBox.alert(T('msg.none_selected'), "Select the drivers to add driver group [" + self.currentDriverGroup + "]");
+				return;
+			}
+
+			var driver_id_to_delete = [];
+			for(var i = 0 ; i < selections.length ; i++) {
+				driver_id_to_delete.push(selections[i].data.id);
+			}	
+
+			Ext.Ajax.request({
+			    url: '/driver_relation/save',
+			    method : 'POST',
+			    params: {
+			        driver_group_id: self.currentDriverGroup,			        
+			        driver_id : driver_id_to_delete
+			    },
+			    success: function(response) {
+			        var resultObj = Ext.JSON.decode(response.responseText);
+			        
+			        if(resultObj.success) {			        	
+				        self.sub('all_drivers_grid').getSelectionModel().deselectAll(true);
+				        self.searchGroupedDrivers();
+				        GreenFleet.msg(T('label.success'), resultObj.msg);
+			        } else {
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+			        }
+			    },
+			    failure: function(response) {
+			    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+			    }
+			});			
+ 		});
+		
+		/**
+		 * 선택한 Driver들을 그룹에서 삭제 
+		 */
+		this.down('button[itemId=moveRight]').on('click', function(button) {
+			if(!self.currentDriverGroup) {
+				Ext.Msg.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.driver_group')}));
+				return;				
+			}
+			
+			var selections = self.sub('grouped_drivers_grid').getSelectionModel().getSelection();
+			if(!selections || selections.length == 0) {
+				Ext.Msg.alert(T('msg.none_selected'), "Select the drivers to remove from driver group [" + self.currentDriverGroup + "]");
+				return;
+			}
+
+			var driver_id_to_delete = [];
+			for(var i = 0 ; i < selections.length ; i++) {
+				driver_id_to_delete.push(selections[i].data.id);
+			}	
+
+			Ext.Ajax.request({
+			    url: '/driver_relation/delete',
+			    method : 'POST',
+			    params: {
+			        driver_group_id: self.currentDriverGroup,			        
+			        driver_id : driver_id_to_delete
+			    },
+			    success: function(response) {
+			        var resultObj = Ext.JSON.decode(response.responseText);
+			        
+			        if(resultObj.success) {
+				        self.searchGroupedDrivers();
+				        GreenFleet.msg(T('label.success'), resultObj.msg);				        
+			        } else {
+			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+			        }
+			    },
+			    failure: function(response) {
+			        Ext.MessageBox.alert(T('label.failure'), response.responseText);
+			    }
+			});			
+		});		
+	},
+	
+	searchAllDrivers : function(searchRemote) {
+				
+		if(searchRemote) {
+			this.sub('all_drivers_grid').store.load();			
+			
+		} else {
+			this.sub('all_drivers_grid').store.clearFilter(true);			
+			var idValue = this.sub('all_drivers_id_filter').getValue();
+			var nameValue = this.sub('all_drivers_name_filter').getValue();
+			
+			if(idValue || nameValue) {
+				this.sub('all_drivers_grid').store.filter([ {
+					property : 'id',
+					value : idValue
+				}, {
+					property : 'name',
+					value : nameValue
+				} ]);
+			}			
+		}		
+	},	
+	
+	searchGroupedDrivers : function() {
+		this.sub('grouped_drivers_pagingtoolbar').moveFirst();
+	},
+	
+	buildDriverGroupList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'grid',
+			store : 'DriverGroupStore',
+			title : T('title.driver_group'),
+			width : 320,
+			columns : [ new Ext.grid.RowNumberer(), 
+			{
+				dataIndex : 'key',
+				text : 'Key',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : T('label.group'),
+				width : 100
+			}, {
+				dataIndex : 'desc',
+				text : T('label.desc'),
+				width : 220
+			} ]
+		}
+	},
+
+	buildGroupedDriverList : function(main) {
+		return {
+			xtype : 'panel',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [
+			 	{
+			 		xtype : 'gridpanel',
+			 		itemId : 'grouped_drivers_grid',
+			 		store : 'DriverByGroupStore',
+			 		title : T('title.drivers_by_group'),
+			 		flex : 18.5,
+			 		cls : 'hIndexbarZero',
+			 		selModel : new Ext.selection.CheckboxModel(),
+			 		columns : [ 
+			 		    {	
+			 		    	dataIndex : 'key',
+			 		    	text : 'Key',
+			 		    	hidden : true
+			 		    }, {
+			 		    	dataIndex : 'id',
+			 		    	text : T('label.id')
+			 		    }, {
+			 		    	dataIndex : 'name',
+			 		    	text : T('label.name')			 		    	
+			 		    }, {
+			 		    	dataIndex : 'division',
+			 		    	text : T('label.division'),
+			 		    	type : 'string'
+			 		    }, {
+			 		    	dataIndex : 'title',
+			 		    	text : T('label.title'),
+			 		    	type : 'string'
+			 		    }, {
+			 		    	dataIndex : 'social_id',
+			 		    	text : T('label.social'),
+			 		    	type : 'string'
+			 		    }, {
+							dataIndex : 'phone_no_1',
+							text : T('label.phone_x', {x : 1}),
+							type : 'string'
+						}, {
+							dataIndex : 'phone_no_2',
+							text : T('label.phone_x', {x : 2}),
+							type : 'string'
+						}
+			 		],
+					bbar: {
+						xtype : 'pagingtoolbar',
+						itemId : 'grouped_drivers_pagingtoolbar',
+			            store: 'DriverByGroupStore',
+			            cls : 'pagingtoolbar',
+			            displayInfo: true,
+			            displayMsg: 'Displaying drivers {0} - {1} of {2}',
+			            emptyMsg: "No drivers to display"
+			        }			 		
+			 	},
+			 	{
+			 		xtype : 'panel',
+			 		flex : 1,
+					layout : {
+						type : 'vbox',
+						align : 'center',
+						pack : 'center'
+					},			 		
+			 		items : [
+			 		     {
+			 		    	 xtype : 'button',
+			 		    	 itemId : 'moveLeft',
+			 		    	 text : '<<'
+			 		     },
+			 		     {
+			 		    	 xtype : 'label',
+			 		    	 margins: '5 0 5 0'
+			 		     },
+			 		     {
+			 		    	 xtype : 'button',
+			 		    	itemId : 'moveRight',
+			 		    	 text : ">>"
+			 		     }
+			 		]
+			 	},
+			 	{
+			 		xtype : 'gridpanel',
+			 		itemId : 'all_drivers_grid',
+			 		store : 'DriverBriefStore',
+			 		title : T('title.driver_list'),
+			 		flex : 10,
+			 		cls : 'hIndexbarZero',
+			 		autoScroll : true,
+			 		selModel : new Ext.selection.CheckboxModel(),
+			 		columns : [ 
+			 		    {	
+			 		    	dataIndex : 'key',
+			 		    	text : 'Key',
+			 		    	hidden : true
+			 		    }, {
+			 		    	dataIndex : 'image_clip',
+			 		    	text : 'Image',
+			 		    	renderer : function(image_clip) {			 		    		
+				 		   		var imgTag = "<img src='";
+				 				
+				 				if(image_clip) {
+				 					imgTag += "download?blob-key=" + image_clip;
+				 				} else {
+				 					imgTag += "resources/image/bgVehicle.png";
+				 				}
+				 				
+				 				imgTag += "' width='80' height='80'/>";
+				 				return imgTag;
+			 		    	}			 		    	
+			 		    }, {
+			 		    	dataIndex : 'id',
+			 		    	text : T('label.id')
+			 		    }, {
+			 		    	dataIndex : 'name',
+			 		    	text : T('label.name')
+			 		    } 
+			 		],
+					tbar : [ T('label.id'), {
+						xtype : 'textfield',
+						name : 'all_drivers_id_filter',
+						itemId : 'all_drivers_id_filter',
+						hideLabel : true,
+						width : 70
+					}, T('label.name'), {
+						xtype : 'textfield',
+						name : 'all_drivers_name_filter',
+						itemId : 'all_drivers_name_filter',
+						hideLabel : true,
+						width : 70
+					}, ' ', {
+						text : T('button.search'),
+						itemId : 'search_all_drivers'
+					}, ' ', {
+						text : T('button.reset'),
+						itemId : 'search_reset_all_drivers'
+					} ],
+					bbar: {
+						xtype : 'pagingtoolbar',
+						itemId : 'all_drivers_pagingtoolbar',
+			            store: 'DriverBriefStore',
+			            cls : 'pagingtoolbar',
+			            displayInfo: true,
+			            displayMsg: 'Displaying drivers {0} - {1} of {2}',
+			            emptyMsg: "No drivers to display"
+			        }
+			 	}
+			 ]
+		}
+	},
+
+	buildDriverGroupForm : function(main) {
+		return {
+			xtype : 'form',
+			itemId : 'form',
+			bodyPadding : 10,
+			cls : 'hIndexbar',
+			title : T('title.group_details'),
+			height : 170,
+			defaults : {
+				xtype : 'textfield',
+				anchor : '100%'
+			},
+			items : [ {
+				name : 'key',
+				fieldLabel : 'Key',
+				hidden : true,
+				itemId : 'form_driver_group_key'
+			}, {
+				name : 'id',
+				fieldLabel : T('label.group')
+			}, {
+				name : 'desc',
+				fieldLabel : T('label.desc')
+			}, {
+				xtype : 'datefield',
+				name : 'updated_at',
+				disabled : true,
+				fieldLabel : T('label.updated_at'),
+				format : F('datetime')
+			}, {
+				xtype : 'datefield',
+				name : 'created_at',
+				disabled : true,
+				fieldLabel : T('label.updated_at'),
+				format : F('datetime')
+			} ],
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',				
+				confirmMsgSave : T('msg.confirm_save'),				
+				confirmMsgDelete : T('msg.confirm_delete'),				
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
+			} ]
+		}
+	}
+});
+Ext.define('GreenFleet.view.management.Schedule', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.management_schedule',
+
+	title : T('titla.schedule'),
+
+	entityUrl : 'task',
+
+	importUrl : 'task/import',
+
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+
+	items : {
+		html : "<div class='listTitle'>" + T('title.schedule') + "</div>"
+	},
+
+	initComponent : function() {
+		var self = this;
+		this.callParent(arguments);
+		var calendarPanel = this.buildCalendar(self);
+		this.add(calendarPanel);
+	},
+	
+	buildCalendar : function(main) {
+		var calendarStore = Ext.getStore('CalendarStore');
+		var eventStore = Ext.getStore('EventStore');
+		eventStore.autoSync = true;
+		eventStore.load();
+		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
+			calendarStore : calendarStore,
+	        eventStore: eventStore,
+	        flex : 1
+	        /*listeners: {
+	            'eventadd': {
+	                fn: function(cp, rec) {	                	
+	                	//cp.store.load();
+	                	//GreenFleet.msg(T('label.success'), "Start : " + cp.viewStart.toString());
+	                	//GreenFleet.msg(T('label.success'), "End : " + cp.viewEnd.toString());
+	                },
+	                scope: this
+	            },
+	            'eventupdate': {
+	                fn: function(cp, rec) {
+	                	//cp.store.load();	                	
+	                },
+	                scope: this
+	            },
+	            'eventdelete': {
+	                fn: function(cp, rec) {
+	                	//cp.store.load();
+	                },
+	                scope: this
+	            }
+	        }*/	        
+	    });		
+		return calendar;
+	}
+});
+Ext.define('GreenFleet.view.management.VehicleOverview', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.management_vehicle_overview',
+
+	title : T('title.vehicle_overview'),
+
+	entityUrl : 'vehicle',
+	
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('title.vehicle_overview') + "</div>"}, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    this.zvehiclelist(self), 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zinfo, this.zrunning,  this.zconsumables, this.zalerts ]
+					} 
+				]
+		    }
+		],
+
+		this.callParent();
+			
+		this.sub('vehicle_list').on('itemclick', function(grid, record) {
+		});
+		
+		/**
+		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		this.sub('id_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});
+
+		/**
+		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('reg_no_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});
+	},
+	
+	/**
+	 * 차량 조회 
+	 */
+	searchVehicles : function(searchRemote) {
+		
+		if(searchRemote) {
+			this.sub('vehicle_list').store.load();
+			
+		} else {
+			this.sub('vehicle_list').store.clearFilter(true);			
+			var idValue = this.sub('id_filter').getValue();
+			var regNoValue = this.sub('reg_no_filter').getValue();
+			
+			if(idValue || regNoValue) {
+				this.sub('vehicle_list').store.filter([ {
+					property : 'id',
+					value : idValue
+				}, {
+					property : 'registration_number',
+					value : regNoValue
+				} ]);
+			}			
+		}		
+	},		
+	
+	/**
+	 * 차량 리스트 그리드 
+	 */
+	zvehiclelist : function(self) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'vehicle_list',
+			store : 'VehicleBriefStore',
+			title : T('title.vehicle_list'),
+			width : 280,
+			autoScroll : true,
+			
+			columns : [ {
+				dataIndex : 'id',
+				text : T('label.id'),
+				flex : 1
+			}, {
+				dataIndex : 'registration_number',
+				text : T('label.reg_no'),
+				flex : 1
+			} ],
+
+			tbar : [
+			    T('label.id'),
+				{
+					xtype : 'textfield',
+					name : 'id_filter',
+					itemId : 'id_filter',
+					width : 60
+				}, 
+				T('label.reg_no'),
+				{
+					xtype : 'textfield',
+					name : 'reg_no_filter',
+					itemId : 'reg_no_filter',
+					width : 65
+				},
+				' ',
+				{
+					xtype : 'button',
+					text : T('button.search'),
+					handler : function(btn) {
+						btn.up('management_vehicle_runstatus').searchVehicles(true);
+					}
+				}
+			]
+		}
+	},
+
+	/**
+	 * 차량 정보 
+	 */
+	zinfo : {
+		xtype : 'panel',
+		itemId : 'v_info_panel',
+		cls : 'hIndexbar',
+		title : T('title.information'),
+		flex : 1,
+		autoScroll : true
+	},
+
+	/**
+	 * 주행 
+	 */
+	zrunning : {
+		xtype : 'panel',
+		itemId : 'v_running_panel',
+		cls : 'hIndexbar',
+		title : T('title.running'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 정비, 소모품  
+	 */
+	zconsumables : {
+		xtype : 'panel',
+		itemId : 'v_consumable_panel',
+		cls : 'hIndexbar',
+		title : T('title.consumables'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * alert  
+	 */
+	zalerts : {
+		xtype : 'panel',
+		itemId : 'v_alert_panel',
+		cls : 'hIndexbar',
+		title : T('title.alert'),
+		flex : 1,
+		autoScroll : true
+	}	
+});
+Ext.define('GreenFleet.view.management.Report', {
+	extend : 'Ext.container.Container',
+
+	alias : 'widget.management_report',
+
+	title : T('title.report'),
+
+	entityUrl : 'report',
+	
+	importUrl : 'report/import',
+	
+	afterImport : function() {
+		this.sub('grid').store.load();
+		this.sub('form').getForm().reset();
+	},
+
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	items : {
+		html : "<div class='listTitle'>" + T('title.report_list') + "</div>"
+	},
+	
+	initComponent : function() {
+		var self = this;
+		
+		this.callParent(arguments);
+		
+		item = {
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			},
+			items : [ {
+				xtype : 'container',
+				flex : 1,
+				cls : 'borderRightGray',
+				layout : { align : 'stretch', type : 'hbox' },
+				items : [ this.buildList(this), this.buildForm(this) ]
+			} ]
+		};
+		
+		this.add(item);
+
+		this.sub('grid').on('itemclick', function(grid, record) {
+			self.sub('form').loadRecord(record);
+		});
+
+		this.sub('name_filter').on('change', function(field, value) {
+			self.search();
+		});
+
+		this.down('#search_reset').on('click', function() {
+			self.sub('name_filter').setValue('');
+		});
+
+		this.down('#search').on('click', function() {
+			self.sub('grid').store.load();
+		});		
+	},
+
+	search : function() {
+		this.sub('grid').store.clearFilter();
+
+		this.sub('grid').store.filter([ {
+			property : 'name',
+			value : this.sub('name_filter').getValue()
+		}]);
+	},
+	
+	buildList : function(main) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'grid',
+			store : 'ReportStore',
+			autoScroll : true,
+			flex : 1,
+			columns : [ new Ext.grid.RowNumberer(), {
+				dataIndex : 'key',
+				text : 'Key',
+				type : 'string',
+				hidden : true
+			}, {
+				dataIndex : 'id',
+				text : T('label.id'),
+				type : 'string'				
+			}, {
+				dataIndex : 'name',
+				text : T('label.name'),
+				type : 'string'
+			}, {
+				dataIndex : 'daily',
+				text : T('label.daily'),
+				type : 'boolean'
+			}, {
+				dataIndex : 'weekly',
+				text : T('label.weekly'),
+				type : 'boolean'
+			}, {
+				dataIndex : 'monthly',
+				text : T('label.monthly'),
+				type : 'boolean'
+			}, {				
+				dataIndex : 'created_at',
+				text : T('label.created_at'),
+				xtype:'datecolumn',
+				format:F('datetime'),
+				width : 120
+			}, {
+				dataIndex : 'updated_at',
+				text : T('label.updated_at'),
+				xtype:'datecolumn',
+				format:F('datetime'),
+				width : 120
+			} ],
+			viewConfig : {
+
+			},
+			tbar : [ T('label.name'), {
+				xtype : 'textfield',
+				name : 'name_filter',
+				itemId : 'name_filter',
+				hideLabel : true,
+				width : 200
+			}, {
+				text : T('button.search'),
+				itemId : 'search'
+			}, {
+				text : T('button.reset'),
+				itemId : 'search_reset'
+			} ],
+			bbar: {
+				xtype : 'pagingtoolbar',
+				itemId : 'pagingtoolbar',
+	            store: 'ReportStore',
+	            cls : 'pagingtoolbar',
+	            displayInfo: true,
+	            displayMsg: 'Displaying report {0} - {1} of {2}',
+	            emptyMsg: "No reports to display"
+	        }
+		}
+	},
+
+	buildForm : function(main) {
+		return {
+			xtype : 'panel',
+			itemId : 'details',
+			bodyPadding : 10,
+			cls : 'hIndexbar',
+			title : T('title.report_details'),
+			layout : {
+				type : 'hbox',
+				align : 'stretch'	
+			},
+			flex : 1,
+			items : [ {
+				xtype : 'form',
+				itemId : 'form',
+				autoScroll : true,
+				flex : 1,
+				defaults : {
+					xtype : 'textfield',
+					anchor : '100%'
+				},
+				items : [{
+					name : 'key',
+					fieldLabel : 'Key',
+					hidden : true
+				}, {
+					name : 'id',
+					fieldLabel : T('label.id'),
+					xtype : 'codecombo',
+					group : 'ReportType'						
+				}, {
+					name : 'name',
+					fieldLabel : T('label.name')
+				}, {					
+					name : 'cycle',
+					xtype: 'checkboxgroup',
+		            fieldLabel: T('label.cycle'),
+		            columns: 1,
+		            items: [
+		                { boxLabel: T('label.daily'), name: 'daily' },
+		                { boxLabel: T('label.weekly'), name: 'weekly' },
+		                { boxLabel: T('label.monthly'), name: 'monthly' }
+		            ]
+				}, {
+					name : 'send_to',
+					xtype : 'textarea',
+					rows : 6,
+					fieldLabel: T('label.send_to')
+					//xtype : 'user_selector',
+					//selector_label : T('label.send_to')
+				}, {
+					xtype : 'textarea',
+					name : 'expl',
+					rows : 8,
+					fieldLabel : T('label.desc')
+				}, {
+					xtype : 'datefield',
+					name : 'updated_at',
+					disabled : true,
+					fieldLabel : T('label.updated_at'),
+					format: F('datetime')
+				}, {
+					xtype : 'datefield',
+					name : 'created_at',
+					disabled : true,
+					fieldLabel : T('label.created_at'),
+					format: F('datetime')
+				} ]
+			} ],
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : function(callback) {
+						main.sub('grid').store.load(callback);
+					},
+					scope : main
+				}
+			} ]
+		}
+	}
+});
+Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.management_vehicle_speed',
+
+	title : T('title.vehicle_speed_section'),
+
+	entityUrl : 'vehicle_speed',
+	
+	layout : {
+		align : 'stretch',
+		type : 'vbox'
+	},
+	
+	vehicle : '',
+	
+	timeView : 'monthly',
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('title.vehicle_speed_section') + "</div>" }, 
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : {
+					type : 'hbox',
+					align : 'stretch'
+				},
+				items : [ 
+				    this.zvehiclelist(self), 
+				    {
+						xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.zrunstatus, this.zrunstatus_chart ]
+					} ]
+		    } ],
+
+		this.callParent();
+
+		this.sub('vehicle_list').on('itemclick', function(grid, record) {
+			self.vehicle = record.data.id;
+			self.searchSummary(self.vehicle, record.data.registration_number, null, null, null);
+		});
+		
+		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
+			if(record.data.time_view == "yearly") {
+				self.searchSummary(record.data.vehicle, null, "monthly", record.data.year, null);
+				
+			} else if(record.data.time_view == "monthly") {
+				self.searchSummary(record.data.vehicle, null, "daily", record.data.year, record.data.month);
+				
+			} else if(record.data.time_view == "daily") {
+				self.setChartTitle(record.data.month_str);
+				self.refreshByMonth(record);				
+			}
+		});
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+		
+		/**
+		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
+		this.sub('id_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});
+
+		/**
+		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('reg_no_filter').on('change', function(field, value) {
+			self.searchVehicles(false);
+		});
+		
+		/**
+		 * combo_chart_type에 값을 기본값(column)을 설정
+		 */
+		this.sub('combo_chart_type').setValue('column');
+		/**
+		 * combo_view에 값을 기본값(monthly_view)을 설정
+		 */
+		this.sub('combo_view').setValue('monthly');
+	},
+	
+	/**
+	 * 운행이력 그리드 타이틀 
+	 */
+	setGridTitle : function(name) {
+		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
+		this.sub('runstatus_grid').setTitle(title);
+	},
+	
+	/**
+	 * 차트 그리드 타이틀 
+	 */
+	setChartTitle : function(month) {
+		var title = month ? T('label.speed_section') + ' (' + month + ') ' + T('label.chart') : T('label.speed_section') + T('label.chart');
+		this.sub('chart_panel').setTitle(title);
+	},
+	
+	/**
+	 * 차량 조회 
+	 */
+	searchVehicles : function(searchRemote) {
+		
+		if(searchRemote) {
+			this.sub('vehicle_list').store.load();
+			
+		} else {
+			this.sub('vehicle_list').store.clearFilter(true);			
+			var idValue = this.sub('id_filter').getValue();
+			var nameValue = this.sub('reg_no_filter').getValue();
+			
+			if(idValue || nameValue) {
+				this.sub('vehicle_list').store.filter([ {
+					property : 'id',
+					value : idValue
+				}, {
+					property : 'name',
+					value : nameValue
+				} ]);
+			}			
+		}		
+	},
+	
+	/**
+	 * vehicle speed summary 조회 
+	 */
+	searchSummary : function(vehicleId, vehicleName, timeView, year, month) {
+		
+		if(!vehicleId) {
+			vehicleId = this.vehicle;
+			
+			if(!vehicleId)
+				return;
+		}
+		
+		if(!timeView) {
+			timeView = this.sub('combo_view').getValue();
+		}
+		
+		var runStatusStore = this.sub('runstatus_grid').store;
+		var proxy = runStatusStore.getProxy();
+		proxy.extraParams.vehicle = vehicleId;
+		proxy.extraParams.time_view = timeView;
+		
+		if(timeView == "monthly") {
+			if(year == null) {
+				proxy.extraParams.from_year = this.sub('from_year').getValue();
+				proxy.extraParams.to_year = this.sub('to_year').getValue();
+				proxy.extraParams.from_month = this.sub('from_month').getValue();
+				proxy.extraParams.to_month = this.sub('to_month').getValue();
+			} else {
+				proxy.extraParams.from_year = year;
+				proxy.extraParams.to_year = year;
+				proxy.extraParams.from_month = 1;
+				proxy.extraParams.to_month = 12;
+			}					
+		} else if(timeView == "daily") {
+			proxy.extraParams.year = year;
+			proxy.extraParams.month = month;			
+		} 
+				
+		runStatusStore.load({
+			scope : this,
+			callback : function() {
+				if(vehicleName) {
+					this.setGridTitle(vehicleName);
+				}
+				
+				if(year && month) {
+					this.setChartTitle(year + '-' + month);
+				}
+				
+				this.refreshChart();
+			}
+		});
+	},
+	
+	/**
+	 * 차량 리스트 그리드 패널 
+	 */
+	zvehiclelist : function(self) {
+		return {
+			xtype : 'gridpanel',
+			itemId : 'vehicle_list',
+			store : 'VehicleBriefStore',
+			title : T('title.vehicle_list'),
+			width : 260,
+			autoScroll : true,
+			
+			columns : [ {
+				dataIndex : 'id',
+				text : T('label.id'),
+				flex : 1
+			}, {
+				dataIndex : 'registration_number',
+				text : T('label.reg_no'),
+				flex : 1
+			} ],
+
+			tbar : [
+			    T('label.id'),
+				{
+					xtype : 'textfield',
+					name : 'id_filter',
+					itemId : 'id_filter',
+					width : 60
+				}, 
+				T('label.name'),
+				{
+					xtype : 'textfield',
+					name : 'reg_no_filter',
+					itemId : 'reg_no_filter',
+					width : 65
+				},
+				' ',
+				{
+					xtype : 'button',
+					text : T('button.search'),
+					handler : function(btn) {
+						btn.up('management_vehicle_speed').searchVehicles(true);
+					}
+				}
+			]
+		}
+	},
+	
+	/**
+	 * 운행이력 그리드 패널 
+	 */
+	zrunstatus : {
+		xtype : 'gridpanel',
+		itemId : 'runstatus_grid',
+		store : 'VehicleSpeedStore',
+		cls : 'hIndexbar',
+		title : T('title.runstatus_history'),
+		autoScroll : true,
+		flex : 1,
+		columns : [ {
+			dataIndex : 'month_str',
+			text : T('label.month')
+		}, {
+			header : T('label.lessthan_km_min', {km : 10}),
+			dataIndex : 'spd_lt10'
+		}, {
+			header : T('label.lessthan_km_min', {km : 20}),
+			dataIndex : 'spd_lt20'
+		}, {
+			header : T('label.lessthan_km_min', {km : 30}),
+			dataIndex : 'spd_lt30'
+		}, {
+			header : T('label.lessthan_km_min', {km : 40}),
+			dataIndex : 'spd_lt40'
+		}, {
+			header : T('label.lessthan_km_min', {km : 50}),
+			dataIndex : 'spd_lt50'
+		}, {
+			header : T('label.lessthan_km_min', {km : 60}),
+			dataIndex : 'spd_lt60'
+		}, {
+			header : T('label.lessthan_km_min', {km : 70}),
+			dataIndex : 'spd_lt70'
+		}, {
+			header : T('label.lessthan_km_min', {km : 80}),
+			dataIndex : 'spd_lt80'
+		}, {
+			header : T('label.lessthan_km_min', {km : 90}),
+			dataIndex : 'spd_lt90'
+		}, {
+			header : T('label.lessthan_km_min', {km : 100}),
+			dataIndex : 'spd_lt100'
+		}, {
+			header : T('label.lessthan_km_min', {km : 110}),
+			dataIndex : 'spd_lt110'
+		}, {
+			header : T('label.lessthan_km_min', {km : 120}),
+			dataIndex : 'spd_lt120'
+		}, {
+			header : T('label.lessthan_km_min', {km : 130}),
+			dataIndex : 'spd_lt130'
+		}, {
+			header : T('label.lessthan_km_min', {km : 140}),
+			dataIndex : 'spd_lt140'
+		}, {
+			header : T('label.lessthan_km_min', {km : 150}),
+			dataIndex : 'spd_lt150'
+		}, {
+			header : T('label.lessthan_km_min', {km : 160}),
+			dataIndex : 'spd_lt160'
+		} ],
+	
+		tbar : [
+	        T('label.view') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_view',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', { 
+					fields : [ 'name', 'desc' ],
+					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
+					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('management_vehicle_speed');
+						thisView.searchSummary(null, null, null, null, null);
+					}
+			    }
+			},
+			T('label.chart_type') + ' : ',
+			{
+				xtype : 'combo',
+				itemId : 'combo_chart_type',
+				padding : '3 0 0 0',
+				displayField: 'desc',
+			    valueField: 'name',
+				store :  Ext.create('Ext.data.Store', {
+					fields : [ 'name', 'desc' ],			
+					data : [{ "name" : "column", "desc" : T('label.column') },
+					        { "name" : "radar",	 "desc" : T('label.radar')  }]
+				}),
+				listeners: {
+					change : function(combo, currentValue, beforeValue) {
+						var thisView = combo.up('management_vehicle_speed');
+						thisView.refreshChart();
+					}
+			    }
+			},
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60				
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			}
+		]
+	},
+
+	/**
+	 * 차트 패널 
+	 */
+	zrunstatus_chart : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('title.speed_section_chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 차트 리프레쉬 
+	 */
+	refreshChart : function() {
+				
+		var chartType = this.sub('combo_chart_type').getValue();
+		if(chartType == 'radar') 
+			this.refreshRadarChart();
+		else
+			this.refreshColumnChart();
+	},
+	
+	/**
+	 * 컬럼 차트 리프레쉬 
+	 */
+	refreshColumnChart : function() {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var columnDataArr = [];
+		var store = this.sub('runstatus_grid').store;
+		store.each(function(record) {
+			// speed 0 ~ 30
+			var spd_30 = (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
+			// speed 40 ~ 60
+			var spd_40_60 = (record.get('spd_lt40') + record.get('spd_lt50') + record.get('spd_lt60'));
+			// speed 50 ~ 80
+			var spd_70_90 = (record.get('spd_lt70') + record.get('spd_lt80') + record.get('spd_lt90'));			
+			// speed 90 ~ 120
+			var spd_100_120 = (record.get('spd_lt90') + record.get('spd_lt100') + record.get('spd_lt110') + record.get('spd_lt120'));			
+			// speed 130 ~
+			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
+			
+			var columnData = { 	'month_str' : record.get('month_str'), 
+								'value1' : spd_30, 			'desc1' : '0 ~ 30(km)', 
+								'value2' : spd_40_60, 		'desc2' : '40 ~ 60(km)',
+								'value3' : spd_70_90, 		'desc3' : '70 ~ 90(km)',
+								'value4' : spd_100_120, 	'desc4' : '100 ~ 120(km)', 
+								'value5' : spd_over_130, 	'desc5' : '130 ~ (km)' };
+			columnDataArr.push(columnData);
+		});
+		
+		var columnStore = Ext.create('Ext.data.JsonStore', {
+			fields : ['month_str', 'value1', 'value2', 'value3', 'value4', 'value5', 'desc1', 'desc2', 'desc3', 'desc4', 'desc5'],
+			autoDestroy : true,
+			data : columnDataArr
+		});
+		
+		var chart = this.buildColumnChart(columnStore, 0, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	/**
+	 * 레이더 차트 리프레쉬 
+	 */
+	refreshRadarChart : function() {
+		
+		var store = this.sub('runstatus_grid').store;
+		var spd_10 = 0;
+		var spd_20 = 0;
+		var spd_30 = 0;
+		var spd_40 = 0;
+		var spd_50 = 0;
+		var spd_60 = 0;
+		var spd_70 = 0;
+		var spd_80 = 0;
+		var spd_90 = 0;
+		var spd_100 = 0;
+		var spd_110 = 0;
+		var spd_120 = 0;
+		var spd_130 = 0;
+		var spd_140 = 0;
+		var spd_150 = 0;
+		var spd_160 = 0;
+		
+		store.each(function(record) {
+			spd_10 += record.get('spd_lt10');
+			spd_20 += record.get('spd_lt20');
+			spd_30 += record.get('spd_lt30');
+			spd_40 += record.get('spd_lt40');
+			spd_50 += record.get('spd_lt50');
+			spd_60 += record.get('spd_lt60');
+			spd_70 += record.get('spd_lt70');
+			spd_80 += record.get('spd_lt80');
+			spd_90 += record.get('spd_lt90');
+			spd_100 += record.get('spd_lt100');
+			spd_110 += record.get('spd_lt110');
+			spd_120 += record.get('spd_lt120');
+			spd_130 += record.get('spd_lt130');
+			spd_140 += record.get('spd_lt140');
+			spd_150 += record.get('spd_lt150');
+			spd_160 += record.get('spd_lt160');
+		});
+		
+		var radarStore = Ext.create('Ext.data.JsonStore', {
+			fields : ['name', 'value'],
+			autoDestroy : true,
+			data : [ { 'name' : '0~10(km)', 		'value' : spd_10 },
+	                 { 'name' : '10~20(km)', 		'value' : spd_20 },
+	                 { 'name' : '20~30(km)', 		'value' : spd_30 },
+	                 { 'name' : '30~40(km)', 		'value' : spd_40 },
+	                 { 'name' : '40~50(km)', 		'value' : spd_50 },
+	                 { 'name' : '50~60(km)', 		'value' : spd_60 },
+	                 { 'name' : '60~70(km)', 		'value' : spd_70 },
+	                 { 'name' : '70~80(km)', 		'value' : spd_80 },
+	                 { 'name' : '80~90(km)', 		'value' : spd_90 },
+	                 { 'name' : '90~100(km)', 		'value' : spd_100 },
+	                 { 'name' : '100~110(km)', 		'value' : spd_110 },
+	                 { 'name' : '110~120(km)', 		'value' : spd_120 },
+	                 { 'name' : '120~130(km)', 		'value' : spd_130 },
+	                 { 'name' : '130~140(km)', 		'value' : spd_140 },
+	                 { 'name' : '140~150(km)', 		'value' : spd_150 },
+	                 { 'name' : '150(km)~', 		'value' : spd_160 }]
+		});
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = chartPanel.getWidth();
+		var height = chartPanel.getHeight();
+		chartPanel.removeAll();
+		var chart = this.buildRadarChart(radarStore, width, height);
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	/**
+	 * 차트 리사이즈 
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();		
+		
+		if(!height)
+			height = chartContainer.getHeight();		
+		
+		var chartPanel = chartContainer.down('panel');		
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 레이더 차트 생성 
+	 */
+	buildRadarChart : function(store, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				insetPadding: 20,
+				legend: {
+	                position: 'right'
+	            },
+	            axes: [{
+	                type: 'Radial',
+	                position: 'radial',
+	                label: {
+	                    display: true
+	                }
+	            }],
+	            series: [{
+	                showInLegend: false,
+	                showMarkers: true,
+	                type: 'radar',
+	                xField: 'name',
+	                yField: 'value',
+	                style: {
+	                    opacity: 0.4
+	                },
+	                markerConfig: {
+	                    radius: 3,
+	                    size: 5
+	                }
+	            }]
+			}]
+		};
+	},
+	
+	/**
+	 * 컬럼 차트 생성 
+	 */
+	buildColumnChart : function(store, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 20,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
+	                title: T('label.time') + '(' + T('label.minute_s') + ')',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['month_str'],
+	                title: T('label.month')
+				}],			
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: 'month_str',
+	                yField: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
+	                title : [ '0 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
+					showInLegend : true,
+					tips : {
+						trackMouse : true,
+						width : 100,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + ' : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : { margin : 20 }
+					},					
+					label : {
+						field : [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '11px Arial'
+					}
+				}]
+			}]
+		}
+	},
+	
+	/**
+	 * 월별 리프레쉬 
+	 */
+	refreshByMonth : function(record) {
+				
+		var chartType = this.sub('combo_chart_type').getValue();		
+		if(chartType == 'radar')
+			this.refreshRadarChartByMonth(record);
+		else
+			this.refreshColumnChartByMonth(record);
+	},
+	
+	/**
+	 * 월별 레이더 차트 리프레쉬 
+	 */
+	refreshRadarChartByMonth : function(record) {
+		
+		var chartData = this.createChartData(record);
+		var radarStore = Ext.create('Ext.data.JsonStore', {
+			fields : [ 'name', 'value' ],
+			autoDestroy : true,
+			data :  chartData
+		});
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = chartPanel.getWidth();
+		var height = chartPanel.getHeight();
+		chartPanel.removeAll();
+		var chart = this.buildRadarByMonth(radarStore, width, height);
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},	
+	
+	/**
+	 * 월별 컬럼 차트 리프레쉬 
+	 */
+	refreshColumnChartByMonth : function(record) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = chartPanel.getWidth();
+		var height = chartPanel.getHeight();
+		var chartData = this.createChartData(record);
+		
+		var columnStore = Ext.create('Ext.data.JsonStore', {
+			fields : [ 'name', 'value' ],
+			autoDestroy : true,
+			data : chartData
+		});
+				
+		var chart = this.buildChartByMonth(columnStore, 0, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+	
+	/**
+	 * 차트 데이터 생성 
+	 */
+	createChartData : function(record) {
+		return [ { 'name' : '0~10(km)', 	'value' : record.get('spd_lt10') },
+		         { 'name' : '10~20(km)', 	'value' : record.get('spd_lt20') },
+		         { 'name' : '20~30(km)', 	'value' : record.get('spd_lt30') },
+		         { 'name' : '30~40(km)', 	'value' : record.get('spd_lt40') },
+		         { 'name' : '40~50(km)', 	'value' : record.get('spd_lt50') },
+		         { 'name' : '50~60(km)', 	'value' : record.get('spd_lt60') },
+		         { 'name' : '60~70(km)', 	'value' : record.get('spd_lt70') },
+		         { 'name' : '70~80(km)', 	'value' : record.get('spd_lt80') },
+		         { 'name' : '80~90(km)', 	'value' : record.get('spd_lt90') },
+		         { 'name' : '90~100(km)', 	'value' : record.get('spd_lt100') },
+		         { 'name' : '100~110(km)', 	'value' : record.get('spd_lt110') },
+		         { 'name' : '110~120(km)', 	'value' : record.get('spd_lt120') },
+		         { 'name' : '120~130(km)', 	'value' : record.get('spd_lt130') },
+		         { 'name' : '130~140(km)', 	'value' : record.get('spd_lt140') },
+		         { 'name' : '140~150(km)', 	'value' : record.get('spd_lt150') },
+		         { 'name' : '150(km)~', 	'value' : record.get('spd_lt160') } ];
+	},
+	
+	/**
+	 * 월별 레이더 차트 생성 
+	 */
+	buildRadarByMonth : function(store, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				insetPadding: 20,
+				legend: {
+	                position: 'right'
+	            },
+	            axes: [{
+	                type: 'Radial',
+	                position: 'radial',
+	                label: {
+	                    display: true
+	                }
+	            }],
+	            series: [{
+	                showInLegend: false,
+	                showMarkers: true,
+	                type: 'radar',
+	                xField: 'name',
+	                yField: 'value',
+	                style: {
+	                    opacity: 0.4
+	                },
+	                markerConfig: {
+	                    radius: 3,
+	                    size: 5
+	                }
+	            }]
+			}]
+		};
+	},	
+	
+	/**
+	 * 월별 차트 생성 
+	 */
+	buildChartByMonth : function(store, minValue, width, height) {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : width - 25,
+				height : height - 50,
+				shadow : true,
+				insetPadding : 20,
+				theme : 'Base:gradients',
+				legend: { position: 'left' },
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: [ 'value' ],
+	                title: T('label.time') + '(' + T('label.minute_s') + ')',
+	                minimum: minValue
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['name'],
+	                title: T('label.speed_section') + '(km)'
+				}],			
+				series : [{
+					type: 'column',
+					axis: 'left',
+					xField: 'name',
+	                yField: [ 'value' ],
+					showInLegend : false,
+					tips : {
+						trackMouse : true,
+						width : 100,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(item.value[0] + '(km) : ' + item.value[1]);
+						}
+					},
+					highlight : {
+						segment : { margin : 20 }
+					}
+				}]
+			}]
+		}
+	}	
+});
 Ext.define('GreenFleet.view.dashboard.Reports', {
 	extend : 'Ext.Container',
 
@@ -11776,7 +14674,7 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			xtype : 'dashboard_' + dashboard_id,
 			itemId : 'dashboard_panel',
 			cls : 'hIndexbar',
-			title : T('report.report') + ' Test',
+			title : T('report.report'),
 			flex : 1,
 			autoScroll : true
 		};
@@ -11807,13 +14705,14 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			itemId : 'report_list',
 			store : Ext.create('Ext.data.Store', {
 				fields : [ 'id', 'name' ],		        
-				data : [{ "id" : "vehicle_summary", 			"name" : T('report.vehicle_summary') },
-				        { "id" : "driver_summary", 				"name" : T('report.driver_summary') },
-				        { "id" : "vehicle_effcc_rel", 			"name" : T('report.vehicle_effcc_rel') },
-				        { "id" : "driver_effcc_rel", 			"name" : T('report.driver_effcc_rel') },
-				        { "id" : "habit_effcc_rel", 			"name" : T('report.habit_effcc_rel') },
-				        { "id" : "incident_effcc_rel", 			"name" : T('report.incident_effcc_rel') },
-				        { "id" : "consumable_effcc_rel", 		"name" : T('report.consumable_effcc_rel') }]
+				data : [{ "id" : "vehicle_summary", 	"name" : T('report.vehicle_summary') },
+				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },
+				        { "id" : "effcc_trend", 		"name" : T('report.effcc_trend') },
+				        { "id" : "effcc_consmpt", 		"name" : T('report.effcc_consmpt') },
+				        { "id" : "vehicle_effcc_rel", 	"name" : T('report.vehicle_effcc_rel') },
+				        { "id" : "driver_effcc_rel", 	"name" : T('report.driver_effcc_rel') },				        
+				        { "id" : "incident_effcc_rel", 	"name" : T('report.incident_effcc_rel') },
+				        { "id" : "consumable_effcc_rel","name" : T('report.consumable_effcc_rel') }]
 			}),
 			title : T('title.report_list'),
 			width : 180,
@@ -11825,6 +14724,337 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			} ]
 		}
 	}
+});
+Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
+	extend : 'Ext.Container',
+	
+	alias : 'widget.dashboard_vehicle_health',
+	
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+	
+	items : [{
+		xtype : 'container',
+		cls :'pageTitle',
+		height: 35,
+		html : '<h1>' + T('title.vehicle_health') + '</h1>'
+	}],
+	
+	initComponent : function() {
+		this.callParent();
+
+		var content = this.add({
+			xtype : 'panel',
+			flex : 1,
+			cls : 'paddingAll10',
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			}
+		});
+		
+		var row1 = this.createRow(content);
+		var row2 = this.createRow(content);		
+		var dashboardStore = Ext.getStore('DashboardVehicleStore');
+		
+		dashboardStore.load({
+			scope : this,
+			callback: function(records, operation, success) {
+				var healthRecord = this.findRecord(records, "health");
+				var ageRecord = this.findRecord(records, "age");
+				var mileageRecord = this.findRecord(records, "mileage");
+				var runtimeRecord = this.findRecord(records, "runtime");
+				
+				this.addHealthChartToRow(row1, T('title.vehicle_health'), healthRecord);
+				this.addChartToRow(row1, T('title.running_distance') + '(km)', mileageRecord);
+				this.addChartToRow(row2, T('title.vehicle_age') + T('label.parentheses_year'), ageRecord);
+				this.addChartToRow(row2, T('title.vehicle_runtime') + T('label.parentheses_hour'), runtimeRecord);
+			}
+		});
+	},
+	
+	addHealthChartToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: [
+		        {
+		        	name : 'name',
+		        	type : 'string',
+		        	convert : function(value, record) {
+		        		return T('label.' + value);
+		        	}
+				},  'value'],
+		    data: record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'value'));		
+	},
+	
+	addChartToRow : function(row, title, record) {
+		var store = Ext.create('Ext.data.JsonStore', {
+		    fields: ['name', 'value'],
+		    data: record.data.summary
+		});
+		
+		row.add(this.buildHealthChart(title, store, 'value'));		
+	},
+	
+	findRecord : function(records, healthName) {
+		for(var i = 0 ; i < records.length ; i++) {
+			if(records[i].data.name == healthName) {
+				return records[i];
+			}
+		}
+		
+		return null;
+	},
+	
+	createRow : function(content) {
+		return content.add({
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
+		});		
+	},
+	
+	buildEmptyChart : function() {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280
+		}
+	},	
+	
+	buildHealthChart : function(title, store, idx) {
+		return {
+			xtype : 'panel',
+			title : title,
+			cls : 'paddingPanel healthDashboard',
+			flex:1,
+			height : 280,
+			items : [{
+				xtype: 'chart',
+		        animate: true,
+		        store: store,
+				width : 440,
+				height : 270,
+		        shadow: true,
+		        legend: {
+		            position: 'right',
+		            labelFont : '10px',
+		            boxStroke : '#cfcfcf'
+		        },
+		        insetPadding: 15,
+		        theme: 'Base:gradients',
+		        series: [{
+		            type: 'pie',
+		            field: idx,
+		            showInLegend: true,
+		            donut: false,
+		            tips: {
+		              trackMouse: true,
+		              width: 140,
+		              height: 25,
+		              renderer: function(storeItem, item) {
+		            	  // calculate percentage.
+		            	  var total = 0;
+		            	  store.each(function(rec) {
+		            		  total += rec.get(idx);
+		            	  });
+		            	  var name = storeItem.get('name');
+		            	  var count = storeItem.get('value');
+		            	  var percent = Math.round(count / total * 100);
+		            	  this.setTitle(name + ' : ' + count + '(' + percent + '%)');
+		              }
+		            },
+		            highlight: {
+		              segment: {
+		                margin: 20
+		              }
+		            },
+		            label: {
+		                field: 'name',
+		                display: 'rotate',
+		                contrast: true,
+		                font: '14px Arial'
+		            }
+		        }]
+			}]
+		}
+	}
+
+});
+Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_consumable_health',
+
+	layout : {
+		type : 'vbox',
+		align : 'stretch'
+	},
+
+	items : [ {
+		xtype : 'container',
+		cls : 'pageTitle',
+		height : 35,
+		html : '<h1>' + T('title.consumable_health') + '</h1>'
+	} ],
+
+	initComponent : function() {
+		this.callParent();
+
+		var content = this.add({
+			xtype : 'panel',
+			flex : 1,
+			cls : 'paddingAll10',
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			}
+		});
+
+		var dashboardStore = Ext.getStore('DashboardConsumableStore');
+
+		dashboardStore.load({
+			scope : this,
+			callback : function(records, operation, success) {
+
+				var columnCount = 0;
+				var row = null;
+
+				for ( var i = 0; i < records.length; i++) {
+					var record = records[i];
+					var consumableItem = record.data.consumable;				
+					
+					if (columnCount == 0) {
+						row = this.createRow(content);
+						columnCount++;
+					} else if (columnCount == 1) {
+						columnCount++;
+					} else if (columnCount == 2) {
+						columnCount = 0;
+					}
+					
+					this.addToRow(row, consumableItem, record);
+				}
+
+				var addCount = 3 - columnCount;
+				if (addCount < 3) {
+					for ( var j = 0; j < addCount; j++)
+						row.add(this.buildEmptyChart());
+				}
+			}
+		});
+	},
+	
+	addToRow : function(row, consumableItem, record) {
+		
+		var summaryRecords = record.data.summary;		
+		Ext.Array.each(summaryRecords, function(summaryRecord) {
+	        summaryRecord.consumable = consumableItem;
+	        summaryRecord.desc = T('label.' + summaryRecord.name);
+	    });
+		
+		var store = Ext.create('Ext.data.JsonStore', {
+			fields : ['consumable', 'name', 'desc', 'value' ],
+			autoDestroy : true,
+			data : summaryRecords
+		});
+		
+		row.add(this.buildHealthChart(consumableItem + ' ' + T('menu.health'), store, 'value'));		
+	},	
+
+	createRow : function(content) {
+		return content.add({
+			xtype : 'container',
+			flex : 1,
+			layout : {
+				type : 'hbox',
+				align : 'stretch'
+			}
+		});
+	},
+
+	buildEmptyChart : function() {
+		return {
+			xtype : 'panel',
+			cls : 'paddingPanel healthDashboard',
+			flex : 1,
+			height : 280
+		}
+	},
+
+	buildHealthChart : function(title, store, idx) {
+		return {
+			xtype : 'panel',
+			title : title,
+			cls : 'paddingPanel healthDashboard',
+			flex : 1,
+			height : 280,
+			items : [ {
+				xtype : 'chart',
+				animate : true,
+				store : store,
+				width : 290,
+				height : 150,
+				shadow : true,
+				legend : {
+					position : 'right',
+					labelFont : '10px',
+					boxStroke : '#cfcfcf'
+				},
+				insetPadding : 15,
+				theme : 'Base:gradients',
+				series : [ {
+					type : 'pie',
+					field : idx,
+					showInLegend : true,
+					donut : false,
+					tips : {
+						trackMouse : true,
+						width : 140,
+						height : 25,
+						renderer : function(storeItem, item) {
+							// calculate percentage.
+							var total = 0;
+							store.each(function(rec) {
+								total += rec.get(idx);
+							});
+							var name = storeItem.get('desc');
+							var count = storeItem.get('value');
+							var percent = Math.round(count / total * 100);
+							this.setTitle(name + ' : ' + count + '(' + percent + '%)');
+						}
+					},
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : 'desc',
+						display : 'rotate',
+						contrast : true,
+						font : '14px Arial'
+					},
+					listeners : {
+						itemmousedown : function(target, event) {
+							GreenFleet.doMenu("consumable");
+							var menu = GreenFleet.getMenu('consumable');
+							menu.setConsumable(target.storeItem.data.consumable, target.storeItem.data.name);
+						}
+					}
+				} ]
+			} ]
+		}
+	}
+
 });
 Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	extend : 'Ext.Container',
@@ -13005,1148 +16235,836 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 		}
 	}
 });
-Ext.define('GreenFleet.view.management.DriverGroup', {
-	extend : 'Ext.container.Container',
-	
-	alias : 'widget.management_driver_group',
-
-	title : T('title.driver_group'),
-
-	entityUrl : 'driver_group',
-
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
-	importUrl : 'driver_group/import',
-
-	afterImport : function() {
-		this.sub('grid').store.load();
-		this.sub('form').getForm().reset();
-	},
-
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-	
-	/**
-	 * 선택한 Vehicle Group ID를 전역변수로 저장 
-	 */
-	currentDriverGroup : '',
-		
-	initComponent : function() {
-		var self = this;
-
-		this.items = [ {
-			html : "<div class='listTitle'>" + T('title.driver_group_list') + "</div>"
-		}, {
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [ this.buildDriverGroupList(this), {
-				xtype : 'container',
-				flex : 1,
-				cls : 'borderRightGray',
-				layout : { align : 'stretch', type : 'vbox' },
-				items : [ this.buildDriverGroupForm(this), this.buildGroupedDriverList(this) ]
-			} ]
-		} ],
-
-		this.callParent(arguments);
-		
-		/**
-		 * Vehicle Group 그리드 선택시 선택한 데이터로 우측 폼 로드
-		 */  
-		this.sub('grid').on('itemclick', function(grid, record) {
-			self.currentDriverGroup = record.get('id');
-			self.sub('form').getForm().reset();
-			self.sub('form').loadRecord(record);
-		});
-		
-		/**
-		 * 우측 폼의 키가 변경될 때마다 빈 값으로 변경된 것이 아니라면 
-		 * 0. 선택한 Driver 전역변수를 설정 
-		 * 1. 두 개의 Grid에 어떤 Driver Group이 선택되었는지 표시하기 위해 타이틀을 Refresh 
-		 * 2. Driver List By Group가 그룹별로 Refresh
-		 * 3. TODO : 맨 우측의 Vehicle List가 그룹별로 필터링  
-		 */ 
-		this.sub('form_driver_group_key').on('change', function(field, value) {
-			if(value) {
-				var record = self.sub('grid').store.findRecord('key', value);
-				if(record) {
-					self.currentDriverGroup = record.get('id');
-					self.sub('grouped_drivers_grid').setTitle(T('title.drivers_by_group') + ' [' + record.get('id') + ']');
-					self.sub('form').setTitle(T('title.group_details') + ' [' + record.get('id') + ']');
-					self.searchGroupedDrivers();
-				}
-			}
-		});
-		
-		/**
-		 * Driver List By Group이 호출되기 전에 driver group id 파라미터 설정 
-		 */
-		this.sub('grouped_drivers_grid').store.on('beforeload', function(store, operation, opt) {
-			operation.params = operation.params || {};
-			operation.params['driver_group_id'] = self.currentDriverGroup;
-		});
-		
-		/**
-		 * Driver 검색 
-		 */
-		this.down('#search_all_drivers').on('click', function() {
-			self.searchAllDrivers(true);
-		});	
-		
-		/**
-		 * Reset 버튼 선택시 Driver 검색 조건 클리어 
-		 */
-		this.down('#search_reset_all_drivers').on('click', function() {
-			self.sub('all_drivers_id_filter').setValue('');
-			self.sub('all_drivers_name_filter').setValue('');
-		});
-		
-		/**
-		 * Driver Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('all_drivers_id_filter').on('change', function(field, value) {
-			self.searchAllDrivers(false);
-		});
-
-		/**
-		 * Driver name 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('all_drivers_name_filter').on('change', function(field, value) {
-			self.searchAllDrivers(false);
-		});		
-		
-		/**
-		 * Driver List가 호출되기 전에 검색 조건이 파라미터에 설정 
-		 */
-		this.sub('all_drivers_grid').store.on('beforeload', function(store, operation, opt) {
-			operation.params = operation.params || {};
-			var driver_id_filter = self.sub('all_drivers_id_filter');
-			var name_filter = self.sub('all_drivers_name_filter');			
-			operation.params['driver_id'] = driver_id_filter.getSubmitValue();
-			operation.params['name'] = name_filter.getSubmitValue();
-		});
-		
-		/**
-		 * 선택한 Driver들을 그룹에 추가 
-		 */
-		this.down('button[itemId=moveLeft]').on('click', function(button) {
-			
-			if(!self.currentDriverGroup) {
-				Ext.MessageBox.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.driver_group')}));
-				return;				
-			}
-			
-			var selections = self.sub('all_drivers_grid').getSelectionModel().getSelection();
-			if(!selections || selections.length == 0) {
-				Ext.MessageBox.alert(T('msg.none_selected'), "Select the drivers to add driver group [" + self.currentDriverGroup + "]");
-				return;
-			}
-
-			var driver_id_to_delete = [];
-			for(var i = 0 ; i < selections.length ; i++) {
-				driver_id_to_delete.push(selections[i].data.id);
-			}	
-
-			Ext.Ajax.request({
-			    url: '/driver_relation/save',
-			    method : 'POST',
-			    params: {
-			        driver_group_id: self.currentDriverGroup,			        
-			        driver_id : driver_id_to_delete
-			    },
-			    success: function(response) {
-			        var resultObj = Ext.JSON.decode(response.responseText);
-			        
-			        if(resultObj.success) {			        	
-				        self.sub('all_drivers_grid').getSelectionModel().deselectAll(true);
-				        self.searchGroupedDrivers();
-				        GreenFleet.msg(T('label.success'), resultObj.msg);
-			        } else {
-			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
-			        }
-			    },
-			    failure: function(response) {
-			    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
-			    }
-			});			
- 		});
-		
-		/**
-		 * 선택한 Driver들을 그룹에서 삭제 
-		 */
-		this.down('button[itemId=moveRight]').on('click', function(button) {
-			if(!self.currentDriverGroup) {
-				Ext.Msg.alert(T('msg.none_selected'), T('msg.select_x_first', {x : T('label.driver_group')}));
-				return;				
-			}
-			
-			var selections = self.sub('grouped_drivers_grid').getSelectionModel().getSelection();
-			if(!selections || selections.length == 0) {
-				Ext.Msg.alert(T('msg.none_selected'), "Select the drivers to remove from driver group [" + self.currentDriverGroup + "]");
-				return;
-			}
-
-			var driver_id_to_delete = [];
-			for(var i = 0 ; i < selections.length ; i++) {
-				driver_id_to_delete.push(selections[i].data.id);
-			}	
-
-			Ext.Ajax.request({
-			    url: '/driver_relation/delete',
-			    method : 'POST',
-			    params: {
-			        driver_group_id: self.currentDriverGroup,			        
-			        driver_id : driver_id_to_delete
-			    },
-			    success: function(response) {
-			        var resultObj = Ext.JSON.decode(response.responseText);
-			        
-			        if(resultObj.success) {
-				        self.searchGroupedDrivers();
-				        GreenFleet.msg(T('label.success'), resultObj.msg);				        
-			        } else {
-			        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
-			        }
-			    },
-			    failure: function(response) {
-			        Ext.MessageBox.alert(T('label.failure'), response.responseText);
-			    }
-			});			
-		});		
-	},
-	
-	searchAllDrivers : function(searchRemote) {
-				
-		if(searchRemote) {
-			this.sub('all_drivers_grid').store.load();			
-			
-		} else {
-			this.sub('all_drivers_grid').store.clearFilter(true);			
-			var idValue = this.sub('all_drivers_id_filter').getValue();
-			var nameValue = this.sub('all_drivers_name_filter').getValue();
-			
-			if(idValue || nameValue) {
-				this.sub('all_drivers_grid').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'name',
-					value : nameValue
-				} ]);
-			}			
-		}		
-	},	
-	
-	searchGroupedDrivers : function() {
-		this.sub('grouped_drivers_pagingtoolbar').moveFirst();
-	},
-	
-	buildDriverGroupList : function(main) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'grid',
-			store : 'DriverGroupStore',
-			title : T('title.driver_group'),
-			width : 320,
-			columns : [ new Ext.grid.RowNumberer(), 
-			{
-				dataIndex : 'key',
-				text : 'Key',
-				hidden : true
-			}, {
-				dataIndex : 'id',
-				text : T('label.group'),
-				width : 100
-			}, {
-				dataIndex : 'desc',
-				text : T('label.desc'),
-				width : 220
-			} ]
-		}
-	},
-
-	buildGroupedDriverList : function(main) {
-		return {
-			xtype : 'panel',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [
-			 	{
-			 		xtype : 'gridpanel',
-			 		itemId : 'grouped_drivers_grid',
-			 		store : 'DriverByGroupStore',
-			 		title : T('title.drivers_by_group'),
-			 		flex : 18.5,
-			 		cls : 'hIndexbarZero',
-			 		selModel : new Ext.selection.CheckboxModel(),
-			 		columns : [ 
-			 		    {	
-			 		    	dataIndex : 'key',
-			 		    	text : 'Key',
-			 		    	hidden : true
-			 		    }, {
-			 		    	dataIndex : 'id',
-			 		    	text : T('label.id')
-			 		    }, {
-			 		    	dataIndex : 'name',
-			 		    	text : T('label.name')			 		    	
-			 		    }, {
-			 		    	dataIndex : 'division',
-			 		    	text : T('label.division'),
-			 		    	type : 'string'
-			 		    }, {
-			 		    	dataIndex : 'title',
-			 		    	text : T('label.title'),
-			 		    	type : 'string'
-			 		    }, {
-			 		    	dataIndex : 'social_id',
-			 		    	text : T('label.social'),
-			 		    	type : 'string'
-			 		    }, {
-							dataIndex : 'phone_no_1',
-							text : T('label.phone_x', {x : 1}),
-							type : 'string'
-						}, {
-							dataIndex : 'phone_no_2',
-							text : T('label.phone_x', {x : 2}),
-							type : 'string'
-						}
-			 		],
-					bbar: {
-						xtype : 'pagingtoolbar',
-						itemId : 'grouped_drivers_pagingtoolbar',
-			            store: 'DriverByGroupStore',
-			            cls : 'pagingtoolbar',
-			            displayInfo: true,
-			            displayMsg: 'Displaying drivers {0} - {1} of {2}',
-			            emptyMsg: "No drivers to display"
-			        }			 		
-			 	},
-			 	{
-			 		xtype : 'panel',
-			 		flex : 1,
-					layout : {
-						type : 'vbox',
-						align : 'center',
-						pack : 'center'
-					},			 		
-			 		items : [
-			 		     {
-			 		    	 xtype : 'button',
-			 		    	 itemId : 'moveLeft',
-			 		    	 text : '<<'
-			 		     },
-			 		     {
-			 		    	 xtype : 'label',
-			 		    	 margins: '5 0 5 0'
-			 		     },
-			 		     {
-			 		    	 xtype : 'button',
-			 		    	itemId : 'moveRight',
-			 		    	 text : ">>"
-			 		     }
-			 		]
-			 	},
-			 	{
-			 		xtype : 'gridpanel',
-			 		itemId : 'all_drivers_grid',
-			 		store : 'DriverBriefStore',
-			 		title : T('title.driver_list'),
-			 		flex : 10,
-			 		cls : 'hIndexbarZero',
-			 		autoScroll : true,
-			 		selModel : new Ext.selection.CheckboxModel(),
-			 		columns : [ 
-			 		    {	
-			 		    	dataIndex : 'key',
-			 		    	text : 'Key',
-			 		    	hidden : true
-			 		    }, {
-			 		    	dataIndex : 'image_clip',
-			 		    	text : 'Image',
-			 		    	renderer : function(image_clip) {			 		    		
-				 		   		var imgTag = "<img src='";
-				 				
-				 				if(image_clip) {
-				 					imgTag += "download?blob-key=" + image_clip;
-				 				} else {
-				 					imgTag += "resources/image/bgVehicle.png";
-				 				}
-				 				
-				 				imgTag += "' width='80' height='80'/>";
-				 				return imgTag;
-			 		    	}			 		    	
-			 		    }, {
-			 		    	dataIndex : 'id',
-			 		    	text : T('label.id')
-			 		    }, {
-			 		    	dataIndex : 'name',
-			 		    	text : T('label.name')
-			 		    } 
-			 		],
-					tbar : [ T('label.id'), {
-						xtype : 'textfield',
-						name : 'all_drivers_id_filter',
-						itemId : 'all_drivers_id_filter',
-						hideLabel : true,
-						width : 70
-					}, T('label.name'), {
-						xtype : 'textfield',
-						name : 'all_drivers_name_filter',
-						itemId : 'all_drivers_name_filter',
-						hideLabel : true,
-						width : 70
-					}, ' ', {
-						text : T('button.search'),
-						itemId : 'search_all_drivers'
-					}, ' ', {
-						text : T('button.reset'),
-						itemId : 'search_reset_all_drivers'
-					} ],
-					bbar: {
-						xtype : 'pagingtoolbar',
-						itemId : 'all_drivers_pagingtoolbar',
-			            store: 'DriverBriefStore',
-			            cls : 'pagingtoolbar',
-			            displayInfo: true,
-			            displayMsg: 'Displaying drivers {0} - {1} of {2}',
-			            emptyMsg: "No drivers to display"
-			        }
-			 	}
-			 ]
-		}
-	},
-
-	buildDriverGroupForm : function(main) {
-		return {
-			xtype : 'form',
-			itemId : 'form',
-			bodyPadding : 10,
-			cls : 'hIndexbar',
-			title : T('title.group_details'),
-			height : 170,
-			defaults : {
-				xtype : 'textfield',
-				anchor : '100%'
-			},
-			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true,
-				itemId : 'form_driver_group_key'
-			}, {
-				name : 'id',
-				fieldLabel : T('label.group')
-			}, {
-				name : 'desc',
-				fieldLabel : T('label.desc')
-			}, {
-				xtype : 'datefield',
-				name : 'updated_at',
-				disabled : true,
-				fieldLabel : T('label.updated_at'),
-				format : F('datetime')
-			}, {
-				xtype : 'datefield',
-				name : 'created_at',
-				disabled : true,
-				fieldLabel : T('label.updated_at'),
-				format : F('datetime')
-			} ],
-			dockedItems : [ {
-				xtype : 'entity_form_buttons',				
-				confirmMsgSave : T('msg.confirm_save'),				
-				confirmMsgDelete : T('msg.confirm_delete'),				
-				loader : {
-					fn : function(callback) {
-						main.sub('grid').store.load(callback);
-					},
-					scope : main
-				}
-			} ]
-		}
-	}
-});
-Ext.define('GreenFleet.view.pm.Maintenance', {
+Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.pm_maintenance',
-
-	title : T('title.maintenance'),
+	alias : 'widget.dashboard_effcc_trend',
 
 	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
 
 	initComponent : function() {
 		var self = this;
 
-		this.items = [ {
-			html : "<div class='listTitle'>" + T('title.maintenance') + "</div>"
-		}, {
-			xtype : 'container',
-			flex : 1,
-			layout : { type : 'hbox', align : 'stretch' },
-			items : [ this.zvehiclelist(self), {
+		this.items = [
+		    {
 				xtype : 'container',
 				flex : 1,
-				cls : 'borderRightGray',
-				layout : { align : 'stretch', type : 'vbox' },
-				items : [ this.zmaintenances ]
-			} ]
-		} ],
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
 
 		this.callParent();
-
-		/**
-		 * vehicle 선택시
-		 */
-		this.sub('vehicle_info').on('itemdblclick', function(grid, record) {
-			var selVehicleId = (selectionModel.lastSelected) ? selectionModel.lastSelected.data.id : '';
-			// TODO 1. 확인 alert
-			// 		2. 트랜잭션 ...
-		}); 
 		
-		/**
-		 * vehicle 선택시
-		 */
-		this.sub('vehicle_info').on('selectionchange', function(selectionModel, selected, eOpts) {
-			var selVehicleId = (selectionModel.lastSelected) ? selectionModel.lastSelected.data.id : '';
-			self.sub('maintenance_grid').setTitle(T('title.maintenance_history') + '(' + selVehicleId + ')');
-			self.refresh_maintenance_grid(selVehicleId);			
-		});
-
-		/**
-		 * 정비 이력을 더블 클릭시  
-		 */
-		this.sub('maintenance_grid').on('itemdblclick', function(grid, record) {
-			self.popup_maint(record);
-		});
-		
-		/**
-		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('id_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});		
-
-		/**
-		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('reg_no_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});
-		
-		/**
-		 * Status 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		/*this.sub('status_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});*/
-	},
-	
-	/**
-	 * vehicle list를 조회 
-	 */
-	searchVehicles : function(searchRemote) {
-		
-		var store = this.sub('vehicle_info').store;
-		
-		if(searchRemote) {
-			store.load();
-		
-		} else {			
-			store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
-			//var statusValue = this.sub('status_filter').getValue();
-			
-			store.filter([ {
-				property : 'id',
-				value : idValue
-			}, {
-				property : 'registration_number',
-				value : regNoValue
-			}/*, {
-				property : 'status',
-				value : statusValue
-			}*/ ]);
-		}
-	},
-	
-	/**
-	 * 좌측 vehicle list
-	 */
-	zvehiclelist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'vehicle_info',
-			store : 'VehicleImageBriefStore',
-			title : T('title.vehicle_list'),
-			width : 300,
-			autoScroll : true,
-			startRepair : function() {
-				alert('정비시작');
-			},
-			columns : [ /*{
-				dataIndex : 'status',
-				width : 70,
-				renderer : function(value) {
-					if('Idle' == value || 'Incident' == value) {
-						return "<a href='#'>[정비시작]</a>";
-					} else if('Maint' == value) {
-						return "<a href='#'>[정비종료]</a>";
-					}
-				}
-            }, */{
-				dataIndex : 'id',
-				text : T('label.id'),
-				width : 100
-			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
-				width : 100
-			}, {
-				dataIndex : 'status',
-				text : T('label.status')
-			} ],
-			
-			tbar : [ T('label.id'),
-				{
-					xtype : 'textfield',
-					name : 'id_filter',
-					itemId : 'id_filter',
-					width : 65
-				}, 
-				T('label.reg_no'),
-				{
-					xtype : 'textfield',
-					name : 'reg_no_filter',
-					itemId : 'reg_no_filter',
-					width : 70
-				},
-				/*T('label.status'),
-				{
-					xtype : 'combo',
-					store : 'VehicleStatusStore',
-					name : 'status_filter',
-					itemId : 'status_filter',					
-					displayField: 'desc',
-				    valueField: 'status',
-				    width : 50
-				},*/
-				{
-					xtype : 'button',
-					text : T('button.search'),
-					handler : function(btn) {
-						btn.up('pm_maintenance').searchVehicles(true);
-					}
-				}
-			]
-		}
-	},
-
-	/**
-	 * maintenance history grid
-	 */
-	zmaintenances : {
-		xtype : 'grid',
-		itemId : 'maintenance_grid',
-		store : 'RepairStore',
-		cls : 'hIndexbar',
-		title : T('title.maintenance_history'),
-		flex : 1,
-		columns : [ {
-			header : 'Key',
-			dataIndex : 'key',
-			hidden : true
-		}, {
-			header : T('label.vehicle_id'),
-			dataIndex : 'vehicle_id',
-			hidden : true
-		}, {
-			header : T('label.repair_date'),
-			dataIndex : 'repair_date',
-			xtype : 'datecolumn',
-			format : F('date')
-		}, {
-			header : T('label.repair_time') + T('label.parentheses_min'),
-			dataIndex : 'repair_time'
-		}, {
-			header : T('label.next_repair_date'),
-			dataIndex : 'next_repair_date',
-			xtype : 'datecolumn',
-			format : F('date')
-		}, {
-			header : T('label.repair_mileage') + " (km)",
-			dataIndex : 'repair_mileage',
-			width : 120
-		}, {
-			header : T('label.repair_man'),
-			dataIndex : 'repair_man'
-		}, {
-			header : T('label.repair_shop'),
-			dataIndex : 'repair_shop'
-		}, {
-			header : T('label.cost'),
-			dataIndex : 'cost'
-		}, {
-			header : T('label.content'),
-			dataIndex : 'content',
-			flex : 1
-		} ],
-		bbar : [ { xtype : 'tbfill' }, 
-		{
-			xtype : 'button',
-			text : T('button.add'),
-			handler : function(btn, event) {
-				var thisView = btn.up('pm_maintenance');
-				thisView.popup_maint();
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
 			}
-		} ]
+		});
 	},
-	
-	/**
-	 * 정비 그리드 리프레쉬 
-	 */
-	refresh_maintenance_grid : function(selectedVehicleId) {
-		
-		var maintenanceStore = this.sub('maintenance_grid').store;
-		maintenanceStore.getProxy().extraParams.vehicle_id = selectedVehicleId;
-		maintenanceStore.load();
-	},
-	
-	/**
-	 * 정비 추가 팝업 show
-	 */
-	popup_maint : function(record) {
-		
-		var selModel = this.sub('vehicle_info').getSelectionModel();
-		var selVehicleId = (selModel.lastSelected) ? selModel.lastSelected.data.id : '';
-		var nextRepairDate = new Date();
-		nextRepairDate.setMilliseconds(nextRepairDate.getMilliseconds() + (1000 * 60 * 60 * 24 * 30 * 3));		
-		if(!record)
-			record = { 'data' : { 'vehicle_id' : selVehicleId, 'repair_date' : new Date(), 'next_repair_date' : nextRepairDate } };
-		var win = this.maintwin(this, record);
-		win.show();
-	},
-	
-	/**
-	 * 정비 팝업 리턴
-	 */
-	maintwin : function(self, record) {
-		
-		return new Ext.Window({
-			title : T('title.add_repair'),
-			modal : true,
-			listeners : {
-				show : function(win, opts) {
-					win.down('form').loadRecord(record);
-				}
-			},
-			items : [ {
-				xtype : 'form',
-				itemId : 'repair_win',
-				bodyPadding : 10,
-				cls : 'hIndexbar',
-				width : 500,
-				defaults : {
-					xtype : 'textfield',
-					anchor : '100%'
-				},
-				items : [ {
-					xtype : 'fieldset',
-					title : T('label.vehicle'),
-					defaultType : 'textfield',
-					layout : 'anchor',
-					collapsible : true,
-					padding : '10,5,5,5',
-					defaults : { anchor : '100%' },
-					items : [ {
-						name : 'key',
-						fieldLabel : 'Key',
-						hidden : true
-					}, {
-						itemId : 'vehicle_id',
-						name : 'vehicle_id',
-						fieldLabel : T('label.vehicle_id')
-					} ]
-				}, {
-					xtype : 'fieldset',
-					title : T('label.repair'),
-					defaultType : 'textfield',
-					layout : 'anchor',
-					padding : '10,5,5,5',
-					defaults : { anchor : '100%' },
-					items : [ {
-						name : 'repair_date',
-						fieldLabel : T('label.repair_date'),
-						xtype : 'datefield',
-						format : F('date')
-					}, {
-						name : 'repair_time',
-						fieldLabel : T('label.x_time', {x : T('label.repair')}) + T('label.parentheses_x', {x : T('label.minute_s')}),
-						xtype : 'numberfield'
-					}, {
-						name : 'next_repair_date',
-						fieldLabel : T('label.next_repair_date'),
-						xtype : 'datefield',
-						format : F('date')
-					}, {
-						xtype : 'numberfield',
-						name : 'repair_mileage',
-						fieldLabel : T('label.repair_mileage') + ' (km)',
-						minValue : 0,
-						step : 1000
-					}, {
-						name : 'repair_man',
-						fieldLabel : T('label.repair_man')
-					}, {
-						name : 'repair_shop',
-						fieldLabel : T('label.repair_shop')
-					}, {
-						xtype : 'numberfield',
-						name : 'cost',
-						fieldLabel : T('label.cost'),
-						minValue : 0,
-						step : 1000
-					}, {
-						xtype : 'textarea',
-						name : 'content',
-						fieldLabel : T('label.content')
-					}, {
-						name : 'comment',
-						xtype : 'textarea',
-						fieldLabel : T('label.comment')
-					} ]
-				} ]
-			} ],
-			
-			buttons : [ {
-				text : T('button.save'),
-				handler : function() {
-					var thisWin = this.up('window');
-					var thisForm = thisWin.down('form');
 
-					thisForm.getForm().submit({
-						url : '/repair/save',
-						submitEmptyText : false,
-						waitMsg : T('msg.saving'),
-						success : function(form, action) {
-							if (action.result.success) {
-								GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
-								self.refresh_maintenance_grid(form.getRecord().data.vehicle_id);
-								thisWin.close();
-							} else {
-								Ext.Msg.alert(T('label.failure'), action.result.msg);
-							}
-						},
-						failure : function(form, action) {
-							switch (action.failureType) {
-								case Ext.form.action.Action.CLIENT_INVALID:
-									Ext.Msg.alert(T('label.failure'), T('msg.invalid_form_values'));
-									break;
-								case Ext.form.action.Action.CONNECT_FAILURE:
-									Ext.Msg.alert(T('label.failure'), T('msg.failed_to_ajax'));
-									break;
-								case Ext.form.action.Action.SERVER_INVALID:
-									Ext.Msg.alert(T('label.failure'), action.result.msg);
-							}
-						}
-					});
-				}
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.effcc_trend'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'type', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
 			}, {
-				text : T('button.cancel'),
-				handler : function() {
-					this.up('window').close();
-				}
-			} ]
-		});		
-	}
-	
-});
-Ext.define('GreenFleet.view.management.Schedule', {
-	extend : 'Ext.container.Container',
-
-	alias : 'widget.management_schedule',
-
-	title : T('titla.schedule'),
-
-	entityUrl : 'task',
-
-	importUrl : 'task/import',
-
-	afterImport : function() {
-		this.sub('grid').store.load();
-		this.sub('form').getForm().reset();
-	},
-
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-
-	items : {
-		html : "<div class='listTitle'>" + T('title.schedule') + "</div>"
-	},
-
-	initComponent : function() {
-		var self = this;
-		this.callParent(arguments);
-		var calendarPanel = this.buildCalendar(self);
-		this.add(calendarPanel);
-	},
-	
-	buildCalendar : function(main) {
-		var calendarStore = Ext.getStore('CalendarStore');
-		var eventStore = Ext.getStore('EventStore');
-		eventStore.autoSync = true;
-		eventStore.load();
-		var calendar = Ext.create('Extensible.calendar.CalendarPanel', {
-			calendarStore : calendarStore,
-	        eventStore: eventStore,
-	        flex : 1
-	        /*listeners: {
-	            'eventadd': {
-	                fn: function(cp, rec) {	                	
-	                	//cp.store.load();
-	                	//GreenFleet.msg(T('label.success'), "Start : " + cp.viewStart.toString());
-	                	//GreenFleet.msg(T('label.success'), "End : " + cp.viewEnd.toString());
-	                },
-	                scope: this
-	            },
-	            'eventupdate': {
-	                fn: function(cp, rec) {
-	                	//cp.store.load();	                	
-	                },
-	                scope: this
-	            },
-	            'eventdelete': {
-	                fn: function(cp, rec) {
-	                	//cp.store.load();
-	                },
-	                scope: this
-	            }
-	        }*/	        
-	    });		
-		return calendar;
-	}
-});
-Ext.define('GreenFleet.view.overview.Overview', {
-	
-	extend : 'Ext.Container',
-	
-	alias : 'widget.overview',
-	
-	id : 'overview',
-    
-	layout: {
-        type: 'border',
-        padding: '0 5 5 5'
-    },
-    
-	initComponent : function() {
-		this.items = [{		    
-		    id: 'overview-header',
-		    region: 'north',
-		    xtype : 'box',
-			cls : 'pageTitle',
-			html : '<h1>' + T('menu.overview') + '</h1>',
-			height : 35		    
-		}, {
-            xtype: 'container',
-            region: 'center',
-            layout: 'border',
-            //items: [ this.zwest, this.zportal(), this.zeast ]
-            items : [ this.zportal() ]
-		}];
-		this.callParent(arguments);
-		var self = this;
-	},
-	
-	/*zwest : {
-        id: 'overview-vehicle-group',
-        xtype : 'grid_vg1_portlet',
-        region: 'west',
-        animCollapse: true,
-        width: 280,
-        minWidth: 150,
-        maxWidth: 310,
-        split: true,
-        collapsible: true
-	},
-	
-	zeast :  {
-        id: 'overview-driver-group',
-        xtype : 'grid_dg1_portlet',
-        region: 'east',
-        animCollapse: true,
-        width: 280,
-        minWidth: 150,
-        maxWidth: 310,
-        split: true,
-        collapsible: true
-	},*/
-	
-	zportal : function() {
-		
-		var today = new Date();
-		var year = today.getFullYear();
-		var month = today.getMonth() + 1;
-		
-		return {
-	        id: 'overview-portal',
-	        xtype: 'portalpanel',
-	        region: 'center',
-	        items: [{
-	            id: 'col-1',
-	            items: [{
-	                id: 'portlet-1-1',
-	                title: T('title.running_distance'),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'chart_v1_portlet',
-	                	height : 220,
-	                	chartType : 'mileage'
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
+	            text     : T('label.type'),
+	            dataIndex: 'type',
+	            width : 100
+			}, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : '1',
+					width : 60
 	            }, {
-	                id: 'portlet-1-2',
-	                title: T('portlet.today_maint_list'),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'grid_m1_portlet',
-	                	height : 220
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
+					dataIndex : 'mon_2',
+					text : '2',
+					width : 60
 	            }, {
-	                id: 'portlet-1-3',
-	                title: T('title.schedule'),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'calendar_portlet',
-	                	height : 220
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
+					dataIndex : 'mon_3',
+					text : '3',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : '4',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : '5',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : '6',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : '7',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : '8',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : '9',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : '10',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : '11',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : '12',
+					width : 60
 	            }]
-	        },{
-	            id: 'col-2',
-	            items: [{
-	                id: 'portlet-2-1',
-	                title: T('title.vehicle_health'),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'chart_v1_portlet',
-	                	height : 220,
-	                	chartType : 'health'
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	            },{
-	                id: 'portlet-2-2',
-	                title : T('portlet.latest_incident_x', {x : '5'}),
-	                tools: this.getTools(),
-	                height : 220,
-	                items: {
-	                	xtype : 'grid_i1_portlet',
-	                	height : 220
-	                },	                
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	            }, {
-	                id: 'portlet-2-3',
-	                title : T('portlet.vehicle_group_driving_summary') + ' ('+ year + '/' + month + ')', 
-	                tools: this.getTools(),
-	                height : 220,
-	                items: {
-	                    id: 'overview-vehicle-group',
-	                    xtype : 'grid_vg1_portlet',
-	                    width: 220
-	                },	                
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	        	}]
-	        },{
-	            id: 'col-3',
-	            items: [{
-	                id: 'portlet-3-1',
-	                title: T('title.vehicle_age'),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'chart_v1_portlet',
-	                	height : 220,
-	                	chartType : 'age'
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	            }, {
-	                id: 'portlet-3-2',
-	                title: T('portlet.upcomming_x_replacement', {x : T('label.consumable_item')}),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'grid_c1_portlet',
-	                	height : 220	                	
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	            }, {
-	                id: 'portlet-3-3',
-	                title: T('portlet.avg_fuel_effcc'),
-	                tools: this.getTools(),
-	                height : 220,
-	                items : {
-	                	xtype : 'chart_f1_portlet',
-	                	height : 220
-	                },
-	                listeners: {
-	                    close : Ext.bind(this.onPortletClose, this)
-	                }
-	            }]
+	        }, {
+				header : 'Average',
+				dataIndex : 'avg',
+				width : 100
 	        }]
-		};
+		}],
+
+		tbar : [
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_effcc_trend');
+					thisView.refresh();
+				}
+			}
+		]
 	},
 	
-	getTools: function() {
-        return [{
-            xtype: 'tool',
-            type: 'gear',
-            handler: function(e, target, panelHeader, tool) {
-                var portlet = panelHeader.ownerCt;
-                portlet.items.items[0].reload();
-            }
-        }];
-    },
-        
-    onPortletClose: function(portlet) {
-    	GreenFleet.msg('Close', "'" + portlet.title + "' was removed");
-    }
-});
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'fuel',
+		    	type : 'report',
+		    	from_year : fromYear,
+		    	from_month : fromMonth,
+		    	to_year : toYear,
+		    	to_month : toMonth
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	self.refreshGridData(resultObj.items);
+		        	self.refreshChartData(resultObj.items);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 그리드 데이터 Refresh 
+	 */
+	refreshGridData : function(records) {
+		var dataList = [];
+		var effccType = T('label.fuel_efficiency');
+		var consmptType = T('label.fuel_consumption');
+		
+		Ext.each(records, function(record) {
+			var effccData = null;
+			var consmptData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(data.year == record.year && data.type == effccType) {
+					effccData = data;
+				}
+				
+				if(data.year == record.year && data.type == consmptType) {
+					consmptData = data;
+				}				
+			});
+			
+			if(!effccData) {
+				effccData = { "year" : record.year };
+				effccData["type"] = effccType;
+				effccData["count"] = 0;
+				effccData["sum"] = 0;
+				dataList.push(effccData);
+			}
+			
+			if(!consmptData) {
+				consmptData = { "year" : record.year };
+				consmptData["type"] = consmptType;
+				consmptData["count"] = 0;
+				consmptData["sum"] = 0;
+				dataList.push(consmptData);				
+			} 
+			
+			var effcc = parseFloat(record.effcc);
+			effccData["mon_" + record.month] = effcc
+			effccData["count"] = effccData["count"] + 1;
+			effccData["sum"] = effccData["sum"] + effcc;
+			
+			var consmpt = parseFloat(record.consmpt);
+			consmptData["mon_" + record.month] = consmpt
+			consmptData["count"] = consmptData["count"] + 1;
+			consmptData["sum"] = consmptData["sum"] + consmpt;			
+		});
+		
+		Ext.each(dataList, function(data) {
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+		});
+		
+		this.sub('data_grid').store.loadData(dataList);
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var dataList = [];
+		Ext.each(records, function(record) {
+			dataList.push({"time" : record.yearmonth, "effcc" : parseFloat(record.effcc), "consmpt" : parseFloat(record.consmpt) });
+		});
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		
+		if(chart == null) {
+			this.refreshChart(dataList);
+		} else {
+			chart.store.loadData(dataList);
+		}
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(records, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
 
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(records, width, height) {
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : Ext.create('Ext.data.Store', { fields : ['time', 'effcc', 'consmpt'], data : records }),
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['time'],
+	                grid : true,
+	                title: T('label.month')
+				}, {
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['effcc'],
+	                grid : true,
+	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
+	                title: T('label.fuel_efficiency') + '(km/l)'
+	            },{
+	                type: 'Numeric',
+	                position: 'right',
+	                fields: ['consmpt'],
+	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
+	                title: T('label.fuel_consumption') + '(l)'
+	            } ],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: 'time',
+	                yField: 'effcc',
+					showInLegend : true,
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : 'effcc',
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial'
+					}
+				}, {
+	                type: 'line',
+	                highlight: {
+	                    size: 7,
+	                    radius: 7
+	                },
+	                fill: true,
+	                smooth: true,
+	                fillOpacity: 0.5,
+	                axis: 'right',
+	                xField: 'time',
+	                yField: 'consmpt',
+					showInLegend : true,
+	                title: T('label.fuel_consumption'),
+					tips : {
+						trackMouse : true,
+						width : 90,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(storeItem.get('time') + ' : ' + storeItem.get('consmpt') + '(l)');
+						}
+					},	                
+	            }]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_effcc_consmpt',
+
+	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+	},
+
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.effcc_trend'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'type', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
+			}, {
+	            text     : T('label.type'),
+	            dataIndex: 'type',
+	            width : 100
+			}, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : '1',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : '2',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : '3',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : '4',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : '5',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : '6',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : '7',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : '8',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : '9',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : '10',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : '11',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : '12',
+					width : 60
+	            }]
+	        }, {
+				header : 'Average',
+				dataIndex : 'avg',
+				width : 100
+	        }]
+		}],
+
+		tbar : [
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_effcc_consmpt');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'fuel',
+		    	type : 'report',
+		    	from_year : fromYear,
+		    	from_month : fromMonth,
+		    	to_year : toYear,
+		    	to_month : toMonth
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	self.refreshGridData(resultObj.items);
+		        	self.refreshChartData(resultObj.items);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 그리드 데이터 Refresh 
+	 */
+	refreshGridData : function(records) {
+		var dataList = [];
+		var effccType = T('label.fuel_efficiency');
+		var consmptType = T('label.fuel_consumption');
+		
+		Ext.each(records, function(record) {
+			var effccData = null;
+			var consmptData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(data.year == record.year && data.type == effccType) {
+					effccData = data;
+				}
+				
+				if(data.year == record.year && data.type == consmptType) {
+					consmptData = data;
+				}				
+			});
+			
+			if(!effccData) {
+				effccData = { "year" : record.year };
+				effccData["type"] = effccType;
+				effccData["count"] = 0;
+				effccData["sum"] = 0;
+				dataList.push(effccData);
+			}
+			
+			if(!consmptData) {
+				consmptData = { "year" : record.year };
+				consmptData["type"] = consmptType;
+				consmptData["count"] = 0;
+				consmptData["sum"] = 0;
+				dataList.push(consmptData);				
+			} 
+			
+			var effcc = parseFloat(record.effcc);
+			effccData["mon_" + record.month] = effcc
+			effccData["count"] = effccData["count"] + 1;
+			effccData["sum"] = effccData["sum"] + effcc;
+			
+			var consmpt = parseFloat(record.consmpt);
+			consmptData["mon_" + record.month] = consmpt
+			consmptData["count"] = consmptData["count"] + 1;
+			consmptData["sum"] = consmptData["sum"] + consmpt;			
+		});
+		
+		Ext.each(dataList, function(data) {
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+		});
+		
+		this.sub('data_grid').store.loadData(dataList);
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var dataList = [];
+		Ext.each(records, function(record) {
+			dataList.push({"time" : record.yearmonth, "effcc" : parseFloat(record.effcc), "consmpt" : parseFloat(record.consmpt) });
+		});
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		
+		if(chart == null) {
+			this.refreshChart(dataList);
+		} else {
+			chart.store.loadData(dataList);
+		}
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(records, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(records, width, height) {		
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : Ext.create('Ext.data.Store', { fields : ['time', 'effcc', 'consmpt'], data : records }),
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Numeric',
+	                position: 'bottom',
+	                fields: ['consmpt'],
+	                grid : true,
+	                title: T('label.fuel_consumption') + '(l)',
+				}, {
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['effcc'],
+	                grid : true,
+	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
+	                title: T('label.fuel_efficiency') + '(km/l)'
+	            }],
+				series : [{
+					type: 'scatter',
+					markerConfig: {
+						radius: 5,
+						size: 5
+					},
+					axis: 'left',
+					xField: 'consmpt',
+					yField: 'effcc'
+				}/*, {
+					type: 'scatter',
+					markerConfig: {
+						radius: 5,
+						size: 5
+					},
+					axis: 'left',
+					xField: 'name',
+					yField: 'data3'
+				}*/]
+			}]
+		}
+	}
+});
 /**
  * @class GreenFleet.view.portlet.Portlet
  * @extends Ext.panel.Panel
@@ -14966,1256 +17884,6 @@ Ext.define('GreenFleet.view.portlet.GridC1Portlet', {
     }    
 });
 
-Ext.define('GreenFleet.view.management.Report', {
-	extend : 'Ext.container.Container',
-
-	alias : 'widget.management_report',
-
-	title : T('title.report'),
-
-	entityUrl : 'report',
-	
-	importUrl : 'report/import',
-	
-	afterImport : function() {
-		this.sub('grid').store.load();
-		this.sub('form').getForm().reset();
-	},
-
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-	
-	items : {
-		html : "<div class='listTitle'>" + T('title.report_list') + "</div>"
-	},
-	
-	initComponent : function() {
-		var self = this;
-		
-		this.callParent(arguments);
-		
-		item = {
-			xtype : 'container',
-			flex : 1,
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			items : [ {
-				xtype : 'container',
-				flex : 1,
-				cls : 'borderRightGray',
-				layout : { align : 'stretch', type : 'hbox' },
-				items : [ this.buildList(this), this.buildForm(this) ]
-			} ]
-		};
-		
-		this.add(item);
-
-		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
-		});
-
-		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
-		});
-
-		this.down('#search_reset').on('click', function() {
-			self.sub('name_filter').setValue('');
-		});
-
-		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
-		});		
-	},
-
-	search : function() {
-		this.sub('grid').store.clearFilter();
-
-		this.sub('grid').store.filter([ {
-			property : 'name',
-			value : this.sub('name_filter').getValue()
-		}]);
-	},
-	
-	buildList : function(main) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'grid',
-			store : 'ReportStore',
-			autoScroll : true,
-			flex : 1,
-			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'id',
-				text : T('label.id'),
-				type : 'string'				
-			}, {
-				dataIndex : 'name',
-				text : T('label.name'),
-				type : 'string'
-			}, {
-				dataIndex : 'daily',
-				text : T('label.daily'),
-				type : 'boolean'
-			}, {
-				dataIndex : 'weekly',
-				text : T('label.weekly'),
-				type : 'boolean'
-			}, {
-				dataIndex : 'monthly',
-				text : T('label.monthly'),
-				type : 'boolean'
-			}, {				
-				dataIndex : 'created_at',
-				text : T('label.created_at'),
-				xtype:'datecolumn',
-				format:F('datetime'),
-				width : 120
-			}, {
-				dataIndex : 'updated_at',
-				text : T('label.updated_at'),
-				xtype:'datecolumn',
-				format:F('datetime'),
-				width : 120
-			} ],
-			viewConfig : {
-
-			},
-			tbar : [ T('label.name'), {
-				xtype : 'textfield',
-				name : 'name_filter',
-				itemId : 'name_filter',
-				hideLabel : true,
-				width : 200
-			}, {
-				text : T('button.search'),
-				itemId : 'search'
-			}, {
-				text : T('button.reset'),
-				itemId : 'search_reset'
-			} ],
-			bbar: {
-				xtype : 'pagingtoolbar',
-				itemId : 'pagingtoolbar',
-	            store: 'ReportStore',
-	            cls : 'pagingtoolbar',
-	            displayInfo: true,
-	            displayMsg: 'Displaying report {0} - {1} of {2}',
-	            emptyMsg: "No reports to display"
-	        }
-		}
-	},
-
-	buildForm : function(main) {
-		return {
-			xtype : 'panel',
-			itemId : 'details',
-			bodyPadding : 10,
-			cls : 'hIndexbar',
-			title : T('title.report_details'),
-			layout : {
-				type : 'hbox',
-				align : 'stretch'	
-			},
-			flex : 1,
-			items : [ {
-				xtype : 'form',
-				itemId : 'form',
-				autoScroll : true,
-				flex : 1,
-				defaults : {
-					xtype : 'textfield',
-					anchor : '100%'
-				},
-				items : [{
-					name : 'key',
-					fieldLabel : 'Key',
-					hidden : true
-				}, {
-					name : 'id',
-					fieldLabel : T('label.id'),
-					xtype : 'codecombo',
-					group : 'ReportType'						
-				}, {
-					name : 'name',
-					fieldLabel : T('label.name')
-				}, {					
-					name : 'cycle',
-					xtype: 'checkboxgroup',
-		            fieldLabel: T('label.cycle'),
-		            columns: 1,
-		            items: [
-		                { boxLabel: T('label.daily'), name: 'daily' },
-		                { boxLabel: T('label.weekly'), name: 'weekly' },
-		                { boxLabel: T('label.monthly'), name: 'monthly' }
-		            ]
-				}, {
-					name : 'send_to',
-					xtype : 'textarea',
-					rows : 6,
-					fieldLabel: T('label.send_to')
-					//xtype : 'user_selector',
-					//selector_label : T('label.send_to')
-				}, {
-					xtype : 'textarea',
-					name : 'expl',
-					rows : 8,
-					fieldLabel : T('label.desc')
-				}, {
-					xtype : 'datefield',
-					name : 'updated_at',
-					disabled : true,
-					fieldLabel : T('label.updated_at'),
-					format: F('datetime')
-				}, {
-					xtype : 'datefield',
-					name : 'created_at',
-					disabled : true,
-					fieldLabel : T('label.created_at'),
-					format: F('datetime')
-				} ]
-			} ],
-			dockedItems : [ {
-				xtype : 'entity_form_buttons',
-				loader : {
-					fn : function(callback) {
-						main.sub('grid').store.load(callback);
-					},
-					scope : main
-				}
-			} ]
-		}
-	}
-});
-Ext.define('GreenFleet.view.common.MultiSelect', {
-    
-    extend: 'Ext.form.FieldContainer',
-    
-    mixins: {
-        bindable: 'Ext.util.Bindable',
-        field: 'Ext.form.field.Field'    
-    },
-    
-    alias: ['widget.multiselectfield', 'widget.multiselect'],
-    
-    requires: ['Ext.panel.Panel', 'Ext.view.BoundList'],
-    
-    uses: ['Ext.view.DragZone', 'Ext.view.DropZone'],
-    
-    /**
-     * @cfg {String} [dragGroup=""] The ddgroup name for the MultiSelect DragZone.
-     */
-
-    /**
-     * @cfg {String} [dropGroup=""] The ddgroup name for the MultiSelect DropZone.
-     */
-    
-    /**
-     * @cfg {String} [title=""] A title for the underlying panel.
-     */
-    
-    /**
-     * @cfg {Boolean} [ddReorder=false] Whether the items in the MultiSelect list are drag/drop reorderable.
-     */
-    ddReorder: false,
-
-    /**
-     * @cfg {Object/Array} tbar An optional toolbar to be inserted at the top of the control's selection list.
-     * This can be a {@link Ext.toolbar.Toolbar} object, a toolbar config, or an array of buttons/button configs
-     * to be added to the toolbar. See {@link Ext.panel.Panel#tbar}.
-     */
-
-    /**
-     * @cfg {String} [appendOnly=false] True if the list should only allow append drops when drag/drop is enabled.
-     * This is useful for lists which are sorted.
-     */
-    appendOnly: false,
-
-    /**
-     * @cfg {String} [displayField="text"] Name of the desired display field in the dataset.
-     */
-    displayField: 'text',
-
-    /**
-     * @cfg {String} [valueField="text"] Name of the desired value field in the dataset.
-     */
-
-    /**
-     * @cfg {Boolean} [allowBlank=true] False to require at least one item in the list to be selected, true to allow no
-     * selection.
-     */
-    allowBlank: true,
-
-    /**
-     * @cfg {Number} [minSelections=0] Minimum number of selections allowed.
-     */
-    minSelections: 0,
-
-    /**
-     * @cfg {Number} [maxSelections=Number.MAX_VALUE] Maximum number of selections allowed.
-     */
-    maxSelections: Number.MAX_VALUE,
-
-    /**
-     * @cfg {String} [blankText="This field is required"] Default text displayed when the control contains no items.
-     */
-    blankText: 'This field is required',
-
-    /**
-     * @cfg {String} [minSelectionsText="Minimum {0}item(s) required"] 
-     * Validation message displayed when {@link #minSelections} is not met. 
-     * The {0} token will be replaced by the value of {@link #minSelections}.
-     */
-    minSelectionsText: 'Minimum {0} item(s) required',
-    
-    /**
-     * @cfg {String} [maxSelectionsText="Maximum {0}item(s) allowed"] 
-     * Validation message displayed when {@link #maxSelections} is not met
-     * The {0} token will be replaced by the value of {@link #maxSelections}.
-     */
-    maxSelectionsText: 'Minimum {0} item(s) required',
-
-    /**
-     * @cfg {String} [delimiter=","] The string used to delimit the selected values when {@link #getSubmitValue submitting}
-     * the field as part of a form. If you wish to have the selected values submitted as separate
-     * parameters rather than a single delimited parameter, set this to <tt>null</tt>.
-     */
-    delimiter: ',',
-
-    /**
-     * @cfg {Ext.data.Store/Array} store The data source to which this MultiSelect is bound (defaults to <tt>undefined</tt>).
-     * Acceptable values for this property are:
-     * <div class="mdetail-params"><ul>
-     * <li><b>any {@link Ext.data.Store Store} subclass</b></li>
-     * <li><b>an Array</b> : Arrays will be converted to a {@link Ext.data.ArrayStore} internally.
-     * <div class="mdetail-params"><ul>
-     * <li><b>1-dimensional array</b> : (e.g., <tt>['Foo','Bar']</tt>)<div class="sub-desc">
-     * A 1-dimensional array will automatically be expanded (each array item will be the combo
-     * {@link #valueField value} and {@link #displayField text})</div></li>
-     * <li><b>2-dimensional array</b> : (e.g., <tt>[['f','Foo'],['b','Bar']]</tt>)<div class="sub-desc">
-     * For a multi-dimensional array, the value in index 0 of each item will be assumed to be the combo
-     * {@link #valueField value}, while the value at index 1 is assumed to be the combo {@link #displayField text}.
-     * </div></li></ul></div></li></ul></div>
-     */
-    
-    ignoreSelectChange: 0,
-    
-    initComponent: function(){
-        var me = this;
-
-        me.bindStore(me.store, true);
-        if (me.store.autoCreated) {
-            me.valueField = me.displayField = 'field1';
-            if (!me.store.expanded) {
-                me.displayField = 'field2';
-            }
-        }
-
-        if (!Ext.isDefined(me.valueField)) {
-            me.valueField = me.displayField;
-        }
-        Ext.apply(me, me.setupItems());
-        
-        
-        me.callParent();
-        me.initField();
-        me.addEvents('drop');    
-    },
-    
-    setupItems: function() {
-        var me = this;
-        
-        me.boundList = Ext.create('Ext.view.BoundList', {
-            deferInitialRefresh: false,
-            multiSelect: true,
-            store: me.store,
-            displayField: me.displayField,
-            disabled: me.disabled
-        });
-        
-        me.boundList.getSelectionModel().on('selectionchange', me.onSelectChange, me);
-        return {
-            layout: 'fit',
-            title: me.title,
-            tbar: me.tbar,
-            items: me.boundList
-        };
-    },
-    
-    onSelectChange: function(selModel, selections){
-        if (!this.ignoreSelectChange) {
-            this.setValue(selections);
-        }    
-    },
-    
-    getSelected: function(){
-        return this.boundList.getSelectionModel().getSelection();
-    },
-    
-    // compare array values
-    isEqual: function(v1, v2) {
-        var fromArray = Ext.Array.from,
-            i = 0, 
-            len;
-
-        v1 = fromArray(v1);
-        v2 = fromArray(v2);
-        len = v1.length;
-
-        if (len !== v2.length) {
-            return false;
-        }
-
-        for(; i < len; i++) {
-            if (v2[i] !== v1[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    },
-    
-    afterRender: function(){
-        var me = this;
-        
-        me.callParent();
-        if (me.selectOnRender) {
-            ++me.ignoreSelectChange;
-            me.boundList.getSelectionModel().select(me.getRecordsForValue(me.value));
-            --me.ignoreSelectChange;
-            delete me.toSelect;
-        }    
-        
-        if (me.ddReorder && !me.dragGroup && !me.dropGroup){
-            me.dragGroup = me.dropGroup = 'MultiselectDD-' + Ext.id();
-        }
-
-        if (me.draggable || me.dragGroup){
-            me.dragZone = Ext.create('Ext.view.DragZone', {
-                view: me.boundList,
-                ddGroup: me.dragGroup,
-                dragText: '{0} Item{1}'
-            });
-        }
-        if (me.droppable || me.dropGroup){
-            me.dropZone = Ext.create('Ext.view.DropZone', {
-                view: me.boundList,
-                ddGroup: me.dropGroup,
-                handleNodeDrop: function(data, dropRecord, position) {
-                    var view = this.view,
-                        store = view.getStore(),
-                        records = data.records,
-                        index;
-
-                    // remove the Models from the source Store
-                    data.view.store.remove(records);
-
-                    index = store.indexOf(dropRecord);
-                    if (position === 'after') {
-                        index++;
-                    }
-                    store.insert(index, records);
-                    view.getSelectionModel().select(records);
-                    me.fireEvent('drop', me, records);
-                }
-            });
-        }
-    },
-    
-    isValid : function() {
-        var me = this,
-            disabled = me.disabled,
-            validate = me.forceValidation || !disabled;
-            
-        
-        return validate ? me.validateValue(me.value) : disabled;
-    },
-    
-    validateValue: function(value) {
-        var me = this,
-            errors = me.getErrors(value),
-            isValid = Ext.isEmpty(errors);
-            
-        if (!me.preventMark) {
-            if (isValid) {
-                me.clearInvalid();
-            } else {
-                me.markInvalid(errors);
-            }
-        }
-
-        return isValid;
-    },
-    
-    markInvalid : function(errors) {
-        // Save the message and fire the 'invalid' event
-        var me = this,
-            oldMsg = me.getActiveError();
-        me.setActiveErrors(Ext.Array.from(errors));
-        if (oldMsg !== me.getActiveError()) {
-            me.updateLayout();
-        }
-    },
-
-    /**
-     * Clear any invalid styles/messages for this field.
-     *
-     * **Note**: this method does not cause the Field's {@link #validate} or {@link #isValid} methods to return `true`
-     * if the value does not _pass_ validation. So simply clearing a field's errors will not necessarily allow
-     * submission of forms submitted with the {@link Ext.form.action.Submit#clientValidation} option set.
-     */
-    clearInvalid : function() {
-        // Clear the message and fire the 'valid' event
-        var me = this,
-            hadError = me.hasActiveError();
-        me.unsetActiveError();
-        if (hadError) {
-            me.updateLayout();
-        }
-    },
-    
-    getSubmitData: function() {
-        var me = this,
-            data = null,
-            val;
-        if (!me.disabled && me.submitValue && !me.isFileUpload()) {
-            val = me.getSubmitValue();
-            if (val !== null) {
-                data = {};
-                data[me.getName()] = val;
-            }
-        }
-        return data;
-    },
-
-    /**
-     * Returns the value that would be included in a standard form submit for this field.
-     *
-     * @return {String} The value to be submitted, or null.
-     */
-    getSubmitValue: function() {
-        var me = this,
-            delimiter = me.delimiter,
-            val = me.getValue();
-            
-        return Ext.isString(delimiter) ? val.join(delimiter) : val;
-    },
-    
-    getValue: function(){
-        return this.value;
-    },
-    
-    getRecordsForValue: function(value){
-        var me = this,
-            records = [],
-            all = me.store.getRange(),
-            valueField = me.valueField,
-            i = 0,
-            allLen = all.length,
-            rec,
-            j,
-            valueLen;
-            
-        for (valueLen = value.length; i < valueLen; ++i) {
-            for (j = 0; j < allLen; ++j) {
-                rec = all[j];   
-                if (rec.get(valueField) == value[i]) {
-                    records.push(rec);
-                }
-            }    
-        }
-            
-        return records;
-    },
-    
-    setupValue: function(value){
-        var delimiter = this.delimiter,
-            valueField = this.valueField,
-            i = 0,
-            out,
-            len,
-            item;
-            
-        if (Ext.isDefined(value)) {
-            if (delimiter && Ext.isString(value)) {
-                value = value.split(delimiter);
-            } else if (!Ext.isArray(value)) {
-                value = [value];
-            }
-        
-            for (len = value.length; i < len; ++i) {
-                item = value[i];
-                if (item && item.isModel) {
-                    value[i] = item.get(valueField);
-                }
-            }
-            out = Ext.Array.unique(value);
-        } else {
-            out = [];
-        }
-        return out;
-    },
-    
-    setValue: function(value){
-        var me = this,
-            selModel = me.boundList.getSelectionModel();
-
-        // Store not loaded yet - we cannot set the value
-        if (!me.store.getCount()) {
-            me.store.on({
-                load: Ext.Function.bind(me.setValue, me, [value]),
-                single: true
-            });
-            return;
-        }
-
-        value = me.setupValue(value);
-        me.mixins.field.setValue.call(me, value);
-        
-        if (me.rendered) {
-            ++me.ignoreSelectChange;
-            selModel.deselectAll();
-            selModel.select(me.getRecordsForValue(value));
-            --me.ignoreSelectChange;
-        } else {
-            me.selectOnRender = true;
-        }
-    },
-    
-    clearValue: function(){
-        this.setValue([]);    
-    },
-    
-    onEnable: function(){
-        var list = this.boundList;
-        this.callParent();
-        if (list) {
-            list.enable();
-        }
-    },
-    
-    onDisable: function(){
-        var list = this.boundList;
-        this.callParent();
-        if (list) {
-            list.disable();
-        }
-    },
-    
-    getErrors : function(value) {
-        var me = this,
-            format = Ext.String.format,
-            errors = [],
-            numSelected;
-
-        value = Ext.Array.from(value || me.getValue());
-        numSelected = value.length;
-
-        if (!me.allowBlank && numSelected < 1) {
-            errors.push(me.blankText);
-        }
-        if (numSelected < me.minSelections) {
-            errors.push(format(me.minSelectionsText, me.minSelections));
-        }
-        if (numSelected > me.maxSelections) {
-            errors.push(format(me.maxSelectionsText, me.maxSelections));
-        }
-        return errors;
-    },
-    
-    onDestroy: function(){
-        var me = this;
-        
-        me.bindStore(null);
-        Ext.destroy(me.dragZone, me.dropZone);
-        me.callParent();
-    },
-    
-    onBindStore: function(store){
-        var boundList = this.boundList;
-        
-        if (boundList) {
-            boundList.bindStore(store);
-        }
-    }
-    
-});
-
-/*
- * Note that this control will most likely remain as an example, and not as a core Ext form
- * control.  However, the API will be changing in a future release and so should not yet be
- * treated as a final, stable API at this time.
- */
-
-/**
- * A control that allows selection of between two Ext.ux.form.MultiSelect controls.
- */
-Ext.define('GreenFleet.view.common.ItemSelector', {
-    
-	extend: 'GreenFleet.view.common.MultiSelect',
-    
-    alias: ['widget.itemselectorfield', 'widget.itemselector'],
-    
-    /**
-     * @cfg {Boolean} [hideNavIcons=false] True to hide the navigation icons
-     */
-    hideNavIcons:false,
-
-    /**
-     * @cfg {Array} buttons Defines the set of buttons that should be displayed in between the ItemSelector
-     * fields. Defaults to <tt>['top', 'up', 'add', 'remove', 'down', 'bottom']</tt>. These names are used
-     * to build the button CSS class names, and to look up the button text labels in {@link #buttonsText}.
-     * This can be overridden with a custom Array to change which buttons are displayed or their order.
-     */
-    buttons: ['top', 'up', 'add', 'remove', 'down', 'bottom'],
-
-    /**
-     * @cfg {Object} buttonsText The tooltips for the {@link #buttons}.
-     * Labels for buttons.
-     */
-    buttonsText: {
-        top: "Move to Top",
-        up: "Move Up",
-        add: "Add to Selected",
-        remove: "Remove from Selected",
-        down: "Move Down",
-        bottom: "Move to Bottom"
-    },
-
-    initComponent: function() {
-        var me = this;
-
-        me.ddGroup = me.id + '-dd';
-        me.callParent();
-
-        // bindStore must be called after the fromField has been created because
-        // it copies records from our configured Store into the fromField's Store
-        me.bindStore(me.store);
-    },
-
-    createList: function(){
-        var me = this;
-
-        return Ext.create('GreenFleet.view.common.MultiSelect', {
-            submitValue: false,
-            flex: 1,
-            dragGroup: me.ddGroup,
-            dropGroup: me.ddGroup,
-            store: {
-                model: me.store.model,
-                data: []
-            },
-            displayField: me.displayField,
-            disabled: me.disabled,
-            listeners: {
-                boundList: {
-                    scope: me,
-                    itemdblclick: me.onItemDblClick,
-                    drop: me.syncValue
-                }
-            }
-        });
-    },
-
-    setupItems: function() {
-        var me = this;
-
-        me.fromField = me.createList();
-        me.toField = me.createList();
-
-        return {
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
-            items: [
-                me.fromField,
-                {
-                    xtype: 'container',
-                    margins: '0 4',
-                    width: 22,
-                    layout: {
-                        type: 'vbox',
-                        pack: 'center'
-                    },
-                    items: me.createButtons()
-                },
-                me.toField
-            ]
-        };
-    },
-
-    createButtons: function(){
-        var me = this,
-            buttons = [];
-
-        if (!me.hideNavIcons) {
-            Ext.Array.forEach(me.buttons, function(name) {
-                buttons.push({
-                    xtype: 'button',
-                    tooltip: me.buttonsText[name],
-                    handler: me['on' + Ext.String.capitalize(name) + 'BtnClick'],
-                    cls: Ext.baseCSSPrefix + 'form-itemselector-btn',
-                    iconCls: Ext.baseCSSPrefix + 'form-itemselector-' + name,
-                    navBtn: true,
-                    scope: me,
-                    margin: '4 0 0 0'
-                });
-            });
-        }
-        return buttons;
-    },
-
-    getSelections: function(list){
-        var store = list.getStore(),
-            selections = list.getSelectionModel().getSelection();
-
-        return Ext.Array.sort(selections, function(a, b){
-            a = store.indexOf(a);
-            b = store.indexOf(b);
-
-            if (a < b) {
-                return -1;
-            } else if (a > b) {
-                return 1;
-            }
-            return 0;
-        });
-    },
-
-    onTopBtnClick : function() {
-        var list = this.toField.boundList,
-            store = list.getStore(),
-            selected = this.getSelections(list);
-
-        store.suspendEvents();
-        store.remove(selected, true);
-        store.insert(0, selected);
-        store.resumeEvents();
-        list.refresh();
-        this.syncValue(); 
-        list.getSelectionModel().select(selected);
-    },
-
-    onBottomBtnClick : function() {
-        var list = this.toField.boundList,
-            store = list.getStore(),
-            selected = this.getSelections(list);
-
-        store.suspendEvents();
-        store.remove(selected, true);
-        store.add(selected);
-        store.resumeEvents();
-        list.refresh();
-        this.syncValue();
-        list.getSelectionModel().select(selected);
-    },
-
-    onUpBtnClick : function() {
-        var list = this.toField.boundList,
-            store = list.getStore(),
-            selected = this.getSelections(list),
-            i = 0,
-            len = selected.length,
-            index = store.getCount();
-
-        // Find index of first selection
-        for (; i < len; ++i) {
-            index = Math.min(index, store.indexOf(selected[i]));
-        }
-        // If first selection is not at the top, move the whole lot up
-        if (index > 0) {
-            store.suspendEvents();
-            store.remove(selected, true);
-            store.insert(index - 1, selected);
-            store.resumeEvents();
-            list.refresh();
-            this.syncValue();
-            list.getSelectionModel().select(selected);
-        }
-    },
-
-    onDownBtnClick : function() {
-        var list = this.toField.boundList,
-            store = list.getStore(),
-            selected = this.getSelections(list),
-            i = 0,
-            len = selected.length,
-            index = 0;
-
-        // Find index of last selection
-        for (; i < len; ++i) {
-            index = Math.max(index, store.indexOf(selected[i]));
-        }
-        // If last selection is not at the bottom, move the whole lot down
-        if (index < store.getCount() - 1) {
-            store.suspendEvents();
-            store.remove(selected, true);
-            store.insert(index + 2 - len, selected);
-            store.resumeEvents();
-            list.refresh();
-            this.syncValue();
-            list.getSelectionModel().select(selected);
-        }
-    },
-
-    onAddBtnClick : function() {
-        var me = this,
-            fromList = me.fromField.boundList,
-            selected = this.getSelections(fromList);
-
-        fromList.getStore().remove(selected);
-        this.toField.boundList.getStore().add(selected);
-        this.syncValue();
-    },
-
-    onRemoveBtnClick : function() {
-        var me = this,
-            toList = me.toField.boundList,
-            selected = this.getSelections(toList);
-
-        toList.getStore().remove(selected);
-        this.fromField.boundList.getStore().add(selected);
-        this.syncValue();
-    },
-
-    syncValue: function() {
-        this.setValue(this.toField.store.getRange()); 
-    },
-
-    onItemDblClick: function(view, rec){
-        var me = this,
-            from = me.fromField.store,
-            to = me.toField.store,
-            current,
-            destination;
-
-        if (view === me.fromField.boundList) {
-            current = from;
-            destination = to;
-        } else {
-            current = to;
-            destination = from;
-        }
-        current.remove(rec);
-        destination.add(rec);
-        me.syncValue();
-    },
-
-    setValue: function(value){
-        var me = this,
-            fromStore = me.fromField.store,
-            toStore = me.toField.store,
-            selected;
-
-        // Wait for from store to be loaded
-        if (!me.fromField.store.getCount()) {
-            me.fromField.store.on({
-                load: Ext.Function.bind(me.setValue, me, [value]),
-                single: true
-            });
-            return;
-        }
-
-        value = me.setupValue(value);
-        me.mixins.field.setValue.call(me, value);
-
-        selected = me.getRecordsForValue(value);
-
-        Ext.Array.forEach(toStore.getRange(), function(rec){
-            if (!Ext.Array.contains(selected, rec)) {
-                // not in the selected group, remove it from the toStore
-                toStore.remove(rec);
-                fromStore.add(rec);
-            }
-        });
-        toStore.removeAll();
-
-        Ext.Array.forEach(selected, function(rec){
-            // In the from store, move it over
-            if (fromStore.indexOf(rec) > -1) {
-                fromStore.remove(rec);     
-            }
-            toStore.add(rec);
-        });
-    },
-
-    onBindStore: function(store, initial) {
-        var me = this;
-
-        if (me.fromField) {
-            me.fromField.store.removeAll()
-            me.toField.store.removeAll();
-
-            // Add everything to the from field as soon as the Store is loaded
-            if (store.getCount()) {
-                me.populateFromStore(store);
-            } else {
-                me.store.on('load', me.populateFromStore, me);
-            }
-        }
-    },
-
-    populateFromStore: function(store) {
-        this.fromField.store.add(store.getRange());
-        
-        // setValue wait for the from Store to be loaded
-        this.fromField.store.fireEvent('load', this.fromField.store);
-    },
-
-    onEnable: function(){
-        var me = this;
-
-        me.callParent();
-        me.fromField.enable();
-        me.toField.enable();
-
-        Ext.Array.forEach(me.query('[navBtn]'), function(btn){
-            btn.enable();
-        });
-    },
-
-    onDisable: function(){
-        var me = this;
-
-        me.callParent();
-        me.fromField.disable();
-        me.toField.disable();
-
-        Ext.Array.forEach(me.query('[navBtn]'), function(btn){
-            btn.disable();
-        });
-    },
-
-    onDestroy: function(){
-        this.bindStore(null);
-        this.callParent();
-    }
-});
-
-Ext.define('GreenFleet.view.common.UserSelector', {
-	extend : 'Ext.panel.Panel',
-
-	alias : 'widget.user_selector',
-	
-	selector_label : 'Select User',
-
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-	
-	initComponent : function() {
-		var self = this;
-		this.callParent(arguments);
-		var store = Ext.getStore('UserStore');
-		this.add({
-            xtype: 'itemselector',
-            name: 'itemselector',
-            id: 'itemselector-field',
-            anchor: '100%',
-            fieldLabel: this.selector_label,
-            store: store,
-            displayField: 'name',
-            valueField: 'email',
-            allowBlank: false,
-            msgTarget: 'side'
-        });
-		store.load();
-	}
-});
-
-Ext.define('GreenFleet.view.management.VehicleOverview', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.management_vehicle_overview',
-
-	title : T('title.vehicle_overview'),
-
-	entityUrl : 'vehicle',
-	
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-	
-	initComponent : function() {
-		var self = this;
-
-		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.vehicle_overview') + "</div>"}, 
-		    {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'hbox',
-					align : 'stretch'
-				},
-				items : [ 
-				    this.zvehiclelist(self), 
-				    {
-						xtype : 'container',
-						flex : 1,
-						cls : 'borderRightGray',
-						layout : {
-							align : 'stretch',
-							type : 'vbox'
-						},
-						items : [ this.zinfo, this.zrunning,  this.zconsumables, this.zalerts ]
-					} 
-				]
-		    }
-		],
-
-		this.callParent();
-			
-		this.sub('vehicle_list').on('itemclick', function(grid, record) {
-		});
-		
-		/**
-		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('id_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});
-
-		/**
-		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('reg_no_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});
-	},
-	
-	/**
-	 * 차량 조회 
-	 */
-	searchVehicles : function(searchRemote) {
-		
-		if(searchRemote) {
-			this.sub('vehicle_list').store.load();
-			
-		} else {
-			this.sub('vehicle_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
-			
-			if(idValue || regNoValue) {
-				this.sub('vehicle_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'registration_number',
-					value : regNoValue
-				} ]);
-			}			
-		}		
-	},		
-	
-	/**
-	 * 차량 리스트 그리드 
-	 */
-	zvehiclelist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'vehicle_list',
-			store : 'VehicleBriefStore',
-			title : T('title.vehicle_list'),
-			width : 280,
-			autoScroll : true,
-			
-			columns : [ {
-				dataIndex : 'id',
-				text : T('label.id'),
-				flex : 1
-			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
-				flex : 1
-			} ],
-
-			tbar : [
-			    T('label.id'),
-				{
-					xtype : 'textfield',
-					name : 'id_filter',
-					itemId : 'id_filter',
-					width : 60
-				}, 
-				T('label.reg_no'),
-				{
-					xtype : 'textfield',
-					name : 'reg_no_filter',
-					itemId : 'reg_no_filter',
-					width : 65
-				},
-				' ',
-				{
-					xtype : 'button',
-					text : T('button.search'),
-					handler : function(btn) {
-						btn.up('management_vehicle_runstatus').searchVehicles(true);
-					}
-				}
-			]
-		}
-	},
-
-	/**
-	 * 차량 정보 
-	 */
-	zinfo : {
-		xtype : 'panel',
-		itemId : 'v_info_panel',
-		cls : 'hIndexbar',
-		title : T('title.information'),
-		flex : 1,
-		autoScroll : true
-	},
-
-	/**
-	 * 주행 
-	 */
-	zrunning : {
-		xtype : 'panel',
-		itemId : 'v_running_panel',
-		cls : 'hIndexbar',
-		title : T('title.running'),
-		flex : 1,
-		autoScroll : true
-	},
-	
-	/**
-	 * 정비, 소모품  
-	 */
-	zconsumables : {
-		xtype : 'panel',
-		itemId : 'v_consumable_panel',
-		cls : 'hIndexbar',
-		title : T('title.consumables'),
-		flex : 1,
-		autoScroll : true
-	},
-	
-	/**
-	 * alert  
-	 */
-	zalerts : {
-		xtype : 'panel',
-		itemId : 'v_alert_panel',
-		cls : 'hIndexbar',
-		title : T('title.alert'),
-		flex : 1,
-		autoScroll : true
-	}	
-});
 Ext.define('GreenFleet.view.portlet.GridM1Portlet', {
 	
     extend: 'Ext.grid.Panel',
@@ -16392,842 +18060,6 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 	}	
 });
 
-Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.management_vehicle_speed',
-
-	title : T('title.vehicle_speed_section'),
-
-	entityUrl : 'vehicle_speed',
-	
-	layout : {
-		align : 'stretch',
-		type : 'vbox'
-	},
-	
-	vehicle : '',
-	
-	timeView : 'monthly',
-	
-	chartPanel : null,
-
-	initComponent : function() {
-		var self = this;
-
-		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.vehicle_speed_section') + "</div>" }, 
-		    {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'hbox',
-					align : 'stretch'
-				},
-				items : [ 
-				    this.zvehiclelist(self), 
-				    {
-						xtype : 'container',
-						flex : 1,
-						cls : 'borderRightGray',
-						layout : {
-							align : 'stretch',
-							type : 'vbox'
-						},
-						items : [ this.zrunstatus, this.zrunstatus_chart ]
-					} ]
-		    } ],
-
-		this.callParent();
-
-		this.sub('vehicle_list').on('itemclick', function(grid, record) {
-			self.vehicle = record.data.id;
-			self.searchSummary(self.vehicle, record.data.registration_number, null, null, null);
-		});
-		
-		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
-			if(record.data.time_view == "yearly") {
-				self.searchSummary(record.data.vehicle, null, "monthly", record.data.year, null);
-				
-			} else if(record.data.time_view == "monthly") {
-				self.searchSummary(record.data.vehicle, null, "daily", record.data.year, record.data.month);
-				
-			} else if(record.data.time_view == "daily") {
-				self.setChartTitle(record.data.month_str);
-				self.refreshByMonth(record);				
-			}
-		});
-		
-		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
-			if(self.chartPanel) {				
-				self.resizeChart();
-			}
-		});
-		
-		/**
-		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('id_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});
-
-		/**
-		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('reg_no_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});
-		
-		/**
-		 * combo_chart_type에 값을 기본값(column)을 설정
-		 */
-		this.sub('combo_chart_type').setValue('column');
-		/**
-		 * combo_view에 값을 기본값(monthly_view)을 설정
-		 */
-		this.sub('combo_view').setValue('monthly');
-	},
-	
-	/**
-	 * 운행이력 그리드 타이틀 
-	 */
-	setGridTitle : function(name) {
-		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
-		this.sub('runstatus_grid').setTitle(title);
-	},
-	
-	/**
-	 * 차트 그리드 타이틀 
-	 */
-	setChartTitle : function(month) {
-		var title = month ? T('label.speed_section') + ' (' + month + ') ' + T('label.chart') : T('label.speed_section') + T('label.chart');
-		this.sub('chart_panel').setTitle(title);
-	},
-	
-	/**
-	 * 차량 조회 
-	 */
-	searchVehicles : function(searchRemote) {
-		
-		if(searchRemote) {
-			this.sub('vehicle_list').store.load();
-			
-		} else {
-			this.sub('vehicle_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var nameValue = this.sub('reg_no_filter').getValue();
-			
-			if(idValue || nameValue) {
-				this.sub('vehicle_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'name',
-					value : nameValue
-				} ]);
-			}			
-		}		
-	},
-	
-	/**
-	 * vehicle speed summary 조회 
-	 */
-	searchSummary : function(vehicleId, vehicleName, timeView, year, month) {
-		
-		if(!vehicleId) {
-			vehicleId = this.vehicle;
-			
-			if(!vehicleId)
-				return;
-		}
-		
-		if(!timeView) {
-			timeView = this.sub('combo_view').getValue();
-		}
-		
-		var runStatusStore = this.sub('runstatus_grid').store;
-		var proxy = runStatusStore.getProxy();
-		proxy.extraParams.vehicle = vehicleId;
-		proxy.extraParams.time_view = timeView;
-		
-		if(timeView == "monthly") {
-			if(year == null) {
-				proxy.extraParams.from_year = this.sub('from_year').getValue();
-				proxy.extraParams.to_year = this.sub('to_year').getValue();
-				proxy.extraParams.from_month = this.sub('from_month').getValue();
-				proxy.extraParams.to_month = this.sub('to_month').getValue();
-			} else {
-				proxy.extraParams.from_year = year;
-				proxy.extraParams.to_year = year;
-				proxy.extraParams.from_month = 1;
-				proxy.extraParams.to_month = 12;
-			}					
-		} else if(timeView == "daily") {
-			proxy.extraParams.year = year;
-			proxy.extraParams.month = month;			
-		} 
-				
-		runStatusStore.load({
-			scope : this,
-			callback : function() {
-				if(vehicleName) {
-					this.setGridTitle(vehicleName);
-				}
-				
-				if(year && month) {
-					this.setChartTitle(year + '-' + month);
-				}
-				
-				this.refreshChart();
-			}
-		});
-	},
-	
-	/**
-	 * 차량 리스트 그리드 패널 
-	 */
-	zvehiclelist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'vehicle_list',
-			store : 'VehicleBriefStore',
-			title : T('title.vehicle_list'),
-			width : 260,
-			autoScroll : true,
-			
-			columns : [ {
-				dataIndex : 'id',
-				text : T('label.id'),
-				flex : 1
-			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
-				flex : 1
-			} ],
-
-			tbar : [
-			    T('label.id'),
-				{
-					xtype : 'textfield',
-					name : 'id_filter',
-					itemId : 'id_filter',
-					width : 60
-				}, 
-				T('label.name'),
-				{
-					xtype : 'textfield',
-					name : 'reg_no_filter',
-					itemId : 'reg_no_filter',
-					width : 65
-				},
-				' ',
-				{
-					xtype : 'button',
-					text : T('button.search'),
-					handler : function(btn) {
-						btn.up('management_vehicle_speed').searchVehicles(true);
-					}
-				}
-			]
-		}
-	},
-	
-	/**
-	 * 운행이력 그리드 패널 
-	 */
-	zrunstatus : {
-		xtype : 'gridpanel',
-		itemId : 'runstatus_grid',
-		store : 'VehicleSpeedStore',
-		cls : 'hIndexbar',
-		title : T('title.runstatus_history'),
-		autoScroll : true,
-		flex : 1,
-		columns : [ {
-			dataIndex : 'month_str',
-			text : T('label.month')
-		}, {
-			header : T('label.lessthan_km_min', {km : 10}),
-			dataIndex : 'spd_lt10'
-		}, {
-			header : T('label.lessthan_km_min', {km : 20}),
-			dataIndex : 'spd_lt20'
-		}, {
-			header : T('label.lessthan_km_min', {km : 30}),
-			dataIndex : 'spd_lt30'
-		}, {
-			header : T('label.lessthan_km_min', {km : 40}),
-			dataIndex : 'spd_lt40'
-		}, {
-			header : T('label.lessthan_km_min', {km : 50}),
-			dataIndex : 'spd_lt50'
-		}, {
-			header : T('label.lessthan_km_min', {km : 60}),
-			dataIndex : 'spd_lt60'
-		}, {
-			header : T('label.lessthan_km_min', {km : 70}),
-			dataIndex : 'spd_lt70'
-		}, {
-			header : T('label.lessthan_km_min', {km : 80}),
-			dataIndex : 'spd_lt80'
-		}, {
-			header : T('label.lessthan_km_min', {km : 90}),
-			dataIndex : 'spd_lt90'
-		}, {
-			header : T('label.lessthan_km_min', {km : 100}),
-			dataIndex : 'spd_lt100'
-		}, {
-			header : T('label.lessthan_km_min', {km : 110}),
-			dataIndex : 'spd_lt110'
-		}, {
-			header : T('label.lessthan_km_min', {km : 120}),
-			dataIndex : 'spd_lt120'
-		}, {
-			header : T('label.lessthan_km_min', {km : 130}),
-			dataIndex : 'spd_lt130'
-		}, {
-			header : T('label.lessthan_km_min', {km : 140}),
-			dataIndex : 'spd_lt140'
-		}, {
-			header : T('label.lessthan_km_min', {km : 150}),
-			dataIndex : 'spd_lt150'
-		}, {
-			header : T('label.lessthan_km_min', {km : 160}),
-			dataIndex : 'spd_lt160'
-		} ],
-	
-		tbar : [
-	        T('label.view') + ' : ',
-			{
-				xtype : 'combo',
-				itemId : 'combo_view',
-				padding : '3 0 0 0',
-				displayField: 'desc',
-			    valueField: 'name',
-				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'desc' ],
-					data : [{ "name" : "monthly",	"desc" : T('label.monthly_view') },
-					        { "name" : "yearly",	"desc" : T('label.yearly_view')  }]
-				}),
-				listeners: {
-					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('management_vehicle_speed');
-						thisView.searchSummary(null, null, null, null, null);
-					}
-			    }
-			},
-			T('label.chart_type') + ' : ',
-			{
-				xtype : 'combo',
-				itemId : 'combo_chart_type',
-				padding : '3 0 0 0',
-				displayField: 'desc',
-			    valueField: 'name',
-				store :  Ext.create('Ext.data.Store', {
-					fields : [ 'name', 'desc' ],			
-					data : [{ "name" : "column", "desc" : T('label.column') },
-					        { "name" : "radar",	 "desc" : T('label.radar')  }]
-				}),
-				listeners: {
-					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('management_vehicle_speed');
-						thisView.refreshChart();
-					}
-			    }
-			},
-			T('label.period') + ' : ',
-			{
-				xtype : 'combo',
-				name : 'from_year',
-				itemId : 'from_year',
-				displayField: 'year',
-			    valueField: 'year',
-			    value : new Date().getFullYear() - 1,
-				store : 'YearStore',
-				width : 60				
-			},
-			{
-				xtype : 'combo',
-				name : 'from_month',
-				itemId : 'from_month',
-				displayField: 'month',
-			    valueField: 'month',
-			    value : new Date().getMonth() + 2,
-				store : 'MonthStore',
-				width : 40		
-			},
-			' ~ ',
-			{
-				xtype : 'combo',
-				name : 'to_year',
-				itemId : 'to_year',
-				displayField: 'year',
-			    valueField: 'year',
-			    value : new Date().getFullYear(),
-				store : 'YearStore',
-				width : 60			
-			},
-			{
-				xtype : 'combo',
-				name : 'to_month',
-				itemId : 'to_month',
-				displayField: 'month',
-			    valueField: 'month',
-			    value : new Date().getMonth() + 1,
-				store : 'MonthStore',
-				width : 40		
-			}
-		]
-	},
-
-	/**
-	 * 차트 패널 
-	 */
-	zrunstatus_chart : {
-		xtype : 'panel',
-		itemId : 'chart_panel',
-		cls : 'hIndexbar',
-		title : T('title.speed_section_chart'),
-		flex : 1,
-		autoScroll : true
-	},
-	
-	/**
-	 * 차트 리프레쉬 
-	 */
-	refreshChart : function() {
-				
-		var chartType = this.sub('combo_chart_type').getValue();
-		if(chartType == 'radar') 
-			this.refreshRadarChart();
-		else
-			this.refreshColumnChart();
-	},
-	
-	/**
-	 * 컬럼 차트 리프레쉬 
-	 */
-	refreshColumnChart : function() {
-		
-		var chartPanel = this.sub('chart_panel');
-		var width = null;
-		var height = null;
-		
-		try {
-			width = chartPanel.getWidth();
-			height = chartPanel.getHeight();
-		} catch (e) {
-			return;
-		}
-		
-		var columnDataArr = [];
-		var store = this.sub('runstatus_grid').store;
-		store.each(function(record) {
-			// speed 0 ~ 30
-			var spd_30 = (record.get('spd_lt10') + record.get('spd_lt20') + record.get('spd_lt30'));
-			// speed 40 ~ 60
-			var spd_40_60 = (record.get('spd_lt40') + record.get('spd_lt50') + record.get('spd_lt60'));
-			// speed 50 ~ 80
-			var spd_70_90 = (record.get('spd_lt70') + record.get('spd_lt80') + record.get('spd_lt90'));			
-			// speed 90 ~ 120
-			var spd_100_120 = (record.get('spd_lt90') + record.get('spd_lt100') + record.get('spd_lt110') + record.get('spd_lt120'));			
-			// speed 130 ~
-			var spd_over_130 = (record.get('spd_lt130') + record.get('spd_lt140') + record.get('spd_lt150') + record.get('spd_lt160'));
-			
-			var columnData = { 	'month_str' : record.get('month_str'), 
-								'value1' : spd_30, 			'desc1' : '0 ~ 30(km)', 
-								'value2' : spd_40_60, 		'desc2' : '40 ~ 60(km)',
-								'value3' : spd_70_90, 		'desc3' : '70 ~ 90(km)',
-								'value4' : spd_100_120, 	'desc4' : '100 ~ 120(km)', 
-								'value5' : spd_over_130, 	'desc5' : '130 ~ (km)' };
-			columnDataArr.push(columnData);
-		});
-		
-		var columnStore = Ext.create('Ext.data.JsonStore', {
-			fields : ['month_str', 'value1', 'value2', 'value3', 'value4', 'value5', 'desc1', 'desc2', 'desc3', 'desc4', 'desc5'],
-			autoDestroy : true,
-			data : columnDataArr
-		});
-		
-		var chart = this.buildColumnChart(columnStore, 0, width, height);
-		chartPanel.removeAll();
-		chartPanel.add(chart);
-		this.chartPanel = chart;
-	},
-	
-	/**
-	 * 레이더 차트 리프레쉬 
-	 */
-	refreshRadarChart : function() {
-		
-		var store = this.sub('runstatus_grid').store;
-		var spd_10 = 0;
-		var spd_20 = 0;
-		var spd_30 = 0;
-		var spd_40 = 0;
-		var spd_50 = 0;
-		var spd_60 = 0;
-		var spd_70 = 0;
-		var spd_80 = 0;
-		var spd_90 = 0;
-		var spd_100 = 0;
-		var spd_110 = 0;
-		var spd_120 = 0;
-		var spd_130 = 0;
-		var spd_140 = 0;
-		var spd_150 = 0;
-		var spd_160 = 0;
-		
-		store.each(function(record) {
-			spd_10 += record.get('spd_lt10');
-			spd_20 += record.get('spd_lt20');
-			spd_30 += record.get('spd_lt30');
-			spd_40 += record.get('spd_lt40');
-			spd_50 += record.get('spd_lt50');
-			spd_60 += record.get('spd_lt60');
-			spd_70 += record.get('spd_lt70');
-			spd_80 += record.get('spd_lt80');
-			spd_90 += record.get('spd_lt90');
-			spd_100 += record.get('spd_lt100');
-			spd_110 += record.get('spd_lt110');
-			spd_120 += record.get('spd_lt120');
-			spd_130 += record.get('spd_lt130');
-			spd_140 += record.get('spd_lt140');
-			spd_150 += record.get('spd_lt150');
-			spd_160 += record.get('spd_lt160');
-		});
-		
-		var radarStore = Ext.create('Ext.data.JsonStore', {
-			fields : ['name', 'value'],
-			autoDestroy : true,
-			data : [ { 'name' : '0~10(km)', 		'value' : spd_10 },
-	                 { 'name' : '10~20(km)', 		'value' : spd_20 },
-	                 { 'name' : '20~30(km)', 		'value' : spd_30 },
-	                 { 'name' : '30~40(km)', 		'value' : spd_40 },
-	                 { 'name' : '40~50(km)', 		'value' : spd_50 },
-	                 { 'name' : '50~60(km)', 		'value' : spd_60 },
-	                 { 'name' : '60~70(km)', 		'value' : spd_70 },
-	                 { 'name' : '70~80(km)', 		'value' : spd_80 },
-	                 { 'name' : '80~90(km)', 		'value' : spd_90 },
-	                 { 'name' : '90~100(km)', 		'value' : spd_100 },
-	                 { 'name' : '100~110(km)', 		'value' : spd_110 },
-	                 { 'name' : '110~120(km)', 		'value' : spd_120 },
-	                 { 'name' : '120~130(km)', 		'value' : spd_130 },
-	                 { 'name' : '130~140(km)', 		'value' : spd_140 },
-	                 { 'name' : '140~150(km)', 		'value' : spd_150 },
-	                 { 'name' : '150(km)~', 		'value' : spd_160 }]
-		});
-		
-		var chartPanel = this.sub('chart_panel');
-		var width = chartPanel.getWidth();
-		var height = chartPanel.getHeight();
-		chartPanel.removeAll();
-		var chart = this.buildRadarChart(radarStore, width, height);
-		chartPanel.add(chart);
-		this.chartPanel = chart;
-	},
-	
-	/**
-	 * 차트 리사이즈 
-	 */
-	resizeChart : function(width, height) {
-		
-		var chartContainer = this.sub('chart_panel');
-		
-		if(!width)
-			width = chartContainer.getWidth();		
-		
-		if(!height)
-			height = chartContainer.getHeight();		
-		
-		var chartPanel = chartContainer.down('panel');		
-		chartPanel.setWidth(width - 25);
-		chartPanel.setHeight(height - 45);
-		
-		var chart = chartPanel.down('chart');
-		chart.setWidth(width - 25);
-		chart.setHeight(height - 50);
-	},
-	
-	/**
-	 * 레이더 차트 생성 
-	 */
-	buildRadarChart : function(store, width, height) {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 25,
-			height : height - 45,
-			items : [{
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : width - 25,
-				height : height - 50,
-				insetPadding: 20,
-				legend: {
-	                position: 'right'
-	            },
-	            axes: [{
-	                type: 'Radial',
-	                position: 'radial',
-	                label: {
-	                    display: true
-	                }
-	            }],
-	            series: [{
-	                showInLegend: false,
-	                showMarkers: true,
-	                type: 'radar',
-	                xField: 'name',
-	                yField: 'value',
-	                style: {
-	                    opacity: 0.4
-	                },
-	                markerConfig: {
-	                    radius: 3,
-	                    size: 5
-	                }
-	            }]
-			}]
-		};
-	},
-	
-	/**
-	 * 컬럼 차트 생성 
-	 */
-	buildColumnChart : function(store, minValue, width, height) {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 25,
-			height : height - 45,
-			items : [{
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : width - 25,
-				height : height - 50,
-				shadow : true,
-				insetPadding : 20,
-				theme : 'Base:gradients',
-				legend: { position: 'left' },
-				axes: [{
-	                type: 'Numeric',
-	                position: 'left',
-	                fields: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
-	                title: T('label.time') + '(' + T('label.minute_s') + ')',
-	                minimum: minValue
-	            }, {
-	                type: 'Category',
-	                position: 'bottom',
-	                fields: ['month_str'],
-	                title: T('label.month')
-				}],			
-				series : [{
-					type : 'column',
-					axis: 'left',
-					xField: 'month_str',
-	                yField: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
-	                title : [ '0 ~ 30(km)', '40 ~ 60(km)', '70 ~ 90(km)', '100 ~ 120(km)', '130 ~ (km)' ],
-					showInLegend : true,
-					tips : {
-						trackMouse : true,
-						width : 100,
-						height : 25,
-						renderer : function(storeItem, item) {
-							this.setTitle(item.value[0] + ' : ' + item.value[1]);
-						}
-					},
-					highlight : {
-						segment : { margin : 20 }
-					},					
-					label : {
-						field : [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
-						display : 'insideEnd',
-						contrast : true,
-						color: '#333',
-						font : '11px Arial'
-					}
-				}]
-			}]
-		}
-	},
-	
-	/**
-	 * 월별 리프레쉬 
-	 */
-	refreshByMonth : function(record) {
-				
-		var chartType = this.sub('combo_chart_type').getValue();		
-		if(chartType == 'radar')
-			this.refreshRadarChartByMonth(record);
-		else
-			this.refreshColumnChartByMonth(record);
-	},
-	
-	/**
-	 * 월별 레이더 차트 리프레쉬 
-	 */
-	refreshRadarChartByMonth : function(record) {
-		
-		var chartData = this.createChartData(record);
-		var radarStore = Ext.create('Ext.data.JsonStore', {
-			fields : [ 'name', 'value' ],
-			autoDestroy : true,
-			data :  chartData
-		});
-		
-		var chartPanel = this.sub('chart_panel');
-		var width = chartPanel.getWidth();
-		var height = chartPanel.getHeight();
-		chartPanel.removeAll();
-		var chart = this.buildRadarByMonth(radarStore, width, height);
-		chartPanel.add(chart);
-		this.chartPanel = chart;
-	},	
-	
-	/**
-	 * 월별 컬럼 차트 리프레쉬 
-	 */
-	refreshColumnChartByMonth : function(record) {
-		
-		var chartPanel = this.sub('chart_panel');
-		var width = chartPanel.getWidth();
-		var height = chartPanel.getHeight();
-		var chartData = this.createChartData(record);
-		
-		var columnStore = Ext.create('Ext.data.JsonStore', {
-			fields : [ 'name', 'value' ],
-			autoDestroy : true,
-			data : chartData
-		});
-				
-		var chart = this.buildChartByMonth(columnStore, 0, width, height);
-		chartPanel.removeAll();
-		chartPanel.add(chart);
-		this.chartPanel = chart;
-	},
-	
-	/**
-	 * 차트 데이터 생성 
-	 */
-	createChartData : function(record) {
-		return [ { 'name' : '0~10(km)', 	'value' : record.get('spd_lt10') },
-		         { 'name' : '10~20(km)', 	'value' : record.get('spd_lt20') },
-		         { 'name' : '20~30(km)', 	'value' : record.get('spd_lt30') },
-		         { 'name' : '30~40(km)', 	'value' : record.get('spd_lt40') },
-		         { 'name' : '40~50(km)', 	'value' : record.get('spd_lt50') },
-		         { 'name' : '50~60(km)', 	'value' : record.get('spd_lt60') },
-		         { 'name' : '60~70(km)', 	'value' : record.get('spd_lt70') },
-		         { 'name' : '70~80(km)', 	'value' : record.get('spd_lt80') },
-		         { 'name' : '80~90(km)', 	'value' : record.get('spd_lt90') },
-		         { 'name' : '90~100(km)', 	'value' : record.get('spd_lt100') },
-		         { 'name' : '100~110(km)', 	'value' : record.get('spd_lt110') },
-		         { 'name' : '110~120(km)', 	'value' : record.get('spd_lt120') },
-		         { 'name' : '120~130(km)', 	'value' : record.get('spd_lt130') },
-		         { 'name' : '130~140(km)', 	'value' : record.get('spd_lt140') },
-		         { 'name' : '140~150(km)', 	'value' : record.get('spd_lt150') },
-		         { 'name' : '150(km)~', 	'value' : record.get('spd_lt160') } ];
-	},
-	
-	/**
-	 * 월별 레이더 차트 생성 
-	 */
-	buildRadarByMonth : function(store, width, height) {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 25,
-			height : height - 45,
-			items : [{
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : width - 25,
-				height : height - 50,
-				insetPadding: 20,
-				legend: {
-	                position: 'right'
-	            },
-	            axes: [{
-	                type: 'Radial',
-	                position: 'radial',
-	                label: {
-	                    display: true
-	                }
-	            }],
-	            series: [{
-	                showInLegend: false,
-	                showMarkers: true,
-	                type: 'radar',
-	                xField: 'name',
-	                yField: 'value',
-	                style: {
-	                    opacity: 0.4
-	                },
-	                markerConfig: {
-	                    radius: 3,
-	                    size: 5
-	                }
-	            }]
-			}]
-		};
-	},	
-	
-	/**
-	 * 월별 차트 생성 
-	 */
-	buildChartByMonth : function(store, minValue, width, height) {
-		return {
-			xtype : 'panel',
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 25,
-			height : height - 45,
-			items : [{
-				xtype : 'chart',
-				animate : true,
-				store : store,
-				width : width - 25,
-				height : height - 50,
-				shadow : true,
-				insetPadding : 20,
-				theme : 'Base:gradients',
-				legend: { position: 'left' },
-				axes: [{
-	                type: 'Numeric',
-	                position: 'left',
-	                fields: [ 'value' ],
-	                title: T('label.time') + '(' + T('label.minute_s') + ')',
-	                minimum: minValue
-	            }, {
-	                type: 'Category',
-	                position: 'bottom',
-	                fields: ['name'],
-	                title: T('label.speed_section') + '(km)'
-				}],			
-				series : [{
-					type: 'column',
-					axis: 'left',
-					xField: 'name',
-	                yField: [ 'value' ],
-					showInLegend : false,
-					tips : {
-						trackMouse : true,
-						width : 100,
-						height : 25,
-						renderer : function(storeItem, item) {
-							this.setTitle(item.value[0] + '(km) : ' + item.value[1]);
-						}
-					},
-					highlight : {
-						segment : { margin : 20 }
-					}
-				}]
-			}]
-		}
-	}	
-});
 Ext.define('GreenFleet.store.CompanyStore', {
 	extend : 'Ext.data.Store',
 
@@ -20078,22 +20910,22 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 
 	models : [ 'Code' ],
 
-	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 
-	          'SideMenu', 'management.Company', 'management.User', 'management.Code', 'management.VehicleGroup', 
+	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
+	          'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 'common.EntityFormButtons', 
+	          'common.ProgressColumn', 'common.MultiSelect', 'common.ItemSelector', 'common.UserSelector', 
+	          'form.SearchField', 'form.RepairForm', 'overview.Overview', 'pm.Consumable', 'pm.Maintenance',
+	          'monitor.Map', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 	          
+	          'management.Company', 'management.User', 'management.Code', 'management.VehicleGroup', 
 	          'management.ConsumableCode', 'management.Vehicle', 'management.Terminal', 'management.Reservation', 
 	          'management.Incident', 'management.Driver', 'management.Track', 'management.CheckinData', 
-	          'monitor.Map', 'monitor.InfoByVehicle', 'monitor.Information', 
-	          'monitor.IncidentView', 'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 
-	          'form.SearchField', 'common.EntityFormButtons', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
-	          'pm.Consumable', 'common.ProgressColumn', 'management.VehicleConsumableGrid', 'form.RepairForm', 
-	          'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 'management.DriverRunStatus',
-	          'management.DriverSpeedSection', 'dashboard.Reports', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'management.DriverGroup', 'pm.Maintenance', 'management.Schedule',
-	          'overview.Overview', 'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 
-	          'portlet.GridI1Portlet', 'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 
-	          'portlet.CalendarPortlet', 'portlet.GridC1Portlet', 'management.Report', 'common.MultiSelect', 
-	          'common.ItemSelector', 'common.UserSelector', 'management.VehicleOverview', 'portlet.GridM1Portlet', 
-	          'portlet.ChartF1Portlet', 'management.VehicleSpeedSection' ],
+	          'management.VehicleConsumableGrid', 'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 
+	          'management.DriverRunStatus', 'management.DriverSpeedSection',  'management.DriverGroup', 'management.Schedule',
+	          'management.VehicleOverview', 'management.Report', 'management.VehicleSpeedSection', 	           
+	          'dashboard.Reports', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 'dashboard.VehicleRunningSummary', 
+	          'dashboard.DriverRunningSummary', 'dashboard.EfficiencyTrend', 'dashboard.EffccConsumption',	          
+	          'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 'portlet.GridI1Portlet', 
+	          'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 'portlet.CalendarPortlet', 
+	          'portlet.GridC1Portlet',  'portlet.GridM1Portlet', 'portlet.ChartF1Portlet' ],
 
 	init : function() {
 		this.control({

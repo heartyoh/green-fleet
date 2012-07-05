@@ -90,6 +90,13 @@ public class VehicleHealthReporter extends AbstractReporter {
 			results.add(items);			
 		}
 		
+		if("runtime".equalsIgnoreCase(healthType) || "all".equalsIgnoreCase(healthType)) {
+			Map<String, Object> items = DataUtils.newMap("name", "runtime");
+			List<?> runtimeList = this.runtime(params);
+			items.put("summary", runtimeList);
+			results.add(items);			
+		}		
+		
 		return results;
 	}
 
@@ -123,6 +130,37 @@ public class VehicleHealthReporter extends AbstractReporter {
 		Map<String, Object> sqlParams = DataUtils.newMap("company", params.get("company"));
 		return DatasourceUtils.selectBySql(sql.toString(), sqlParams);
 	}
+	
+	/**
+	 * 자동차 주행시간 서머리 
+	 * 
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	private List<?> runtime(Map<String, Object> params) throws Exception {
+		StringBuffer sql = new StringBuffer();
+		sql.append("select name, value from ( ");
+		sql.append("select name, count(id) as value from ");
+		sql.append("(select id,  "); 
+		sql.append("	case ");
+		sql.append("		when total_run_time >= 0 and total_run_time <= 4500 ");
+		sql.append("		then ' 0~4.5K' ");
+		sql.append("		when total_run_time > 4500 and total_run_time <= 9000 ");
+		sql.append("		then ' 4.5~9K' ");
+		sql.append("		when total_run_time > 9000 and total_run_time <= 18000 ");
+		sql.append("		then ' 9~18K' ");
+		sql.append("		when total_run_time > 18000 and total_run_time <= 27000 ");
+		sql.append("		then ' 18~27K' ");
+		sql.append("		when total_run_time > 27000 and total_run_time < 45000 ");
+		sql.append("		then '27~45K' ");
+		sql.append("		else '45k~' ");
+		sql.append("	end name ");
+		sql.append("from vehicle where company = 'palmvision') a group by a.name ");
+		sql.append(") t group by name asc");
+		Map<String, Object> sqlParams = DataUtils.newMap("company", params.get("company"));
+		return DatasourceUtils.selectBySql(sql.toString(), sqlParams);
+	}	
 	
 	/**
 	 * 차량 연수  

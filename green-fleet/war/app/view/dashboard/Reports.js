@@ -53,7 +53,7 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			xtype : 'dashboard_' + dashboard_id,
 			itemId : 'dashboard_panel',
 			cls : 'hIndexbar',
-			title : T('report.report') + ' Test',
+			title : T('report.report'),
 			flex : 1,
 			autoScroll : true
 		};
@@ -84,13 +84,14 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			itemId : 'report_list',
 			store : Ext.create('Ext.data.Store', {
 				fields : [ 'id', 'name' ],		        
-				data : [{ "id" : "vehicle_summary", 			"name" : T('report.vehicle_summary') },
-				        { "id" : "driver_summary", 				"name" : T('report.driver_summary') },
-				        { "id" : "vehicle_effcc_rel", 			"name" : T('report.vehicle_effcc_rel') },
-				        { "id" : "driver_effcc_rel", 			"name" : T('report.driver_effcc_rel') },
-				        { "id" : "habit_effcc_rel", 			"name" : T('report.habit_effcc_rel') },
-				        { "id" : "incident_effcc_rel", 			"name" : T('report.incident_effcc_rel') },
-				        { "id" : "consumable_effcc_rel", 		"name" : T('report.consumable_effcc_rel') }]
+				data : [{ "id" : "vehicle_summary", 	"name" : T('report.vehicle_summary') },
+				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },
+				        { "id" : "effcc_trend", 		"name" : T('report.effcc_trend') },
+				        { "id" : "effcc_consmpt", 		"name" : T('report.effcc_consmpt') },
+				        { "id" : "vehicle_effcc_rel", 	"name" : T('report.vehicle_effcc_rel') },
+				        { "id" : "driver_effcc_rel", 	"name" : T('report.driver_effcc_rel') },				        
+				        { "id" : "incident_effcc_rel", 	"name" : T('report.incident_effcc_rel') },
+				        { "id" : "consumable_effcc_rel","name" : T('report.consumable_effcc_rel') }]
 			}),
 			title : T('title.report_list'),
 			width : 180,
