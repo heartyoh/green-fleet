@@ -86,7 +86,7 @@ public class FuelReporter extends AbstractReporter {
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append("select ");
-			sql.append("year, month, format(sum(effcc) / count(company), 2) effcc, format(sum(consmpt) / count(company), 2) consmpt ");
+			sql.append("year, month, format(sum(effcc) / count(company), 2) effcc, format(sum(consmpt) / count(company), 2) consmpt, CONCAT(year, '-', month) yearmonth ");
 			sql.append("from ");
 			sql.append("vehicle_run_sum ");
 			sql.append("where ");

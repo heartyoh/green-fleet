@@ -71,6 +71,8 @@ public class MonthlyDrivingReporter extends AbstractReporter {
 		
 		Calendar c = Calendar.getInstance();
 		String toDateStr = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-28";
+		String month = Integer.toString(c.get(Calendar.MONTH));
+		String year = Integer.toString(c.get(Calendar.YEAR));
 		c.add(Calendar.MONTH, -(duration - 1));
 		String fromDateStr = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-01";		
 		Date fromDate = DataUtils.toDate(fromDateStr, GreenFleetConstant.DEFAULT_DATE_FORMAT);
@@ -80,7 +82,7 @@ public class MonthlyDrivingReporter extends AbstractReporter {
 		
 		// 1. driving
 		@SuppressWarnings("rawtypes")
-		List<Map> drivingList = this.getMonthlyDriving(company, fromDate, toDate);
+		List<Map> drivingList = this.getMonthlyDriving(company, year, month);
 		totalItems.put("driving", drivingList);
 		
 		// 2. consumable		
@@ -89,39 +91,39 @@ public class MonthlyDrivingReporter extends AbstractReporter {
 		
 		// 3. maint
 		@SuppressWarnings("rawtypes")
-		List<Map> maintList = this.getMonthlyMaint(company, fromDate, toDate);
+		List<Map> maintList = this.getMonthlyMaint(company, year, month);
 		totalItems.put("maint", maintList);
 		results.add(totalItems);
 		return results;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private List<Map> getMonthlyDriving(String company, Date fromDate, Date toDate) throws Exception {
+	private List<Map> getMonthlyDriving(String company, String year, String month) throws Exception {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("year, month, sum(run_dist) run_dist, sum(run_time) run_time, sum(consmpt) consmpt, format(sum(effcc) / count(vehicle), 2) effcc ");
+		sql.append("vehicle, year, month, run_dist, run_time, consmpt, effcc ");
 		sql.append("from ");
 		sql.append("vehicle_run_sum "); 
 		sql.append("where ");
-		sql.append("company = :company and month_date >= :from_date and month_date <= :to_date group by year, month order by month_date");
+		sql.append("company = :company and year = :year and month = :month");
 		Map<String, Object> params = DataUtils.newMap("company", company);
-		params.put("from_date", fromDate);
-		params.put("to_date", toDate);
+		params.put("year", year);
+		params.put("month", month);
 		return DatasourceUtils.selectBySql(sql.toString(), params);
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private List<Map> getMonthlyMaint(String company, Date fromDate, Date toDate) throws Exception {		
+	private List<Map> getMonthlyMaint(String company, String year, String month) throws Exception {		
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("year, month, sum(mnt_cnt) count ");
+		sql.append("vehicle, year, month, mnt_cnt ");
 		sql.append("from ");
 		sql.append("vehicle_run_sum ");
 		sql.append("where ");
-		sql.append("company = :company and month_date >= :from_date and month_date <= :to_date group by year, month order by month_date");
+		sql.append("company = :company and year = :year and month = :month");
 		Map<String, Object> params = DataUtils.newMap("company", company);
-		params.put("from_date", fromDate);
-		params.put("to_date", toDate);
+		params.put("year", year);
+		params.put("month", month);
 		return DatasourceUtils.selectBySql(sql.toString(), params);		
 	}
 	

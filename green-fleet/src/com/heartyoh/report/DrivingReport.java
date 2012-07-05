@@ -10,21 +10,25 @@ import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.GreenFleetConstant;
 
-public class EcoReporter extends AbstractReporter {
+/**
+ *  운행 시간/거리 관련 리포터 
+ * 
+ */
+
+public class DrivingReport extends AbstractReporter {
 
 	/**
 	 * report id
 	 */
-	private static final String ID = "eco";
+	private static final String ID = "driving";
 	/**
 	 * select fields
 	 */
-	private static final String[] SELECT_FILEDS = new String[] { "eco_index" };
+	private static final String[] SELECT_FILEDS = new String[] { "run_time", "run_dist" };
 	/**
 	 * parameter names
 	 */
-	private static final String[] PARAM_NAMES = new String[] { "company",
-			"_today" };
+	private static final String[] PARAM_NAMES = new String[] { "company", "_today" };
 
 	@Override
 	public String getId() {
@@ -60,7 +64,7 @@ public class EcoReporter extends AbstractReporter {
 		Calendar c = Calendar.getInstance();
 		String toDateStr = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH)
 				+ "-28";
-		c.add(Calendar.MONTH, -(duration - 1));
+		c.add(Calendar.MONTH, -(duration - 7));
 		String fromDateStr = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH)
 				+ "-01";
 		Date fromDate = DataUtils.toDate(fromDateStr,
@@ -70,11 +74,11 @@ public class EcoReporter extends AbstractReporter {
 
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("year, month, format(sum(eco_index) / count(company), 2) eco_index, format(sum(eco_drv_time) / sum(run_time) * 100 / count(company), 2) eco_driving, CONCAT(year, '-', month) yearmonth ");
+		sql.append("year, month, sum(run_dist) run_dist, sum(run_time) run_time, CONCAT(year, '-', month) yearmonth ");
 		sql.append("from ");
 		sql.append("vehicle_run_sum ");
 		sql.append("where ");
-		sql.append("company = :company and month_date >= :fromDate and month_date <= :toDate group by year, month");
+		sql.append("company = :company and month_date >= :fromDate and month_date <= :toDate group by year, month order by month_date");
 
 		Map<String, Object> paramMap = DataUtils.newMap("company",
 				params.get("company"));

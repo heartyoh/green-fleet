@@ -21,6 +21,7 @@
                 <entry key="vehicle_health" value="com.heartyoh.report.VehicleHealthReporter" />                
                 <entry key="consumables_to_replace" value="com.heartyoh.report.ConsumableReplReporter" />
                 <entry key="eco" value="com.heartyoh.report.EcoReporter" />
+                <entry key="driving" value="com.heartyoh.report.DrivingReport" />
             </map>
         </property>		
 	</bean>
