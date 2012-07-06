@@ -380,6 +380,11 @@
                     "path": "app/view/dashboard/"
                 },
                 {
+                    "clsName": "GreenFleet.view.dashboard.MaintTrend",
+                    "name": "MaintTrend.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
                     "clsName": "GreenFleet.view.portlet.Portlet",
                     "name": "Portlet.js",
                     "path": "app/view/portlet/"

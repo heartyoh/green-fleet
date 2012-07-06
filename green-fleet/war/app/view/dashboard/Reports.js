@@ -89,6 +89,7 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				        { "id" : "effcc_trend", 		"name" : T('report.effcc_trend') },
 				        { "id" : "effcc_consmpt", 		"name" : T('report.effcc_consmpt') },
 				        { "id" : "habit_ecoindex", 		"name" : T('report.habit_ecoindex') },
+				        { "id" : "maint_trend", 		"name" : T('report.maint_trend') },
 				        { "id" : "vehicle_effcc_rel", 	"name" : T('report.vehicle_effcc_rel') },
 				        { "id" : "incident_effcc_rel", 	"name" : T('report.incident_effcc_rel') },
 				        { "id" : "consumable_effcc_rel","name" : T('report.consumable_effcc_rel') }]

@@ -152,6 +152,7 @@ T({
 		sud_brake_cnt_by_drivers : '운전자별 급감속시간',		
 		inc_cnt_by_drivers : '운전자별 사고횟수',
 		effcc_trend : '연비 추이',
+		maint_trend : '정비 추이',
         vehicle_effcc_rel : '차량-연비 관계',
         driver_effcc_rel : '운전자-연비 관계',
         effcc_consmpt : '연비-연료소모량 관계',
