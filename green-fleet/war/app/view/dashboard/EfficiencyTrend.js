@@ -263,12 +263,12 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 				dataList.push(consmptData);				
 			} 
 			
-			var effcc = parseFloat(record.effcc);
+			var effcc = record.effcc;
 			effccData["mon_" + record.month] = effcc
 			effccData["count"] = effccData["count"] + 1;
 			effccData["sum"] = effccData["sum"] + effcc;
 			
-			var consmpt = parseFloat(record.consmpt);
+			var consmpt = record.consmpt;
 			consmptData["mon_" + record.month] = consmpt
 			consmptData["count"] = consmptData["count"] + 1;
 			consmptData["sum"] = consmptData["sum"] + consmpt;			
@@ -288,7 +288,7 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 		
 		var dataList = [];
 		Ext.each(records, function(record) {
-			dataList.push({"time" : record.yearmonth, "effcc" : parseFloat(record.effcc), "consmpt" : parseFloat(record.consmpt) });
+			dataList.push({"yearmonth" : record.yearmonth, "effcc" : record.effcc, "consmpt" : record.consmpt });
 		});
 		var chartPanel = this.sub('chart_panel');
 		var chart = chartPanel.down('chart');
@@ -356,7 +356,7 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 			items : [{
 				xtype : 'chart',				
 				animate : true,
-				store : Ext.create('Ext.data.Store', { fields : ['time', 'effcc', 'consmpt'], data : records }),
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'effcc', 'consmpt'], data : records }),
 				width : width - 25,
 				height : height - 50,
 				shadow : false,
@@ -365,7 +365,7 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 				axes: [{
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['time'],
+	                fields: ['yearmonth'],
 	                grid : true,
 	                title: T('label.month')
 				}, {
@@ -373,19 +373,17 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 	                position: 'left',
 	                fields: ['effcc'],
 	                grid : true,
-	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
 	                title: T('label.fuel_efficiency') + '(km/l)'
 	            },{
 	                type: 'Numeric',
 	                position: 'right',
 	                fields: ['consmpt'],
-	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
 	                title: T('label.fuel_consumption') + '(l)'
 	            } ],
 				series : [{
 					type : 'column',
 					axis: 'left',
-					xField: 'time',
+					xField: 'yearmonth',
 	                yField: 'effcc',
 					showInLegend : true,
 					highlight : {
@@ -410,7 +408,7 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 	                smooth: true,
 	                fillOpacity: 0.5,
 	                axis: 'right',
-	                xField: 'time',
+	                xField: 'yearmonth',
 	                yField: 'consmpt',
 					showInLegend : true,
 	                title: T('label.fuel_consumption'),
@@ -419,7 +417,7 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 						width : 90,
 						height : 25,
 						renderer : function(storeItem, item) {
-							this.setTitle(storeItem.get('time') + ' : ' + storeItem.get('consmpt') + '(l)');
+							this.setTitle(storeItem.get('yearmonth') + ' : ' + storeItem.get('consmpt') + '(l)');
 						}
 					},	                
 	            }]

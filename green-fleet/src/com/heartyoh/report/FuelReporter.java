@@ -50,12 +50,14 @@ public class FuelReporter extends AbstractReporter {
 	@Override
 	public List<Object> report(Map<String, Object> params) throws Exception {
 		
-		String type = (String)params.get("type");		
+		String type = (String)params.get("type");
 		
 		if(DataUtils.isEmpty(type)) {
-			return this.effccTop5(params);			
-		} else if("report".equalsIgnoreCase(type)) {
+			return null;
+		} else if("report".equalsIgnoreCase(type) || "effcc_trend".equalsIgnoreCase(type) || "effcc_consmpt".equalsIgnoreCase(type)) {
 			return this.effccTrend(params);
+		} else if("top5".equalsIgnoreCase(type)) {
+			return this.effccTop5(params);
 		} else {
 			return null;
 		}
@@ -71,17 +73,22 @@ public class FuelReporter extends AbstractReporter {
 	@SuppressWarnings("unchecked")
 	private List<Object> effccTop5(Map<String, Object> params) throws Exception {
 		
-		StringBuffer sql = new StringBuffer();
-		sql.append("select a.vehicle, case when a.count = 0 then 0 else round((a.total / a.count), 2) end effcc ");
+		String category = params.containsKey("category") ? (String)params.get("category") : "vehicle";
+		String table = category + "_run_sum";
+		StringBuffer sql = new StringBuffer("select ");
+		sql.append("a.").append(category).append(", case when a.count = 0 then 0 else round((a.total / a.count), 2) end effcc ");
 		sql.append("from (");
-		sql.append("select vehicle, sum(effcc) as total, count(effcc) as count from vehicle_run_sum where company = :company and year = :year group by vehicle");
-		sql.append(") a");
+		sql.append("	select ");
+		sql.append("		").append(category).append(", sum(effcc) as total, count(effcc) as count ");
+		sql.append("	from ");
+		sql.append("		").append(table).append(" where company = :company and year = :year group by ").append(category);
+		sql.append(") a order by effcc desc limit 0, 5");
 		
 		Map<String, Object> paramMap = DataUtils.newMap("company", params.get("company"));
 		int year = paramMap.containsKey("year") ? DataUtils.toInt(paramMap.get("year")) : Calendar.getInstance().get(Calendar.YEAR);
 		paramMap.put("year", year);
-		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);		
-		return (List<Object>)items;		
+		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
+		return (List<Object>)items;
 	}
 	
 	/**
@@ -110,7 +117,7 @@ public class FuelReporter extends AbstractReporter {
 					
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("year, month, format(sum(effcc) / count(company), 2) effcc, format(sum(consmpt) / count(company), 2) consmpt, CONCAT(year, '-', month) yearmonth ");
+		sql.append("year, month, round(sum(effcc) / count(company), 2) effcc, round(sum(consmpt) / count(company), 2) consmpt, CONCAT(year, '-', month) yearmonth ");
 		sql.append("from ");
 		sql.append("vehicle_run_sum ");
 		sql.append("where ");

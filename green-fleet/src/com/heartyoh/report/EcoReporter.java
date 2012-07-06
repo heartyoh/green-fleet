@@ -70,7 +70,7 @@ public class EcoReporter extends AbstractReporter {
 
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("year, month, format(sum(eco_index) / count(company), 2) eco_index, format(sum(eco_drv_time) / sum(run_time) * 100 / count(company), 2) eco_driving, CONCAT(year, '-', month) yearmonth ");
+		sql.append("year, month, round(sum(eco_index) / count(company), 2) eco_index, round(sum(eco_drv_time) / sum(run_time) * 100 / count(company), 2) eco_driving, CONCAT(year, '-', month) yearmonth ");
 		sql.append("from ");
 		sql.append("vehicle_run_sum ");
 		sql.append("where ");

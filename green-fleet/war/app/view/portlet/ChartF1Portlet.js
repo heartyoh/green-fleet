@@ -6,6 +6,8 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 	
 	chartPanel : null,
 	
+	category : 'vehicle',
+	
     initComponent: function() {
     	var self = this;
         this.callParent(arguments);
@@ -20,7 +22,7 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
     	Ext.Ajax.request({
 		    url: '/report/service',
 		    method : 'GET',
-		    params : { id : "fuel" },
+		    params : { id : 'fuel', type : 'top5', category : this.category },
 		    success: function(response) {		    	
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        
@@ -51,6 +53,8 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 	 * 차트 생성 
 	 */
 	buildChart : function(width, height) {
+		var self = this;
+		
 		return {
 			xtype : 'panel',
 			autoscroll : true,
@@ -59,7 +63,7 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 			items : [{
 				xtype : 'chart',
 				animate : true,
-		        store: Ext.create('Ext.data.ArrayStore', { fields: [ { name : 'vehicle', type : 'string' },  { name : 'effcc', type : 'double' } ], data: [] }),
+		        store: Ext.create('Ext.data.ArrayStore', { fields: [ { name : self.category, type : 'string' },  { name : 'effcc', type : 'double' } ], data: [] }),
 				width : width - 35,
 				height : height - 45,
 				shadow : false,
@@ -75,8 +79,8 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
-	                fields: ['vehicle'],
-	                title: T('label.vehicle')
+	                fields: [self.category],
+	                title: T('label.' + self.category)
 				}],
 				series : [{
 					type : 'column',
@@ -89,7 +93,7 @@ Ext.define('GreenFleet.view.portlet.ChartF1Portlet', {
 						width : 140,
 						height : 25,
 						renderer : function(storeItem, item) {
-							this.setTitle(storeItem.get('vehicle') + ' : ' + storeItem.get('effcc') + '(km/l)');
+							this.setTitle(storeItem.get(self.category) + ' : ' + storeItem.get('effcc') + '(km/l)');
 						}
 					},
 					highlight : {
