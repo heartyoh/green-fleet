@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
+Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.dashboard_effcc_consmpt',
+	alias : 'widget.dashboard_habit_ecoindex',
 
 	layout : { align : 'stretch', type : 'vbox' },
 	
@@ -167,7 +167,7 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 				text : T('button.search'),
 				itemId : 'search',
 				handler : function(btn) {
-					var thisView = btn.up('dashboard_effcc_consmpt');
+					var thisView = btn.up('dashboard_habit_ecoindex');
 					thisView.refresh();
 				}
 			}
@@ -201,8 +201,8 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 		    url: '/report/service',
 		    method : 'GET',
 		    params : { 
-		    	id : 'fuel',
-		    	type : 'effcc_consmpt',
+		    	id : 'eco',
+		    	type : 'habit_ecoindex',
 		    	from_year : fromYear,
 		    	from_month : fromMonth,
 		    	to_year : toYear,
@@ -230,48 +230,48 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 	 */
 	refreshGridData : function(records) {
 		var dataList = [];
-		var effccType = T('label.fuel_efficiency');
-		var consmptType = T('label.fuel_consumption');
+		var ecoIndexType = T('label.eco_index');
+		var sudCntType = T('label.sud_cnt');
 		
 		Ext.each(records, function(record) {
-			var effccData = null;
-			var consmptData = null;
+			var ecoIndexData = null;
+			var sudCntData = null;
 			
 			Ext.each(dataList, function(data) {
-				if(data.year == record.year && data.type == effccType) {
-					effccData = data;
+				if(data.year == record.year && data.type == ecoIndexType) {
+					ecoIndexData = data;
 				}
 				
-				if(data.year == record.year && data.type == consmptType) {
-					consmptData = data;
+				if(data.year == record.year && data.type == sudCntType) {
+					sudCntData = data;
 				}				
 			});
 			
-			if(!effccData) {
-				effccData = { "year" : record.year };
-				effccData["type"] = effccType;
-				effccData["count"] = 0;
-				effccData["sum"] = 0;
-				dataList.push(effccData);
+			if(!ecoIndexData) {
+				ecoIndexData = { "year" : record.year };
+				ecoIndexData["type"] = ecoIndexType;
+				ecoIndexData["count"] = 0;
+				ecoIndexData["sum"] = 0;
+				dataList.push(ecoIndexData);
 			}
 			
-			if(!consmptData) {
-				consmptData = { "year" : record.year };
-				consmptData["type"] = consmptType;
-				consmptData["count"] = 0;
-				consmptData["sum"] = 0;
-				dataList.push(consmptData);				
+			if(!sudCntData) {
+				sudCntData = { "year" : record.year };
+				sudCntData["type"] = sudCntType;
+				sudCntData["count"] = 0;
+				sudCntData["sum"] = 0;
+				dataList.push(sudCntData);				
 			} 
 			
-			var effcc = record.effcc;
-			effccData["mon_" + record.month] = effcc
-			effccData["count"] = effccData["count"] + 1;
-			effccData["sum"] = effccData["sum"] + effcc;
+			var eco_index = record.eco_index;
+			ecoIndexData["mon_" + record.month] = eco_index
+			ecoIndexData["count"] = ecoIndexData["count"] + 1;
+			ecoIndexData["sum"] = ecoIndexData["sum"] + eco_index;
 			
-			var consmpt = record.consmpt;
-			consmptData["mon_" + record.month] = consmpt
-			consmptData["count"] = consmptData["count"] + 1;
-			consmptData["sum"] = consmptData["sum"] + consmpt;			
+			var sud_cnt = record.sud_cnt;
+			sudCntData["mon_" + record.month] = sud_cnt
+			sudCntData["count"] = sudCntData["count"] + 1;
+			sudCntData["sum"] = sudCntData["sum"] + sud_cnt;			
 		});
 		
 		Ext.each(dataList, function(data) {
@@ -352,7 +352,7 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 			items : [{
 				xtype : 'chart',				
 				animate : true,
-				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'effcc', 'consmpt'], data : records }),
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'sud_cnt'], data : records }),
 				width : width - 25,
 				height : height - 50,
 				shadow : false,
@@ -361,16 +361,16 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 				axes: [{
 	                type: 'Numeric',
 	                position: 'bottom',
-	                fields: ['consmpt'],
+	                fields: ['sud_cnt'],
 	                grid : true,
-	                title: T('label.avg_consmpt') + '(l)',
+	                title: T('label.sud_cnt'),
 				}, {
 	                type: 'Numeric',
 	                position: 'left',
-	                fields: ['effcc'],
+	                fields: ['eco_index'],
 	                grid : true,
 	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
-	                title: T('label.avg_effcc') + '(km/l)'
+	                title: T('label.eco_index') + '(%)'
 	            }],
 				series : [{
 					type: 'scatter',
@@ -379,8 +379,8 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 						size: 5
 					},
 					axis: 'left',
-					xField: 'consmpt',
-					yField: 'effcc'
+					xField: 'sud_cnt',
+					yField: 'eco_index'
 				}]
 			}]
 		}

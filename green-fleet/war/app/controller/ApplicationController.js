@@ -28,7 +28,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'management.DriverRunStatus', 'management.DriverSpeedSection',  'management.DriverGroup', 'management.Schedule',
 	          'management.VehicleOverview', 'management.Report', 'management.VehicleSpeedSection', 	           
 	          'dashboard.Reports', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'dashboard.EfficiencyTrend', 'dashboard.EffccConsumption',	          
+	          'dashboard.DriverRunningSummary', 'dashboard.EfficiencyTrend', 'dashboard.EffccConsumption', 'dashboard.HabitEcoindex',	          
 	          'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 'portlet.GridI1Portlet', 
 	          'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 'portlet.CalendarPortlet', 
 	          'portlet.GridC1Portlet',  'portlet.GridM1Portlet', 'portlet.ChartF1Portlet' ],

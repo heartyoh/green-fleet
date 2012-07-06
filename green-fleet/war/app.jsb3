@@ -375,6 +375,11 @@
                     "path": "app/view/dashboard/"
                 },
                 {
+                    "clsName": "GreenFleet.view.dashboard.HabitEcoindex",
+                    "name": "HabitEcoindex.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
                     "clsName": "GreenFleet.view.portlet.Portlet",
                     "name": "Portlet.js",
                     "path": "app/view/portlet/"

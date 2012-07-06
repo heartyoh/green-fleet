@@ -9,21 +9,25 @@ import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.GreenFleetConstant;
 
-public class EcoReporter extends AbstractReporter {
+/**
+ *  운행 시간/거리 관련 리포터 
+ * 
+ */
+
+public class DrivingReporter extends AbstractReporter {
 
 	/**
 	 * report id
 	 */
-	private static final String ID = "eco";
+	private static final String ID = "driving";
 	/**
 	 * select fields
 	 */
-	private static final String[] SELECT_FILEDS = new String[] { "eco_index" };
+	private static final String[] SELECT_FILEDS = new String[] { "run_time", "run_dist" };
 	/**
 	 * parameter names
 	 */
-	private static final String[] PARAM_NAMES = new String[] { "company",
-			"_today" };
+	private static final String[] PARAM_NAMES = new String[] { "company", "_today" };
 
 	@Override
 	public String getId() {
@@ -42,85 +46,41 @@ public class EcoReporter extends AbstractReporter {
 
 	@Override
 	public List<Object> report(Map<String, Object> params) throws Exception {
-		String type = (String)params.get("type");
-		
-		if(DataUtils.isEmpty(type)) {
-			return null;
-		} else if("ecoindex_ecorate".equalsIgnoreCase(type)) {
-			return this.ecoIndexEcoRate(params);
-		} else if("habit_ecoindex".equalsIgnoreCase(type)) {
-			return this.habitEcoIndex(params);
-		} else {
-			return null;
-		}
+		return this.runTimeRunDist(params);
 	}
-	
+
 	/**
-	 * 운전습관과 eco-index 관계
+	 * 주행거리 - 주행시간 
 	 * 
 	 * @param params
 	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	private List<Object> habitEcoIndex(Map<String, Object> params) throws Exception {
-		
+	private List<Object> runTimeRunDist(Map<String, Object> params) throws Exception {
+
 		Map<String, Object> paramMap = DataUtils.newMap("company", params.get("company"));
-		Date fromToDate[] = this.parseFromToDate(params);
+		Date[] fromToDate = this.parseFromToDate(params);
 		
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ");
-		sql.append("	driver, year, month, eco_index, (sud_accel_cnt + sud_brake_cnt) sud_cnt ");
-		sql.append("from ");
-		sql.append("	driver_run_sum ");
-		sql.append("where ");
-		sql.append("	company = :company ");
-		
-		if(fromToDate != null) {
-			sql.append("and month_date >= :fromDate and month_date <= :toDate ");
-			paramMap.put("fromDate", fromToDate[0]);
-			paramMap.put("toDate", fromToDate[1]);
-		} 		
-		
-		sql.append("group by driver, year, month");
-		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
-		return (List<Object>)items;
-	}
-
-	/**
-	 * eco-index와 eco-driving-rate
-	 * 
-	 * @param params
-	 * @return
-	 * @throws Exception
-	 */
-	@SuppressWarnings("unchecked")
-	private List<Object> ecoIndexEcoRate(Map<String, Object> params) throws Exception {
-
-		Map<String, Object> paramMap = DataUtils.newMap("company", params.get("company"));
-		Date fromToDate[] = this.parseFromToDate(params);
-		
-		StringBuffer sql = new StringBuffer();
-		sql.append("select ");
-		sql.append("	year, month, round(sum(eco_index) / count(company), 2) eco_index, ");
-		sql.append("	round(((sum(eco_drv_time) / sum(run_time)) * 100) / count(company), 2) eco_driving,");
-		sql.append("	CONCAT(year, '-', month) yearmonth ");
+		sql.append("	year, month, sum(run_dist) run_dist, sum(run_time) run_time, CONCAT(year, '-', month) yearmonth ");
 		sql.append("from ");
 		sql.append("	vehicle_run_sum ");
 		sql.append("where ");
 		sql.append("	company = :company ");
-		
+
 		if(fromToDate != null) {
 			sql.append("and month_date >= :fromDate and month_date <= :toDate ");
 			paramMap.put("fromDate", fromToDate[0]);
 			paramMap.put("toDate", fromToDate[1]);
-		} 		
+		} 
 		
-		sql.append("group by year, month");
+		sql.append("group by year, month order by month_date");		
 		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
 		return (List<Object>)items;
 	}
-	
+
 	/**
 	 * 파라미터로 부터 from date, to date 파싱하여 리턴 
 	 *  
@@ -172,6 +132,6 @@ public class EcoReporter extends AbstractReporter {
 		fromToDate[0] = fromDateStr == null ? null : DataUtils.toDate(fromDateStr, GreenFleetConstant.DEFAULT_DATE_FORMAT);
 		fromToDate[1] = toDateStr == null ? null : DataUtils.toDate(toDateStr, GreenFleetConstant.DEFAULT_DATE_FORMAT);
 		return fromToDate;
-	}	
-
+	}
+	
 }

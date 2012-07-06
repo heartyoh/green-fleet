@@ -202,7 +202,7 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 		    method : 'GET',
 		    params : { 
 		    	id : 'fuel',
-		    	type : 'report',
+		    	type : 'effcc_trend',
 		    	from_year : fromYear,
 		    	from_month : fromMonth,
 		    	to_year : toYear,
