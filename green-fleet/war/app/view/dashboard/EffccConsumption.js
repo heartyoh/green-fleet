@@ -31,6 +31,8 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -41,7 +43,7 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.effcc_trend'),
+		title : T('report.effcc_consmpt'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',

@@ -31,6 +31,8 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**

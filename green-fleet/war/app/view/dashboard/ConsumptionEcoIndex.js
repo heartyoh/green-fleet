@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
+Ext.define('GreenFleet.view.dashboard.ConsumptionEcoindex', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.dashboard_habit_ecoindex',
+	alias : 'widget.dashboard_consmpt_ecoindex',
 
 	layout : { align : 'stretch', type : 'vbox' },
 	
@@ -43,7 +43,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.habit_ecoindex'),
+		title : T('report.consmpt_ecoindex'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -169,7 +169,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				text : T('button.search'),
 				itemId : 'search',
 				handler : function(btn) {
-					var thisView = btn.up('dashboard_habit_ecoindex');
+					var thisView = btn.up('dashboard_consmpt_ecoindex');
 					thisView.refresh();
 				}
 			}
@@ -204,7 +204,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		    method : 'GET',
 		    params : { 
 		    	id : 'eco',
-		    	type : 'habit_ecoindex',
+		    	type : 'consmpt_ecoindex',
 		    	from_year : fromYear,
 		    	from_month : fromMonth,
 		    	to_year : toYear,
@@ -214,8 +214,9 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        
 		        if(resultObj.success) {
-		        	self.refreshGridData(resultObj.items);
-		        	self.refreshChartData(resultObj.items);
+		        	var records = resultObj.items;
+		        	self.refreshGridData(records);
+		        	self.refreshChartData(records);
 		        	
 		        } else {
 		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
@@ -233,19 +234,19 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 	refreshGridData : function(records) {
 		var dataList = [];
 		var ecoIndexType = T('label.eco_index');
-		var sudCntType = T('label.sud_cnt');
+		var consmptType = T('label.fuel_consumption');
 		
 		Ext.each(records, function(record) {
 			var ecoIndexData = null;
-			var sudCntData = null;
+			var consmptData = null;
 			
 			Ext.each(dataList, function(data) {
 				if(data.year == record.year && data.type == ecoIndexType) {
 					ecoIndexData = data;
 				}
 				
-				if(data.year == record.year && data.type == sudCntType) {
-					sudCntData = data;
+				if(data.year == record.year && data.type == consmptType) {
+					consmptData = data;
 				}				
 			});
 			
@@ -257,12 +258,12 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				dataList.push(ecoIndexData);
 			}
 			
-			if(!sudCntData) {
-				sudCntData = { "year" : record.year };
-				sudCntData["type"] = sudCntType;
-				sudCntData["count"] = 0;
-				sudCntData["sum"] = 0;
-				dataList.push(sudCntData);				
+			if(!consmptData) {
+				consmptData = { "year" : record.year };
+				consmptData["type"] = consmptType;
+				consmptData["count"] = 0;
+				consmptData["sum"] = 0;
+				dataList.push(consmptData);				
 			} 
 			
 			var eco_index = record.eco_index;
@@ -270,14 +271,14 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 			ecoIndexData["count"] = ecoIndexData["count"] + 1;
 			ecoIndexData["sum"] = ecoIndexData["sum"] + eco_index;
 			
-			var sud_cnt = record.sud_cnt;
-			sudCntData["mon_" + record.month] = sud_cnt
-			sudCntData["count"] = sudCntData["count"] + 1;
-			sudCntData["sum"] = sudCntData["sum"] + sud_cnt;			
+			var consmpt = record.consmpt;
+			consmptData["mon_" + record.month] = consmpt
+			consmptData["count"] = consmptData["count"] + 1;
+			consmptData["sum"] = consmptData["sum"] + consmpt;			
 		});
 		
 		Ext.each(dataList, function(data) {
-			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.0');
 		});
 		
 		this.sub('data_grid').store.loadData(dataList);
@@ -354,7 +355,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 			items : [{
 				xtype : 'chart',				
 				animate : true,
-				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'sud_cnt'], data : records }),
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'consmpt'], data : records }),
 				width : width - 25,
 				height : height - 50,
 				shadow : false,
@@ -363,15 +364,14 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				axes: [{
 	                type: 'Numeric',
 	                position: 'bottom',
-	                fields: ['sud_cnt'],
+	                fields: ['consmpt'],
 	                grid : true,
-	                title: T('label.sud_cnt'),
+	                title: T('label.fuel_consumption') + '(l)',
 				}, {
 	                type: 'Numeric',
 	                position: 'left',
 	                fields: ['eco_index'],
 	                grid : true,
-	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
 	                title: T('label.eco_index') + '(%)'
 	            }],
 				series : [{
@@ -381,7 +381,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 						size: 5
 					},
 					axis: 'left',
-					xField: 'sud_cnt',
+					xField: 'consmpt',
 					yField: 'eco_index'
 				}]
 			}]

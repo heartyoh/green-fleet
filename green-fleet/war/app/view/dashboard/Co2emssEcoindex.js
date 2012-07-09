@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
+Ext.define('GreenFleet.view.dashboard.Co2emssEcoindex', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.dashboard_habit_ecoindex',
+	alias : 'widget.dashboard_co2emss_ecoindex',
 
 	layout : { align : 'stretch', type : 'vbox' },
 	
@@ -43,7 +43,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.habit_ecoindex'),
+		title : T('report.co2emss_ecoindex'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -169,7 +169,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				text : T('button.search'),
 				itemId : 'search',
 				handler : function(btn) {
-					var thisView = btn.up('dashboard_habit_ecoindex');
+					var thisView = btn.up('dashboard_co2emss_ecoindex');
 					thisView.refresh();
 				}
 			}
@@ -204,7 +204,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		    method : 'GET',
 		    params : { 
 		    	id : 'eco',
-		    	type : 'habit_ecoindex',
+		    	type : 'co2emss_ecoindex',
 		    	from_year : fromYear,
 		    	from_month : fromMonth,
 		    	to_year : toYear,
@@ -214,8 +214,9 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		        var resultObj = Ext.JSON.decode(response.responseText);
 		        
 		        if(resultObj.success) {
-		        	self.refreshGridData(resultObj.items);
-		        	self.refreshChartData(resultObj.items);
+		        	var records = resultObj.items;
+		        	self.refreshGridData(records);
+		        	self.refreshChartData(records);
 		        	
 		        } else {
 		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
@@ -233,19 +234,19 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 	refreshGridData : function(records) {
 		var dataList = [];
 		var ecoIndexType = T('label.eco_index');
-		var sudCntType = T('label.sud_cnt');
+		var co2EmssType = T('label.co2_emissions');
 		
 		Ext.each(records, function(record) {
 			var ecoIndexData = null;
-			var sudCntData = null;
+			var co2EmssData = null;
 			
 			Ext.each(dataList, function(data) {
 				if(data.year == record.year && data.type == ecoIndexType) {
 					ecoIndexData = data;
 				}
 				
-				if(data.year == record.year && data.type == sudCntType) {
-					sudCntData = data;
+				if(data.year == record.year && data.type == co2EmssType) {
+					co2EmssData = data;
 				}				
 			});
 			
@@ -257,23 +258,23 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				dataList.push(ecoIndexData);
 			}
 			
-			if(!sudCntData) {
-				sudCntData = { "year" : record.year };
-				sudCntData["type"] = sudCntType;
-				sudCntData["count"] = 0;
-				sudCntData["sum"] = 0;
-				dataList.push(sudCntData);				
+			if(!co2EmssData) {
+				co2EmssData = { "year" : record.year };
+				co2EmssData["type"] = co2EmssType;
+				co2EmssData["count"] = 0;
+				co2EmssData["sum"] = 0;
+				dataList.push(co2EmssData);				
 			} 
 			
-			var eco_index = record.eco_index;
-			ecoIndexData["mon_" + record.month] = eco_index
+			var ecoIndex = record.eco_index;
+			ecoIndexData["mon_" + record.month] = ecoIndex
 			ecoIndexData["count"] = ecoIndexData["count"] + 1;
-			ecoIndexData["sum"] = ecoIndexData["sum"] + eco_index;
+			ecoIndexData["sum"] = ecoIndexData["sum"] + ecoIndex;
 			
-			var sud_cnt = record.sud_cnt;
-			sudCntData["mon_" + record.month] = sud_cnt
-			sudCntData["count"] = sudCntData["count"] + 1;
-			sudCntData["sum"] = sudCntData["sum"] + sud_cnt;			
+			var co2Emss = record.co2_emss;
+			co2EmssData["mon_" + record.month] = co2Emss
+			co2EmssData["count"] = co2EmssData["count"] + 1;
+			co2EmssData["sum"] = co2EmssData["sum"] + co2Emss;			
 		});
 		
 		Ext.each(dataList, function(data) {
@@ -354,7 +355,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 			items : [{
 				xtype : 'chart',				
 				animate : true,
-				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'sud_cnt'], data : records }),
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'co2_emss'], data : records }),
 				width : width - 25,
 				height : height - 50,
 				shadow : false,
@@ -363,9 +364,9 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				axes: [{
 	                type: 'Numeric',
 	                position: 'bottom',
-	                fields: ['sud_cnt'],
+	                fields: ['co2_emss'],
 	                grid : true,
-	                title: T('label.sud_cnt'),
+	                title: T('label.co2_emissions'),
 				}, {
 	                type: 'Numeric',
 	                position: 'left',
@@ -381,7 +382,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 						size: 5
 					},
 					axis: 'left',
-					xField: 'sud_cnt',
+					xField: 'co2_emss',
 					yField: 'eco_index'
 				}]
 			}]

@@ -50,9 +50,77 @@ public class EcoReporter extends AbstractReporter {
 			return this.ecoIndexEcoRate(params);
 		} else if("habit_ecoindex".equalsIgnoreCase(type)) {
 			return this.habitEcoIndex(params);
+		} else if("co2emss_ecoindex".equalsIgnoreCase(type)) {
+			return this.co2EmssEcoIndex(params);
+		} else if("consmpt_ecoindex".equalsIgnoreCase(type)) {
+			return this.consmptEcoIndex(params);
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * 연료소모량과 Eco지수 관계 
+	 * 
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Object> consmptEcoIndex(Map<String, Object> params) throws Exception {
+		
+		Map<String, Object> paramMap = DataUtils.newMap("company", params.get("company"));
+		Date fromToDate[] = this.parseFromToDate(params);
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ");
+		sql.append("	driver, year, month, eco_index, consmpt ");
+		sql.append("from ");
+		sql.append("	driver_run_sum ");
+		sql.append("where ");
+		sql.append("	company = :company ");
+		
+		if(fromToDate != null) {
+			sql.append("and month_date >= :fromDate and month_date <= :toDate ");
+			paramMap.put("fromDate", fromToDate[0]);
+			paramMap.put("toDate", fromToDate[1]);
+		} 		
+		
+		sql.append("group by driver, year, month");
+		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
+		return (List<Object>)items;
+	}
+	
+	/**
+	 * co2 배출량과 Eco 지수 관계
+	 *  
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Object> co2EmssEcoIndex(Map<String, Object> params) throws Exception {
+		
+		Map<String, Object> paramMap = DataUtils.newMap("company", params.get("company"));
+		Date fromToDate[] = this.parseFromToDate(params);
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ");
+		sql.append("	driver, year, month, eco_index, co2_emss ");
+		sql.append("from ");
+		sql.append("	driver_run_sum ");
+		sql.append("where ");
+		sql.append("	company = :company ");
+		
+		if(fromToDate != null) {
+			sql.append("and month_date >= :fromDate and month_date <= :toDate ");
+			paramMap.put("fromDate", fromToDate[0]);
+			paramMap.put("toDate", fromToDate[1]);
+		} 		
+		
+		sql.append("group by driver, year, month");
+		List<?> items = DatasourceUtils.selectBySql(sql.toString(), paramMap);
+		return (List<Object>)items;
 	}
 	
 	/**

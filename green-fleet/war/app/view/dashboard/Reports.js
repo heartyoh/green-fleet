@@ -86,13 +86,14 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				fields : [ 'id', 'name' ],		        
 				data : [{ "id" : "vehicle_summary", 	"name" : T('report.vehicle_summary') },
 				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },
+				        { "id" : "driving_trend", 		"name" : T('report.driving_trend') },
+				        { "id" : "maint_trend", 		"name" : T('report.maint_trend') },
 				        { "id" : "effcc_trend", 		"name" : T('report.effcc_trend') },
+				        { "id" : "eco_driving_trend", 	"name" : T('report.eco_driving_trend') },
 				        { "id" : "effcc_consmpt", 		"name" : T('report.effcc_consmpt') },
 				        { "id" : "habit_ecoindex", 		"name" : T('report.habit_ecoindex') },
-				        { "id" : "maint_trend", 		"name" : T('report.maint_trend') },
-				        { "id" : "vehicle_effcc_rel", 	"name" : T('report.vehicle_effcc_rel') },
-				        { "id" : "incident_effcc_rel", 	"name" : T('report.incident_effcc_rel') },
-				        { "id" : "consumable_effcc_rel","name" : T('report.consumable_effcc_rel') }]
+				        { "id" : "co2emss_ecoindex", 	"name" : T('report.co2emss_ecoindex') },
+				        { "id" : "consmpt_ecoindex",	"name" : T('report.consmpt_ecoindex') }]
 			}),
 			title : T('title.report_list'),
 			width : 180,

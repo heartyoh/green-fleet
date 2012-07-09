@@ -151,21 +151,21 @@ T({
 		sud_brake_cnt_by_vehicles : 'Sudden Brake Count By Vehicles',
 		sud_brake_cnt_by_drivers : 'Sudden Brake Count By Drivers',		
 		inc_cnt_by_drivers : 'Incident Count By Drivers',
-		effcc_trend : 'Fuel Efficiency Trand',
-		maint_trend : 'Maintenance Trend',
-        vehicle_effcc_rel : 'Vehicle-Efficiency Rel.',
-        driver_effcc_rel : 'Driver-Efficiency Rel.',        
-        effcc_consmpt : 'Efficiency-Consumption',
-        habit_ecoindex : 'Driving Habit-Eco Index',
-        incident_effcc_rel : 'Incident-Efficiency Rel.',
-        consumable_effcc_rel : 'Consumable-Efficiency Rel.',
         mnt_time_by_vehicles : 'Maintenance Time By Vehicles',
         mttr_by_vehicles : 'MTTR By Vehicles',
         mtbf_by_vehicles : 'MTBF By Vehicles',
+		effcc_trend : 'Fuel Efficiency Trand',
+		maint_trend : 'Maintenance Trend',
+		driving_trend : 'Driving Trend',
+		eco_driving_trend : 'Eco Driving Trend',
+        co2emss_ecoindex : 'Co2 Emission-Eco Index',
+        effcc_consmpt : 'Efficiency-Consumption',
+        habit_ecoindex : 'Driving Habit-Eco Index',
+        consmpt_ecoindex : 'Fuel Consumption-Eco Index',
+        daily_driving_report : 'Daily Driving Report'
         by_vehicles : 'By Vehicles',
         by_drivers : 'By Drivers',
-        by_years : 'By Year',       
-        daily_driving_report : 'Daily Driving Report'
+        by_years : 'By Year'        
 	},
 	
 	portlet : {

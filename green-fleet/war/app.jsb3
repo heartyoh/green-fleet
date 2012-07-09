@@ -370,18 +370,38 @@
                     "path": "app/view/dashboard/"
                 },
                 {
+                    "clsName": "GreenFleet.view.dashboard.MaintTrend",
+                    "name": "MaintTrend.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
+                    "clsName": "GreenFleet.view.dashboard.EcoDrivingTrend",
+                    "name": "EcoDrivingTrend.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
+                    "clsName": "GreenFleet.view.dashboard.DrivingTrend",
+                    "name": "DrivingTrend.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
+                    "clsName": "GreenFleet.view.dashboard.Co2emssEcoindex",
+                    "name": "Co2emssEcoindex.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
                     "clsName": "GreenFleet.view.dashboard.EffccConsumption",
                     "name": "EffccConsumption.js",
                     "path": "app/view/dashboard/"
                 },
                 {
-                    "clsName": "GreenFleet.view.dashboard.HabitEcoindex",
-                    "name": "HabitEcoindex.js",
+                    "clsName": "GreenFleet.view.dashboard.ConsumptionEcoindex",
+                    "name": "ConsumptionEcoindex.js",
                     "path": "app/view/dashboard/"
                 },
                 {
-                    "clsName": "GreenFleet.view.dashboard.MaintTrend",
-                    "name": "MaintTrend.js",
+                    "clsName": "GreenFleet.view.dashboard.HabitEcoindex",
+                    "name": "HabitEcoindex.js",
                     "path": "app/view/dashboard/"
                 },
                 {

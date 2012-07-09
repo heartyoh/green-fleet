@@ -31,6 +31,8 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**

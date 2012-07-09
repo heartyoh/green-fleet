@@ -14707,13 +14707,14 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				fields : [ 'id', 'name' ],		        
 				data : [{ "id" : "vehicle_summary", 	"name" : T('report.vehicle_summary') },
 				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },
+				        { "id" : "driving_trend", 		"name" : T('report.driving_trend') },
+				        { "id" : "maint_trend", 		"name" : T('report.maint_trend') },
 				        { "id" : "effcc_trend", 		"name" : T('report.effcc_trend') },
+				        { "id" : "eco_driving_trend", 	"name" : T('report.eco_driving_trend') },
 				        { "id" : "effcc_consmpt", 		"name" : T('report.effcc_consmpt') },
 				        { "id" : "habit_ecoindex", 		"name" : T('report.habit_ecoindex') },
-				        { "id" : "maint_trend", 		"name" : T('report.maint_trend') },
-				        { "id" : "vehicle_effcc_rel", 	"name" : T('report.vehicle_effcc_rel') },
-				        { "id" : "incident_effcc_rel", 	"name" : T('report.incident_effcc_rel') },
-				        { "id" : "consumable_effcc_rel","name" : T('report.consumable_effcc_rel') }]
+				        { "id" : "co2emss_ecoindex", 	"name" : T('report.co2emss_ecoindex') },
+				        { "id" : "consmpt_ecoindex",	"name" : T('report.consmpt_ecoindex') }]
 			}),
 			title : T('title.report_list'),
 			width : 180,
@@ -15090,6 +15091,8 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -15689,6 +15692,8 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -16269,6 +16274,8 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -16663,6 +16670,1537 @@ Ext.define('GreenFleet.view.dashboard.EfficiencyTrend', {
 		}
 	}
 });
+Ext.define('GreenFleet.view.dashboard.MaintTrend', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_maint_trend',
+
+	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
+
+		this.callParent();
+		
+		this.refresh();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+		
+		this.refresh();
+	},
+
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.maint_trend'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'vehicle', 'mnt_cnt', 'sum' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 100
+			}, {
+	            text     : T('label.vehicle'),
+	            dataIndex: 'vehicle',
+	            width : 100
+			}, {
+	            text     : T('label.maintenance_count'),
+	            dataIndex: 'mnt_cnt',
+	            width : 100
+			}, {
+				header : T('label.sum'),
+				dataIndex : 'mnt_cnt',
+				width : 100,
+				summaryType: 'sum',
+				summaryRenderer: function(value) {
+		            return Ext.String.format('{0} {1}', T('label.total'), value);
+		        }				
+	        }]
+		}]
+	},
+	
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'repair_list',
+		    	type : 'maint_trend'
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+		        	self.sub('data_grid').store.loadData(records);
+		        	self.refreshChartData(records);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		var retObj = this.buildChartStore(records);
+		var chartFieldList = retObj[0];
+		var chartStore = retObj[1];
+		
+		if(chart == null) {
+			this.refreshChart(chartFieldList, chartStore);
+		} else {
+			chart.store.loadData(chartStore.getData());
+		}
+	},
+	
+	/**
+	 * 차트 데이터 변형 
+	 */
+	buildChartStore : function(records) {
+		
+		var bottomFieldList = [];
+		var fieldList = ['year'];
+		var chartDataList = [];
+		
+		Ext.each(records, function(record) {
+			var item = null;
+			
+			Ext.each(chartDataList, function(chartData) {
+				if(chartData.year == record.year) {
+					item = chartData;
+				}				
+			});
+			
+			if(!item) {
+				item = { "year" : record.year };
+				chartDataList.push(item);
+			}
+			
+			if(!Ext.Array.contains(fieldList, record.vehicle)) {
+				fieldList.push(record.vehicle);
+				bottomFieldList.push(record.vehicle);
+			}
+						
+			item[record.vehicle] = record.mnt_cnt;
+		});
+		
+		return [bottomFieldList, Ext.create('Ext.data.Store', { fields : fieldList, data : chartDataList })];
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(chartFieldList, chartStore) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(chartFieldList, chartStore, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(chartFieldList, chartStore, width, height) {
+				
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,			
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : chartStore,
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				legend: {
+	                position: 'top'
+	            },				
+				axes: [{
+	                type: 'Numeric',
+	                position: 'bottom',
+	                fields: chartFieldList,
+	                grid : true,
+	                title: T('label.maintenance_count'),
+				}, {
+	                type: 'Category',
+	                position: 'left',
+	                grid : true,
+	                fields: ['year'],
+	                title: T('label.year')
+	            }],
+				series : [{
+					type: 'bar',
+					axis: 'bottom',
+					gutter: 80,
+					xField: 'year',
+					yField: chartFieldList,
+					stacked: true,
+					tips: {
+	                    trackMouse: true,
+	                    width: 65,
+	                    height: 28,
+	                    renderer: function(storeItem, item) {
+	                        this.setTitle(item.value[1]);
+	                    }
+	                }
+				}]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.EcoDrivingTrend', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_eco_driving_trend',
+
+	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+		
+		this.refresh();
+	},
+
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.eco_driving_trend'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'type', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
+			}, {
+	            text     : T('label.type'),
+	            dataIndex: 'type',
+	            width : 100
+			}, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : '1',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : '2',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : '3',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : '4',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : '5',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : '6',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : '7',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : '8',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : '9',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : '10',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : '11',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : '12',
+					width : 60
+	            }]
+	        }, {
+				header : 'Average',
+				dataIndex : 'avg',
+				width : 100
+	        }]
+		}],
+
+		tbar : [
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_eco_driving_trend');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'eco',
+		    	type : 'ecoindex_ecorate',
+		    	from_year : fromYear,
+		    	from_month : fromMonth,
+		    	to_year : toYear,
+		    	to_month : toMonth
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+		        	self.refreshGridData(records);
+		        	self.refreshChartData(records);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 그리드 데이터 Refresh 
+	 */
+	refreshGridData : function(records) {
+		var dataList = [];
+		var ecoIndexType = T('label.eco_index');
+		var ecoRunRateType = T('label.eco_run_rate');
+		
+		Ext.each(records, function(record) {
+			var ecoIndexData = null;
+			var ecoRunRateData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(data.year == record.year && data.type == ecoIndexType) {
+					ecoIndexData = data;
+				}
+				
+				if(data.year == record.year && data.type == ecoRunRateType) {
+					ecoRunRateData = data;
+				}
+			});
+			
+			if(!ecoIndexData) {
+				ecoIndexData = { "year" : record.year };
+				ecoIndexData["type"] = ecoIndexType;
+				ecoIndexData["count"] = 0;
+				ecoIndexData["sum"] = 0;
+				dataList.push(ecoIndexData);
+			}
+			
+			if(!ecoRunRateData) {
+				ecoRunRateData = { "year" : record.year };
+				ecoRunRateData["type"] = ecoRunRateType;
+				ecoRunRateData["count"] = 0;
+				ecoRunRateData["sum"] = 0;
+				dataList.push(ecoRunRateData);				
+			} 
+			
+			var ecoIndex = record.eco_index;
+			ecoIndexData["mon_" + record.month] = ecoIndex
+			ecoIndexData["count"] = ecoIndexData["count"] + 1;
+			ecoIndexData["sum"] = ecoIndexData["sum"] + ecoIndex;
+			
+			var ecoRunRate = record.eco_driving;
+			ecoRunRateData["mon_" + record.month] = ecoRunRate
+			ecoRunRateData["count"] = ecoRunRateData["count"] + 1;
+			ecoRunRateData["sum"] = ecoRunRateData["sum"] + ecoRunRate;			
+		});
+		
+		Ext.each(dataList, function(data) {
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+		});
+		
+		this.sub('data_grid').store.loadData(dataList);
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var dataList = [];
+		Ext.each(records, function(record) {
+			dataList.push({"yearmonth" : record.yearmonth, "eco_index" : record.eco_index, "eco_run_rate" : record.eco_driving });
+		});
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		
+		if(chart == null) {
+			this.refreshChart(dataList);
+		} else {
+			chart.store.loadData(dataList);
+		}
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(records, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(records, width, height) {
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'eco_run_rate'], data : records }),
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['yearmonth'],
+	                grid : true,
+	                title: T('label.month')
+				}, {
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['eco_index'],
+	                grid : true,
+	                title: T('label.eco_index') + '(%)'
+	            },{
+	                type: 'Numeric',
+	                position: 'right',
+	                fields: ['eco_run_rate'],
+	                grid : true,
+	                title: T('label.eco_run_rate') + '(%)'
+	            } ],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: 'yearmonth',
+	                yField: 'eco_index',
+					showInLegend : true,
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : 'eco_index',
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial'
+					}
+				}, {
+	                type: 'line',
+	                highlight: {
+	                    size: 7,
+	                    radius: 7
+	                },
+	                fill: true,
+	                smooth: true,
+	                fillOpacity: 0.5,
+	                axis: 'right',
+	                xField: 'yearmonth',
+	                yField: 'eco_run_rate',
+					showInLegend : true,
+	                title: T('label.eco_run_rate'),
+					tips : {
+						trackMouse : true,
+						width : 90,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(storeItem.get('yearmonth') + ' : ' + storeItem.get('eco_run_rate') + '(%)');
+						}
+					},	                
+	            }]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.DrivingTrend', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_driving_trend',
+
+	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+		
+		this.refresh();
+	},
+
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.driving_trend'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'type', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
+			}, {
+	            text     : T('label.type'),
+	            dataIndex: 'type',
+	            width : 100
+			}, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : '1',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : '2',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : '3',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : '4',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : '5',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : '6',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : '7',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : '8',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : '9',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : '10',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : '11',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : '12',
+					width : 60
+	            }]
+	        }, {
+				header : 'Average',
+				dataIndex : 'avg',
+				width : 100
+	        }]
+		}],
+
+		tbar : [
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_driving_trend');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'driving',
+		    	//type : '',
+		    	from_year : fromYear,
+		    	from_month : fromMonth,
+		    	to_year : toYear,
+		    	to_month : toMonth
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+		        	self.refreshGridData(records);
+		        	self.refreshChartData(records);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 그리드 데이터 Refresh 
+	 */
+	refreshGridData : function(records) {
+		var dataList = [];
+		var runDistType = T('label.run_dist');
+		var runTimeType = T('label.run_time');
+		
+		Ext.each(records, function(record) {
+			var runDistData = null;
+			var runTimeData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(data.year == record.year && data.type == runDistType) {
+					runDistData = data;
+				}
+				
+				if(data.year == record.year && data.type == runTimeType) {
+					runTimeData = data;
+				}
+			});
+			
+			if(!runDistData) {
+				runDistData = { "year" : record.year };
+				runDistData["type"] = runDistType;
+				runDistData["count"] = 0;
+				runDistData["sum"] = 0;
+				dataList.push(runDistData);
+			}
+			
+			if(!runTimeData) {
+				runTimeData = { "year" : record.year };
+				runTimeData["type"] = runTimeType;
+				runTimeData["count"] = 0;
+				runTimeData["sum"] = 0;
+				dataList.push(runTimeData);				
+			} 
+			
+			var runDist = record.run_dist;
+			runDistData["mon_" + record.month] = runDist
+			runDistData["count"] = runDistData["count"] + 1;
+			runDistData["sum"] = runDistData["sum"] + runDist;
+			
+			var runTime = record.run_time;
+			runTimeData["mon_" + record.month] = runTime
+			runTimeData["count"] = runTimeData["count"] + 1;
+			runTimeData["sum"] = runTimeData["sum"] + runTime;			
+		});
+		
+		Ext.each(dataList, function(data) {
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+		});
+		
+		this.sub('data_grid').store.loadData(dataList);
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var dataList = [];
+		Ext.each(records, function(record) {
+			dataList.push({"yearmonth" : record.yearmonth, "run_dist" : record.run_dist, "run_time" : record.run_time });
+		});
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		
+		if(chart == null) {
+			this.refreshChart(dataList);
+		} else {
+			chart.store.loadData(dataList);
+		}
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(records, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(records, width, height) {
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'run_dist', 'run_time'], data : records }),
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['yearmonth'],
+	                grid : true,
+	                title: T('label.month')
+				}, {
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['run_dist'],
+	                grid : true,
+	                title: T('label.run_dist') + '(km)'
+	            },{
+	                type: 'Numeric',
+	                position: 'right',
+	                fields: ['run_time'],
+	                grid : true,
+	                title: T('label.run_time') + T('label.parentheses_min')
+	            } ],
+				series : [{
+					type : 'column',
+					axis: 'left',
+					xField: 'yearmonth',
+	                yField: 'run_dist',
+					showInLegend : true,
+					highlight : {
+						segment : {
+							margin : 20
+						}
+					},
+					label : {
+						field : 'run_time',
+						display : 'insideEnd',
+						contrast : true,
+						color: '#333',
+						font : '14px Arial'
+					}
+				}, {
+	                type: 'line',
+	                highlight: {
+	                    size: 7,
+	                    radius: 7
+	                },
+	                fill: true,
+	                smooth: true,
+	                fillOpacity: 0.5,
+	                axis: 'right',
+	                xField: 'yearmonth',
+	                yField: 'run_time',
+					showInLegend : true,
+	                title: T('label.run_time'),
+					tips : {
+						trackMouse : true,
+						width : 90,
+						height : 25,
+						renderer : function(storeItem, item) {
+							this.setTitle(storeItem.get('yearmonth') + ' : ' + storeItem.get('run_time') + '(min)');
+						}
+					},	                
+	            }]
+			}]
+		}
+	}
+});
+Ext.define('GreenFleet.view.dashboard.Co2emssEcoindex', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_co2emss_ecoindex',
+
+	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+		
+		this.refresh();
+	},
+
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.co2emss_ecoindex'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'type', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
+			}, {
+	            text     : T('label.type'),
+	            dataIndex: 'type',
+	            width : 100
+			}, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : '1',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : '2',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : '3',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : '4',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : '5',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : '6',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : '7',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : '8',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : '9',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : '10',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : '11',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : '12',
+					width : 60
+	            }]
+	        }, {
+				header : 'Average',
+				dataIndex : 'avg',
+				width : 100
+	        }]
+		}],
+
+		tbar : [
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_co2emss_ecoindex');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'eco',
+		    	type : 'co2emss_ecoindex',
+		    	from_year : fromYear,
+		    	from_month : fromMonth,
+		    	to_year : toYear,
+		    	to_month : toMonth
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+		        	self.refreshGridData(records);
+		        	self.refreshChartData(records);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 그리드 데이터 Refresh 
+	 */
+	refreshGridData : function(records) {
+		var dataList = [];
+		var ecoIndexType = T('label.eco_index');
+		var co2EmssType = T('label.co2_emissions');
+		
+		Ext.each(records, function(record) {
+			var ecoIndexData = null;
+			var co2EmssData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(data.year == record.year && data.type == ecoIndexType) {
+					ecoIndexData = data;
+				}
+				
+				if(data.year == record.year && data.type == co2EmssType) {
+					co2EmssData = data;
+				}				
+			});
+			
+			if(!ecoIndexData) {
+				ecoIndexData = { "year" : record.year };
+				ecoIndexData["type"] = ecoIndexType;
+				ecoIndexData["count"] = 0;
+				ecoIndexData["sum"] = 0;
+				dataList.push(ecoIndexData);
+			}
+			
+			if(!co2EmssData) {
+				co2EmssData = { "year" : record.year };
+				co2EmssData["type"] = co2EmssType;
+				co2EmssData["count"] = 0;
+				co2EmssData["sum"] = 0;
+				dataList.push(co2EmssData);				
+			} 
+			
+			var ecoIndex = record.eco_index;
+			ecoIndexData["mon_" + record.month] = ecoIndex
+			ecoIndexData["count"] = ecoIndexData["count"] + 1;
+			ecoIndexData["sum"] = ecoIndexData["sum"] + ecoIndex;
+			
+			var co2Emss = record.co2_emss;
+			co2EmssData["mon_" + record.month] = co2Emss
+			co2EmssData["count"] = co2EmssData["count"] + 1;
+			co2EmssData["sum"] = co2EmssData["sum"] + co2Emss;			
+		});
+		
+		Ext.each(dataList, function(data) {
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+		});
+		
+		this.sub('data_grid').store.loadData(dataList);
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		
+		if(chart == null) {
+			this.refreshChart(records);
+		} else {
+			chart.store.loadData(records);
+		}
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(records, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(records, width, height) {		
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'co2_emss'], data : records }),
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Numeric',
+	                position: 'bottom',
+	                fields: ['co2_emss'],
+	                grid : true,
+	                title: T('label.co2_emissions'),
+				}, {
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['eco_index'],
+	                grid : true,
+	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
+	                title: T('label.eco_index') + '(%)'
+	            }],
+				series : [{
+					type: 'scatter',
+					markerConfig: {
+						radius: 5,
+						size: 5
+					},
+					axis: 'left',
+					xField: 'co2_emss',
+					yField: 'eco_index'
+				}]
+			}]
+		}
+	}
+});
 Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 	extend : 'Ext.Container',
 
@@ -16696,6 +18234,8 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -16706,7 +18246,7 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.effcc_trend'),
+		title : T('report.effcc_consmpt'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -17051,6 +18591,396 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 		}
 	}
 });
+Ext.define('GreenFleet.view.dashboard.ConsumptionEcoindex', {
+	extend : 'Ext.Container',
+
+	alias : 'widget.dashboard_consmpt_ecoindex',
+
+	layout : { align : 'stretch', type : 'vbox' },
+	
+	chartPanel : null,
+
+	initComponent : function() {
+		var self = this;
+
+		this.items = [
+		    {
+				xtype : 'container',
+				flex : 1,
+				layout : { type : 'hbox', align : 'stretch' },
+				items : [ {
+					xtype : 'container',
+					flex : 1,
+					cls : 'borderRightGray',
+					layout : { align : 'stretch', type : 'vbox' },
+					items : [ this.zdatagrid, this.zchartpanel ]
+				} ]
+		    } ],
+
+		this.callParent();
+		
+		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
+			if(self.chartPanel) {				
+				self.resizeChart();
+			}
+		});
+		
+		this.refresh();
+	},
+
+	/**
+	 * 데이터 그리드 패널 
+	 */
+	zdatagrid : {
+		itemId : 'datagrid_panel',
+		xtype : 'panel',
+		flex : 1,
+		cls : 'hIndexbar',
+		title : T('report.consmpt_ecoindex'),
+		autoScroll : true,
+		items : [{
+			xtype : 'grid',
+			itemId : 'data_grid',
+			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
+			store : Ext.create('Ext.data.Store', { 
+				groupField : 'year',
+				fields : [ 'year', 'type', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
+				data : []
+			}),
+			autoScroll : true,
+			columnLines: true,
+	        columns: [{
+	            text     : T('label.year'),
+	            dataIndex: 'year',
+	            width : 50
+			}, {
+	            text     : T('label.type'),
+	            dataIndex: 'type',
+	            width : 100
+			}, {
+	            text: T('label.month'),
+	            columns: [{
+					dataIndex : 'mon_1',
+					text : '1',
+					width : 60
+	            }, {
+					dataIndex : 'mon_2',
+					text : '2',
+					width : 60
+	            }, {
+					dataIndex : 'mon_3',
+					text : '3',
+					width : 60
+	            }, {
+					dataIndex : 'mon_4',
+					text : '4',
+					width : 60
+	            }, {
+					dataIndex : 'mon_5',
+					text : '5',
+					width : 60
+	            }, {
+					dataIndex : 'mon_6',
+					text : '6',
+					width : 60
+	            }, {
+					dataIndex : 'mon_7',
+					text : '7',
+					width : 60
+	            }, {
+					dataIndex : 'mon_8',
+					text : '8',
+					width : 60
+	            }, {
+					dataIndex : 'mon_9',
+					text : '9',
+					width : 60
+	            }, {
+					dataIndex : 'mon_10',
+					text : '10',
+					width : 60
+	            }, {
+					dataIndex : 'mon_11',
+					text : '11',
+					width : 60
+	            }, {
+					dataIndex : 'mon_12',
+					text : '12',
+					width : 60
+	            }]
+	        }, {
+				header : 'Average',
+				dataIndex : 'avg',
+				width : 100
+	        }]
+		}],
+
+		tbar : [
+			T('label.period') + ' : ',
+			{
+				xtype : 'combo',
+				name : 'from_year',
+				itemId : 'from_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear() - 1,
+				store : 'YearStore',
+				width : 60
+			},
+			{
+				xtype : 'combo',
+				name : 'from_month',
+				itemId : 'from_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 2,
+				store : 'MonthStore',
+				width : 40		
+			},			
+			' ~ ',
+			{
+				xtype : 'combo',
+				name : 'to_year',
+				itemId : 'to_year',
+				displayField: 'year',
+			    valueField: 'year',
+			    value : new Date().getFullYear(),
+				store : 'YearStore',
+				width : 60			
+			},
+			{
+				xtype : 'combo',
+				name : 'to_month',
+				itemId : 'to_month',
+				displayField: 'month',
+			    valueField: 'month',
+			    value : new Date().getMonth() + 1,
+				store : 'MonthStore',
+				width : 40		
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search',
+				handler : function(btn) {
+					var thisView = btn.up('dashboard_consmpt_ecoindex');
+					thisView.refresh();
+				}
+			}
+		]
+	},
+	
+	/**
+	 * 차트 패널 
+	 */
+	zchartpanel : {
+		xtype : 'panel',
+		itemId : 'chart_panel',
+		cls : 'hIndexbar',
+		title : T('label.chart'),
+		flex : 1,
+		autoScroll : true
+	},
+	
+	/**
+	 * 그리드와 차트를 새로 고침 
+	 */
+	refresh : function() {
+		
+		var self = this;
+		var fromYear = this.sub('from_year').getValue();
+		var toYear = this.sub('to_year').getValue();
+		var fromMonth = this.sub('from_month').getValue();
+		var toMonth = this.sub('to_month').getValue();
+		
+    	Ext.Ajax.request({
+		    url: '/report/service',
+		    method : 'GET',
+		    params : { 
+		    	id : 'eco',
+		    	type : 'consmpt_ecoindex',
+		    	from_year : fromYear,
+		    	from_month : fromMonth,
+		    	to_year : toYear,
+		    	to_month : toMonth
+		    },
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {
+		        	var records = resultObj.items;
+		        	self.refreshGridData(records);
+		        	self.refreshChartData(records);
+		        	
+		        } else {
+		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+		        }
+		    },
+		    failure: function(response) {
+		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
+		    }
+		});
+	},
+	
+	/**
+	 * 그리드 데이터 Refresh 
+	 */
+	refreshGridData : function(records) {
+		var dataList = [];
+		var ecoIndexType = T('label.eco_index');
+		var consmptType = T('label.fuel_consumption');
+		
+		Ext.each(records, function(record) {
+			var ecoIndexData = null;
+			var consmptData = null;
+			
+			Ext.each(dataList, function(data) {
+				if(data.year == record.year && data.type == ecoIndexType) {
+					ecoIndexData = data;
+				}
+				
+				if(data.year == record.year && data.type == consmptType) {
+					consmptData = data;
+				}				
+			});
+			
+			if(!ecoIndexData) {
+				ecoIndexData = { "year" : record.year };
+				ecoIndexData["type"] = ecoIndexType;
+				ecoIndexData["count"] = 0;
+				ecoIndexData["sum"] = 0;
+				dataList.push(ecoIndexData);
+			}
+			
+			if(!consmptData) {
+				consmptData = { "year" : record.year };
+				consmptData["type"] = consmptType;
+				consmptData["count"] = 0;
+				consmptData["sum"] = 0;
+				dataList.push(consmptData);				
+			} 
+			
+			var eco_index = record.eco_index;
+			ecoIndexData["mon_" + record.month] = eco_index
+			ecoIndexData["count"] = ecoIndexData["count"] + 1;
+			ecoIndexData["sum"] = ecoIndexData["sum"] + eco_index;
+			
+			var consmpt = record.consmpt;
+			consmptData["mon_" + record.month] = consmpt
+			consmptData["count"] = consmptData["count"] + 1;
+			consmptData["sum"] = consmptData["sum"] + consmpt;			
+		});
+		
+		Ext.each(dataList, function(data) {
+			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.0');
+		});
+		
+		this.sub('data_grid').store.loadData(dataList);
+	},
+	
+	/**
+	 * 차트 데이터 Refresh
+	 */
+	refreshChartData : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var chart = chartPanel.down('chart');
+		
+		if(chart == null) {
+			this.refreshChart(records);
+		} else {
+			chart.store.loadData(records);
+		}
+	},
+	
+	/**
+	 * Chart를 새로 생성
+	 */
+	refreshChart : function(records) {
+		
+		var chartPanel = this.sub('chart_panel');
+		var width = null;
+		var height = null;
+		try {
+			width = chartPanel.getWidth();
+			height = chartPanel.getHeight();
+		} catch (e) {
+			return;
+		}
+		
+		var chart = this.buildChart(records, width, height);
+		chartPanel.removeAll();
+		chartPanel.add(chart);
+		this.chartPanel = chart;
+	},
+
+	/**
+	 * 페이지를 resize할 때마다 chart를 resize
+	 */
+	resizeChart : function(width, height) {
+		
+		var chartContainer = this.sub('chart_panel');
+		
+		if(!width)
+			width = chartContainer.getWidth();
+		
+		if(!height)
+			height = chartContainer.getHeight();
+		
+		var chartPanel = chartContainer.down('panel');
+		chartPanel.setWidth(width - 25);
+		chartPanel.setHeight(height - 45);
+		
+		var chart = chartPanel.down('chart');
+		chart.setWidth(width - 25);
+		chart.setHeight(height - 50);
+	},
+	
+	/**
+	 * 차트 생성 
+	 */
+	buildChart : function(records, width, height) {		
+		return {
+			xtype : 'panel',
+			autoscroll : true,
+			cls : 'paddingPanel healthDashboard paddingAll10',
+			width : width - 25,
+			height : height - 45,
+			items : [{
+				xtype : 'chart',				
+				animate : true,
+				store : Ext.create('Ext.data.Store', { fields : ['yearmonth', 'eco_index', 'consmpt'], data : records }),
+				width : width - 25,
+				height : height - 50,
+				shadow : false,
+				insetPadding : 5,
+				theme : 'Base:gradients',
+				axes: [{
+	                type: 'Numeric',
+	                position: 'bottom',
+	                fields: ['consmpt'],
+	                grid : true,
+	                title: T('label.fuel_consumption') + '(l)',
+				}, {
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['eco_index'],
+	                grid : true,
+	                title: T('label.eco_index') + '(%)'
+	            }],
+				series : [{
+					type: 'scatter',
+					markerConfig: {
+						radius: 5,
+						size: 5
+					},
+					axis: 'left',
+					xField: 'consmpt',
+					yField: 'eco_index'
+				}]
+			}]
+		}
+	}
+});
 Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 	extend : 'Ext.Container',
 
@@ -17084,6 +19014,8 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -17094,7 +19026,7 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.effcc_trend'),
+		title : T('report.habit_ecoindex'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -17434,282 +19366,6 @@ Ext.define('GreenFleet.view.dashboard.HabitEcoindex', {
 					axis: 'left',
 					xField: 'sud_cnt',
 					yField: 'eco_index'
-				}]
-			}]
-		}
-	}
-});
-Ext.define('GreenFleet.view.dashboard.MaintTrend', {
-	extend : 'Ext.Container',
-
-	alias : 'widget.dashboard_maint_trend',
-
-	layout : { align : 'stretch', type : 'vbox' },
-	
-	chartPanel : null,
-
-	initComponent : function() {
-		var self = this;
-
-		this.items = [
-		    {
-				xtype : 'container',
-				flex : 1,
-				layout : { type : 'hbox', align : 'stretch' },
-				items : [ {
-					xtype : 'container',
-					flex : 1,
-					cls : 'borderRightGray',
-					layout : { align : 'stretch', type : 'vbox' },
-					items : [ this.zdatagrid, this.zchartpanel ]
-				} ]
-		    } ],
-
-		this.callParent();
-		
-		this.refresh();
-		
-		this.sub('chart_panel').on('resize', function(panel, adjWidth, adjHeight, eOpts) {
-			if(self.chartPanel) {				
-				self.resizeChart();
-			}
-		});
-	},
-
-	/**
-	 * 데이터 그리드 패널 
-	 */
-	zdatagrid : {
-		itemId : 'datagrid_panel',
-		xtype : 'panel',
-		flex : 1,
-		cls : 'hIndexbar',
-		title : T('report.maint_trend'),
-		autoScroll : true,
-		items : [{
-			xtype : 'grid',
-			itemId : 'data_grid',
-			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
-			store : Ext.create('Ext.data.Store', { 
-				groupField : 'year',
-				fields : [ 'year', 'vehicle', 'mnt_cnt', 'sum' ],
-				data : []
-			}),
-			autoScroll : true,
-			columnLines: true,
-	        columns: [{
-	            text     : T('label.year'),
-	            dataIndex: 'year',
-	            width : 100
-			}, {
-	            text     : T('label.vehicle'),
-	            dataIndex: 'vehicle',
-	            width : 100
-			}, {
-	            text     : T('label.maintenance_count'),
-	            dataIndex: 'mnt_cnt',
-	            width : 100
-			}, {
-				header : T('label.sum'),
-				dataIndex : 'mnt_cnt',
-				width : 100,
-				summaryType: 'sum',
-				summaryRenderer: function(value) {
-		            return Ext.String.format('{0} {1}', T('label.total'), value);
-		        }				
-	        }]
-		}]
-	},
-	
-	/**
-	 * 차트 패널 
-	 */
-	zchartpanel : {
-		xtype : 'panel',
-		itemId : 'chart_panel',
-		cls : 'hIndexbar',
-		title : T('label.chart'),
-		flex : 1,
-		autoScroll : true
-	},
-	
-	/**
-	 * 그리드와 차트를 새로 고침 
-	 */
-	refresh : function() {
-		
-		var self = this;		
-    	Ext.Ajax.request({
-		    url: '/report/service',
-		    method : 'GET',
-		    params : { 
-		    	id : 'repair_list',
-		    	type : 'maint_trend'
-		    },
-		    success: function(response) {		    	
-		        var resultObj = Ext.JSON.decode(response.responseText);
-		        
-		        if(resultObj.success) {
-		        	var records = resultObj.items;
-		        	self.sub('data_grid').store.loadData(records);
-		        	self.refreshChartData(records);
-		        	
-		        } else {
-		        	Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
-		        }
-		    },
-		    failure: function(response) {
-		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
-		    }
-		});
-	},
-	
-	/**
-	 * 차트 데이터 Refresh
-	 */
-	refreshChartData : function(records) {
-		
-		var chartPanel = this.sub('chart_panel');
-		var chart = chartPanel.down('chart');
-		var retObj = this.buildChartStore(records);
-		var chartFieldList = retObj[0];
-		var chartStore = retObj[1];
-		
-		if(chart == null) {
-			this.refreshChart(chartFieldList, chartStore);
-		} else {
-			chart.store.loadData(chartStore);
-		}
-	},
-	
-	/**
-	 * 차트 데이터 변형 
-	 */
-	buildChartStore : function(records) {
-		
-		var bottomFieldList = [];
-		var fieldList = ['year'];
-		var chartDataList = [];
-		
-		Ext.each(records, function(record) {
-			var item = null;
-			
-			Ext.each(chartDataList, function(chartData) {
-				if(chartData.year == record.year) {
-					item = chartData;
-				}				
-			});
-			
-			if(!item) {
-				item = { "year" : record.year };
-				chartDataList.push(item);
-			}
-			
-			if(!Ext.Array.contains(fieldList, record.vehicle)) {
-				fieldList.push(record.vehicle);
-				bottomFieldList.push(record.vehicle);
-			}
-						
-			item[record.vehicle] = record.mnt_cnt;
-		});
-		
-		return [bottomFieldList, Ext.create('Ext.data.Store', { fields : fieldList, data : chartDataList })];
-	},
-	
-	/**
-	 * Chart를 새로 생성
-	 */
-	refreshChart : function(chartFieldList, chartStore) {
-		
-		var chartPanel = this.sub('chart_panel');
-		var width = null;
-		var height = null;
-		try {
-			width = chartPanel.getWidth();
-			height = chartPanel.getHeight();
-		} catch (e) {
-			return;
-		}
-		
-		var chart = this.buildChart(chartFieldList, chartStore, width, height);
-		chartPanel.removeAll();
-		chartPanel.add(chart);
-		this.chartPanel = chart;
-	},
-
-	/**
-	 * 페이지를 resize할 때마다 chart를 resize
-	 */
-	resizeChart : function(width, height) {
-		
-		var chartContainer = this.sub('chart_panel');
-		
-		if(!width)
-			width = chartContainer.getWidth();
-		
-		if(!height)
-			height = chartContainer.getHeight();
-		
-		var chartPanel = chartContainer.down('panel');
-		chartPanel.setWidth(width - 25);
-		chartPanel.setHeight(height - 45);
-		
-		var chart = chartPanel.down('chart');
-		chart.setWidth(width - 25);
-		chart.setHeight(height - 50);
-	},
-	
-	/**
-	 * 차트 생성 
-	 */
-	buildChart : function(chartFieldList, chartStore, width, height) {
-				
-		return {
-			xtype : 'panel',
-			autoscroll : true,
-			cls : 'paddingPanel healthDashboard paddingAll10',
-			width : width - 25,
-			height : height - 45,			
-			items : [{
-				xtype : 'chart',				
-				animate : true,
-				store : chartStore,
-				width : width - 25,
-				height : height - 50,
-				shadow : false,
-				insetPadding : 5,
-				theme : 'Base:gradients',
-				legend: {
-	                position: 'top'
-	            },				
-				axes: [{
-	                type: 'Numeric',
-	                position: 'bottom',
-	                fields: chartFieldList,
-	                grid : true,
-	                title: T('label.maintenance_count'),
-				}, {
-	                type: 'Category',
-	                position: 'left',
-	                grid : true,
-	                fields: ['year'],
-	                title: T('label.year')
-	            }],
-				series : [{
-					type: 'bar',
-					axis: 'bottom',
-					gutter: 80,
-					xField: 'year',
-					yField: chartFieldList,
-					stacked: true,
-					tips: {
-	                    trackMouse: true,
-	                    width: 65,
-	                    height: 28,
-	                    renderer: function(storeItem, item) {
-	                        this.setTitle(item.value[1]);
-	                    }
-	                }
 				}]
 			}]
 		}
@@ -21575,9 +23231,10 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'management.VehicleConsumableGrid', 'management.Location', 'management.Alarm', 'management.VehicleRunStatus', 
 	          'management.DriverRunStatus', 'management.DriverSpeedSection',  'management.DriverGroup', 'management.Schedule',
 	          'management.VehicleOverview', 'management.Report', 'management.VehicleSpeedSection', 	           
-	          'dashboard.Reports', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 'dashboard.VehicleRunningSummary', 
-	          'dashboard.DriverRunningSummary', 'dashboard.EfficiencyTrend', 'dashboard.EffccConsumption', 
-	          'dashboard.HabitEcoindex', 'dashboard.MaintTrend',
+	          'dashboard.Reports', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
+	          'dashboard.VehicleRunningSummary', 'dashboard.DriverRunningSummary', 
+	          'dashboard.EfficiencyTrend', 'dashboard.MaintTrend', 'dashboard.EcoDrivingTrend', 'dashboard.DrivingTrend', 
+	          'dashboard.Co2emssEcoindex', 'dashboard.EffccConsumption', 'dashboard.ConsumptionEcoindex', 'dashboard.HabitEcoindex',  
 	          'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 'portlet.GridI1Portlet', 
 	          'portlet.GridVG1Portlet', 'portlet.GridDG1Portlet', 'portlet.ChartV1Portlet', 'portlet.CalendarPortlet', 
 	          'portlet.GridC1Portlet',  'portlet.GridM1Portlet', 'portlet.ChartF1Portlet' ],

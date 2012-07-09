@@ -33,6 +33,8 @@ Ext.define('GreenFleet.view.dashboard.MaintTrend', {
 				self.resizeChart();
 			}
 		});
+		
+		this.refresh();
 	},
 
 	/**
@@ -137,7 +139,7 @@ Ext.define('GreenFleet.view.dashboard.MaintTrend', {
 		if(chart == null) {
 			this.refreshChart(chartFieldList, chartStore);
 		} else {
-			chart.store.loadData(chartStore);
+			chart.store.loadData(chartStore.getData());
 		}
 	},
 	
