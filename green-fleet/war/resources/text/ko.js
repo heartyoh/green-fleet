@@ -162,7 +162,9 @@ T({
         effcc_consmpt : '연비-연료소모량 관계',
         habit_ecoindex : '운전습관-Eco지수 관계',
         consmpt_ecoindex : '연료소모량-Eco지수 관계',
-        daily_driving_report : '운전자 일일 주행 리포트',
+        daily_driving_report : '일일 주행 리포트',
+        daily_driving_habit : '일일 운전습관 리포트',
+        monthly_driving : '월간 주행 리포트',
         by_vehicles : '차량 관점',
         by_drivers : '운전자별 관점',
         by_years : '년도 관점'        
@@ -198,9 +200,11 @@ T({
 	},
 	
 	label : {
+		summary : '서머리',
 		language : '언어',
 		success : '성공',
 		failure : '실패',
+		movie : '동영상',
 		id : '아이디',
 		name : '이름',
 		desc : '설명',
@@ -228,6 +232,7 @@ T({
 		run_time : '주행시간',
 		location : '위치',		
 		image : '사진',
+		driving : '주행',
 		reg_no : '등록번호',
 		manufacturer : '제조사',	
 		ownership : '소유자',

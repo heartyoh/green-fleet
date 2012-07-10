@@ -42,11 +42,16 @@ public class RegistrationService {
 
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public RegistrationForm registrationForm(HttpServletRequest request) {
-		RegistrationForm form = new RegistrationForm();
-		form.setProdEnv(this.isProductionMode(request.getServerName()));
+		RegistrationForm form = new RegistrationForm();		
+		request.setAttribute("prodEnv", this.isProductionMode(request.getServerName()));
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();		
+		if(authentication != null && authentication.getPrincipal() != null) {
+			CustomUser currentUser = (CustomUser) authentication.getPrincipal();
+			request.setAttribute("email", currentUser.getEmail());
+		}		
 		return form;
 	}
-
+	
 	/**
 	 * serverHost명으로 개발 모드인지 운영 모드인지 구분한다.
 	 * 
@@ -54,7 +59,7 @@ public class RegistrationService {
 	 * @return
 	 */
 	private boolean isProductionMode(String serverHost) {
-		List<String> hostNameList = this.productionHostInfo.getHostNameList();
+		List<String> hostNameList = this.productionHostInfo.getHostNameList();		
 		return hostNameList.contains(serverHost);
 	}
 
@@ -88,8 +93,9 @@ public class RegistrationService {
 			roles.add(AppRole.ADMIN);
 		}
 
-		CustomUser user = new CustomUser(currentUser.getUserId(), currentUser.getEmail(), form.getName(),
-				roles, form.getCompany(), form.getLanguage(), true);
+		CustomUser user = new CustomUser(currentUser.getUserId(), 
+				currentUser.getEmail(), form.getName(), roles, 
+				form.getCompany(), form.getLanguage(), true);
 		registry.registerUser(user);		
 		user = registry.findUser(currentUser.getEmail());
 		
@@ -123,12 +129,33 @@ public class RegistrationService {
 			logger.error("Company [" + form.getCompany() + "] not exist!");
 			return "redirect:/reg_result?company=" + form.getCompany() + "&email=" + form.getEmail() + "&error=true&message=company_not_exit";
 		}
-		
-		// 2. 이미 사용중인 사용자인지 체크 
+		 
 		CustomUser user = this.registry.findUser(form.getEmail());
 		if(user != null) {
-			logger.error("User Email [" + form.getEmail() + "] is already used!");
-			return "redirect:/reg_result?company=" + form.getCompany() + "&email=" + form.getEmail() + "&error=true&message=user_already_exit";
+			// 2. 이미 등록되어 있다면 화면에 메시지를 뿌리고 종료  
+			if(user.isEnabled()) {
+				logger.error("User Email [" + form.getEmail() + "] is already used!");
+				return "redirect:/reg_result?company=" + form.getCompany() + "&email=" + form.getEmail() + "&error=true&message=user_already_exit";
+			} else {
+				logger.error("User Email [" + form.getEmail() + "] is already registered!");
+				return "redirect:/reg_result?company=" + form.getCompany() + "&email=" + form.getEmail() + "&error=true&message=user_already_registered";				
+			}
+		} else {
+			// 3. enabled => false로 사용자 등록			
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			CustomUser currentUser = (CustomUser) authentication.getPrincipal();
+			Set<AppRole> roles = EnumSet.of(AppRole.USER);
+			if (UserServiceFactory.getUserService().isUserAdmin()) {
+				roles.add(AppRole.ADMIN);
+			}
+			user = new CustomUser(currentUser.getUserId(), 
+								  currentUser.getEmail(), 
+								  form.getName(), 
+								  roles, 
+								  form.getCompany(), 
+								  form.getLanguage(), 
+								  false);
+			registry.registerUser(user);			
 		}
 		
 		// 4. 해당 회사의 관리자에게 메일을 보냄

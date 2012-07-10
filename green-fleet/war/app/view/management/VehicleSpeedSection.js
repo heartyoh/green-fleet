@@ -623,11 +623,13 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	                position: 'left',
 	                fields: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
 	                title: T('label.time') + '(' + T('label.minute_s') + ')',
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
+	                grid : true,
 	                title: T('label.month')
 				}],			
 				series : [{

@@ -11204,11 +11204,13 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	                fields: [yField],
 	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
 	                title: yTitle,
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
+	                grid : true,
 	                title: T('label.' + this.chartXTitle)
 				}],
 				series : [{
@@ -11859,11 +11861,13 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	                fields: [yField],
 	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
 	                title: yTitle,
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
+	                grid : true,
 	                title: T('label.' + this.chartXTitle)
 				}],
 				series : [{
@@ -12621,11 +12625,13 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	                position: 'left',
 	                fields: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
 	                title: T('label.time') + '(' + T('label.minute_s') + ')',
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
+	                grid : true,
 	                title: T('label.month')
 				}],			
 				series : [{
@@ -12803,11 +12809,13 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	                position: 'left',
 	                fields: [ 'value' ],
 	                title: T('label.time') + '(' + T('label.minute_s') + ')',
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['name'],
+	                grid : true,
 	                title: T('label.speed_section') + '(km)'
 				}],			
 				series : [{
@@ -14408,11 +14416,13 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 	                position: 'left',
 	                fields: [ 'value1', 'value2', 'value3', 'value4', 'value5' ],
 	                title: T('label.time') + '(' + T('label.minute_s') + ')',
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
+	                grid : true,
 	                title: T('label.month')
 				}],			
 				series : [{
@@ -15620,11 +15630,13 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	                position: 'left',
 	                fields: yFields,
 	                title: yTitle + unit,
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: [xField],
+	                grid : true,
 	                title: xTitle	                
 				}],
 				series : [{
@@ -16202,11 +16214,13 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	                position: 'left',
 	                fields: yFields,
 	                title: yTitle + unit,
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: [xField],
+	                grid : true,
 	                title: xTitle	                
 				}],
 				series : [{
@@ -17331,7 +17345,6 @@ Ext.define('GreenFleet.view.dashboard.EcoDrivingTrend', {
 	                type: 'Numeric',
 	                position: 'right',
 	                fields: ['eco_run_rate'],
-	                grid : true,
 	                title: T('label.eco_run_rate') + '(%)'
 	            } ],
 				series : [{
@@ -17756,7 +17769,6 @@ Ext.define('GreenFleet.view.dashboard.DrivingTrend', {
 	                type: 'Numeric',
 	                position: 'left',
 	                fields: ['run_dist'],
-	                grid : true,
 	                title: T('label.run_dist') + '(km)'
 	            },{
 	                type: 'Numeric',

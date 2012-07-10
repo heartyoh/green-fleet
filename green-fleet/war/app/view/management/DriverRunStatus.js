@@ -615,11 +615,13 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	                fields: [yField],
 	                label: { renderer: Ext.util.Format.numberRenderer('0,0') },
 	                title: yTitle,
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: ['month_str'],
+	                grid : true,
 	                title: T('label.' + this.chartXTitle)
 				}],
 				series : [{

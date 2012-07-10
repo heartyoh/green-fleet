@@ -15,6 +15,7 @@
 An error occurred during processing! <br/>
 <%= "company_not_exit".equalsIgnoreCase(request.getParameter("message")) ? "Company [" + request.getParameter("company") + "] not exit! please check company id that you input!" : "" %>
 <%= "user_already_exit".equalsIgnoreCase(request.getParameter("message")) ? "User [" + request.getParameter("email") + "] already exist!" : "" %>
+<%= "user_already_registered".equalsIgnoreCase(request.getParameter("message")) ? "User [" + request.getParameter("email") + "] already registered <br/> Your account will be available after approval!" : "" %>
 <% } else { %>
 When processing is complete, e-mail is sent back to <%= request.getParameter("email") %>. <br/>
 Thank you.

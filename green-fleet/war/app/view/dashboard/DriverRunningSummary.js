@@ -541,11 +541,13 @@ Ext.define('GreenFleet.view.dashboard.DriverRunningSummary', {
 	                position: 'left',
 	                fields: yFields,
 	                title: yTitle + unit,
+	                grid : true,
 	                minimum: minValue
 	            }, {
 	                type: 'Category',
 	                position: 'bottom',
 	                fields: [xField],
+	                grid : true,
 	                title: xTitle	                
 				}],
 				series : [{

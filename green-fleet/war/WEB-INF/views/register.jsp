@@ -24,13 +24,15 @@ Please enter your user registration details following.
   		<input name="name"  type="text"/> <br />
   		
   		<label>Email </label>
-  		<input name="email"  type="text"/> <br />
+  		<input name="email" disabled = "disabled" type="text" value="<%= request.getAttribute("email") %>"/> <br />
   		
   		<label>Phone </label>
   		<input name="phoneNo"  type="text"/> <br />  		
 
   		<label>Admin </label>
   		<input type="checkbox" name="admin"/> <br />
+  		
+  		<input type="hidden" name="prodEnv" value="<%= request.getAttribute("prodEnv") %>"/> <br />
   		
   		<label>Language </label>
 		<select name="language">

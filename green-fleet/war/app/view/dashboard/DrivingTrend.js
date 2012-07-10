@@ -375,7 +375,6 @@ Ext.define('GreenFleet.view.dashboard.DrivingTrend', {
 	                type: 'Numeric',
 	                position: 'left',
 	                fields: ['run_dist'],
-	                grid : true,
 	                title: T('label.run_dist') + '(km)'
 	            },{
 	                type: 'Numeric',

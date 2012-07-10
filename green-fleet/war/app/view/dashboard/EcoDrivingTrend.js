@@ -381,7 +381,6 @@ Ext.define('GreenFleet.view.dashboard.EcoDrivingTrend', {
 	                type: 'Numeric',
 	                position: 'right',
 	                fields: ['eco_run_rate'],
-	                grid : true,
 	                title: T('label.eco_run_rate') + '(%)'
 	            } ],
 				series : [{
