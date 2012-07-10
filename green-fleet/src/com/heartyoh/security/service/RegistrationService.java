@@ -161,15 +161,24 @@ public class RegistrationService {
 		// 4. 해당 회사의 관리자에게 메일을 보냄
 		try {
 			List<Entity> admins = DatastoreUtils.findAdminUsers(form.getCompany());
+			StringBuffer content = new StringBuffer();
+			content.append("<H3 align='center'>Green Fleet User registration request!</H3> <br/>");
+			content.append("Please register this user after checking! <br/><br/>");
+			content.append("Requester Information <br/>");
+			content.append("<ul><li>Company : ").append(form.getCompany()).append("</li>");
+			content.append("<li>Name : ").append(form.getName()).append("</li>");
+			content.append("<li>Email : ").append(form.getEmail()).append("</li>");
+			content.append("<li>Phone No. : ").append(form.getPhoneNo()).append("</li>");
+			content.append("<li>Admin : ").append(form.isAdmin()).append("</li></ul>");
+			content.append("<br/><a href='green-fleets.appspot.com'>Green Fleet</a>");
+			
 			for(Entity admin : admins) {
 				AlarmUtils.sendMail(null, null, 
 						(String)admin.getProperty("name"), 
 						(String)admin.getProperty("email"), 
-						"You have received user registration request", 
+						"You have received Green Fleet user registration request", 
 						true, 
-						"<H3 align='center'>Green Fleet User registration request!</H3> <br/>" +
-						"Please register this user after checking! <br/>" + 
-						"Requester Information [name : " + form.getName() + ", email : " + form.getEmail() + ", phone : " + form.getPhoneNo() + "]!");
+						content.toString());
 			}
 		} catch (Exception e) {
 			logger.error("Failed to send message!", e);

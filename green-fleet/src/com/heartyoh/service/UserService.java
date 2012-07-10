@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +32,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.security.AppRole;
+import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
@@ -37,6 +40,8 @@ import com.heartyoh.util.SessionUtils;
 @Controller
 public class UserService extends EntityService {
 
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+	
 	@Override
 	protected String getEntityName() {
 		return "CustomUser";
@@ -48,7 +53,7 @@ public class UserService extends EntityService {
 	}
 
 	@Override
-	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
+	protected void onCreate(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {				
 		super.onCreate(entity, map, datastore);
 	}
 	
@@ -71,10 +76,9 @@ public class UserService extends EntityService {
 		String company = (String) map.get("company");
 		String admin = (String) map.get("admin");
 		String superUser = (String) map.get("super_user");
-		String enabled = (String) map.get("enabled");
 		String language = (String) map.get("language");
 		
-		entity.setProperty("enabled", DataUtils.toBool(enabled));
+		this.setEnabled(entity, map);
 		entity.setProperty("admin", DataUtils.toBool(admin));
 		entity.setProperty("super_user", DataUtils.toBool(superUser));
 		
@@ -116,6 +120,42 @@ public class UserService extends EntityService {
 
 		entity.setUnindexedProperty("authorities", binaryAuthorities);		
 		super.onSave(entity, map, datastore);
+	}
+	
+	/**
+	 * enable 설정 
+	 * 
+	 * @param user
+	 * @param map
+	 */
+	private void setEnabled(Entity user, Map<String, Object> map) {
+		
+		String enabled = (String) map.get("enabled");
+		
+		if(enabled != null && user.getProperty("enabled") != null) {		
+			boolean prevEnabled = DataUtils.toBool(user.getProperty("enabled"));
+			boolean newEnabled = DataUtils.toBool(enabled);
+			
+			// 이전 enabled가 false이고 새 enabled가 true일 때 메일 발송 
+			if(!prevEnabled && newEnabled) {				
+				StringBuffer content = new StringBuffer();
+				content.append("<H3 align='center'>Your Green Fleet Account Enabled!</H3> <br/>");
+				content.append("<p>Your <a href='green-fleets.appspot.com'>Green Fleet</a> account enabled. Go to Green Fleet web page!</p><br/>");
+				
+				try {
+					AlarmUtils.sendMail(null, null, 
+						(String)user.getProperty("name"), 
+						(String)user.getProperty("email"), 
+						"Your Green Fleet account enabled", 
+						true, 
+						content.toString());
+				} catch(Exception e) {
+					logger.error("Failed to send account enabled email", e);
+				}
+			}
+		}
+		
+		user.setProperty("enabled", DataUtils.toBool(enabled));
 	}
 
 	@Override

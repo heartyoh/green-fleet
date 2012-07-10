@@ -249,8 +249,6 @@ public class AlarmUtils {
         	msg.addRecipient(Message.RecipientType.TO, new InternetAddress(receiverEmails[i], receiverName));
         }
         
-        subject = MimeUtility.encodeText(subject, "utf-8", "B");
-        
         if(htmlType)
         	msg.setContent(msgBody, "text/html;charset=utf-8");
         else
@@ -259,6 +257,7 @@ public class AlarmUtils {
         if(mp != null)
         	msg.setContent(mp);
         
+        msg.setSubject(MimeUtility.encodeText(subject, "utf-8", "B"));
         Transport.send(msg);
 	}
 	
