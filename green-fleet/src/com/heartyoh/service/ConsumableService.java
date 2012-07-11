@@ -167,6 +167,8 @@ public class ConsumableService extends HistoricEntityService {
 			// 코멘트 
 			entity.setProperty("comment", map.get("comment"));
 		}
+		
+		entity.setProperty("updated_at", new Date());
 	}
 	
 	/**
@@ -397,7 +399,8 @@ public class ConsumableService extends HistoricEntityService {
 		try {
 			Object[] results = this.findVehicleAndConsumable(request);
 			Vehicle vehicle = (Vehicle)results[0];
-			Entity consumable = (Entity)results[1];			
+			Entity consumable = (Entity)results[1];
+			consumable.setProperty("updated_at", new Date());
 			
 			Map<String, Object> map = toMap(request);
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

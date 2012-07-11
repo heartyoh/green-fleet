@@ -65,7 +65,7 @@ public abstract class HistoricEntityService extends EntityService {
 	protected void saveHistoryEntity(Entity mainEntity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 		
 		// 1. mainEntity로 부터 historyEntity를 복사 후 생성
-		Key histKey = KeyFactory.createKey(mainEntity.getParent(), getHistoryEntityName(), getHistoryIdValue(mainEntity));		
+		Key histKey = KeyFactory.createKey(mainEntity.getParent(), getHistoryEntityName(), getHistoryIdValue(mainEntity));
 		Entity histEntity = new Entity(histKey);
 		histEntity.setPropertiesFrom(mainEntity);
 		Date now = new Date();
@@ -76,7 +76,7 @@ public abstract class HistoricEntityService extends EntityService {
 		
 		if(!DataUtils.isEmpty(histEntity.getProperty("updated_at"))) {
 			histEntity.setProperty("updated_at", now);
-		}		
+		}
 		
 		datastore.put(histEntity);
 	}
