@@ -278,7 +278,8 @@ Ext.define('GreenFleet.view.dashboard.Co2emssEcoindex', {
 		});
 		
 		Ext.each(dataList, function(data) {
-			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+			data["avg"] = (data["sum"] / data["count"]).toFixed(2);
+			//data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
 		});
 		
 		this.sub('data_grid').store.loadData(dataList);

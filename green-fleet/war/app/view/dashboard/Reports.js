@@ -86,6 +86,8 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 				fields : [ 'id', 'name' ],		        
 				data : [{ "id" : "vehicle_summary", 	"name" : T('report.vehicle_summary') },
 				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },
+				        { "id" : "mttr", 				"name" : T('report.mttr') },
+				        { "id" : "mtbf", 				"name" : T('report.mtbf') },
 				        { "id" : "driving_trend", 		"name" : T('report.driving_trend') },
 				        { "id" : "maint_trend", 		"name" : T('report.maint_trend') },
 				        { "id" : "effcc_trend", 		"name" : T('report.effcc_trend') },

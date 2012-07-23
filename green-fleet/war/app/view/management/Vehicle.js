@@ -179,7 +179,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				dataIndex : 'lng',
 				text : T('label.longitude'),
 				xtype: 'numbercolumn'
-			} ],
+			}],
 			viewConfig : {
 
 			},

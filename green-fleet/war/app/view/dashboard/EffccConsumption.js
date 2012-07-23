@@ -277,7 +277,7 @@ Ext.define('GreenFleet.view.dashboard.EffccConsumption', {
 		});
 		
 		Ext.each(dataList, function(data) {
-			data["avg"] = Ext.util.Format.number((data["sum"] / data["count"]), '0.00');
+			data["avg"] = (data["sum"] / data["count"]).toFixed(2);
 		});
 		
 		this.sub('data_grid').store.loadData(dataList);

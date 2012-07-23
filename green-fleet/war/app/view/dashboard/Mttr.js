@@ -1,7 +1,7 @@
-Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
+Ext.define('GreenFleet.view.dashboard.Mttr', {
 	extend : 'Ext.Container',
 
-	alias : 'widget.dashboard_vehicle_summary',
+	alias : 'widget.dashboard_mttr',
 
 	layout : { align : 'stretch', type : 'vbox' },
 	
@@ -43,7 +43,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 		xtype : 'panel',
 		flex : 1,
 		cls : 'hIndexbar',
-		title : T('report.runtime_by_vehicles') + T('label.parentheses_min'),
+		title : T('report.mttr'),
 		autoScroll : true,
 		items : [{
 			xtype : 'grid',
@@ -51,7 +51,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			features : [ { groupHeaderTpl: 'Group : {name}', ftype: 'groupingsummary' } ],
 			store : Ext.create('Ext.data.Store', { 
 				groupField : 'year',
-				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'sum' ],
+				fields : [ 'vehicle', 'year', 'mon_1', 'mon_2', 'mon_3', 'mon_4', 'mon_5', 'mon_6', 'mon_7', 'mon_8', 'mon_9', 'mon_10', 'mon_11', 'mon_12', 'avg' ],
 				data : []
 			}),
 			autoScroll : true,
@@ -120,12 +120,12 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					width : 60
 	            }]
 	        }, {
-				header : T('label.sum'),
-				dataIndex : 'sum',
+				header : 'Average',
+				dataIndex : 'avg',
 				width : 100,
-				summaryType: 'sum',
+				summaryType: 'average',
 		        summaryRenderer: function(value) {
-		        	value = Ext.util.Format.number(value, '0.00');
+		        	value = value.toFixed(2);
 		            return Ext.String.format('{0} {1}', T('label.total'), value);
 		        }
 	        }]
@@ -146,7 +146,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				}),
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('dashboard_vehicle_summary');
+						var thisView = combo.up('dashboard_mttr');
 						thisView.refresh();
 					}
 			    }
@@ -161,7 +161,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				store : 'VehicleGroupStore',
 				listeners: {
 					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('dashboard_vehicle_summary');
+						var thisView = combo.up('dashboard_mttr');
 						thisView.refresh();						
 					}
 			    }				
@@ -207,44 +207,12 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			    value : new Date().getMonth() + 1,
 				store : 'MonthStore',
 				width : 40		
-			},			
-		    T('label.chart') + ' : ',
-			{
-				xtype : 'combo',
-				itemId : 'combo_chart',
-				padding : '3 0 0 0',
-				displayField: 'desc',
-			    valueField: 'name',				
-				store :  Ext.create('Ext.data.Store', { 
-					fields : [ 'name', 'type', 'desc', 'unit' ], 
-					data : [{ "name" : "run_time", 		"type": "int", 		"desc" : T('report.runtime_by_vehicles'), 		"unit" : T('label.parentheses_min') },
-					        { "name" : "run_dist", 		"type": "float", 	"desc" : T('report.rundist_by_vehicles'), 		"unit" : "(km)" },					        
-							{ "name" : "effcc", 		"type": "float",	"desc" : T('report.efficiency_by_vehicles'), 	"unit" : "(km/l)" },
-							{ "name" : "consmpt", 		"type": "float",	"desc" : T('report.consumption_by_vehicles'), 	"unit" : "(l)" },
-							{ "name" : "co2_emss", 		"type": "float",	"desc" : T('report.co2_emissions_by_vehicles'),	"unit" : "(g/km)" },
-							{ "name" : "eco_index", 	"type": "int",		"desc" : T('report.eco_index_by_vehicles'), 	"unit" : "(%)" },
-							{ "name" : "eco_drv_time", 	"type": "int",		"desc" : T('report.eco_drv_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
-							{ "name" : "idle_time", 	"type": "int",		"desc" : T('report.idle_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
-							{ "name" : "ovr_spd_time", 	"type": "int",		"desc" : T('report.ovr_spd_time_by_vehicles'), 	"unit" : T('label.parentheses_min') },
-							{ "name" : "mnt_time", 		"type": "int",		"desc" : T('report.mnt_time_by_vehicles'), 		"unit" : T('label.parentheses_min') },
-							{ "name" : "sud_accel_cnt", "type": "int",		"desc" : T('report.sud_accel_cnt_by_vehicles'), "unit" : "" },
-							{ "name" : "sud_brake_cnt", "type": "int",		"desc" : T('report.sud_brake_cnt_by_vehicles'), "unit" : "" },
-							{ "name" : "oos_cnt", 		"type": "int",		"desc" : T('report.oos_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "mnt_cnt", 		"type": "int",		"desc" : T('report.mnt_cnt_by_vehicles'), 		"unit" : "" },
-							{ "name" : "rate_of_oper", 	"type": "float",	"desc" : T('report.oprate_by_vehicles'), 		"unit" : "(%)" }]
-				}),
-				listeners: {
-					change : function(combo, currentValue, beforeValue) {
-						var thisView = combo.up('dashboard_vehicle_summary');
-						thisView.refresh();
-					}
-			    }
 			},
 			{
 				text : T('button.search'),
 				itemId : 'search',
 				handler : function(btn) {
-					var thisView = btn.up('dashboard_vehicle_summary');
+					var thisView = btn.up('dashboard_mttr');
 					thisView.refresh();
 				}
 			}
@@ -266,25 +234,8 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 	/**
 	 * 차트 정보
 	 */
-	getChartInfo : function() {
-		
-		var comboChart = this.sub('combo_chart').getValue();
-		if(!comboChart) {
-			comboChart = 'run_time';
-		}
-		
-		var chartInfo = null;
-		var chartTypeArr = this.sub('combo_chart').store.data;
-		
-		for(var i = 0 ; i < chartTypeArr.length ; i++) {
-			var chartTypeData = chartTypeArr.items[i].data;
-			if(comboChart == chartTypeData.name) {
-				chartInfo = chartTypeData;
-				break;
-			}
-		}
-		
-		return chartInfo;
+	getChartInfo : function() {		
+		return { "name" : "mttr", "type": "float", "desc" : T('report.mttr'), "unit" : T('label.parentheses_min') };
 	},
 	
 	/**
@@ -319,30 +270,11 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					var vehicle = record.data.vehicle;
 					var year = record.data.year;
 					var month = record.data.month;
-					var runData = record.get(chartInfo.name);
-					
-					// 가동율 
-					if('rate_of_oper' == chartInfo.name) {
-						var runTime = record.data.run_time;
-						runData = runTime ? ((runTime * 100) / (30 * 60 * 24)) : 0;
-						
-					// MTTR	
-					} else if('mttr' == chartInfo.name) {
-						var oosCnt = record.data.oos_cnt;
-						var mntTime = record.data.mnt_time;
-						runData = (oosCnt && mntTime) ? (mntTime / oosCnt) : 0;
-						
-					// MTBF
-					} else if('mtbf' == chartInfo.name) {
-						var runTime = record.data.run_time;
-						var mntTime = record.data.mnt_time;
-						var oosCnt = record.data.oos_cnt;
-						runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;										
-					}
-					
-					if(chartInfo.type == 'float') {
-						runData = parseFloat(Ext.util.Format.number(runData, '0.00'));
-					}
+					var runData = record.get(chartInfo.name);					
+					var oosCnt = record.data.oos_cnt;
+					var mntTime = record.data.mnt_time;
+					runData = (oosCnt && mntTime) ? (mntTime / oosCnt) : 0;						
+					runData = parseFloat(runData.toFixed(2));
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {
@@ -352,23 +284,23 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 					
 					var monthStr = 'mon_' + month;
 					if(newRecord == null) {
-						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData };
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData, 'count' : 0, 'avg' : 0 };
 						newRecord[monthStr] = runData;
 						newRecords.push(newRecord);
 					
 					} else {
 						newRecord[monthStr] = runData;
 						if(runData && runData > 0) {
-							newRecord['sum'] = newRecord.sum + runData;														
+							newRecord['count'] = newRecord.count + 1;
+							newRecord['sum'] = newRecord.sum + runData;							
 						}
 					}
 				});
 
-				if(chartInfo.type == 'float') {
-					Ext.each(newRecords, function(nr) {
-						nr.sum = parseFloat(Ext.util.Format.number(nr.sum, '0.00'));
-					});					
-				}
+				Ext.each(newRecords, function(nr) {
+					nr.avg = parseFloat((nr.sum / nr.count).toFixed(2));
+					nr.sum = nr.sum.toFixed(2);						
+				});							
 				
 				dataGrid.store.loadData(newRecords);
 				this.refreshChart(newRecords, chartInfo.desc, chartInfo.unit);
@@ -425,15 +357,15 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			if(!contains) {
 				yTitles.push('' + year);
 				yearFields.push(year);
-				yFields.push(year + '_sum');
-				fields.push(year + '_sum');
+				yFields.push(year + '_avg');
+				fields.push(year + '_avg');
 			}
 		});		
 		
 		Ext.each(records, function(record) {
 			var vehicle = record.vehicle;			
 			var year = record.year;
-			var sum = record.sum;
+			var avg = record.avg;
 			var chartData = null;
 			
 			Ext.each(dataList, function(data) {
@@ -447,7 +379,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				dataList.push(chartData);
 			}
 			
-			chartData[year + '_sum'] = sum;
+			chartData[year + '_avg'] = avg;
 		});
 		
 		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });
@@ -481,15 +413,15 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 			if(!contains) {
 				yTitles.push(vehicle);
 				vehicleFields.push(vehicle);
-				yFields.push(vehicle + '_sum');
-				fields.push(vehicle + '_sum');
+				yFields.push(vehicle + '_avg');
+				fields.push(vehicle + '_avg');
 			}
 		});		
 		
 		Ext.each(records, function(record) {
 			var vehicle = record.vehicle;		
 			var year = record.year;
-			var sum = record.sum;
+			var avg = record.avg;
 			var chartData = null;
 			
 			Ext.each(dataList, function(data) {
@@ -503,7 +435,7 @@ Ext.define('GreenFleet.view.dashboard.VehicleRunningSummary', {
 				dataList.push(chartData);
 			}
 			
-			chartData[vehicle + '_sum'] = sum;
+			chartData[vehicle + '_avg'] = avg;
 		});
 				
 		var store = Ext.create('Ext.data.Store', { fields : fields, data : dataList });

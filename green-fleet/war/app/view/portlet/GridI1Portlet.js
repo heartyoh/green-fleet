@@ -12,6 +12,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		fields: [ { name : 'datetime', type : 'date', dateFormat:'time' }, 
 		          { name : 'vehicle_id', type : 'string' },
 		          { name : 'driver_id', type : 'string' },
+		          { name : 'location', type : 'string' },
 		          { name : 'lat', type : 'number' },
 		          { name : 'lng', type : 'number' },
 		          { name : 'velocity', type : 'number' } ], data: []}),
@@ -36,6 +37,10 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
         width    : 50,
         dataIndex: 'velocity'
     },{
+        text     : T('label.location'),
+        width    : 100,
+        dataIndex : 'location'
+    }/*{
         text     : T('label.latitude'),
         width    : 50,
         dataIndex: 'lat'
@@ -43,7 +48,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
         text     : T('label.longitude'),
         width    : 50,
         dataIndex: 'lng'
-    }],
+    }*/],
     
     initComponent: function() {
     	var self = this;
@@ -69,7 +74,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		        
 		        if(resultObj.success) {
 		        	var records = resultObj.items;
-					self.store.loadData(records);
+		        	self.convert(records);
 					Ext.defer(function() {self.setLoading(false);}, 100);
 					
 		        } else {
@@ -80,5 +85,26 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
 		    }
 		});     	
+    },
+    
+    convert : function(records) {
+    	var self = this;    	
+    	Ext.each(records, function(record) {
+    		var latlng = new google.maps.LatLng(record.lat, record.lng);
+    		geocoder = new google.maps.Geocoder();
+    		geocoder.geocode({
+    			'latLng' : latlng
+    		}, function(results, status) {
+    			if (status == google.maps.GeocoderStatus.OK) {
+    				if (results[0]) {
+    					var address = results[0].formatted_address;
+    					record.location = address;
+    					self.store.loadData(records);
+    				}
+    			} else {
+    				console.log("Geocoder failed due to: " + status);
+    			}
+    		});
+    	});    	    	
     }
 });

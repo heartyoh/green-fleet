@@ -18,7 +18,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 
 	views : [ 'viewport.Center', 'viewport.North', 'viewport.West', 'viewport.East', 'Brand', 'MainMenu', 'SideMenu',
 	          'common.CodeCombo', 'form.TimeZoneCombo', 'form.DateTimeField', 'common.EntityFormButtons', 
-	          'common.ProgressColumn', 'common.MultiSelect', 'common.ItemSelector', 'common.UserSelector', 
+	          'common.ProgressColumn', 'common.MultiSelect', 'common.ItemSelector', 'common.UserSelector',
 	          'form.SearchField', 'form.RepairForm', 'overview.Overview', 'pm.Consumable', 'pm.Maintenance',
 	          'monitor.Map', 'monitor.InfoByVehicle', 'monitor.Information', 'monitor.IncidentView', 	          
 	          'management.Company', 'management.User', 'management.Code', 'management.VehicleGroup', 
@@ -28,7 +28,7 @@ Ext.define('GreenFleet.controller.ApplicationController', {
 	          'management.DriverRunStatus', 'management.DriverSpeedSection',  'management.DriverGroup', 'management.Schedule',
 	          'management.VehicleOverview', 'management.Report', 'management.VehicleSpeedSection', 	           
 	          'dashboard.Reports', 'dashboard.VehicleHealth', 'dashboard.ConsumableHealth', 
-	          'dashboard.VehicleRunningSummary', 'dashboard.DriverRunningSummary', 
+	          'dashboard.VehicleRunningSummary', 'dashboard.DriverRunningSummary', 'dashboard.Mttr', 'dashboard.Mtbf', 
 	          'dashboard.EfficiencyTrend', 'dashboard.MaintTrend', 'dashboard.EcoDrivingTrend', 'dashboard.DrivingTrend', 
 	          'dashboard.Co2emssEcoindex', 'dashboard.EffccConsumption', 'dashboard.ConsumptionEcoindex', 'dashboard.HabitEcoindex',  
 	          'portlet.Portlet', 'portlet.PortalPanel', 'portlet.PortalColumn', 'portlet.PortalDropZone', 'portlet.GridI1Portlet', 

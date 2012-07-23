@@ -365,6 +365,16 @@
                     "path": "app/view/dashboard/"
                 },
                 {
+                    "clsName": "GreenFleet.view.dashboard.Mttr",
+                    "name": "Mttr.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
+                    "clsName": "GreenFleet.view.dashboard.Mtbf",
+                    "name": "Mtbf.js",
+                    "path": "app/view/dashboard/"
+                },
+                {
                     "clsName": "GreenFleet.view.dashboard.EfficiencyTrend",
                     "name": "EfficiencyTrend.js",
                     "path": "app/view/dashboard/"
