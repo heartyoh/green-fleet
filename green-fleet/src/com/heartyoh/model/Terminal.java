@@ -25,6 +25,10 @@ public class Terminal extends AbstractEntity {
 	 */
 	private String vehicleId;
 	/**
+	 * driver id
+	 */
+	private String driverId;
+	/**
 	 * 구매일 
 	 */
 	private Date buyingDate;
@@ -68,6 +72,14 @@ public class Terminal extends AbstractEntity {
 
 	public void setSerialNo(String serialNo) {
 		this.serialNo = serialNo;
+	}
+
+	public String getDriverId() {
+		return driverId;
+	}
+
+	public void setDriverId(String driverId) {
+		this.driverId = driverId;
 	}
 
 	public String getVehicleId() {

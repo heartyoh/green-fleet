@@ -77,7 +77,7 @@ public class DatasourceUtils {
 	 * @throws Exception
 	 */
 	public static String[] findVehicleDriverId(String company, String terminalId) throws Exception {
-		String sql = "select id, driver_id from vehicle where id = (select vehicle_id from terminal where company = :company and id = :terminal_id)";
+		String sql = "select vehicle_id, driver_id from terminal where company = :company and id = :terminal_id";
 		Map<String, Object> params = DataUtils.newMap("company", company);
 		params.put("terminal_id", terminalId);
 		Map<?, ?> data = dml.selectBySql(sql, params, Map.class);
@@ -85,7 +85,7 @@ public class DatasourceUtils {
 		if(data == null || data.size() == 0)
 			return new String[] {"", ""};
 		else
-			return new String[] { (String)data.get("id"), (String)data.get("driver_id") };
+			return new String[] { (String)data.get("vehicle_id"), (String)data.get("driver_id") };
 	}
 	
 	/**

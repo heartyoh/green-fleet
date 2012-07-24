@@ -9,6 +9,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,8 +27,16 @@ import com.heartyoh.util.DataUtils;
  * 
  * @author jhnam
  */
+@Controller
 public class TerminalOrmService extends OrmEntityService {
 
+	/**
+	 * logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(TerminalOrmService.class);
+	/**
+	 * key fields
+	 */
 	private static final String[] KEY_FIELDS = new String[] { "company", "id" };
 	
 	@Override
@@ -70,19 +81,42 @@ public class TerminalOrmService extends OrmEntityService {
 	
 	@Override
 	protected IEntity onUpdate(HttpServletRequest request, IEntity entity) {
-		Terminal terminal = (Terminal)entity;		
+		Terminal terminal = (Terminal)entity;
 		terminal.setSerialNo(request.getParameter("serial_no"));
 		terminal.setVehicleId(request.getParameter("vehicle_id"));
+		terminal.setDriverId(request.getParameter("driver_id"));
 		terminal.setComment(request.getParameter("comment"));
 		String buyingDateStr = request.getParameter("buying_date");
 		
-		if(DataUtils.isEmpty(buyingDateStr)) {
+		if(!DataUtils.isEmpty(buyingDateStr)) {
 			Date buyingDate = DataUtils.toDate(buyingDateStr);
 			terminal.setBuyingDate(buyingDate);
 		}
 		
+		this.updateVehicle(terminal.getCompany(), terminal.getVehicleId(), terminal.getId(), terminal.getDriverId());
 		terminal.beforeUpdate();
 		return terminal;
+	}
+	
+	/**
+	 * vehicle 정보 중 driver_id, terminal_id 정보 업데이트 
+	 * 
+	 * @param company
+	 * @param vehicleId
+	 * @param terminalId
+	 * @param driverId
+	 */
+	private void updateVehicle(String company, String vehicleId, String terminalId, String driverId) {
+		String sql = "update vehicle set terminal_id = :terminal_id, driver_id = :driver_id where company = :company and id = :vehicle_id";
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		params.put("vehicle_id", vehicleId);
+		params.put("terminal_id", terminalId);
+		params.put("driver_id", driverId);
+		try {
+			this.dml.executeBySql(sql, params);
+		} catch (Exception e) {
+			logger.error("Failed to update vehicle info!", e);
+		}		
 	}
 	
 	@Override

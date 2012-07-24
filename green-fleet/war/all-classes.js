@@ -7610,14 +7610,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
 						}, {
-							xtype : 'combo',
-							name : 'driver_id',
-							queryMode : 'local',
-							store : 'DriverBriefStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : T('label.driver')
-						}, {
 							name : 'terminal_id',
 							fieldLabel : T('label.terminal'),
 							disabled : true
@@ -7775,11 +7767,15 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				dataIndex : 'vehicle_id',
 				text : T('label.vehicle'),
 				type : 'string'
+			}, {
+				dataIndex : 'driver_id',
+				text : T('label.driver'),
+				type : 'string'
 			}, {				
 				dataIndex : 'buying_date',
 				text : T('label.x_date', {x : T('label.buying')}),
-				//xtype : 'datecolumn',
-				//format : F('date'),
+				xtype : 'datecolumn',
+				format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'comment',
@@ -7863,6 +7859,14 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					displayField : 'id',
 					valueField : 'id',
 					fieldLabel : T('label.vehicle')
+				}, {
+					xtype : 'combo',
+					name : 'driver_id',
+					queryMode : 'local',
+					store : 'DriverBriefStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : T('label.driver')
 				}, {
 					xtype : 'datefield',
 					name : 'buying_date',
@@ -16541,7 +16545,7 @@ Ext.define('GreenFleet.view.dashboard.Mttr', {
 					
 					var monthStr = 'mon_' + month;
 					if(newRecord == null) {
-						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData, 'count' : 0, 'avg' : 0 };
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData, 'count' : 1, 'avg' : 0 };
 						newRecord[monthStr] = runData;
 						newRecords.push(newRecord);
 					
@@ -17060,12 +17064,16 @@ Ext.define('GreenFleet.view.dashboard.Mtbf', {
 					var vehicle = record.data.vehicle;
 					var year = record.data.year;
 					var month = record.data.month;
-					var runData = record.get(chartInfo.name);					
 					var runTime = record.data.run_time;
+					//var runTime = 30 * 24 * 60;
 					var mntTime = record.data.mnt_time;
-					var oosCnt = record.data.oos_cnt;
-					runData = oosCnt ? ((runTime - mntTime > 0) ? ((runTime - mntTime) / oosCnt) : 0) : 0;
-					runData = parseFloat((runData / (24 * 60)).toFixed(2));
+					var oosCnt = record.data.oos_cnt;					
+					var runData = runTime - mntTime;					
+					runData = (runData && runData > 0) ? runData : 0;
+					if(runData > 0) {					
+						runData = (oosCnt && oosCnt > 0) ? (runData / oosCnt) : runData;
+						runData = parseFloat((runData / (24 * 60)).toFixed(2));
+					}
 					
 					var newRecord = null;
 					Ext.each(newRecords, function(nr) {
@@ -17075,22 +17083,24 @@ Ext.define('GreenFleet.view.dashboard.Mtbf', {
 					
 					var monthStr = 'mon_' + month;
 					if(newRecord == null) {
-						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData, 'count' : 1, 'avg' : 0 };
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'run_time_sum' : runTime, 'mnt_time_sum' : mntTime, 'oos_cnt_sum' : oosCnt, 'avg' : 0 };
 						newRecord[monthStr] = runData;
 						newRecords.push(newRecord);
 					
 					} else {
 						newRecord[monthStr] = runData;
-						if(runData && runData > 0) {
-							newRecord['count'] = newRecord.count + 1;
-							newRecord['sum'] = newRecord.sum + runData;														
-						}
+						newRecord['run_time_sum'] = newRecord.run_time_sum + runTime;
+						newRecord['mnt_time_sum'] = newRecord.mnt_time_sum + mntTime;
+						newRecord['oos_cnt_sum'] = newRecord.oos_cnt_sum + oosCnt;
 					}
 				});
 
 				Ext.each(newRecords, function(nr) {					
-					nr.avg = parseFloat((nr.sum / nr.count).toFixed(2));
-					nr.sum = nr.sum.toFixed(2);
+					if(!nr.oos_cnt_sum || nr.oos_cnt_sum == 0)
+						nr.oos_cnt_sum = 1;
+					
+					nr.avg = ((nr.run_time_sum - nr.mnt_time_sum) / nr.oos_cnt_sum);
+					nr.avg = (nr.avg / (24 * 60)).toFixed(2);
 				});
 				
 				dataGrid.store.loadData(newRecords);
@@ -22895,11 +22905,14 @@ Ext.define('GreenFleet.store.TerminalStore', {
 		type : 'string'
 	}, {
 		name : 'buying_date',
-		type : 'string'
-		//type : 'date',
-		//dateFormat:'time'
+		type : 'string',
+		type : 'date',
+		dateFormat:'time'
 	}, {
 		name : 'vehicle_id',
+		type : 'string'
+	}, {
+		name : 'driver_id',
 		type : 'string'
 	}, {
 		name : 'comment',

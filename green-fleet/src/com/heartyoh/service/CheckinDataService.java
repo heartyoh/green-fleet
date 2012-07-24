@@ -109,8 +109,15 @@ public class CheckinDataService extends EntityService {
 	@Override
 	protected void onSave(Entity entity, Map<String, Object> map, DatastoreService datastore) throws Exception {
 
-		entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
-		entity.setProperty("driver_id", stringProperty(map, "driver_id"));
+		if(map.containsKey("vehicle_id") && map.containsKey("driver_id")) {
+			entity.setProperty("vehicle_id", stringProperty(map, "vehicle_id"));
+			entity.setProperty("driver_id", stringProperty(map, "driver_id"));
+		} else {
+			String[] vehicleDriverId = DatasourceUtils.findVehicleDriverId(entity.getParent().getName(), (String)entity.getProperty("terminal_id"));
+			entity.setProperty("vehicle_id", vehicleDriverId[0]);
+			entity.setProperty("driver_id", vehicleDriverId[1]);			
+		}
+
 		entity.setProperty("engine_start_time", map.get("engine_start_time"));
 		entity.setProperty("datetime", map.get("datetime"));
 		

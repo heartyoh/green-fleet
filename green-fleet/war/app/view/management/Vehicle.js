@@ -316,14 +316,6 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
 						}, {
-							xtype : 'combo',
-							name : 'driver_id',
-							queryMode : 'local',
-							store : 'DriverBriefStore',
-							displayField : 'id',
-							valueField : 'id',
-							fieldLabel : T('label.driver')
-						}, {
 							name : 'terminal_id',
 							fieldLabel : T('label.terminal'),
 							disabled : true

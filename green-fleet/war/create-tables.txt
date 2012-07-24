@@ -236,6 +236,7 @@ CREATE TABLE terminal (
 	id VARCHAR(50) NOT NULL, 
 	serial_no VARCHAR(50) NOT NULL,
 	vehicle_id VARCHAR(50), 
+	driver_id VARCHAR(50),
 	buying_date DATE,
 	comment VARCHAR(1000),	
 	image_clip VARCHAR(1000),

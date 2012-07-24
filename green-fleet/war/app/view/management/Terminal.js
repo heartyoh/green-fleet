@@ -105,11 +105,15 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				dataIndex : 'vehicle_id',
 				text : T('label.vehicle'),
 				type : 'string'
+			}, {
+				dataIndex : 'driver_id',
+				text : T('label.driver'),
+				type : 'string'
 			}, {				
 				dataIndex : 'buying_date',
 				text : T('label.x_date', {x : T('label.buying')}),
-				//xtype : 'datecolumn',
-				//format : F('date'),
+				xtype : 'datecolumn',
+				format : F('date'),
 				width : 120
 			}, {
 				dataIndex : 'comment',
@@ -193,6 +197,14 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					displayField : 'id',
 					valueField : 'id',
 					fieldLabel : T('label.vehicle')
+				}, {
+					xtype : 'combo',
+					name : 'driver_id',
+					queryMode : 'local',
+					store : 'DriverBriefStore',
+					displayField : 'id',
+					valueField : 'id',
+					fieldLabel : T('label.driver')
 				}, {
 					xtype : 'datefield',
 					name : 'buying_date',

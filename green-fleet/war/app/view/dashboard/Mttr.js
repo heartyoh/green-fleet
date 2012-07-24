@@ -284,7 +284,7 @@ Ext.define('GreenFleet.view.dashboard.Mttr', {
 					
 					var monthStr = 'mon_' + month;
 					if(newRecord == null) {
-						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData, 'count' : 0, 'avg' : 0 };
+						newRecord = { 'vehicle' : vehicle, 'year' : year , 'sum' : runData, 'count' : 1, 'avg' : 0 };
 						newRecord[monthStr] = runData;
 						newRecords.push(newRecord);
 					
