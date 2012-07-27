@@ -114,9 +114,6 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 			title : T('title.vehicle_list'),
 			width : 300,
 			autoScroll : true,
-			startRepair : function() {
-				alert('정비시작');
-			},
 			columns : [ /*{
 				dataIndex : 'status',
 				width : 70,

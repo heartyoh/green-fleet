@@ -85,7 +85,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		this.sub('id').on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
-
+			
+			self.sub('distance').setValue(record.get('total_distance'));
+			self.sub('running_time').setValue(record.get('total_run_time'));
 			/*
 			 * Get Vehicle Information (Image, Registration #, ..) from
 			 * VehicleStore
@@ -372,16 +374,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		flex : 1,
 		items : [ {
 			xtype : 'monitor_info_by_vehicle'
-		}/*, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.ctrl_by_vehicle')
-		}, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.ctrl_by_driver')
-		}, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.maintenance')
-		}*/ ]
+		} ]
 	},
 
 	zvehicleinfo : {
@@ -436,11 +429,13 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				xtype : 'displayfield',
 				name : 'distance',
 				cls : 'dotUnderline',
+				itemId : 'distance',
 				fieldLabel : T('label.run_dist')
 			}, {
 				xtype : 'displayfield',
 				name : 'running_time',
 				fieldLabel : T('label.run_time'),
+				itemId : 'running_time',
 				cls : 'dotUnderline'
 			} ]
 		} ]

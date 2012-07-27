@@ -38,8 +38,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			store.load();
 		});
 
-		this.sub('grid').on('render', function(grid) {
-		});
+		this.sub('grid').store.on('load', function(store, records, successful, eOpts) {
+			self.convertAddress(records);
+		});	
 
 		this.sub('id_filter').on('change', function(field, value) {
 			self.search(false);
@@ -65,8 +66,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				image.setSrc('download?blob-key=' + value);
 			else
 				image.setSrc('resources/image/bgVehicle.png');
-		});
-		
+		});		
 	},
 
 	search : function(searchRemote) {
@@ -87,6 +87,29 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			this.sub('grid').store.load();
 		}
 	},
+	
+    convertAddress : function(records) {    	   
+    	var self = this;    	
+    	Ext.each(records, function(record) {
+    		if(record.data.lat !== undefined && record.data.lng !== undefined) {
+    			var latlng = new google.maps.LatLng(record.data.lat, record.data.lng);
+    			geocoder = new google.maps.Geocoder();
+    			geocoder.geocode({
+    				'latLng' : latlng
+    			}, function(results, status) {
+    				if (status == google.maps.GeocoderStatus.OK) {
+    					if (results[0]) {
+    						var address = results[0].formatted_address;
+    						record.data.location = address;
+    						self.sub('grid').store.loadData(records);
+    					}
+    				} else {
+    					console.log("Geocoder failed due to: " + status);
+    				}
+    			});
+    		}
+    	});    	    	
+    },	
 	
 	buildList : function(main) {
 		return {
@@ -172,13 +195,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				type : 'string',
 				xtype: 'numbercolumn'
 			}, {
-				dataIndex : 'lat',
-				text : T('label.latitude'),
-				xtype: 'numbercolumn'
-			}, {
-				dataIndex : 'lng',
-				text : T('label.longitude'),
-				xtype: 'numbercolumn'
+				dataIndex : 'location',
+				text : T('label.location'),
+				type : 'string',
+				width : 200
 			}],
 			viewConfig : {
 
@@ -316,10 +336,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
 						}, {
-							name : 'terminal_id',
-							fieldLabel : T('label.terminal'),
-							disabled : true
-						}, {
+							name : 'location',
+							fieldLabel : T('label.location')							
+						}, /*{
 							name : 'lat',
 							fieldLabel : T('label.latitude'),
 							disabled : true
@@ -327,19 +346,19 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'lng',
 							fieldLabel : T('label.longitude'),
 							disabled : true
-						}, {
+						},*/ {
 							xtype : 'datefield',
 							name : 'updated_at',
 							disabled : true,
 							fieldLabel : T('label.updated_at'),
 							format : F('datetime')
-						}, {
+						}, /*{
 							xtype : 'datefield',
 							name : 'created_at',
 							disabled : true,
 							fieldLabel : T('label.created_at'),
 							format : F('datetime')
-						}, {
+						},*/ {
 							xtype : 'displayfield',
 							name : 'image_clip',
 							itemId : 'image_clip',

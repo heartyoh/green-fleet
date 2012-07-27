@@ -4110,9 +4110,6 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 			title : T('title.vehicle_list'),
 			width : 300,
 			autoScroll : true,
-			startRepair : function() {
-				alert('정비시작');
-			},
 			columns : [ /*{
 				dataIndex : 'status',
 				width : 70,
@@ -4699,7 +4696,11 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	}, {
 		dataIndex : 'total_distance',
 		text : T('label.total_distance'),
-		type : 'string'
+		type : 'float'
+	}, {
+		dataIndex : 'total_run_time',
+		text : T('label.total_run_time'),
+		type : 'float'
 	}, {
 		dataIndex : 'official_effcc',
 		text : T('label.official_effcc'),
@@ -4882,7 +4883,9 @@ Ext.define('GreenFleet.view.monitor.Information', {
 
 		this.sub('id').on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
-
+			
+			self.sub('distance').setValue(record.get('total_distance'));
+			self.sub('running_time').setValue(record.get('total_run_time'));
 			/*
 			 * Get Vehicle Information (Image, Registration #, ..) from
 			 * VehicleStore
@@ -5169,16 +5172,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		flex : 1,
 		items : [ {
 			xtype : 'monitor_info_by_vehicle'
-		}/*, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.ctrl_by_vehicle')
-		}, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.ctrl_by_driver')
-		}, {
-			xtype : 'monitor_control_by_vehicle',
-			title : T('tab.maintenance')
-		}*/ ]
+		} ]
 	},
 
 	zvehicleinfo : {
@@ -5233,11 +5227,13 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				xtype : 'displayfield',
 				name : 'distance',
 				cls : 'dotUnderline',
+				itemId : 'distance',
 				fieldLabel : T('label.run_dist')
 			}, {
 				xtype : 'displayfield',
 				name : 'running_time',
 				fieldLabel : T('label.run_time'),
+				itemId : 'running_time',
 				cls : 'dotUnderline'
 			} ]
 		} ]
@@ -5436,6 +5432,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 	},
 
 	setIncident : function(incident, refresh) {
+		var self = this;
 		this.incident = incident;
 		if (refresh) {
 			this.sub('vehicle_filter').setValue(incident.get('vehicle_id'));
@@ -5443,7 +5440,26 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			this.refreshIncidentList();
 		}
 
-		this.sub('incident_form').loadRecord(incident);
+		if(incident.data.lat !== undefined && incident.data.lng !== undefined) {
+			var latlng = new google.maps.LatLng(incident.data.lat, incident.data.lng);
+			geocoder = new google.maps.Geocoder();
+			geocoder.geocode({
+				'latLng' : latlng
+			}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[0]) {
+						var address = results[0].formatted_address;
+						incident.data.location = address;
+						self.sub('incident_form').loadRecord(incident);
+					}
+				} else {
+					console.log("Geocoder failed due to: " + status);
+				}
+			});			
+		} else {
+			self.sub('incident_form').loadRecord(incident);
+		}
+				
 		this.refreshMap();
 	},
 
@@ -5574,6 +5590,11 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			fieldLabel : T('label.x_time', {
 				x : T('label.incident')
 			})
+		}, {
+			xtype : 'displayfield',
+			name : 'location',
+			width : 300,
+			fieldLabel : T('label.location')
 		}, {
 			xtype : 'displayfield',
 			name : 'vehicle_id',
@@ -7332,8 +7353,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			store.load();
 		});
 
-		this.sub('grid').on('render', function(grid) {
-		});
+		this.sub('grid').store.on('load', function(store, records, successful, eOpts) {
+			self.convertAddress(records);
+		});	
 
 		this.sub('id_filter').on('change', function(field, value) {
 			self.search(false);
@@ -7359,8 +7381,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				image.setSrc('download?blob-key=' + value);
 			else
 				image.setSrc('resources/image/bgVehicle.png');
-		});
-		
+		});		
 	},
 
 	search : function(searchRemote) {
@@ -7381,6 +7402,29 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			this.sub('grid').store.load();
 		}
 	},
+	
+    convertAddress : function(records) {    	   
+    	var self = this;    	
+    	Ext.each(records, function(record) {
+    		if(record.data.lat !== undefined && record.data.lng !== undefined) {
+    			var latlng = new google.maps.LatLng(record.data.lat, record.data.lng);
+    			geocoder = new google.maps.Geocoder();
+    			geocoder.geocode({
+    				'latLng' : latlng
+    			}, function(results, status) {
+    				if (status == google.maps.GeocoderStatus.OK) {
+    					if (results[0]) {
+    						var address = results[0].formatted_address;
+    						record.data.location = address;
+    						self.sub('grid').store.loadData(records);
+    					}
+    				} else {
+    					console.log("Geocoder failed due to: " + status);
+    				}
+    			});
+    		}
+    	});    	    	
+    },	
 	
 	buildList : function(main) {
 		return {
@@ -7466,13 +7510,10 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 				type : 'string',
 				xtype: 'numbercolumn'
 			}, {
-				dataIndex : 'lat',
-				text : T('label.latitude'),
-				xtype: 'numbercolumn'
-			}, {
-				dataIndex : 'lng',
-				text : T('label.longitude'),
-				xtype: 'numbercolumn'
+				dataIndex : 'location',
+				text : T('label.location'),
+				type : 'string',
+				width : 200
 			}],
 			viewConfig : {
 
@@ -7610,10 +7651,9 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'remaining_fuel',
 							fieldLabel : T('label.remaining_fuel')
 						}, {
-							name : 'terminal_id',
-							fieldLabel : T('label.terminal'),
-							disabled : true
-						}, {
+							name : 'location',
+							fieldLabel : T('label.location')							
+						}, /*{
 							name : 'lat',
 							fieldLabel : T('label.latitude'),
 							disabled : true
@@ -7621,19 +7661,19 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 							name : 'lng',
 							fieldLabel : T('label.longitude'),
 							disabled : true
-						}, {
+						},*/ {
 							xtype : 'datefield',
 							name : 'updated_at',
 							disabled : true,
 							fieldLabel : T('label.updated_at'),
 							format : F('datetime')
-						}, {
+						}, /*{
 							xtype : 'datefield',
 							name : 'created_at',
 							disabled : true,
 							fieldLabel : T('label.created_at'),
 							format : F('datetime')
-						}, {
+						},*/ {
 							xtype : 'displayfield',
 							name : 'image_clip',
 							itemId : 'image_clip',
@@ -20820,17 +20860,17 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
         text     : T('label.vehicle'),
         width    : 60,
         dataIndex: 'vehicle_id'
-    },{
+    },/*{
         text     : T('label.driver'),
         width    : 60,
         dataIndex: 'driver_id'
-    },{
+    },*/{
         text     : T('label.velocity'),
         width    : 50,
         dataIndex: 'velocity'
     },{
         text     : T('label.location'),
-        width    : 100,
+        width    : 200,
         dataIndex : 'location'
     }/*{
         text     : T('label.latitude'),
@@ -20880,23 +20920,25 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
     },
     
     convert : function(records) {
-    	var self = this;    	
+    	var self = this;
     	Ext.each(records, function(record) {
-    		var latlng = new google.maps.LatLng(record.lat, record.lng);
-    		geocoder = new google.maps.Geocoder();
-    		geocoder.geocode({
-    			'latLng' : latlng
-    		}, function(results, status) {
-    			if (status == google.maps.GeocoderStatus.OK) {
-    				if (results[0]) {
-    					var address = results[0].formatted_address;
-    					record.location = address;
-    					self.store.loadData(records);
+    		if(record.lat !== undefined && record.lng !== undefined) {
+    			var latlng = new google.maps.LatLng(record.lat, record.lng);
+    			geocoder = new google.maps.Geocoder();
+    			geocoder.geocode({
+    				'latLng' : latlng
+    			}, function(results, status) {
+    				if (status == google.maps.GeocoderStatus.OK) {
+    					if (results[0]) {
+    						var address = results[0].formatted_address;
+    						record.location = address;
+    						self.store.loadData(records);
+    					}
+    				} else {
+    					console.log("Geocoder failed due to: " + status);
     				}
-    			} else {
-    				console.log("Geocoder failed due to: " + status);
-    			}
-    		});
+        		});    			
+    		}
     	});    	    	
     }
 });
@@ -23446,7 +23488,7 @@ Ext.define('GreenFleet.store.RepairStore', {
 	sorters : [ {
 		property : 'repair_date',
 		direction : 'DESC'
-	} ],	
+	} ],
 
 	proxy : {
 		type : 'ajax',

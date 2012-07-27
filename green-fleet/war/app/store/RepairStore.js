@@ -55,7 +55,7 @@ Ext.define('GreenFleet.store.RepairStore', {
 	sorters : [ {
 		property : 'repair_date',
 		direction : 'DESC'
-	} ],	
+	} ],
 
 	proxy : {
 		type : 'ajax',

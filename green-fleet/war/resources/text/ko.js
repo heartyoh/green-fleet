@@ -451,6 +451,7 @@ T({
 		confirm_save : '저장하시겠습니까?',
 		confirm_delete : '삭제하시겠습니까?',
 		confirm_do : '정말 {do}하시겠습니까?',
+		confirm_run : '실행하시겠습니까?',
 		processed_successfully : '정상적으로 처리되었습니다.',
 		failed_to_save : '저장 실패했습니다!',
 		failed_to_delete : '삭제 실패했습니다!',

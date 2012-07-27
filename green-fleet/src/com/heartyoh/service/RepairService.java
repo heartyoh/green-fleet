@@ -210,6 +210,20 @@ public class RepairService extends EntityService {
 		return super.retrieve(request, response);
 	}
 	
+	@RequestMapping(value = "/repair/start", method = RequestMethod.POST)
+	public @ResponseBody
+	String startRepair(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO 구현 
+		return this.getResultMsg(true, "success");
+	}
+	
+	@RequestMapping(value = "/repair/end", method = RequestMethod.POST)
+	public @ResponseBody
+	String endRepair(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO 구현 
+		return this.getResultMsg(true, "success");
+	}	
+	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		String vehicleId = request.getParameter("vehicle_id");

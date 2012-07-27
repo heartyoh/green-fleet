@@ -28,17 +28,17 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
         text     : T('label.vehicle'),
         width    : 60,
         dataIndex: 'vehicle_id'
-    },{
+    },/*{
         text     : T('label.driver'),
         width    : 60,
         dataIndex: 'driver_id'
-    },{
+    },*/{
         text     : T('label.velocity'),
         width    : 50,
         dataIndex: 'velocity'
     },{
         text     : T('label.location'),
-        width    : 100,
+        width    : 200,
         dataIndex : 'location'
     }/*{
         text     : T('label.latitude'),
@@ -88,23 +88,25 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
     },
     
     convert : function(records) {
-    	var self = this;    	
+    	var self = this;
     	Ext.each(records, function(record) {
-    		var latlng = new google.maps.LatLng(record.lat, record.lng);
-    		geocoder = new google.maps.Geocoder();
-    		geocoder.geocode({
-    			'latLng' : latlng
-    		}, function(results, status) {
-    			if (status == google.maps.GeocoderStatus.OK) {
-    				if (results[0]) {
-    					var address = results[0].formatted_address;
-    					record.location = address;
-    					self.store.loadData(records);
+    		if(record.lat !== undefined && record.lng !== undefined) {
+    			var latlng = new google.maps.LatLng(record.lat, record.lng);
+    			geocoder = new google.maps.Geocoder();
+    			geocoder.geocode({
+    				'latLng' : latlng
+    			}, function(results, status) {
+    				if (status == google.maps.GeocoderStatus.OK) {
+    					if (results[0]) {
+    						var address = results[0].formatted_address;
+    						record.location = address;
+    						self.store.loadData(records);
+    					}
+    				} else {
+    					console.log("Geocoder failed due to: " + status);
     				}
-    			} else {
-    				console.log("Geocoder failed due to: " + status);
-    			}
-    		});
+        		});    			
+    		}
     	});    	    	
     }
 });

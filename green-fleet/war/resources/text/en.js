@@ -451,6 +451,7 @@ T({
 		confirm_save : 'Would you like to save?',
 		confirm_delete : 'Would you like to delete?',
 		confirm_do : 'Would you like to {do}?',
+		confirm_run : 'Would you like to run?',
 		processed_successfully : 'Have been processed successfully.',
 		failed_to_save : 'Failed to save!',
 		failed_to_delete : 'Failed to delete!',

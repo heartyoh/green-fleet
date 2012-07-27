@@ -53,7 +53,11 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	}, {
 		dataIndex : 'total_distance',
 		text : T('label.total_distance'),
-		type : 'string'
+		type : 'float'
+	}, {
+		dataIndex : 'total_run_time',
+		text : T('label.total_run_time'),
+		type : 'float'
 	}, {
 		dataIndex : 'official_effcc',
 		text : T('label.official_effcc'),
