@@ -390,7 +390,7 @@ T({
 		total_x : 'Total {x}',
 		lessthan_km : 'Less Than {km}Km',
 		lessthan_km_min : 'Less Than {km}Km (min)',
-		state_driving : 'Driving',
+		state_running : 'Driving',
 		state_idle : 'Idle',
 		state_incident : 'Incident',
 		state_maint : 'Maint.',

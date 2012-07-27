@@ -390,7 +390,7 @@ T({
 		total_x : '총 {x}',
 		lessthan_km : '{km}Km 이하',
 		lessthan_km_min : '{km}Km 이하 (분)',
-		state_driving : '운행중',
+		state_running : '운행중',
 		state_idle : '정차',
 		state_incident : '이상상황',
 		state_maint : '정비중',
