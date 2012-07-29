@@ -433,7 +433,8 @@ public class VehicleOrmService extends OrmEntityService {
 				Date repairDate = (Date)repair.getProperty("repair_date");
 				Date nextRepairDate = (Date)repair.getProperty("next_repair_date");
 				item.put("repair_date", DataUtils.dateToString(repairDate, GreenFleetConstant.DEFAULT_DATE_FORMAT));
-				item.put("next_repair_date", DataUtils.dateToString(nextRepairDate, GreenFleetConstant.DEFAULT_DATE_FORMAT));
+				if(nextRepairDate != null)
+					item.put("next_repair_date", DataUtils.dateToString(nextRepairDate, GreenFleetConstant.DEFAULT_DATE_FORMAT));
 				items.put("maint", item);
 			}
 		}

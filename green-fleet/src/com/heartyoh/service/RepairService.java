@@ -17,11 +17,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Task;
+import com.heartyoh.model.Vehicle;
 import com.heartyoh.model.VehicleRunSum;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
@@ -213,22 +217,104 @@ public class RepairService extends EntityService {
 	@RequestMapping(value = "/repair/start", method = RequestMethod.POST)
 	public @ResponseBody
 	String startRepair(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		// TODO 구현 
+				
+		String company = this.getCompany(request);
+		String vehicleId = request.getParameter("vehicle_id");
+		
+		// 0. 차량 조회. 존재하지 않다면 에러 
+		Vehicle vehicle = DatasourceUtils.findVehicle(company, vehicleId);
+		if(vehicle == null) {
+			return this.getResultMsg(false, "Not found vehicle by id [" + vehicleId + "]!");
+		}
+		
+		// 1. 차량 상태 Maint 상태이면 에러
+		if(GreenFleetConstant.VEHICLE_STATUS_MAINT.equalsIgnoreCase(vehicle.getStatus())) {
+			return this.getResultMsg(false, "Vehicle status already [" + GreenFleetConstant.VEHICLE_STATUS_MAINT + "]!");
+		}
+		
+		// 2. 차량 수리 임시 정보 있는지 확인 
+		Entity repairing = this.findRepairing(request);
+		if(repairing != null) {
+			return this.getResultMsg(false, "Vehicle [" + vehicleId + "] already repairing!");
+		}
+		
+		// 3. 차량 수리 임시 정보 추가
+		Key companyKey = this.getCompanyKey(request);
+		repairing = new Entity(KeyFactory.createKey(companyKey, "Repairing", vehicleId));
+		repairing.setProperty("vehicle_id", vehicleId);
+		repairing.setProperty("repair_start_time", new Date());
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		datastore.put(repairing);
+		
+		// 4. 차량 상태 Maint로 수정
+		vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_MAINT);
+		DatasourceUtils.updateVehicle(vehicle);
 		return this.getResultMsg(true, "success");
 	}
 	
 	@RequestMapping(value = "/repair/end", method = RequestMethod.POST)
 	public @ResponseBody
 	String endRepair(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		// TODO 구현 
+		
+		String company = this.getCompany(request);
+		String vehicleId = request.getParameter("vehicle_id");
+		
+		// 0. 차량 조회. 존재하지 않다면 에러 
+		Vehicle vehicle = DatasourceUtils.findVehicle(company, vehicleId);
+		if(vehicle == null) {
+			return this.getResultMsg(false, "Not found vehicle by id [" + vehicleId + "]!");
+		}
+		
+		// 1. 차량 수리 임시 정보 있는지 확인, 없다면 에러
+		Entity repairing = this.findRepairing(request);
+		if(repairing == null) {
+			return this.getResultMsg(false, "Not found repairing data by vehicle id [" + vehicleId + "]!"); 
+		}
+		
+		// 2. 차량 수리 정보 추가 
+		Key companyKey = this.getCompanyKey(request);
+		Map<String, Object> map = toMap(request);
+		Date today = DataUtils.getToday();
+		map.put("repair_date", today);
+		String id = this.getIdValue(map);
+		Entity repair = new Entity(KeyFactory.createKey(companyKey, this.getEntityName(), id));
+		repair.setProperty("vehicle_id", vehicleId);
+		repair.setProperty("repair_date", today);
+		Date startTime = (Date)repairing.getProperty("repair_start_time");
+		Date endTime = new Date();
+		long repairTime = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+		repair.setProperty("repair_time", (int)repairTime);
+		repair.setProperty("repair_mileage", vehicle.getTotalDistance());
+		repair.setProperty("created_at", endTime);
+		repair.setProperty("updated_at", endTime);
+		// TODO content, next_repair_date
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		datastore.put(repair);
+		
+		// 3. 차량 수리 임시 정보 삭제
+		datastore.delete(repairing.getKey());
+				
+		// 4. 차량 상태 '정차중'으로 변경
+		vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_IDLE);
+		DatasourceUtils.updateVehicle(vehicle);
 		return this.getResultMsg(true, "success");
-	}	
+	}
+	
+	private Entity findRepairing(HttpServletRequest request) throws Exception {		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Query q = new Query("Repairing");
+		q.setAncestor(this.getCompanyKey(request));
+		String vehicleId = request.getParameter("vehicle_id");
+		q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+		PreparedQuery pq = datastore.prepare(q);
+		return pq.asSingleEntity();
+	}
 	
 	@Override
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		String vehicleId = request.getParameter("vehicle_id");
 		
 		if(!DataUtils.isEmpty(vehicleId))
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);		
+			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
 	}
 }

@@ -1165,7 +1165,7 @@ Ext.define('GreenFleet.view.viewport.East', {
 			}
 		});
 
-		this.sub('state_running').update(T('label.state_driving') + '</br><span>' + running + '</span>');
+		this.sub('state_running').update(T('label.state_running') + '</br><span>' + running + '</span>');
 		this.sub('state_idle').update(T('label.state_idle') + '</br><span>' + idle + '</span>');
 		this.sub('state_incident').update(T('label.state_incident') + '</br><span>' + incident + '</span>');
 		this.sub('state_maint').update(T('label.state_maint') + '</br><span>' + maint + '</span>');
