@@ -1,4 +1,6 @@
 Ext.define('GreenFleet.view.management.CheckinData', {
+	
+	// deprecated
 	extend : 'Ext.container.Container',
 
 	alias : 'widget.management_checkin_data',

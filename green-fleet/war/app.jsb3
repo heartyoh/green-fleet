@@ -240,53 +240,18 @@
                     "path": "app/view/management/"
                 },
                 {
-                    "clsName": "GreenFleet.view.management.VehicleGroup",
-                    "name": "VehicleGroup.js",
-                    "path": "app/view/management/"
-                },
-                {
                     "clsName": "GreenFleet.view.management.ConsumableCode",
                     "name": "ConsumableCode.js",
                     "path": "app/view/management/"
                 },
                 {
-                    "clsName": "GreenFleet.view.management.Vehicle",
-                    "name": "Vehicle.js",
+                    "clsName": "GreenFleet.view.management.VehicleGroup",
+                    "name": "VehicleGroup.js",
                     "path": "app/view/management/"
                 },
                 {
-                    "clsName": "GreenFleet.view.management.Terminal",
-                    "name": "Terminal.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.Reservation",
-                    "name": "Reservation.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.Incident",
-                    "name": "Incident.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.Driver",
-                    "name": "Driver.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.Track",
-                    "name": "Track.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.CheckinData",
-                    "name": "CheckinData.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.VehicleConsumableGrid",
-                    "name": "VehicleConsumableGrid.js",
+                    "clsName": "GreenFleet.view.management.DriverGroup",
+                    "name": "DriverGroup.js",
                     "path": "app/view/management/"
                 },
                 {
@@ -300,8 +265,63 @@
                     "path": "app/view/management/"
                 },
                 {
+                    "clsName": "GreenFleet.view.management.Report",
+                    "name": "Report.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.Vehicle",
+                    "name": "Vehicle.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleOverview",
+                    "name": "VehicleOverview.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleDetail",
+                    "name": "VehicleDetail.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleConsumables",
+                    "name": "VehicleConsumables.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleIncident",
+                    "name": "VehicleIncident.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleTrack",
+                    "name": "VehicleTrack.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleCheckin",
+                    "name": "VehicleCheckin.js",
+                    "path": "app/view/management/"
+                },
+                {
                     "clsName": "GreenFleet.view.management.VehicleRunStatus",
                     "name": "VehicleRunStatus.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.VehicleSpeedSection",
+                    "name": "VehicleSpeedSection.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.Driver",
+                    "name": "Driver.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.DriverDetail",
+                    "name": "DriverDetail.js",
                     "path": "app/view/management/"
                 },
                 {
@@ -315,28 +335,18 @@
                     "path": "app/view/management/"
                 },
                 {
-                    "clsName": "GreenFleet.view.management.DriverGroup",
-                    "name": "DriverGroup.js",
+                    "clsName": "GreenFleet.view.management.Terminal",
+                    "name": "Terminal.js",
+                    "path": "app/view/management/"
+                },
+                {
+                    "clsName": "GreenFleet.view.management.Reservation",
+                    "name": "Reservation.js",
                     "path": "app/view/management/"
                 },
                 {
                     "clsName": "GreenFleet.view.management.Schedule",
                     "name": "Schedule.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.VehicleOverview",
-                    "name": "VehicleOverview.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.Report",
-                    "name": "Report.js",
-                    "path": "app/view/management/"
-                },
-                {
-                    "clsName": "GreenFleet.view.management.VehicleSpeedSection",
-                    "name": "VehicleSpeedSection.js",
                     "path": "app/view/management/"
                 },
                 {

@@ -118,17 +118,12 @@ Ext.define('GreenFleet.view.MainMenu', {
 		} ]
 	}, {
 		text : T('menu.vehicle'),
-		submenus : [ /*{
-			title : T('menu.vehicle_overview'),
-			xtype : 'management_vehicle_overview',
-			itemId : 'vehicle_overview',
-			closable : true
-		}, */{
+		submenus : [ {
 			title : T('menu.vehicle'),
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',
 			closable : true
-		}, {
+		}/*, {
 			title : T('menu.incident'),
 			xtype : 'management_incident',
 			itemId : 'incident',
@@ -143,17 +138,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_checkin_data',
 			itemId : 'checkin_data',
 			closable : true
-		}, {
-			title : T('menu.vehicle_runstatus'),
-			xtype : 'management_vehicle_runstatus',
-			itemId : 'vehicle_runstatus',
-			closable : true			
-		}, {
-			title : T('menu.vehicle_speed_section'),
-			xtype : 'management_vehicle_speed',
-			itemId : 'vehicle_speed',
-			closable : true			
-		} ]
+		}*/ ]
 	}, {
 		text : T('menu.driver'),
 		submenus : [ {
@@ -161,7 +146,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_driver',
 			itemId : 'driver',
 			closable : true
-		}, {
+		}/*, {
 			title : T('menu.driver_runstatus'),
 			xtype : 'management_driver_runstatus',
 			itemId : 'driver_runstatus',
@@ -171,7 +156,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_driver_speed',
 			itemId : 'driver_speed',
 			closable : true
-		} ]
+		}*/ ]
 	}, {
 		text : T('menu.terminal'),
 		submenus : [ {

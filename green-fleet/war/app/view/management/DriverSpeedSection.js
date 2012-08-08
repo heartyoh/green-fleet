@@ -1,5 +1,5 @@
 Ext.define('GreenFleet.view.management.DriverSpeedSection', {
-	extend : 'Ext.Container',
+	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.management_driver_speed',
 
@@ -12,8 +12,6 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 		type : 'vbox'
 	},
 	
-	driver : '',
-	
 	timeView : 'monthly',
 	
 	chartPanel : null,
@@ -21,36 +19,10 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	initComponent : function() {
 		var self = this;
 
-		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.driver_speed_section') + "</div>"}, 
-		    {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'hbox',
-					align : 'stretch'
-				},
-				items : [ 
-				    this.zdriverlist(self), 
-				    {
-						xtype : 'container',
-						flex : 1,
-						cls : 'borderRightGray',
-						layout : {
-							align : 'stretch',
-							type : 'vbox'
-						},
-						items : [ this.zrunstatus, this.zrunstatus_chart ]
-					} ]
-		    }],
+		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
 
 		this.callParent();
 
-		this.sub('driver_list').on('itemclick', function(grid, record) {
-			self.driver = record.data.id;
-			self.searchSummary(self.vehicle, record.data.name, null, null, null);			
-		});
-		
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {
 			if(record.data.time_view == "yearly") {
 				self.searchSummary(record.data.driver, null, "monthly", record.data.year, null);
@@ -68,20 +40,6 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 			if(self.chartPanel) {				
 				self.resizeChart();
 			}
-		});
-		
-		/**
-		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('id_filter').on('change', function(field, value) {
-			self.searchDrivers(false);
-		});
-
-		/**
-		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('name_filter').on('change', function(field, value) {
-			self.searchDrivers(false);
 		});
 		
 		/**
@@ -111,30 +69,17 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 	},
 	
 	/**
-	 * 운전자 조회 
-	 */	
-	searchDrivers : function(searchRemote) {
+	 * 차량 선택시 
+	 */
+	refresh : function(driverId, driverName) {
+		// driverId 값이 없거나 이전에 선택한 driverId와 현재 선택된 driverId가 같다면 skip 
+		if(!driverId || driverId == '' || driverId == this.driver)
+			return;
 		
-		if(searchRemote) {
-			this.sub('driver_list').store.load();
-			
-		} else {
-			this.sub('driver_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var nameValue = this.sub('name_filter').getValue();
-			
-			if(idValue || nameValue) {
-				this.sub('driver_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'name',
-					value : nameValue
-				} ]);
-			}			
-		}		
+		this.driver = driverId;		
+		this.searchSummary(driverId, driverName, null, null, null);
 	},		
-	
+		
 	/**
 	 * driver speed summary 조회 
 	 */
@@ -187,55 +132,6 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 				this.refreshChart();
 			}
 		});
-	},	
-	
-	/**
-	 * 운전자 리스트 그리드 패널 
-	 */	
-	zdriverlist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'driver_list',
-			store : 'DriverStore',
-			title : T('title.driver_list'),
-			width : 260,
-			autoScroll : true,
-			
-			columns : [ {
-				dataIndex : 'id',
-				text : T('label.id'),
-				flex : 1
-			}, {
-				dataIndex : 'name',
-				text : T('label.name'),
-				flex : 1
-			} ],
-
-			tbar : [
-			    T('label.id'),
-				{
-					xtype : 'textfield',
-					name : 'id_filter',
-					itemId : 'id_filter',
-					width : 60
-				}, 
-				T('label.name'),
-				{
-					xtype : 'textfield',
-					name : 'name_filter',
-					itemId : 'name_filter',
-					width : 65
-				},
-				' ',
-				{
-					xtype : 'button',
-					text : T('button.search'),
-					handler : function(btn) {
-						btn.up('management_driver_speed').searchDrivers(true);
-					}
-				}
-			]
-		}
 	},
 	
 	/**

@@ -1,5 +1,5 @@
 Ext.define('GreenFleet.view.management.DriverRunStatus', {
-	extend : 'Ext.Container',
+	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.management_driver_runstatus',
 
@@ -28,37 +28,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	initComponent : function() {
 		var self = this;
 
-		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.driver_runstatus') + "</div>"}, 
-		    {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'hbox',
-					align : 'stretch'
-				},
-				items : [ 
-				    this.zdriverlist(self), 
-				    {
-						xtype : 'container',
-						flex : 1,
-						cls : 'borderRightGray',
-						layout : {
-							align : 'stretch',
-							type : 'vbox'
-						},
-						items : [ this.zrunstatus, this.zrunstatus_chart ]
-					} 
-				]
-		    }
-		],
+		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
 
 		this.callParent();
-
-		this.sub('driver_list').on('itemclick', function(grid, record) {
-			self.driver = record.data.id;
-			self.searchSummary(record.data.id, record.data.name, null, null, null);
-		});
 		
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
 			if(record.data.time_view == "yearly") {
@@ -73,20 +45,6 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			if(self.chartPanel) {				
 				self.resizeChart();
 			}
-		});
-		
-		/**
-		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('id_filter').on('change', function(field, value) {
-			self.searchDrivers(false);
-		});
-
-		/**
-		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('name_filter').on('change', function(field, value) {
-			self.searchDrivers(false);
 		});
 		
 		/**
@@ -107,33 +65,20 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 	 * grid title을 설정 
 	 */
 	setGridTitle : function(name) {
-		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
+		var title = name ? T('title.runstatus_history') + ' (' + name + ')' : T('title.runstatus_history');
 		this.sub('runstatus_panel').setTitle(title);
 	},	
 	
 	/**
-	 * drivers 조회 
+	 * 운전자 선택시 
 	 */
-	searchDrivers : function(searchRemote) {
+	refresh : function(driverId, driverName) {
+		// driverId 값이 없거나 이전에 선택한 driverId와 현재 선택된 driverId가 같다면 skip 
+		if(!driverId || driverId == '' || driverId == this.driver)
+			return;
 		
-		if(searchRemote) {
-			this.sub('driver_list').store.load();
-			
-		} else {
-			this.sub('driver_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var nameValue = this.sub('name_filter').getValue();
-			
-			if(idValue || nameValue) {
-				this.sub('driver_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'name',
-					value : nameValue
-				} ]);
-			}			
-		}		
+		this.driver = driverId;
+		this.searchSummary(driverId, driverName, null, null, null);
 	},
 	
 	/**
@@ -189,55 +134,6 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 			}
 		});		
 	},
-	
-	/**
-	 * drivers grid
-	 */
-	zdriverlist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'driver_list',
-			store : 'DriverStore',
-			title : T('title.driver_list'),
-			width : 260,
-			autoScroll : true,
-			
-			columns : [ {
-				dataIndex : 'id',
-				text : T('label.id'),
-				flex : 1
-			}, {
-				dataIndex : 'name',
-				text : T('label.name'),
-				flex : 1
-			} ],
-
-			tbar : [
-			    T('label.id'),
-				{
-					xtype : 'textfield',
-					name : 'id_filter',
-					itemId : 'id_filter',
-					width : 60
-				}, 
-				T('label.name'),
-				{
-					xtype : 'textfield',
-					name : 'name_filter',
-					itemId : 'name_filter',
-					width : 65
-				},
-				' ',
-				{
-					xtype : 'button',
-					text : T('button.search'),
-					handler : function(btn) {
-						btn.up('management_driver_runstatus').searchDrivers(true);
-					}
-				}
-			]
-		}
-	},
 
 	/**
 	 * 운행이력 그리드 패널 
@@ -257,8 +153,8 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				dataIndex : 'time_view',
 				hidden : true
 			}, {
-				dataIndex : 'month_str',
-				text : T('label.datetime')
+				header : T('label.datetime'),
+				dataIndex : 'month_str'		
 			}, {
 				header : T('label.run_dist') + '(km)',
 				dataIndex : 'run_dist'

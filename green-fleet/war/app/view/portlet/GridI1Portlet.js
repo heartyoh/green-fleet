@@ -28,11 +28,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
         text     : T('label.vehicle'),
         width    : 60,
         dataIndex: 'vehicle_id'
-    },/*{
-        text     : T('label.driver'),
-        width    : 60,
-        dataIndex: 'driver_id'
-    },*/{
+    },{
         text     : T('label.velocity'),
         width    : 50,
         dataIndex: 'velocity'
@@ -40,15 +36,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
         text     : T('label.location'),
         width    : 200,
         dataIndex : 'location'
-    }/*{
-        text     : T('label.latitude'),
-        width    : 50,
-        dataIndex: 'lat'
-    },{
-        text     : T('label.longitude'),
-        width    : 50,
-        dataIndex: 'lng'
-    }*/],
+    }],
     
     initComponent: function() {
     	var self = this;
@@ -84,7 +72,7 @@ Ext.define('GreenFleet.view.portlet.GridI1Portlet', {
 		    failure: function(response) {
 		    	Ext.MessageBox.alert(T('label.failure'), response.responseText);
 		    }
-		});     	
+		});
     },
     
     convert : function(records) {

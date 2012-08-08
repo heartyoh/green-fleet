@@ -85,7 +85,9 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 			store : Ext.create('Ext.data.Store', {
 				fields : [ 'id', 'name' ],		        
 				data : [{ "id" : "vehicle_summary", 	"name" : T('report.vehicle_summary') },
-				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },
+				        { "id" : "driver_summary", 		"name" : T('report.driver_summary') },				        
+				        { "id" : "vehicle_health", 		"name" : T('report.vehicle_health') },
+				        { "id" : "consumable_health", 	"name" : T('report.consumable_health') },				        
 				        { "id" : "mttr", 				"name" : T('report.mttr') },
 				        { "id" : "mtbf", 				"name" : T('report.mtbf') },
 				        { "id" : "driving_trend", 		"name" : T('report.driving_trend') },

@@ -1,5 +1,5 @@
 Ext.define('GreenFleet.view.management.Vehicle', {
-	extend : 'Ext.container.Container',
+	extend : 'Ext.Container',
 
 	alias : 'widget.management_vehicle',
 
@@ -8,379 +8,188 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	entityUrl : 'vehicle',
 	
 	importUrl : 'vehicle/import',
-	
-	afterImport : function() {
-		this.sub('grid').store.load();
-		this.sub('form').getForm().reset();
-	},
 
+	afterImport : function() {
+	},
+	
 	layout : {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
-	items: {
-		html : "<div class='listTitle'>" + T('title.vehicle_list') + "</div>"
-	},
-
+		
 	initComponent : function() {
 		var self = this;
+
+		this.items = [
+		    { html : "<div class='listTitle'>" + T('title.vehicle_list') + "</div>"}, 
+		    { xtype : 'container',
+		      flex : 1,
+		      layout : {
+					type : 'hbox',
+					align : 'stretch'
+		      },
+		      items : [ this.zvehiclelist, { 
+		    	  		xtype : 'container',
+						flex : 1,
+						cls : 'borderRightGray',
+						layout : {
+							align : 'stretch',
+							type : 'vbox'
+						},
+						items : [ this.ztabpanel ] } ]
+		    }],
+
+		this.callParent();
 		
-		this.callParent(arguments);
-
-		this.add(this.buildList(this));
-		this.add(this.buildForm(this));
-
-		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
-			var store = self.sub('edit_consumables_grid').store; 
-			store.getProxy().extraParams.vehicle_id = record.get('id');
-			store.load();
+		/**
+		 * Vehicle List에서 사용자가 차량을 선택하는 경우 - 현재 선택된 탭의 정보를 리프레쉬 
+		 */
+		this.sub('vehicle_list').on('itemclick', function(grid, record) {
+			self.refresh(record.data.id, record.data.registration_number);
 		});
-
-		this.sub('grid').store.on('load', function(store, records, successful, eOpts) {
-			self.convertAddress(records);
-		});	
-
+		
+		/**
+		 * Tab 선택이 변경될 때 - 해당 탭을 리프레쉬 
+		 */
+		this.sub('tabs').on('tabchange', function(tabPanel, newCard, oldCard, eOpts) {
+			if(self.vehicle) {
+				newCard.refresh(self.vehicle, self.regNo);
+			}
+		});		
+				
+		/**
+		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
+		 */
 		this.sub('id_filter').on('change', function(field, value) {
 			self.search(false);
 		});
 
-		this.sub('registration_number_filter').on('change', function(field, value) {
+		/**
+		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
+		 */
+		this.sub('reg_no_filter').on('change', function(field, value) {
 			self.search(false);
 		});
+	},
 		
-		this.down('#search_reset').on('click', function() {
-			self.sub('id_filter').setValue('');
-			self.sub('registration_number_filter').setValue('');
-		});
-
-		this.down('#search').on('click', function() {
-			self.search(true);
-		});
+	/**
+	 * 차량 조회 
+	 */
+	search : function(remote) {
 		
-		this.down('#image_clip').on('change', function(field, value) {
-			var image = self.sub('image');
+		if(remote) {
+			this.sub('vehicle_list').store.load();
 			
-			if(value != null && value.length > 0)
-				image.setSrc('download?blob-key=' + value);
-			else
-				image.setSrc('resources/image/bgVehicle.png');
-		});		
-	},
-
-	search : function(searchRemote) {
-		
-		var id_filter_value = this.sub('id_filter').getValue();
-		var registration_filter_value = this.sub('registration_number_filter').getValue();
-		this.sub('grid').store.clearFilter(true);
-		
-		this.sub('grid').store.filter([ {
-			property : 'id',
-			value : id_filter_value
-		}, {
-			property : 'registration_number',
-			value : registration_filter_value
-		} ]);
-		
-		if(searchRemote) {
-			this.sub('grid').store.load();
-		}
-	},
-	
-    convertAddress : function(records) {    	   
-    	var self = this;    	
-    	Ext.each(records, function(record) {
-    		if(record.data.lat !== undefined && record.data.lng !== undefined) {
-    			var latlng = new google.maps.LatLng(record.data.lat, record.data.lng);
-    			geocoder = new google.maps.Geocoder();
-    			geocoder.geocode({
-    				'latLng' : latlng
-    			}, function(results, status) {
-    				if (status == google.maps.GeocoderStatus.OK) {
-    					if (results[0]) {
-    						var address = results[0].formatted_address;
-    						record.data.location = address;
-    						self.sub('grid').store.loadData(records);
-    					}
-    				} else {
-    					console.log("Geocoder failed due to: " + status);
-    				}
-    			});
-    		}
-    	});    	    	
-    },	
-	
-	buildList : function(main) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'grid',
-			store : 'VehicleStore',
-			autoScroll : true,
-			flex : 1,
-			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'id',
-				text : T('label.id'),
-				type : 'string'
-			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
-				type : 'string'
-			}, {
-				dataIndex : 'manufacturer',
-				text : T('label.manufacturer'),
-				type : 'string'
-			}, {
-				dataIndex : 'vehicle_model',
-				text : T('label.vehicle_model'),
-				type : 'string'
-			}, /*{
-				dataIndex : 'fuel_type',
-				text : T('label.fuel_type'),
-				type : 'string'
-			}, {
-				dataIndex : 'vehicle_type',
-				text : T('label.vehicle_type'),
-				type : 'string'
-			},*/ {
-				dataIndex : 'birth_year',
-				text : T('label.birth_year'),
-				type : 'string'
-			}, {
-				dataIndex : 'status',
-				text : T('label.status'),
-				type : 'string'
-			}, {
-				dataIndex : 'health_status',
-				text : T('label.health'),
-				type : 'string'
-			}, {
-				dataIndex : 'official_effcc',
-				text : T('label.official_effcc'),
-				type : 'float',
-				xtype: 'numbercolumn'
-			}, {
-				dataIndex : 'avg_effcc',
-				text : T('label.avg_effcc'),
-				type : 'float',
-				xtype: 'numbercolumn'
-			}, {
-				dataIndex : 'eco_index',
-				text : T('label.eco_index') + '(%)',
-				type : 'int',
-				xtype: 'numbercolumn'
-			},{
-				dataIndex : 'eco_run_rate',
-				text : T('label.eco_run_rate') + '(%)',
-				type : 'int',
-				xtype: 'numbercolumn'
-			}, {				
-				dataIndex : 'total_distance',
-				text : T('label.total_distance') + '(km)',
-				type : 'float',
-				xtype: 'numbercolumn'
-			}, {
-				dataIndex : 'total_run_time',
-				text : T('label.total_run_time') + T('label.parentheses_min'),
-				xtype: 'numbercolumn',
-				type : 'int'
-			}, {
-				dataIndex : 'remaining_fuel',
-				text : T('label.remaining_fuel'),
-				type : 'string',
-				xtype: 'numbercolumn'
-			}, {
-				dataIndex : 'location',
-				text : T('label.location'),
-				type : 'string',
-				width : 200
-			}],
-			viewConfig : {
-
-			},
-			tbar : [ T('label.id'), {
-				xtype : 'textfield',
-				name : 'id_filter',
-				itemId : 'id_filter',
-				hideLabel : true,
-				width : 133
-			}, T('label.reg_no'), {
-				xtype : 'textfield',
-				name : 'registration_number_filter',
-				itemId : 'registration_number_filter',
-				hideLabel : true,
-				width : 133
-			}, {
-				text : T('button.search'),
-				itemId : 'search'
-			}, {
-				text : T('button.reset'),
-				itemId : 'search_reset'
-			} ]
-		}
-	},
-
-	buildForm : function(main) {
-		return {
-			xtype : 'panel',
-			bodyPadding : 10,
-			cls : 'hIndexbar',	
-			title : T('title.vehicle_details'),
-			layout : {
-				type : 'hbox',
-				align : 'stretch'
-			},
-			flex : 1,
-			items : [
-			    {
-			    	xtype : 'form',
-			    	itemId : 'form',
-			    	flex : 3.5,
-			    	autoScroll : true,
-			    	defaults : {
-			    		xtype : 'textfield',
-			    		anchor : '100%'
-			    	},
-			    	items : [ 
-			    	    {
-			    	    	xtype : 'image',
-			    	    	anchor : '25%',
-			    	    	height : '150',
-			    	    	itemId : 'image',
-			    	    	cls : 'paddingBottom10'
-			    	    },			    	         
-				    	{
-				    		name : 'key',
-				    		fieldLabel : 'Key',
-				    		hidden : true
-						}, {
-							name : 'id',
-							fieldLabel : T('label.id')
-						}, {
-							name : 'registration_number',
-							fieldLabel : T('label.reg_no')
-						}, {
-							name : 'vehicle_model',
-							fieldLabel : T('label.vehicle_model')
-						}, {
-							xtype : 'codecombo',
-							name : 'manufacturer',
-							group : 'V-Maker',
-							fieldLabel : T('label.manufacturer')
-						}, {
-							xtype : 'codecombo',
-							name : 'vehicle_type',
-							group : 'V-Type1',
-							fieldLabel : T('label.vehicle_type')
-						}, {
-							xtype : 'codecombo',
-							name : 'fuel_type',
-							group : 'V-Fuel',
-							fieldLabel : T('label.fuel_type')
-						}, {
-							xtype : 'filefield',
-							name : 'image_file',
-							fieldLabel : T('label.image_upload'),
-							msgTarget : 'side',
-							allowBlank : true,
-							buttonText : T('button.file')
-						}, {
-							xtype : 'codecombo',
-							name : 'birth_year',
-							group : 'V-BirthYear',
-							name : 'birth_year',
-							fieldLabel : T('label.birth_year')
-						}, {
-							xtype : 'combo',
-							name : 'ownership_type',
-							queryMode : 'local',
-							store : 'OwnershipStore',
-							displayField : 'desc',
-							valueField : 'name',
-							fieldLabel : T('label.ownership_type')
-						}, {
-							xtype : 'combo',
-							name : 'status',
-							queryMode : 'local',
-							store : 'VehicleStatusStore',
-							displayField : 'desc',
-							valueField : 'status',
-							fieldLabel : T('label.status')
-						}, {
-							name : 'health_status',
-							fieldLabel : T('label.health')							
-						}, {
-							name : 'total_distance',
-							fieldLabel : T('label.total_distance')
-						}, {
-							name : 'total_run_time',
-							fieldLabel : T('label.total_run_time')
-						}, {
-							name : 'official_effcc',
-							fieldLabel : T('label.official_effcc')
-						}, {
-							name : 'avg_effcc',
-							fieldLabel : T('label.avg_effcc')
-						}, {
-							name : 'eco_index',
-							fieldLabel : T('label.eco_index')
-						}, {
-							name : 'eco_run_rate',
-							fieldLabel : T('label.eco_run_rate')
-						}, {
-							name : 'remaining_fuel',
-							fieldLabel : T('label.remaining_fuel')
-						}, {
-							name : 'location',
-							fieldLabel : T('label.location')							
-						}, /*{
-							name : 'lat',
-							fieldLabel : T('label.latitude'),
-							disabled : true
-						}, {
-							name : 'lng',
-							fieldLabel : T('label.longitude'),
-							disabled : true
-						},*/ {
-							xtype : 'datefield',
-							name : 'updated_at',
-							disabled : true,
-							fieldLabel : T('label.updated_at'),
-							format : F('datetime')
-						}, /*{
-							xtype : 'datefield',
-							name : 'created_at',
-							disabled : true,
-							fieldLabel : T('label.created_at'),
-							format : F('datetime')
-						},*/ {
-							xtype : 'displayfield',
-							name : 'image_clip',
-							itemId : 'image_clip',
-							hidden : true
-						} 
-					]
+		} else {
+			this.sub('vehicle_list').store.clearFilter(true);			
+			var idValue = this.sub('id_filter').getValue();
+			var regNoValue = this.sub('reg_no_filter').getValue();
+			
+			if(idValue || regNoValue) {
+				this.sub('vehicle_list').store.filter([ {
+					property : 'id',
+					value : idValue
 				}, {
-					xtype : 'management_vehicle_consumable_grid',
-					itemId : 'editable_grid',
-					flex : 6.5,
-					cls : 'paddingLeft10'
-				}
-			],
-			dockedItems : [ {
-				xtype : 'entity_form_buttons',
-				loader : {
-					fn : function(callback) {
-						main.sub('grid').store.load(callback);
-					},
-					scope : main
-				}
-			} ]
+					property : 'registration_number',
+					value : regNoValue
+				} ]);
+			}			
 		}
-	}
+	},
+	
+	/**
+	 * 선택된 탭의 vehicle 정보 리프레쉬 
+	 */
+	refresh : function(vehicleId, regNo) {
+		this.vehicle = vehicleId;
+		this.regNo = regNo;
+		
+		var tabs = this.sub('tabs');
+		var activeTab = tabs.getActiveTab();
+		if(activeTab.refresh && (typeof(activeTab.refresh) === 'function')) {
+			activeTab.refresh(vehicleId, regNo);
+		}
+	},
+	
+	/**
+	 * 차량 리스트 그리드 
+	 */
+	zvehiclelist : {
+		xtype : 'gridpanel',
+		itemId : 'vehicle_list',
+		store : 'VehicleImageBriefStore',
+		title : T('title.vehicle_list'),
+		width : 280,
+		autoScroll : true,
+		
+		columns : [ {
+	    	dataIndex : 'image_clip',
+	    	text : 'Image',
+	    	renderer : function(image_clip) {
+ 		   		var imgTag = "<img src='";
+ 				
+ 				if(image_clip) {
+ 					imgTag += "download?blob-key=" + image_clip;
+ 				} else {
+ 					imgTag += "resources/image/bgVehicle.png";
+ 				}
+ 				
+ 				imgTag += "' width='80' height='80'/>";
+ 				return imgTag;
+	    	}
+	    }, {
+			dataIndex : 'id',
+			text : T('label.id'),
+			flex : 1
+		}, {
+			dataIndex : 'registration_number',
+			text : T('label.reg_no'),
+			flex : 1
+		} ],
+
+		tbar : [
+	    T('label.id'),
+		{
+			xtype : 'textfield',
+			name : 'id_filter',
+			itemId : 'id_filter',
+			width : 60
+		}, T('label.reg_no'),
+		{
+			xtype : 'textfield',
+			name : 'reg_no_filter',
+			itemId : 'reg_no_filter',
+			width : 65
+		}, ' ',
+		{
+			xtype : 'button',
+			text : T('button.search'),
+			handler : function(btn) {
+				btn.up('management_vehicle').search(true);
+			}
+		}]
+	},
+	
+	ztabpanel : {
+		itemId : 'tabs',
+		xtype : 'tabpanel',
+		flex : 1,
+		items : [ /*{
+			xtype : 'management_vehicle_overview'
+		}, */{
+			xtype : 'management_vehicle_detail'
+		}, {
+			xtype : 'management_vehicle_consumables'
+		}, {
+			xtype : 'management_vehicle_track'
+		}, {
+			xtype : 'management_vehicle_incident'
+		}, {
+			xtype : 'management_vehicle_checkin'
+		}, {
+			xtype : 'management_vehicle_runstatus'
+		}, {
+			xtype : 'management_vehicle_speed'
+		} ]
+	},	
 });

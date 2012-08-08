@@ -17,7 +17,6 @@ Ext.define('GreenFleet.view.dashboard.VehicleHealth', {
 	
 	initComponent : function() {
 		this.callParent();
-
 		var content = this.add({
 			xtype : 'panel',
 			flex : 1,

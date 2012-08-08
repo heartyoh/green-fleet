@@ -28,10 +28,9 @@ T({
 		consumable_code : 'Consumable Code',
 		health : 'Health',
 		vehicle_health : 'Vehicle Health',
-		consumable_health : 'Consumable Health',		
+		consumable_health : 'Consumable Health',
 		map : 'Board',
 		info : 'Info',
-		incident : 'Incident',
 		import_data : 'Import',
 		export_data : 'Export',
 		profile : 'User Profile',
@@ -122,6 +121,8 @@ T({
 	
 	report : {
 		report : 'Report',
+		vehicle_health : 'Vehicle Health',
+		consumable_health : 'Consumable Health',		
 		vehicle_summary : 'Vehicle Running Summary',
 		driver_summary : 'Driver Running Summary',
 		runtime_by_vehicles : 'Runtime By Vehicles',

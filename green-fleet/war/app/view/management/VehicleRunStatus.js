@@ -1,5 +1,5 @@
 Ext.define('GreenFleet.view.management.VehicleRunStatus', {
-	extend : 'Ext.Container',
+	extend : 'Ext.panel.Panel',
 
 	alias : 'widget.management_vehicle_runstatus',
 
@@ -18,9 +18,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	},
 	
 	chartXTitle : 'month',
-	
-	vehicle : '',
-	
+		
 	timeView : 'monthly',
 	
 	chartPanel : null,
@@ -28,36 +26,9 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	initComponent : function() {
 		var self = this;
 
-		this.items = [
-		    { html : "<div class='listTitle'>" + T('title.vehicle_runstatus') + "</div>"}, 
-		    {
-				xtype : 'container',
-				flex : 1,
-				layout : {
-					type : 'hbox',
-					align : 'stretch'
-				},
-				items : [ 
-				    this.zvehiclelist(self), 
-				    {
-						xtype : 'container',
-						flex : 1,
-						cls : 'borderRightGray',
-						layout : {
-							align : 'stretch',
-							type : 'vbox'
-						},
-						items : [ this.zrunstatus, this.zrunstatus_chart ]
-					} 
-				]
-		    }],
+		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
 
 		this.callParent();
-			
-		this.sub('vehicle_list').on('itemclick', function(grid, record) {
-			self.vehicle = record.data.id;
-			self.searchSummary(record.data.id, record.data.registration_number, null, null, null);
-		});
 		
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
 			if(record.data.time_view == "yearly") {
@@ -72,20 +43,6 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			if(self.chartPanel) {				
 				self.resizeChart();
 			}
-		});
-		
-		/**
-		 * Vehicle Id 검색 조건 변경시 Vehicle 데이터 Local filtering
-		 */
-		this.sub('id_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
-		});
-
-		/**
-		 * Vehicle Reg No. 검색 조건 변경시 Vehicle 데이터 Local filtering 
-		 */
-		this.sub('reg_no_filter').on('change', function(field, value) {
-			self.searchVehicles(false);
 		});
 		
 		/**
@@ -106,39 +63,26 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 	 * grid title을 설정 
 	 */
 	setGridTitle : function(name) {
-		var title = name ? T('title.runstatus_history') + ' (' + name + ') ' : T('title.runstatus_history');
+		var title = name ? T('title.runstatus_history') + ' (' + name + ')' : T('title.runstatus_history');
 		this.sub('runstatus_panel').setTitle(title);
-	},	
+	},
 	
 	/**
-	 * 차량 조회 
+	 * 차량 선택시 리프레쉬 
 	 */
-	searchVehicles : function(searchRemote) {
+	refresh : function(vehicleId, regNo) {
+		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
+		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
+			return;
 		
-		if(searchRemote) {
-			this.sub('vehicle_list').store.load();
-			
-		} else {
-			this.sub('vehicle_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
-			
-			if(idValue || regNoValue) {
-				this.sub('vehicle_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'registration_number',
-					value : regNoValue
-				} ]);
-			}			
-		}		
+		this.vehicle = vehicleId;
+		this.searchSummary(vehicleId, regNo, null, null, null);
 	},
 	
 	/**
 	 * vehicle run summary 조회 
 	 */
-	searchSummary : function(vehicleId, vehicleName, timeView, year, month) {
+	searchSummary : function(vehicleId, regNo, timeView, year, month) {
 		
 		if(!vehicleId) {
 			vehicleId = this.vehicle;
@@ -181,61 +125,12 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		runStatusStore.load({
 			scope : this,
 			callback : function() {
-				if(vehicleName) {
-					this.setGridTitle(vehicleName);
+				if(regNo) {
+					this.setGridTitle(regNo);
 				}
 				this.refreshChart();
 			}
 		});		
-	},
-	
-	/**
-	 * 차량 리스트 그리드 
-	 */
-	zvehiclelist : function(self) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'vehicle_list',
-			store : 'VehicleBriefStore',
-			title : T('title.vehicle_list'),
-			width : 280,
-			autoScroll : true,
-			
-			columns : [ {
-				dataIndex : 'id',
-				text : T('label.id'),
-				flex : 1
-			}, {
-				dataIndex : 'registration_number',
-				text : T('label.reg_no'),
-				flex : 1
-			} ],
-
-			tbar : [
-			    T('label.id'),
-				{
-					xtype : 'textfield',
-					name : 'id_filter',
-					itemId : 'id_filter',
-					width : 60
-				}, 
-				T('label.reg_no'),
-				{
-					xtype : 'textfield',
-					name : 'reg_no_filter',
-					itemId : 'reg_no_filter',
-					width : 65
-				},
-				' ',
-				{
-					xtype : 'button',
-					text : T('button.search'),
-					handler : function(btn) {
-						btn.up('management_vehicle_runstatus').searchVehicles(true);
-					}
-				}
-			]
-		}
 	},
 
 	/**
@@ -252,12 +147,11 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 			xtype : 'grid',
 			itemId : 'runstatus_grid',
 			store : 'VehicleRunStore',
-			flex : 1,
 			columns : [ {
 				dataIndex : 'time_view',
 				hidden : true
 			}, {
-				text : T('label.month'),
+				header : T('label.month'),
 				dataIndex : 'month_str'
 			}, {
 				header : T('label.run_dist') + '(km)',

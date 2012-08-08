@@ -1,16 +1,12 @@
-Ext.define('GreenFleet.view.management.Track', {
-	
-	// deprecated
-	extend : 'Ext.container.Container',
+Ext.define('GreenFleet.view.management.VehicleTrack', {
+	extend : 'Ext.panel.Panel',
 
-	alias : 'widget.management_track',
+	alias : 'widget.management_vehicle_track',
 
-	title : T('title.track'),
+	title : T('menu.track'),
 
 	entityUrl : 'track',
-	/*
-	 * importUrl, afterImport config properties for Import util function
-	 */
+
 	importUrl : 'track/import',
 
 	afterImport : function() {
@@ -22,60 +18,82 @@ Ext.define('GreenFleet.view.management.Track', {
 		align : 'stretch',
 		type : 'vbox'
 	},
-
-	items : {
-		html : "<div class='listTitle'>" + T('title.tracking_list') + "</div>"
-	},
-
+	
 	initComponent : function() {
-		var self = this;
-
+		var self = this;		
+		this.items = [ this.buildList(this), this.buildForm(this) ];		
 		this.callParent(arguments);
 
-		this.add(this.buildList(this));
-		this.add(this.buildForm(this));
-
+		/**
+		 * track list에서 하나 선택시 
+		 */
 		this.sub('grid').on('itemclick', function(grid, record) {
-			self.sub('form').loadRecord(record);
+    		// lat, lng 정보로 부터 위치 정보 얻어옴 
+			if(record.data.lat !== undefined && record.data.lng !== undefined) {
+    			var latlng = new google.maps.LatLng(record.data.lat, record.data.lng);
+    			geocoder = new google.maps.Geocoder();
+    			geocoder.geocode({
+    				'latLng' : latlng
+    			}, function(results, status) {
+    				if (status == google.maps.GeocoderStatus.OK) {
+    					if (results[0]) {
+    						var address = results[0].formatted_address;
+    						record.data.location = address;
+    						self.sub('form').loadRecord(record);
+    					}
+    				} else {
+    					console.log("Geocoder failed due to: " + status);
+    				}
+        		});    			
+    		}    					
 		});
 
+		/**
+		 * track grid의 store load 전 
+		 */
+		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
+			var filters = self.getFilter();
+			if(filters && filters.length > 0) {
+				operation.params = operation.params || {};
+				operation.params['filter'] = Ext.JSON.encode(filters);
+			}
+		});
+		
+		/**
+		 * 초기화 버튼 선택시 
+		 */
 		this.down('#search_reset').on('click', function() {
 			self.sub('vehicle_filter').setValue('');
 			self.sub('driver_filter').setValue('');
 			self.sub('date_filter').setValue(new Date());
 		});
 
+		/**
+		 * 검색 버튼 선택시 
+		 */
 		this.down('#search').on('click', function() {
 			self.search();
-		});
-		
-		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
-			var filters = self.getFilter();
-			if(filters && filters.length > 0) {
-				operation.params = operation.params || {};
-				operation.params['filter'] = Ext.JSON.encode(filters);
-			}			
 		});
 	},
 	
 	getFilter : function() {
 		
-		if(!this.sub('vehicle_filter').getSubmitValue() && 
-		   !this.sub('driver_filter').getSubmitValue() && 
-		   !this.sub('date_filter').getSubmitValue()) {
+		if(!this.sub('vehicle_filter') || !this.sub('driver_filter') || !this.sub('date_filter'))
 			return null;
-		}
+		
+		if(!this.sub('vehicle_filter').getSubmitValue() && !this.sub('driver_filter').getSubmitValue() && !this.sub('date_filter').getSubmitValue())
+			return null;
 		
 		var filters = [];
-		
-		if(this.sub('date_filter').getSubmitValue()) {
-			filters.push({"property" : "date", "value" : this.sub('date_filter').getSubmitValue()});
-		}
 		
 		if(this.sub('vehicle_filter').getSubmitValue()) {
 			filters.push({"property" : "vehicle_id", "value" : this.sub('vehicle_filter').getSubmitValue()});
 		}
 		
+		if(this.sub('date_filter').getSubmitValue()) {
+			filters.push({"property" : "date", "value" : this.sub('date_filter').getSubmitValue()});
+		}
+				
 		if(this.sub('driver_filter').getSubmitValue()) {
 			filters.push({"property" : "driver_id", "value" : this.sub('driver_filter').getSubmitValue()});
 		}		
@@ -83,6 +101,16 @@ Ext.define('GreenFleet.view.management.Track', {
 		return filters;
 	},	
 
+	refresh : function(vehicleId, regNo) {
+		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
+		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
+			return;
+		
+		this.vehicle = vehicleId;
+		this.sub('vehicle_filter').setValue(this.vehicle);
+		this.search();
+	},
+	
 	search : function() {
 		this.sub('pagingtoolbar').moveFirst();
 	},
@@ -100,23 +128,27 @@ Ext.define('GreenFleet.view.management.Track', {
 				type : 'string',
 				hidden : true
 			}, {
-				dataIndex : 'terminal_id',
-				text : T('label.terminal'),
-				type : 'string'
+				dataIndex : 'datetime',
+				text : T('label.datetime'),
+				xtype : 'datecolumn',
+				format : F('datetime'),
+				width : 120
 			}, {
 				dataIndex : 'vehicle_id',
 				text : T('label.vehicle'),
+				type : 'string'
+			}, {
+				dataIndex : 'terminal_id',
+				text : T('label.terminal'),
 				type : 'string'
 			}, {
 				dataIndex : 'driver_id',
 				text : T('label.driver'),
 				type : 'string'
 			}, {
-				dataIndex : 'datetime',
-				text : T('label.datetime'),
-				xtype : 'datecolumn',
-				format : F('datetime'),
-				width : 120
+				dataIndex : 'velocity',
+				text : T('label.velocity'),
+				type : 'number'
 			}, {
 				dataIndex : 'lat',
 				text : T('label.latitude'),
@@ -124,10 +156,6 @@ Ext.define('GreenFleet.view.management.Track', {
 			}, {
 				dataIndex : 'lng',
 				text : T('label.longitude'),
-				type : 'number'
-			}, {
-				dataIndex : 'velocity',
-				text : T('label.velocity'),
 				type : 'number'
 			}, {
 				dataIndex : 'updated_at',
@@ -147,16 +175,6 @@ Ext.define('GreenFleet.view.management.Track', {
 			},
 			tbar : [ {
 				xtype : 'combo',
-				name : 'driver_filter',
-				itemId : 'driver_filter',
-				queryMode : 'local',
-				store : 'DriverBriefStore',
-				displayField : 'id',
-				valueField : 'id',
-				fieldLabel : T('label.driver'),
-				width : 200
-			}, {
-				xtype : 'combo',
 				name : 'vehicle_filter',
 				itemId : 'vehicle_filter',
 				queryMode : 'local',
@@ -164,6 +182,16 @@ Ext.define('GreenFleet.view.management.Track', {
 				displayField : 'id',
 				valueField : 'id',
 				fieldLabel : T('label.vehicle'),
+				width : 200
+			}, {
+				xtype : 'combo',
+				name : 'driver_filter',
+				itemId : 'driver_filter',
+				queryMode : 'local',
+				store : 'DriverBriefStore',
+				displayField : 'id',
+				valueField : 'id',
+				fieldLabel : T('label.driver'),
 				width : 200
 			}, {
 				xtype : 'datefield',
@@ -220,12 +248,7 @@ Ext.define('GreenFleet.view.management.Track', {
 				valueField : 'id',
 				fieldLabel : T('label.terminal')
 			}, {
-				xtype : 'combo',
 				name : 'vehicle_id',
-				queryMode : 'local',
-				store : 'VehicleBriefStore',
-				displayField : 'id',
-				valueField : 'id',
 				fieldLabel : T('label.vehicle')
 			}, {
 				xtype : 'combo',
@@ -241,14 +264,18 @@ Ext.define('GreenFleet.view.management.Track', {
 				fieldLabel : T('label.datetime'),
 				format : F('datetime')
 			}, {
+				name : 'velocity',
+				fieldLabel : T('label.velocity')
+			}, {
 				name : 'lat',
 				fieldLabel : T('label.latitude')
 			}, {
 				name : 'lng',
 				fieldLabel : T('label.longitude')
 			}, {
-				name : 'velocity',
-				fieldLabel : T('label.velocity')
+				name : 'location',
+				fieldLabel : T('label.location'),
+				disabled : true
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',

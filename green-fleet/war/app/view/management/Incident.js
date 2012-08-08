@@ -1,4 +1,6 @@
 Ext.define('GreenFleet.view.management.Incident', {
+	
+	// deprecated
 	extend : 'Ext.container.Container',
 
 	alias : 'widget.management_incident',

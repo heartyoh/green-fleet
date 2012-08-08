@@ -31,7 +31,6 @@ T({
 		consumable_health : '소모품 건강상태',
 		map : '현황판',
 		info : '정보',
-		incident : '이상상황',
 		import_data : '가져오기',
 		export_data : '내보내기',
 		profile : '사용자 프로파일',
@@ -122,6 +121,8 @@ T({
 	
 	report : {
 		report : '리포트',
+		vehicle_health : '차량 건강상태',
+		consumable_health : '소모품 건강상태',		
 		vehicle_summary : '차량별 주행요약', 
 		driver_summary : '운전자별 주행요약', 
 		runtime_by_vehicles : '차량별 주행시간',

@@ -54,8 +54,11 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 							success : function(form, action) {
 								if(self.loader && typeof(self.loader.fn) === 'function') {
 									self.loader.fn.call(self.loader.scope || client, function(records) {
-										var store = client.sub('grid').store;
-										form.loadRecord(store.findRecord('key', action.result.key));
+										var listGrid = client.sub('grid');
+										if(listGrid && action.result.key) {
+											var store = listGrid.store;
+											form.loadRecord(store.findRecord('key', action.result.key));											
+										}
 									});
 								}
 								
