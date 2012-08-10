@@ -1,4 +1,4 @@
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +26,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Driver;
 import com.heartyoh.model.DriverRunSum;
 import com.heartyoh.model.DriverSpeedSum;
@@ -207,11 +206,15 @@ public class CheckinDataService extends EntityService {
 			long dateMillis = DataUtils.toLong(value);
 			if(dateMillis > 1) {
 				Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
+				//q.setFilter(CompositeFilterOperator.and (
+				//	     new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]),
+				//	     new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1])));
 				q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 				q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
 			}
 		} else {
-			q.addFilter(property, FilterOperator.EQUAL, value);
+			q.addFilter(property, Query.FilterOperator.EQUAL, value);
+			//q.setFilter(new FilterPredicate(property, Query.FilterOperator.EQUAL, value));
 		}
 	}
 	
@@ -224,12 +227,17 @@ public class CheckinDataService extends EntityService {
 		if(!DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
 			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
 			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+			//q.setFilter(CompositeFilterOperator.and (
+			//	     new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr)),
+			//	     new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr))));
 			
 		} else if(!DataUtils.isEmpty(fromDateStr) && DataUtils.isEmpty(toDateStr)) {
 			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr));
+			//q.setFilter(new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, SessionUtils.stringToDate(fromDateStr)));
 			
 		} else if(DataUtils.isEmpty(fromDateStr) && !DataUtils.isEmpty(toDateStr)) {
 			q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr));
+			//q.setFilter(new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, SessionUtils.stringToDate(toDateStr)));
 		}
 	}
 	
@@ -396,6 +404,11 @@ public class CheckinDataService extends EntityService {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query q = new Query(getEntityName());
 		q.setAncestor(companyKey);
+		//q.setFilter(CompositeFilterOperator.and (
+		//		 new FilterPredicate(filterName, Query.FilterOperator.EQUAL, filterValue),
+		//	     new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate),
+		//	     new FilterPredicate(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate)));
+		
 		q.addFilter(filterName, Query.FilterOperator.EQUAL, filterValue);
 		q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
 		q.addFilter(KEY_TIME_COLUMN, Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);

@@ -1,4 +1,4 @@
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.util.Date;
 import java.util.Map;

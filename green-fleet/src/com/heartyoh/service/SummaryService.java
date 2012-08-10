@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.service.datastore.CheckinDataService;
+import com.heartyoh.service.datastore.ConsumableService;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.DatastoreUtils;

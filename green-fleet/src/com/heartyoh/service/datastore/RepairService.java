@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -23,7 +23,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Task;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.model.VehicleRunSum;
@@ -305,7 +304,8 @@ public class RepairService extends EntityService {
 		Query q = new Query("Repairing");
 		q.setAncestor(this.getCompanyKey(request));
 		String vehicleId = request.getParameter("vehicle_id");
-		q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+		q.addFilter("vehicle_id", Query.FilterOperator.EQUAL, vehicleId);
+		//q.setFilter(new FilterPredicate("vehicle_id", Query.FilterOperator.EQUAL, vehicleId));
 		PreparedQuery pq = datastore.prepare(q);
 		return pq.asSingleEntity();
 	}
@@ -315,6 +315,7 @@ public class RepairService extends EntityService {
 		String vehicleId = request.getParameter("vehicle_id");
 		
 		if(!DataUtils.isEmpty(vehicleId))
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+			q.addFilter("vehicle_id", Query.FilterOperator.EQUAL, vehicleId);
+			//q.setFilter(new FilterPredicate("vehicle_id", Query.FilterOperator.EQUAL, vehicleId));
 	}
 }

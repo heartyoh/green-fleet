@@ -188,6 +188,9 @@ public class XMPPMessageServlet extends HttpServlet {
 		Date[] fromToDate = DataUtils.getFromToDateStToday(0, 1);
 		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+		//q.setFilter(CompositeFilterOperator.and (
+		//	     new FilterPredicate("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]),
+		//	     new FilterPredicate("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1])));
 		q.addSort("next_repair_date", SortDirection.DESCENDING);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
@@ -209,8 +212,8 @@ public class XMPPMessageServlet extends HttpServlet {
 	private List<Entity> findConsumablesToReplace(Key companyKey) {
 		
 		Query q = new Query("VehicleConsumable");
-		q.setAncestor(companyKey);
-		
+		q.setAncestor(companyKey);		
+		//q.setFilter(new FilterPredicate("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, 0.99f));
 		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, 0.99f);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);

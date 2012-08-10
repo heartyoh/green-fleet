@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.service.datastore.CompanyService;
 import com.heartyoh.util.DatastoreUtils;
 
 /**

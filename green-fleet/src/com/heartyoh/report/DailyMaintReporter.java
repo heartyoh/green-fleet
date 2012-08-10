@@ -110,6 +110,9 @@ public class DailyMaintReporter extends AbstractReporter {
 		Date[] fromToDate = DataUtils.getFromToDate(today, -2, -1);
 		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+		//q.setFilter(CompositeFilterOperator.and (
+		//	     new FilterPredicate("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]),
+		//	     new FilterPredicate("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1])));		
 		q.addSort("next_repair_date", SortDirection.DESCENDING);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);

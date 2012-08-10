@@ -109,7 +109,10 @@ public class DailyDrivingHabitReporter extends AbstractReporter {
 		Query q = new Query("CheckinData");
 		q.setAncestor(companyKey);		
 		q.addFilter("engine_end_time", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);		
+		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		//q.setFilter(CompositeFilterOperator.and (
+		//	     new FilterPredicate("engine_end_time", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate),
+		//	     new FilterPredicate("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate)));
 		PreparedQuery pq = datastoreService.prepare(q);
 		
 		List<Object> drvItems = new ArrayList<Object>();

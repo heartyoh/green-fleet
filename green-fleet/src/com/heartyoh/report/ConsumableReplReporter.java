@@ -75,6 +75,7 @@ public class ConsumableReplReporter extends AbstractReporter {
 		// 조건은 health rate가 0.99 이상인 것들 대상으로 조회
 		float healthRate = params.containsKey("health_rate") ? DataUtils.toFloat(params.get("health_rate")) : 0.99f;
 		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, healthRate);
+		//q.setFilter(new FilterPredicate("health_rate", Query.FilterOperator.EQUAL, healthRate));
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		

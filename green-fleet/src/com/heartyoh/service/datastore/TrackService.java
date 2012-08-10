@@ -1,4 +1,4 @@
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -246,6 +246,9 @@ public class TrackService extends EntityService {
 			Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
 			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+			//q.setFilter(CompositeFilterOperator.and (
+			//	     new FilterPredicate("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]),
+			//	     new FilterPredicate("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1])));
 		}		
 	}
 }

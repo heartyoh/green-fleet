@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +29,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.model.ConsumableCode;
 import com.heartyoh.model.Task;
@@ -642,7 +641,8 @@ public class ConsumableService extends HistoricEntityService {
 		String vehicleId = request.getParameter("vehicle_id");
 		
 		if(!DataUtils.isEmpty(vehicleId))
-			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicleId);
+			q.addFilter("vehicle_id", Query.FilterOperator.EQUAL, vehicleId);
+			//q.setFilter(new FilterPredicate("vehicle_id", Query.FilterOperator.EQUAL, vehicleId));
 	}
 	
 	/**
@@ -657,9 +657,9 @@ public class ConsumableService extends HistoricEntityService {
 			healthRate = 0.98f;
 		
 		Query q = new Query(this.getEntityName());
-		q.setAncestor(companyKey);
-		
+		q.setAncestor(companyKey);		
 		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, healthRate);
+		//q.setFilter(new FilterPredicate("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, healthRate));
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
 		return pq.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));

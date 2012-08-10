@@ -1,4 +1,4 @@
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -175,7 +175,11 @@ public class IncidentService extends EntityService {
 			Query q = new Query("Incident");
 			q.setAncestor(incident.getParent());
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, vehicle.getId());
-			q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);		
+			q.addFilter("confirm", FilterOperator.NOT_EQUAL, true);
+			//q.setFilter(CompositeFilterOperator.and(
+			//	     new FilterPredicate("vehicle_id",FilterOperator.EQUAL, vehicle.getId()),
+			//	     new FilterPredicate("confirm", FilterOperator.EQUAL, true)));
+			
 			PreparedQuery pq = datastore.prepare(q);
 			int incidentsCount = pq.countEntities(FetchOptions.Builder.withLimit(Integer.MAX_VALUE).offset(0));
 			vehicle.setStatus(incidentsCount > 0 ? GreenFleetConstant.VEHICLE_STATUS_INCIDENT : GreenFleetConstant.VEHICLE_STATUS_RUNNING);			
@@ -210,6 +214,7 @@ public class IncidentService extends EntityService {
 		// tablet 쪽에서 호출시 그냥 parameter로 넘김, 수정시 삭제 
 		if(!DataUtils.isEmpty(request.getParameter("vehicle_id"))) {
 			q.addFilter("vehicle_id", FilterOperator.EQUAL, request.getParameter("vehicle_id"));
+			//q.setFilter(new FilterPredicate("vehicle_id", Query.FilterOperator.EQUAL, request.getParameter("vehicle_id")));
 		}
 	}
 
@@ -240,6 +245,9 @@ public class IncidentService extends EntityService {
 			Date[] fromToDate = DataUtils.getFromToDate(dateMillis * 1000, 0, 1);
 			q.addFilter("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]);
 			q.addFilter("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1]);
+			//q.setFilter(CompositeFilterOperator.and (
+			//	     new FilterPredicate("datetime", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromToDate[0]),
+			//	     new FilterPredicate("datetime", Query.FilterOperator.LESS_THAN_OR_EQUAL, fromToDate[1])));
 		}		
 	}
 

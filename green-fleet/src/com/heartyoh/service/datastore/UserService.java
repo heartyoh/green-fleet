@@ -1,4 +1,4 @@
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -28,7 +28,6 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.security.AppRole;
@@ -162,11 +161,13 @@ public class UserService extends EntityService {
 	protected void buildQuery(Query q, HttpServletRequest request) {
 		String email = request.getParameter("email");
 		if(email != null)
-			q.addFilter("email", FilterOperator.EQUAL, email);
+			q.addFilter("email", Query.FilterOperator.EQUAL, email);
+			//q.setFilter(new FilterPredicate("email", Query.FilterOperator.EQUAL, email));
 		
 		String key = request.getParameter("key");
 		if(key != null)
-			q.addFilter("key", FilterOperator.EQUAL, key);
+			q.addFilter("key", Query.FilterOperator.EQUAL, key);
+			//q.setFilter(new FilterPredicate("key", Query.FilterOperator.EQUAL, key));
 	}
 
 	@RequestMapping(value = "/user/save", method = RequestMethod.POST)
@@ -190,7 +191,8 @@ public class UserService extends EntityService {
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query q = new Query(getEntityName());
-		q.addFilter("company", FilterOperator.EQUAL, this.getCompany(request));
+		q.addFilter("company", Query.FilterOperator.EQUAL, this.getCompany(request));
+		//q.setFilter(new FilterPredicate("company", Query.FilterOperator.EQUAL, this.getCompany(request)));
 		buildQuery(q, request);
 		
 		if (useFilter())

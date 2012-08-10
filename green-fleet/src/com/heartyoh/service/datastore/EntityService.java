@@ -1,4 +1,4 @@
-package com.heartyoh.service;
+package com.heartyoh.service.datastore;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,7 +32,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileServiceFactory;
@@ -373,7 +372,8 @@ public abstract class EntityService {
 	}
 
 	protected void addFilter(Query q, String property, Object value) {
-		q.addFilter(property, FilterOperator.EQUAL, value);
+		q.addFilter(property, Query.FilterOperator.EQUAL, value);
+		//q.setFilter(new FilterPredicate(property, Query.FilterOperator.EQUAL, value));
 	}
 
 	protected void buildQuery(Query q, List<Filter> filters, List<Sorter> sorters) {

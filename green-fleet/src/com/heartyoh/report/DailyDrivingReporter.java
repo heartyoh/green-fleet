@@ -123,7 +123,10 @@ public class DailyDrivingReporter extends AbstractReporter {
 		Query q = new Query("CheckinData");
 		q.setAncestor(companyKey);		
 		q.addFilter("engine_end_time", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
-		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);		
+		q.addFilter("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		//q.setFilter(CompositeFilterOperator.and (
+		//	     new FilterPredicate("engine_end_time", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate),
+		//	     new FilterPredicate("engine_end_time", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate)));		
 		PreparedQuery pq = datastoreService.prepare(q);
 		
 		List<Object> drvItems = new ArrayList<Object>();
@@ -212,6 +215,7 @@ public class DailyDrivingReporter extends AbstractReporter {
 		Query q = new Query("VehicleConsumable");
 		q.setAncestor(companyKey);
 		q.addFilter("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, 0.99f);
+		//q.setFilter(new FilterPredicate("health_rate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, 0.99f));
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);		
 		List<Object> consumableItems = new ArrayList<Object>();
@@ -245,6 +249,9 @@ public class DailyDrivingReporter extends AbstractReporter {
 		q.setAncestor(companyKey);
 		q.addFilter("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate);
 		q.addFilter("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate);
+		//q.setFilter(CompositeFilterOperator.and (
+		//	     new FilterPredicate("next_repair_date", Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromDate),
+		//	     new FilterPredicate("next_repair_date", Query.FilterOperator.LESS_THAN_OR_EQUAL, toDate)));
 		q.addSort("next_repair_date", SortDirection.DESCENDING);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		PreparedQuery pq = datastore.prepare(q);
