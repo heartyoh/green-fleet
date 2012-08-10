@@ -5,7 +5,7 @@ package com.heartyoh.model;
 
 import java.util.Date;
 
-import com.google.appengine.tools.pipeline.impl.util.GUIDGenerator;
+import com.heartyoh.util.GUIDGenerator;
 
 /**
  * 예약 
@@ -179,7 +179,8 @@ public class Reservation extends AbstractEntity {
 	}
 	
 	@Override
-	public void beforeSave() {		
+	public void beforeSave() {
+		
 		if(this.id == null)
 			this.id = GUIDGenerator.nextGUID();
 		
