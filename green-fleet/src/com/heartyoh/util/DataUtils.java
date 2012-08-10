@@ -21,6 +21,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
@@ -44,6 +46,18 @@ public class DataUtils {
 		//if(DataUtils.isEmpty(value) || !value.equalsIgnoreCase("true"))
 		//	throw new Exception("Just cron job is acceptable!");
 	}
+	
+	/**
+	 * company 정보를 request 객체에서 추출하여 Key를 생성하여 리턴
+	 *  
+	 * @param request
+	 * @return
+	 */
+	public static Key getCompanyKey(HttpServletRequest request) {
+		CustomUser user = SessionUtils.currentUser();
+		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		return KeyFactory.createKey("Company", company);
+	}	
 	
 	/**
 	 * company 정보를 request 객체에서 추출하여 리턴 

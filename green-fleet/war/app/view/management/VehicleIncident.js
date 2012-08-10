@@ -63,6 +63,9 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 	},
 
 	search : function() {
+		if(!this.sub('driver_filter') || !this.sub('date_filter') || !this.sub('vehicle_filter'))
+			return null;
+		
 		var store = this.sub('incidentGrid').store;		
 		var vehicleId = this.sub('vehicle_filter').getSubmitValue();		
 		var driverId = this.sub('driver_filter').getSubmitValue();
