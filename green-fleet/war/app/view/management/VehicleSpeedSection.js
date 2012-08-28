@@ -18,10 +18,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 
 	initComponent : function() {
 		var self = this;
-
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
 		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
-
-		this.callParent();
+		this.callParent(arguments);
 
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
 			if(record.data.time_view == "yearly") {

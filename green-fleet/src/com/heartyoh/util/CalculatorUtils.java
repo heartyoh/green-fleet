@@ -83,6 +83,8 @@ public class CalculatorUtils {
 		consumable.setProperty("miles_last_repl", (float)currentVehicleMileage);
 		consumable.setProperty("health_rate", 0f);
 		consumable.setProperty("status", GreenFleetConstant.VEHICLE_HEALTH_H);
+		consumable.setProperty("cost", 0);
+		consumable.setProperty("comment", "");
 		
 		if(nextReplDate != null)
 			consumable.setProperty("next_repl_date", nextReplDate);

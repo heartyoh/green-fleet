@@ -5,7 +5,8 @@ Ext.define('GreenFleet.mixin.User', function() {
 			email : login.email,
 			id : login.username,
 			name : login.username,
-			language : login.language
+			language : login.language,
+			grade : login.grade
 		}
 	};
 }());

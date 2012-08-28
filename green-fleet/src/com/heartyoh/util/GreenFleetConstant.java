@@ -105,4 +105,17 @@ public class GreenFleetConstant {
 	 * TASK TYPE - 일반 태스크 
 	 */
 	public static final String TASK_TYPE_TASK = "4";
+	
+	/**
+	 * 사용자 등급 - 일반형 
+	 */
+	public static final String USER_GRADE_A = "A";
+	/**
+	 * 사용자 등급 - 표준형 
+	 */
+	public static final String USER_GRADE_B = "B";
+	/**
+	 * 사용자 등급 - 고급형
+	 */
+	public static final String USER_GRADE_C = "C";
 }

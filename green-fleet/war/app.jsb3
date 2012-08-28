@@ -55,6 +55,11 @@
                     "path": "app/mixin/"
                 },
                 {
+                    "clsName": "GreenFleet.mixin.Authority",
+                    "name": "Authority.js",
+                    "path": "app/mixin/"
+                },
+                {
                     "clsName": "GreenFleet.view.Viewport",
                     "name": "Viewport.js",
                     "path": "app/view/"

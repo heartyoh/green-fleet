@@ -35,7 +35,8 @@ Ext.define('GreenFleet.mixin.User', function() {
 			email : login.email,
 			id : login.username,
 			name : login.username,
-			language : login.language
+			language : login.language,
+			grade : login.grade
 		}
 	};
 }());
@@ -316,6 +317,51 @@ Ext.define('GreenFleet.mixin.Label', function() {
 				return new Label(config);
 			}
 		}
+	};
+}());
+Ext.define('GreenFleet.mixin.Authority', function() {
+	
+	// 일반형 ==> tracking, 동영상
+	var prohibitedViewsA = [
+	  'management_vehicle_checkin', 
+	  'management_vehicle_runstatus', 
+	  'management_vehicle_speed', 
+	  'management_driver_runstatus', 
+	  'management_driver_speed', 
+	  'dashboard_report', 
+	  'reverseControl'
+	];  
+	
+	// 표준형 ==> OBD 및 차트 
+	var prohibitedViewsB = ['reverseControl']; 
+	
+	// 고급형 ==> 역관제
+	var prohibitedViewsC = [];  
+		
+	function checkDisabled(xtype) {
+		var views = null;
+		var grade = GreenFleet.login.grade;
+		
+		if('A' == grade) {
+			views = prohibitedViewsA;
+		} else if('B' == grade) {
+			views = prohibitedViewsB;
+		} else if('C' == grade) {
+			views = prohibitedViewsC;
+		} else {
+			views = null;
+		}
+		
+		if(views == null)
+			return true;
+		else if(views.length == 0)
+			return false;
+		else
+			return Ext.Array.contains(views, xtype);
+	}
+
+	return {
+		checkDisabled : checkDisabled
 	};
 }());
 Ext.define('GreenFleet.view.Viewport', {
@@ -1574,6 +1620,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		itemId : 'report',
 		type : 'report',
 		cls : 'btnReport',
+		hidden : login.grade != "C", //GreenFleet.checkDisabled('reverseControl'),
 		handler : function() {
 			new Ext.Window({
 			    title : "Live Video",
@@ -6246,9 +6293,9 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				dataIndex : 'company',
 				text : T('label.company')
-//			}, {
-//				dataIndex : 'locale',
-//				text : T('label.locale')				
+			}, {
+				dataIndex : 'grade',
+				text : T('label.grade')				
 			}, {
 				dataIndex : 'language',
 				text : T('label.language')				
@@ -6358,13 +6405,12 @@ Ext.define('GreenFleet.view.management.User', {
 							name : 'company',
 							fieldLabel : T('label.company'),
 							disable : true
-//						}, {
-//							xtype : 'combo',
-//							name : 'locale',
-//							store : 'LocaleStore',
-//							displayField : 'name',
-//							valueField : 'value',
-//							fieldLabel : 'Locale'
+						}, {
+							xtype : 'codecombo',
+							name : 'grade',
+							group : 'UserGradeType',
+				            fieldLabel: T('label.grade'),
+				            allowBank : false
 						}, {
 							xtype : 'combo',
 							name : 'language',
@@ -8839,6 +8885,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	},
 		
 	initComponent : function() {
+		
 		var self = this;
 
 		this.items = [
@@ -10147,10 +10194,11 @@ Ext.define('GreenFleet.view.management.VehicleCheckin', {
 	},
 		
 	initComponent : function() {
-		var self = this;		
-		this.items = [ this.buildList, this.buildForm(this) ];		
+		var self = this;
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
+		this.items = [ this.buildList, this.buildForm(this) ];
 		this.callParent(arguments);
-
+		
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
 		});
@@ -10172,6 +10220,7 @@ Ext.define('GreenFleet.view.management.VehicleCheckin', {
 		this.down('#search').on('click', function() {
 			self.search();
 		});
+		
 	},
 	
 	getFilter : function() {
@@ -10199,7 +10248,7 @@ Ext.define('GreenFleet.view.management.VehicleCheckin', {
 		return filters;
 	},
 	
-	refresh : function(vehicleId, regNo) {
+	refresh : function(vehicleId, regNo) {		
 		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
 		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
 			return;
@@ -10595,10 +10644,9 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 
 	initComponent : function() {
 		var self = this;
-
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
 		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
-
-		this.callParent();
+		this.callParent(arguments);
 		
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
 			if(record.data.time_view == "yearly") {
@@ -11152,10 +11200,9 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 
 	initComponent : function() {
 		var self = this;
-
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
 		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
-
-		this.callParent();
+		this.callParent(arguments);
 
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
 			if(record.data.time_view == "yearly") {
@@ -12222,10 +12269,9 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 
 	initComponent : function() {
 		var self = this;
-
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
 		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
-
-		this.callParent();
+		this.callParent(arguments);
 		
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {			
 			if(record.data.time_view == "yearly") {
@@ -12865,10 +12911,9 @@ Ext.define('GreenFleet.view.management.DriverSpeedSection', {
 
 	initComponent : function() {
 		var self = this;
-
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
 		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
-
-		this.callParent();
+		this.callParent(arguments);
 
 		this.sub('runstatus_grid').on('itemclick', function(grid, record) {
 			if(record.data.time_view == "yearly") {
@@ -14161,8 +14206,12 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 	title : T('menu.dashboard'),
 
 	initComponent : function() {
-		var self = this;
+		//this.disabled = GreenFleet.checkDisabled(this.xtype);
+		//if(this.disabled) {
+		//	alert('You have no authority to access this menu!');
+		//}
 		
+		var self = this;		
 		this.items = [{
 			xtype : 'container',
 			flex : 1,
@@ -21078,9 +21127,9 @@ Ext.define('GreenFleet.store.UserStore', {
 	}, {
 		name : 'enabled',
 		type : 'boolean'
-//	}, {
-//		name : 'locale',
-//		type : 'string'			
+	}, {
+		name : 'grade',
+		type : 'string'			
 	}, {
 		name : 'language',
 		type : 'string'			
@@ -21174,6 +21223,9 @@ Ext.define('GreenFleet.store.CodeGroupStore', {
 	}, {
 		group : 'ReportType',
 		desc : 'Report Type'
+	}, {
+		group : 'UserGradeType',
+		desc : 'User Grade Type'
 	} ]
 });
 Ext.define('GreenFleet.store.CodeStore', {

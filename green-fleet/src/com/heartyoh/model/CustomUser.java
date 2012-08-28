@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import com.heartyoh.security.AppRole;
+import com.heartyoh.util.GreenFleetConstant;
 
 @SuppressWarnings("serial")
 public class CustomUser implements Serializable {
@@ -20,6 +21,7 @@ public class CustomUser implements Serializable {
 	private Set<AppRole> authorities;
 	private String company;
 	private String language;
+	private String grade;
 	private boolean enabled;
 
 	/**
@@ -35,13 +37,14 @@ public class CustomUser implements Serializable {
 		this.email = email;
 		this.company = null;
 		this.language = "en";
+		this.grade = GreenFleetConstant.USER_GRADE_A;
 		this.enabled = true;
 	}
 
 	/**
 	 * Post-registration constructor
 	 */
-	public CustomUser(String key, String userId, String name, String email, Set<AppRole> authorities, String company, String language, boolean enabled) {
+	public CustomUser(String key, String userId, String name, String email, Set<AppRole> authorities, String company, String language, String grade, boolean enabled) {
 		this.key = key;
 		this.userId = userId;
 		this.name = name;
@@ -51,13 +54,16 @@ public class CustomUser implements Serializable {
 		if (language == null)
 			language = "en";
 		this.language = language;
+		if(grade == null)
+			grade = GreenFleetConstant.USER_GRADE_A;
+		this.grade = grade;
 		this.enabled = enabled;
 	}
 
 	/**
 	 * Post-registration constructor
 	 */
-	public CustomUser(String key, String email, String name, Set<AppRole> authorities, String company, String language, boolean enabled) {
+	public CustomUser(String key, String email, String name, Set<AppRole> authorities, String company, String language, String grade, boolean enabled) {
 		this.key = key;
 		this.name = name;
 		this.email = email;
@@ -66,6 +72,9 @@ public class CustomUser implements Serializable {
 		if (language == null)
 			language = "en";
 		this.language = language;
+		if(grade == null)
+			grade = GreenFleetConstant.USER_GRADE_A;
+		this.grade = grade;		
 		this.enabled = enabled;
 	}
 
@@ -91,6 +100,10 @@ public class CustomUser implements Serializable {
 
 	public String getLanguage() {
 		return language;
+	}
+	
+	public String getGrade() {
+		return grade;
 	}
 
 	public boolean isEnabled() {

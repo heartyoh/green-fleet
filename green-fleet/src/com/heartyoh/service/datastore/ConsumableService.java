@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -68,7 +69,15 @@ public class ConsumableService extends HistoricEntityService {
 	
 	@Override
 	protected String getHistoryIdValue(Entity mainEntity) {
-		return mainEntity.getProperty("vehicle_id") + "@" + mainEntity.getProperty("consumable_item") + "@" + mainEntity.getProperty("updated_at");
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		Entity company = null;
+		try {
+			company = datastore.get(mainEntity.getParent());
+		} catch (EntityNotFoundException e) {
+			logger.error("Company not found by key [" + mainEntity.getParent() + "]!");
+		}
+		String updateTimeStr = DataUtils.dateToString((Date)mainEntity.getProperty("updated_at"), GreenFleetConstant.DEFAULT_DATE_TIME_FORMAT, company);		
+		return mainEntity.getProperty("vehicle_id") + "@" + mainEntity.getProperty("consumable_item") + "@" + updateTimeStr;
 	}	
 	
 	@Override

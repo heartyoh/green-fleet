@@ -18,6 +18,7 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	},
 		
 	initComponent : function() {
+		
 		var self = this;
 
 		this.items = [

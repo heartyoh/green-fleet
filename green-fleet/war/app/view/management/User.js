@@ -94,9 +94,9 @@ Ext.define('GreenFleet.view.management.User', {
 			}, {
 				dataIndex : 'company',
 				text : T('label.company')
-//			}, {
-//				dataIndex : 'locale',
-//				text : T('label.locale')				
+			}, {
+				dataIndex : 'grade',
+				text : T('label.grade')				
 			}, {
 				dataIndex : 'language',
 				text : T('label.language')				
@@ -206,13 +206,12 @@ Ext.define('GreenFleet.view.management.User', {
 							name : 'company',
 							fieldLabel : T('label.company'),
 							disable : true
-//						}, {
-//							xtype : 'combo',
-//							name : 'locale',
-//							store : 'LocaleStore',
-//							displayField : 'name',
-//							valueField : 'value',
-//							fieldLabel : 'Locale'
+						}, {
+							xtype : 'codecombo',
+							name : 'grade',
+							group : 'UserGradeType',
+				            fieldLabel: T('label.grade'),
+				            allowBank : false
 						}, {
 							xtype : 'combo',
 							name : 'language',

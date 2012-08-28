@@ -76,6 +76,7 @@ public class UserService extends EntityService {
 		String admin = (String) map.get("admin");
 		String superUser = (String) map.get("super_user");
 		String language = (String) map.get("language");
+		String grade = (String) map.get("grade");
 		
 		this.setEnabled(entity, map);
 		entity.setProperty("admin", DataUtils.toBool(admin));
@@ -89,6 +90,9 @@ public class UserService extends EntityService {
 		
 		if (company != null)
 			entity.setProperty("company", company);
+		
+		if (grade != null)
+			entity.setUnindexedProperty("grade", grade);
 		
 		if(language == null) {
 			try {
@@ -233,4 +237,41 @@ public class UserService extends EntityService {
 		}
 	}
 
+	@RequestMapping(value = "/user/exist", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> exist(HttpServletRequest request, HttpServletResponse response) {
+		
+		String email = request.getParameter("email");
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		if(DataUtils.isEmpty(email)) {
+			map.put("msg", "Parameter [email] not found!");
+			map.put("success", false);
+			
+		} else {			
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+			Query q = new Query("CustomUser");
+			q.addFilter("email", Query.FilterOperator.EQUAL, email);
+			q.addFilter("enabled", Query.FilterOperator.EQUAL, true);
+			PreparedQuery pq = datastore.prepare(q);
+
+			try {
+				Entity user = pq.asSingleEntity();				
+				
+				if (user != null) {
+					map.put("msg", "Valid User [" + email + "]");
+					map.put("success", true);
+				} else{
+					map.put("msg", "Invalid user [" + email + "]");
+					map.put("success", false);
+				}
+				
+			} catch(Exception e) {
+				map.put("msg", e.getMessage());
+				map.put("success", false);
+			}			
+		}
+		
+		return map;		
+	}
 }

@@ -20,10 +20,11 @@ Ext.define('GreenFleet.view.management.VehicleCheckin', {
 	},
 		
 	initComponent : function() {
-		var self = this;		
-		this.items = [ this.buildList, this.buildForm(this) ];		
+		var self = this;
+		this.disabled = GreenFleet.checkDisabled(this.xtype);
+		this.items = [ this.buildList, this.buildForm(this) ];
 		this.callParent(arguments);
-
+		
 		this.sub('grid').on('itemclick', function(grid, record) {
 			self.sub('form').loadRecord(record);
 		});
@@ -45,6 +46,7 @@ Ext.define('GreenFleet.view.management.VehicleCheckin', {
 		this.down('#search').on('click', function() {
 			self.search();
 		});
+		
 	},
 	
 	getFilter : function() {
@@ -72,7 +74,7 @@ Ext.define('GreenFleet.view.management.VehicleCheckin', {
 		return filters;
 	},
 	
-	refresh : function(vehicleId, regNo) {
+	refresh : function(vehicleId, regNo) {		
 		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
 		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
 			return;

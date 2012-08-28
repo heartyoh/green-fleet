@@ -25,9 +25,10 @@
 			email : '<sec:authentication property="principal.email"/>',
 			username : '<sec:authentication property="principal.name"/>',
 			company : '<sec:authentication property="principal.company"/>',
-			language : '<sec:authentication property="principal.language"/>'
+			language : '<sec:authentication property="principal.language"/>',
+			grade : '<sec:authentication property="principal.grade"/>'
 		};
-		
+				
 		var System = System || {};
 		System.props = {
 			lat : 37.55,

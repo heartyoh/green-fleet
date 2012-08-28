@@ -25,6 +25,7 @@ import com.heartyoh.security.GaeUserAuthentication;
 import com.heartyoh.util.AlarmUtils;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
+import com.heartyoh.util.GreenFleetConstant;
 
 @Controller
 public class RegistrationService {
@@ -95,7 +96,8 @@ public class RegistrationService {
 
 		CustomUser user = new CustomUser(currentUser.getUserId(), 
 				currentUser.getEmail(), form.getName(), roles, 
-				form.getCompany(), form.getLanguage(), true);
+				form.getCompany(), form.getLanguage(), 
+				GreenFleetConstant.USER_GRADE_A, true);
 		registry.registerUser(user);		
 		user = registry.findUser(currentUser.getEmail());
 		
@@ -154,6 +156,7 @@ public class RegistrationService {
 								  roles, 
 								  form.getCompany(), 
 								  form.getLanguage(), 
+								  GreenFleetConstant.USER_GRADE_A,
 								  false);
 			registry.registerUser(user);			
 		}

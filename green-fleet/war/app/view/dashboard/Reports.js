@@ -11,8 +11,12 @@ Ext.define('GreenFleet.view.dashboard.Reports', {
 	title : T('menu.dashboard'),
 
 	initComponent : function() {
-		var self = this;
+		//this.disabled = GreenFleet.checkDisabled(this.xtype);
+		//if(this.disabled) {
+		//	alert('You have no authority to access this menu!');
+		//}
 		
+		var self = this;		
 		this.items = [{
 			xtype : 'container',
 			flex : 1,

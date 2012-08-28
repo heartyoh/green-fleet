@@ -65,5 +65,8 @@ Ext.define('GreenFleet.store.CodeGroupStore', {
 	}, {
 		group : 'ReportType',
 		desc : 'Report Type'
+	}, {
+		group : 'UserGradeType',
+		desc : 'User Grade Type'
 	} ]
 });

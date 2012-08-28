@@ -19,6 +19,7 @@ import com.google.appengine.api.datastore.Query;
 import com.heartyoh.dao.UserDao;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.security.AppRole;
+import com.heartyoh.util.GreenFleetConstant;
 
 public class DatastoreUserDaoImpl implements UserDao {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -30,6 +31,7 @@ public class DatastoreUserDaoImpl implements UserDao {
 	private static final String USER_AUTHORITIES = "authorities";
 	private static final String USER_COMPANY = "company";
 	private static final String USER_LANGUAGE = "language";
+	private static final String USER_GRADE = "grade";
 	private static final String USER_CREATED_AT = "created_at";
 	private static final String USER_UPDATED_AT = "updated_at";
 
@@ -59,10 +61,11 @@ public class DatastoreUserDaoImpl implements UserDao {
 				}
 			}
 
+			String grade = user.getProperty(USER_GRADE) == null ? GreenFleetConstant.USER_GRADE_A : (String)user.getProperty(USER_GRADE);
 			CustomUser gaeUser = new CustomUser(KeyFactory.keyToString(user.getKey()), user.getKey().getName(),
 					(String) user.getProperty(USER_NAME), (String) user.getProperty(USER_EMAIL), roles,
 					(String) user.getProperty(USER_COMPANY), (String) user.getProperty(USER_LANGUAGE),
-					(Boolean) user.getProperty(USER_ENABLED));
+					grade, (Boolean) user.getProperty(USER_ENABLED));
 
 			return gaeUser;
 
@@ -86,7 +89,8 @@ public class DatastoreUserDaoImpl implements UserDao {
 		user.setProperty(USER_NAME, newUser.getName());
 		user.setProperty(USER_COMPANY, newUser.getCompany());
 		user.setProperty(USER_LANGUAGE, newUser.getLanguage());
-		user.setUnindexedProperty(USER_ENABLED, newUser.isEnabled());
+		user.setProperty(USER_ENABLED, newUser.isEnabled());
+		user.setUnindexedProperty(USER_GRADE, newUser.getGrade() == null ? GreenFleetConstant.USER_GRADE_A : newUser.getGrade());
 		user.setUnindexedProperty(USER_CREATED_AT, now);
 		user.setUnindexedProperty(USER_UPDATED_AT, now);
 
@@ -104,7 +108,6 @@ public class DatastoreUserDaoImpl implements UserDao {
 
 	public void removeUser(String key) {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
 		datastore.delete(KeyFactory.stringToKey(key));
 	}
 }

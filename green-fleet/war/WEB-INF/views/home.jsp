@@ -25,7 +25,8 @@
 			email : '<sec:authentication property="principal.email"/>',
 			username : '<sec:authentication property="principal.name"/>',
 			company : '<sec:authentication property="principal.company"/>',
-			locale : '<sec:authentication property="principal.language"/>'
+			locale : '<sec:authentication property="principal.language"/>',
+			grade : '<sec:authentication property="principal.grade"/>'
 		};
 		
 		var System = System || {};

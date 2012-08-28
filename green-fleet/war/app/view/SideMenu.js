@@ -22,6 +22,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		itemId : 'report',
 		type : 'report',
 		cls : 'btnReport',
+		hidden : login.grade != "C", //GreenFleet.checkDisabled('reverseControl'),
 		handler : function() {
 			new Ext.Window({
 			    title : "Live Video",

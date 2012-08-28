@@ -154,3 +154,6 @@ ReportType,driver_consmpt,운전자별 연료소모량
 ReportType,driver_effcc,운전자별 연비
 ReportType,driver_oprate,운전자별 가동율
 ReportType,driver_co2,운전자별 CO2배출량
+UserGradeType,A,General
+UserGradeType,B,Standard
+UserGradeType,C,Premium

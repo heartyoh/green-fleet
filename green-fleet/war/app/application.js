@@ -16,7 +16,8 @@ Ext.define('GreenFleet', {
 		subitem : 'GreenFleet.mixin.SubItem',
 		util : 'GreenFleet.mixin.Import',
 		setting : 'GreenFleet.mixin.Setting',
-		label : 'GreenFleet.mixin.Label'
+		label : 'GreenFleet.mixin.Label',
+		auth : 'GreenFleet.mixin.Authority'
 	}
 });
 
