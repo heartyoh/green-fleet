@@ -123,22 +123,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',
 			closable : true
-		}/*, {
-			title : T('menu.incident'),
-			xtype : 'management_incident',
-			itemId : 'incident',
-			closable : true
-		}, {
-			title : T('menu.track'),
-			xtype : 'management_track',
-			itemId : 'track',
-			closable : true
-		}, {
-			title : T('menu.checkin_data'),
-			xtype : 'management_checkin_data',
-			itemId : 'checkin_data',
-			closable : true
-		}*/ ]
+		} ]
 	}, {
 		text : T('menu.driver'),
 		submenus : [ {
@@ -146,17 +131,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_driver',
 			itemId : 'driver',
 			closable : true
-		}/*, {
-			title : T('menu.driver_runstatus'),
-			xtype : 'management_driver_runstatus',
-			itemId : 'driver_runstatus',
-			closable : true
-		}, {
-			title : T('menu.driver_speed_section'),
-			xtype : 'management_driver_speed',
-			itemId : 'driver_speed',
-			closable : true
-		}*/ ]
+		} ]
 	}, {
 		text : T('menu.terminal'),
 		submenus : [ {

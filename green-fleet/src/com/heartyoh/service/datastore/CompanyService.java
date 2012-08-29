@@ -2,6 +2,7 @@ package com.heartyoh.service.datastore;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityExistsException;
@@ -22,6 +23,8 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.heartyoh.util.DataUtils;
+import com.heartyoh.util.DatastoreUtils;
+import com.heartyoh.util.SessionUtils;
 
 @Controller
 public class CompanyService extends EntityService {
@@ -135,4 +138,17 @@ public class CompanyService extends EntityService {
 		return super.retrieve(request, response);
 	}
 
+	@RequestMapping(value = "/company/find", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, Object> find(HttpServletRequest request, HttpServletResponse response) {
+		String companyId = request.getParameter("id");		
+		if(DataUtils.isEmpty(companyId))
+			companyId = SessionUtils.currentUser().getCompany();		
+		Entity entity = DatastoreUtils.findCompany(companyId);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(entity.getProperties());
+		map.put("key", KeyFactory.keyToString(entity.getKey()));
+		map.put("success", true);
+		return map;
+	}	
 }
