@@ -32,6 +32,7 @@ Ext.define('GreenFleet.mixin.User', function() {
 	return {
 		login : {
 			key : login.key,
+			company : login.company,
 			email : login.email,
 			id : login.username,
 			name : login.username,
@@ -966,7 +967,7 @@ Ext.define('GreenFleet.view.viewport.West', {
 		text : T('menu.incident'),
 		handler : function() {
 			GreenFleet.doMenu('monitor_incident');
-		}		
+		}
 	}, {
 		xtype : 'button',
 		cls : 'btnImport',
@@ -1378,7 +1379,46 @@ Ext.define('GreenFleet.view.Brand', {
 	
 	alias : 'widget.brand',
 	
-	html : '<a></a>'
+	//html : '<a></a>' ==> 기본으로 resources/image/logoGreenfleet.gif를 가리킨다. 
+	
+	initComponent : function() {
+		this.callParent(arguments);		
+		this.setCompanyLogo();		
+	},
+	
+	setCompanyLogo : function() {
+		var image = this.sub('image');
+		
+    	Ext.Ajax.request({
+		    url: 'company/find',
+		    method : 'GET',
+		    success: function(response) {		    	
+		        var resultObj = Ext.JSON.decode(response.responseText);
+		        
+		        if(resultObj.success) {		        	
+		    		var companyLogo = resultObj.image_clip;
+		    		var imgSrc = (companyLogo && companyLogo != '') ? ('download?blob-key=' + companyLogo) : 'resources/image/logoGreenfleet.gif';
+		    		image.setSrc(imgSrc);		        	
+		        } else {
+		        	image.setSrc('resources/image/logoGreenfleet.gif');
+		        }
+		    },
+		    failure: function(response) {
+		    	image.setSrc('resources/image/logoGreenfleet.gif');
+		    }
+		});
+	},
+
+	items : [ {
+		xtype : 'container',
+		flex : 1,
+		layout : 'fit',
+		items : [ {
+			xtype : 'image',
+			itemId : 'image'
+		} ]
+	} ]
+
 });
 Ext.define('GreenFleet.view.MainMenu', {
 	extend : 'Ext.toolbar.Toolbar',
@@ -1505,22 +1545,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_vehicle',
 			itemId : 'vehicle',
 			closable : true
-		}/*, {
-			title : T('menu.incident'),
-			xtype : 'management_incident',
-			itemId : 'incident',
-			closable : true
-		}, {
-			title : T('menu.track'),
-			xtype : 'management_track',
-			itemId : 'track',
-			closable : true
-		}, {
-			title : T('menu.checkin_data'),
-			xtype : 'management_checkin_data',
-			itemId : 'checkin_data',
-			closable : true
-		}*/ ]
+		} ]
 	}, {
 		text : T('menu.driver'),
 		submenus : [ {
@@ -1528,17 +1553,7 @@ Ext.define('GreenFleet.view.MainMenu', {
 			xtype : 'management_driver',
 			itemId : 'driver',
 			closable : true
-		}/*, {
-			title : T('menu.driver_runstatus'),
-			xtype : 'management_driver_runstatus',
-			itemId : 'driver_runstatus',
-			closable : true
-		}, {
-			title : T('menu.driver_speed_section'),
-			xtype : 'management_driver_speed',
-			itemId : 'driver_speed',
-			closable : true
-		}*/ ]
+		} ]
 	}, {
 		text : T('menu.terminal'),
 		submenus : [ {
@@ -1620,7 +1635,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		itemId : 'report',
 		type : 'report',
 		cls : 'btnReport',
-		hidden : login.grade != "C", //GreenFleet.checkDisabled('reverseControl'),
+		hidden : login.grade != "C",
 		handler : function() {
 			new Ext.Window({
 			    title : "Live Video",
@@ -5390,18 +5405,20 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		});
 
 		this.down('displayfield[name=driver_id]').on('change', function(field, value) {
-			/*
-			 * Get Driver Information (Image, Name, ..) from DriverStore
-			 */
-			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = driverStore.findRecord('id', value);
-			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('image_clip');
-			if (driverImageClip) {
-				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-			}
+			if(value && value != '') {
+				/*
+				 * Get Driver Information (Image, Name, ..) from DriverStore
+				 */
+				var driverStore = Ext.getStore('DriverBriefStore');
+				var driverRecord = driverStore.findRecord('id', value);
+				var driver = driverRecord.get('id');
+				var driverImageClip = driverRecord.get('image_clip');
+				if (driverImageClip) {
+					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+				} else {
+					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+				}				
+			}				
 		});
 
 		this.sub('driver_filter').on('specialkey', function(fleld, e) {
@@ -5475,7 +5492,7 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 			this.refreshIncidentList();
 		}
 
-		if(incident.data.lat !== undefined && incident.data.lng !== undefined) {
+		if((incident.data.lat !== undefined && incident.data.lng !== undefined) && (incident.data.lat > 0 && incident.data.lng > 0)) {
 			var latlng = new google.maps.LatLng(incident.data.lat, incident.data.lng);
 			geocoder = new google.maps.Geocoder();
 			geocoder.geocode({
@@ -5530,16 +5547,23 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		this.setMarker(null);
 
 		var incident = this.getIncident();
-		var location = null;
-		if (!incident)
-			location = new google.maps.LatLng(System.props.lat, System.props.lng);
-		else
-			location = new google.maps.LatLng(incident.get('lat'), incident.get('lng'));
-
-		this.getMap().setCenter(location);
-
+		
 		if (!incident)
 			return;
+		
+		var location = null;
+		if (!incident) {
+			location = new google.maps.LatLng(System.props.lat, System.props.lng);
+		} else {
+			if(incident.get('lat') && incident.get('lng') && incident.get('lat') > 0 && incident.get('lng') > 0) {
+				location = new google.maps.LatLng(incident.get('lat'), incident.get('lng'));
+			}
+		}
+		
+		if (!location)
+			return;
+		
+		this.getMap().setCenter(location);		
 
 		this.setMarker(new google.maps.Marker({
 			position : location,
@@ -5567,6 +5591,10 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 		var latlng;
 
 		this.getLogStore().each(function(record) {
+			
+			if(!record.get('lat') || record.get('lat') == 0 || !record.get('lng') || record.get('lng') == 0)
+				return false;
+			
 			latlng = new google.maps.LatLng(record.get('lat'), record.get('lng'));
 			path.push(latlng);
 			if (!bounds)
@@ -5693,7 +5721,8 @@ Ext.define('GreenFleet.view.monitor.IncidentView', {
 								cls : 'incidentDetail',
 								flex : 1,
 								itemId : 'video',
-								tpl : [ '<video width="100%" height="100%" controls="controls">', '<source {value} type="video/mp4" />',
+								tpl : [ '<video width="100%" height="100%" controls="controls">', 
+								        '<source {value} type="video/mp4" />',
 										'Your browser does not support the video tag.', '</video>' ]
 							} ]
 				}, {
@@ -9184,7 +9213,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 				newRecord.data = {};
 				
 				// lat, lng 정보가 있다면 location 정보를 얻어와서 vehicle form loading...
-	    		if(record.lat !== undefined && record.lng !== undefined) {
+	    		if(record.lat !== undefined && record.lng !== undefined && record.lat > 0 && record.lng > 0) {
 	    			var latlng = new google.maps.LatLng(record.lat, record.lng);
 	    			geocoder = new google.maps.Geocoder();
 	    			geocoder.geocode({

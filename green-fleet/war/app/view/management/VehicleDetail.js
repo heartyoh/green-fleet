@@ -39,7 +39,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 				newRecord.data = {};
 				
 				// lat, lng 정보가 있다면 location 정보를 얻어와서 vehicle form loading...
-	    		if(record.lat !== undefined && record.lng !== undefined) {
+	    		if(record.lat !== undefined && record.lng !== undefined && record.lat > 0 && record.lng > 0) {
 	    			var latlng = new google.maps.LatLng(record.lat, record.lng);
 	    			geocoder = new google.maps.Geocoder();
 	    			geocoder.geocode({
