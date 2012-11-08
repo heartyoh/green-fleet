@@ -162,7 +162,7 @@ public class CheckinDataService extends EntityService {
 				DatasourceUtils.findVehicle(checkin.getParent().getName(), (String)checkin.getProperty("vehicle_id"));
 		
 		if(vehicle != null) {
-			// 차량 정보의 공인연비, 평균 연비로 에코 지수를 계산하여 checkin 데이터에 추가 
+			// 차량 정보의 공인연비, 평균 연비로 에코 지수를 계산하여 checkin 데이터에 추가, 상태 변경  
 			float avgEffcc = DataUtils.toFloat(checkin.getProperty("fuel_efficiency"));
 			float officialEffcc = vehicle.getOfficialEffcc();
 			
@@ -170,10 +170,15 @@ public class CheckinDataService extends EntityService {
 				int ecoIndex = Math.round((avgEffcc / officialEffcc) * 100);
 				checkin.setUnindexedProperty("eco_index", ecoIndex);
 			}
+			
+			// 차량 상태 변경
+			vehicle.setStatus(GreenFleetConstant.VEHICLE_STATUS_IDLE);
+			Dml dml = ConnectionManager.getInstance().getDml();
+			dml.update(vehicle);
 		}
 		
 		datastore.put(checkin);
-	}	
+	}
 
 	@RequestMapping(value = "/checkin_data/import", method = RequestMethod.POST)
 	public @ResponseBody
