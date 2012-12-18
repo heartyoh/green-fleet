@@ -13,7 +13,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	initComponent : function() {
 		var self = this;
 		this.callParent(arguments);
-		this.add(this.vehicleForm);		
+		this.add(this.vehicleForm());		
 	},
 	
 	/**
@@ -27,6 +27,8 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 		var self = this;
 		this.vehicle = vehicleId;
 		
+		self.formSetDisabled(true);
+	
 		Ext.Ajax.request({
 			url : 'vehicle/find',
 			method : 'GET',
@@ -64,135 +66,164 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 		});		
 	},
 	
-	vehicleForm : {
-		xtype : 'panel',
-		bodyPadding : 10,
-		cls : 'hIndexbar',	
-		title : T('title.vehicle_details'),
-		layout : {
-			type : 'vbox',
-			align : 'stretch'
-		},
-		flex : 1,
-		items : [{
-	    	xtype : 'form',
-	    	itemId : 'form',
-	    	flex : 1,
-	    	autoScroll : true,
-	    	defaults : {
-	    		xtype : 'textfield',
-	    		anchor : '100%'
-	    	},
-	    	items : [ {
-	    		name : 'key',
-	    		fieldLabel : 'Key',
-	    		hidden : true
-			}, {
-				name : 'id',
-				fieldLabel : T('label.id')
-			}, {
-				name : 'registration_number',
-				fieldLabel : T('label.reg_no')
-			}, {
-				name : 'vehicle_model',
-				fieldLabel : T('label.vehicle_model')
-			}, {
-				xtype : 'codecombo',
-				name : 'manufacturer',
-				group : 'V-Maker',
-				fieldLabel : T('label.manufacturer')
-			}, {
-				xtype : 'codecombo',
-				name : 'vehicle_type',
-				group : 'V-Type1',
-				fieldLabel : T('label.vehicle_type')
-			}, {
-				xtype : 'codecombo',
-				name : 'fuel_type',
-				group : 'V-Fuel',
-				fieldLabel : T('label.fuel_type')
-			}, {
-				xtype : 'codecombo',
-				name : 'birth_year',
-				group : 'V-BirthYear',
-				name : 'birth_year',
-				fieldLabel : T('label.birth_year')
-			}, {
-				xtype : 'combo',
-				name : 'ownership_type',
-				queryMode : 'local',
-				store : 'OwnershipStore',
-				displayField : 'desc',
-				valueField : 'name',
-				fieldLabel : T('label.ownership_type')
-			}, {
-				xtype : 'combo',
-				name : 'status',
-				queryMode : 'local',
-				store : 'VehicleStatusStore',
-				displayField : 'desc',
-				valueField : 'status',
-				fieldLabel : T('label.status')
-			}, {
-				name : 'health_status',
-				fieldLabel : T('label.health')							
-			}, {
-				name : 'total_distance',
-				fieldLabel : T('label.total_distance')
-			}, {
-				name : 'total_run_time',
-				fieldLabel : T('label.total_run_time')
-			}, {
-				name : 'official_effcc',
-				fieldLabel : T('label.official_effcc')
-			}, {
-				name : 'avg_effcc',
-				fieldLabel : T('label.avg_effcc')
-			}, {
-				name : 'eco_index',
-				fieldLabel : T('label.eco_index')
-			}, {
-				name : 'eco_run_rate',
-				fieldLabel : T('label.eco_run_rate')
-			}, {
-				name : 'remaining_fuel',
-				fieldLabel : T('label.remaining_fuel')
-			}, {
-				name : 'location',
-				fieldLabel : T('label.location'),
-				disabled : true
-			}, {
-				name : 'lat',
-				fieldLabel : T('label.latitude'),
-				disabled : true
-			}, {
-				name : 'lng',
-				fieldLabel : T('label.longitude'),
-				disabled : true
-			}, {
-				xtype : 'filefield',
-				name : 'image_file',
-				fieldLabel : T('label.image_upload'),
-				msgTarget : 'side',
-				allowBlank : true,
-				buttonText : T('button.file')
-			}, {
-				xtype : 'displayfield',
-				name : 'image_clip',
-				itemId : 'image_clip',
-				hidden : true
+	vehicleForm : function(main) {
+		return{
+			xtype : 'panel',
+			bodyPadding : 10,
+			cls : 'hIndexbar',	
+			title : T('title.vehicle_details'),
+			layout : {
+				type : 'vbox',
+				align : 'stretch'
+			},
+			flex : 1,
+			items : [{
+		    	xtype : 'form',
+		    	itemId : 'form',
+		    	flex : 1,
+		    	autoScroll : true,
+		    	defaults : {
+		    		xtype : 'textfield',
+		    		anchor : '100%'
+		    	},
+		    	items : [ {
+		    		name : 'key',
+		    		fieldLabel : 'Key',
+		    		hidden : true
+				}, {
+					itemId: 'form_id',
+					name : 'id',
+					fieldLabel : T('label.id')
+				}, {
+					name : 'registration_number',
+					fieldLabel : T('label.reg_no')
+				}, {
+					name : 'vehicle_model',
+					fieldLabel : T('label.vehicle_model')
+				}, {
+					xtype : 'codecombo',
+					name : 'manufacturer',
+					group : 'V-Maker',
+					fieldLabel : T('label.manufacturer')
+				}, {
+					xtype : 'codecombo',
+					name : 'vehicle_type',
+					group : 'V-Type1',
+					fieldLabel : T('label.vehicle_type')
+				}, {
+					xtype : 'codecombo',
+					name : 'fuel_type',
+					group : 'V-Fuel',
+					fieldLabel : T('label.fuel_type')
+				}, {
+					xtype : 'codecombo',
+					name : 'birth_year',
+					group : 'V-BirthYear',
+					name : 'birth_year',
+					fieldLabel : T('label.birth_year')
+				}, {
+					xtype : 'combo',
+					name : 'ownership_type',
+					queryMode : 'local',
+					store : 'OwnershipStore',
+					displayField : 'desc',
+					valueField : 'name',
+					fieldLabel : T('label.ownership_type')
+				}, {
+					xtype : 'combo',
+					itemId: 'form_status',
+					name : 'status',
+					queryMode : 'local',
+					store : 'VehicleStatusStore',
+					displayField : 'desc',
+					valueField : 'status',
+					fieldLabel : T('label.status')
+				}, {
+					itemId: 'form_health_status',
+					name : 'health_status',
+					fieldLabel : T('label.health')							
+				}, {
+					itemId: 'form_total_distance',
+					name : 'total_distance',
+					fieldLabel : T('label.total_distance')
+				}, {
+					itemId: 'form_total_run_time',
+					name : 'total_run_time',
+					fieldLabel : T('label.total_run_time')
+				}, {
+					itemId: 'form_official_effcc',
+					name : 'official_effcc',
+					fieldLabel : T('label.official_effcc')
+				}, {
+					itemId: 'form_avg_effcc',
+					name : 'avg_effcc',
+					fieldLabel : T('label.avg_effcc')
+				}, {
+					itemId: 'form_eco_index',
+					name : 'eco_index',
+					fieldLabel : T('label.eco_index')
+				}, {
+					itemId: 'form_eco_run_rate',
+					name : 'eco_run_rate',
+					fieldLabel : T('label.eco_run_rate')
+				}, {
+					itemId: 'form_remaining_fuel',
+					name : 'remaining_fuel',
+					fieldLabel : T('label.remaining_fuel')
+				}, {
+					name : 'location',
+					fieldLabel : T('label.location'),
+					disabled : true
+				}, {
+					name : 'lat',
+					fieldLabel : T('label.latitude'),
+					disabled : true
+				}, {
+					name : 'lng',
+					fieldLabel : T('label.longitude'),
+					disabled : true
+				}, {
+					xtype : 'filefield',
+					name : 'image_file',
+					fieldLabel : T('label.image_upload'),
+					msgTarget : 'side',
+					allowBlank : true,
+					buttonText : T('button.file')
+				}, {
+					xtype : 'displayfield',
+					name : 'image_clip',
+					itemId : 'image_clip',
+					hidden : true
+				} ]
+			}],
+			
+			dockedItems : [ {
+				xtype : 'entity_form_buttons',
+				loader : {
+					fn : function(callback) {
+						var vehicleStore = Ext.getStore('VehicleImageBriefStore');
+						vehicleStore.load(callback);
+					},
+					resetFn : function(callback) {
+						this.formSetDisabled(false);
+					},
+					scope : this
+				}
 			} ]
-		}],
-		
-		dockedItems : [ {
-			xtype : 'entity_form_buttons',
-			loader : {
-				fn : function(callback) {
-					var vehicleStore = Ext.getStore('VehicleImageBriefStore');
-					vehicleStore.load(callback);
-				},
-				scope : this
-			}
-		} ]
+		}
+	},
+	
+	formSetDisabled : function(mode){
+		this.sub('form_id').setDisabled(mode);
+		this.sub('form_status').setDisabled(mode);
+		this.sub('form_health_status').setDisabled(mode);
+		this.sub('form_total_run_time').setDisabled(mode);
+		this.sub('form_total_distance').setDisabled(mode);
+		this.sub('form_official_effcc').setDisabled(mode);
+		this.sub('form_avg_effcc').setDisabled(mode);
+		this.sub('form_eco_index').setDisabled(mode);
+		this.sub('form_eco_run_rate').setDisabled(mode);
+		this.sub('form_remaining_fuel').setDisabled(mode);
 	}
+	
 });

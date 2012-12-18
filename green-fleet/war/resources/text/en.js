@@ -466,6 +466,9 @@ T({
 		no_maint_history : 'No maintenance history!',
 		maint_on_x_next_y : 'Maintenance on {x} and {y} is the next service date.',
 		vehicle_eco_drv_result_msg : 'Eco-drive index of this car is {x} level. <br/> If you manage idle time, annual <span>cost savings of ${y}</span> or more are available.',
-		driver_eco_drv_result_msg : 'Eco-drive index of this driver is {x} level.<br/> If you manage driving habits, annual <span>cost savings of ${y}</span> or more are available and reducing the risk of accidents.'
+		driver_eco_drv_result_msg : 'Eco-drive index of this driver is {x} level.<br/> If you manage driving habits, annual <span>cost savings of ${y}</span> or more are available and reducing the risk of accidents.',
+		address_notfound : 'Address ({x}) Not Found!',
+		address_notfound_title : 'Failed to search',
+		address_empty : 'Please enter an address'
 	}
 });

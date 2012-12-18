@@ -68,7 +68,7 @@ T({
 		group_details : '그룹 상세',
 		vehicles_by_group : '그룹별 차량',
 		vehicle_list : '차량 리스트',
-		vehicle_details : '차량 상세',
+		vehicle_details : '차량상세',
 		tracking_list : '추적 리스트',
 		tracking_details : '추적 상세',
 		checkin_data_list : '체크인정보 리스트',
@@ -86,7 +86,7 @@ T({
 		consumable_item : '소모품 항목',
 		consumable_change_history : '소모품 교체 이력',
 		consumable_details : '소모품 상세',
-		vehicle_consumables : '차량 소모품',
+		vehicle_consumables : '차량소모품',
 		maintenance : '정비',
 		maintenance_history : '정비 이력',
 		vehicle_health : '차량 건강상태',
@@ -106,8 +106,8 @@ T({
 		set_the_location : '위치 지정',
 		alarm_list : '알람 리스트',
 		alarm_details : '알람 상세',
-		vehicle_runstatus : '차량별 운행현황',
-		vehicle_speed_section : '차량별 속도구간',
+		vehicle_runstatus : '차량별운행현황',
+		vehicle_speed_section : '차량별속도구간',
 		runstatus_history : '운행 이력',
 		runstatus_chart : '운행현황 차트',
 		driver_runstatus : '운전자별 주행현황',
@@ -466,6 +466,9 @@ T({
 		no_maint_history : '정비 이력이 없습니다.',
 		maint_on_x_next_y : '{x}에 정비를 하였으며 <br/> 다음 정비 예정일은 {y}입니다.',
 		vehicle_eco_drv_result_msg : '이 차의 에코드라이브 지수는 {x}레벨입니다.<br/> 공회전시간을 적절하게 관리하면, <span>연간 {y}만원</span> 이상의 유류비 절약이 가능합니다.',
-		driver_eco_drv_result_msg : '이 운전자의 에코드라이브 지수는 {x}레벨입니다.<br/> 운전습관을 적절하게 관리하면, <span>연간 {y}만원</span> 이상의유류비 절약이 가능하며, 사고 위험을 현저히 낮출 수 있습니다'
+		driver_eco_drv_result_msg : '이 운전자의 에코드라이브 지수는 {x}레벨입니다.<br/> 운전습관을 적절하게 관리하면, <span>연간 {y}만원</span> 이상의유류비 절약이 가능하며, 사고 위험을 현저히 낮출 수 있습니다',
+		address_notfound : '주소({x})를 찾을수 없습니다.!',
+		address_notfound_title : '찾기실패',
+		address_empty : '주소를 입력하세요'
 	}
 });

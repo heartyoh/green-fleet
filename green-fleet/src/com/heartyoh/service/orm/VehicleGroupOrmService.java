@@ -41,7 +41,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	/**
 	 * 
 	 */
-	private static final String[] KEY_FIELDS = new String[] { "company", "group_id" };
+	private static final String[] KEY_FIELDS = new String[] { "company", "id" };
 			
 	@Override
 	public Class<?> getEntityClass() {
@@ -69,7 +69,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 	@RequestMapping(value = "/vehicle_group/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return this.delete(request, response);
+		return super.delete(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_group", method = RequestMethod.GET)

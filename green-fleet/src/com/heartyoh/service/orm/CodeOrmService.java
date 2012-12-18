@@ -20,6 +20,7 @@ import com.heartyoh.model.CommonCode;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.IEntity;
 import com.heartyoh.model.Sorter;
+import com.heartyoh.util.DataUtils;
 
 /**
  * Code Service
@@ -32,7 +33,7 @@ public class CodeOrmService extends OrmEntityService {
 	/**
 	 * key field names
 	 */
-	private static final String[] KEY_FIELDS = new String[] { "company", "name" };
+	private static final String[] KEY_FIELDS = new String[] { "company", "group", "code" };
 	
 	@Override
 	public Class<?> getEntityClass() {
@@ -133,6 +134,33 @@ public class CodeOrmService extends OrmEntityService {
 					query.addOrder(sorter.getProperty(), "asc".equals(sorter.getDirection().toLowerCase()));
 				}
 			}
+		}
+		
+		return query;
+	}
+	
+	@Override
+	protected Query getKeyQuery(HttpServletRequest request, boolean checkNull) throws Exception {
+		Query query = new Query();
+		String[] keyFields = this.getKeyFields();
+		
+		for(int i = 0; i < keyFields.length ; i++) {
+			String key = keyFields[i];
+			Object value = request.getParameter(key);
+			
+			if("company".equalsIgnoreCase(key)) {
+				value = this.getCompany(request);
+			}
+			
+			if("group".equalsIgnoreCase(key)) {
+				key = "code_group";
+			}
+			
+			// checkNull이 true로 되어 있다면 request에 key 값이 없다면 예외 발생 
+			if(checkNull && DataUtils.isEmpty(value))
+				throw new Exception("Key [" + key + "] value is null!");
+			
+			query.addFilter(key, value);
 		}
 		
 		return query;

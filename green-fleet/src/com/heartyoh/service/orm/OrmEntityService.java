@@ -526,7 +526,11 @@ public abstract class OrmEntityService {
 			if(filters != null) {
 				for(Filter filter : filters) {
 					if(!DataUtils.isEmpty(filter.getValue()))
-						query.addFilter(filter.getProperty(), filter.getValue());
+						if(filter.getProperty().equals("name")){
+							query.addFilter(filter.getProperty(), "like", "%" + filter.getValue() + "%");
+						}else{
+							query.addFilter(filter.getProperty(), filter.getValue());
+						}
 				}
 			}
 		

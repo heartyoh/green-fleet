@@ -381,4 +381,9 @@ public class AlarmOrmService extends OrmEntityService {
 		// TODO
 	}
 	
+	@Override
+	protected boolean useFilter() {
+		return true;
+	}
+	
 }

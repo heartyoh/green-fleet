@@ -28,6 +28,7 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.repackaged.com.google.api.client.util.Data;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.security.AppRole;
@@ -59,12 +60,13 @@ public class UserService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
-		if(image_file != null) {
-			entity.setProperty("image_clip", image_file);
+		if(!DataUtils.isEmpty(map.get("image_file"))){
+			String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
+			if(image_file != null) {
+				entity.setProperty("image_clip", image_file);
+			}
+			super.postMultipart(entity, map, request);
 		}
-
-		super.postMultipart(entity, map, request);
 	}	
 
 	@Override

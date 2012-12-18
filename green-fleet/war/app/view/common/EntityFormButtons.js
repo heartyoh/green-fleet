@@ -114,6 +114,9 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 		this.down('#reset').on('click', function() {
 			var client = self.up('[entityUrl]');
 			client.sub('form').getForm().reset();
+			if(self.loader && typeof(self.loader.resetFn) === 'function') {
+				self.loader.resetFn.call(self.loader.scope || client, null);
+			}
 		});
 
 	}

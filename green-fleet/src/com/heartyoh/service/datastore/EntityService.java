@@ -226,7 +226,12 @@ public abstract class EntityService {
 			String key = it.next();
 			MultipartFile file = filemap.get(key);
 
-			map.put(key, file);
+			// image clip or video clip
+			if(key.endsWith("_clip")) {
+				map.put(key, file);
+			} else {
+				map.put(key, new String(file.getBytes()));
+			}						
 		}
 	}
 
@@ -325,14 +330,26 @@ public abstract class EntityService {
 	String save(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Map<String, Object> map = toMap(request);
-		String key = request.getParameter("key");
-		Key companyKey = this.getCompanyKey(request);
-		map.put("_company_key", companyKey);
-		map.put("_now", new Date());
+//		String key = request.getParameter("key");
+//		Key companyKey = this.getCompanyKey(request);
+//		map.put("_company_key", companyKey);
+//		map.put("_now", new Date());
 		
 		if (request instanceof MultipartHttpServletRequest) {
 			preMultipart(map, (MultipartHttpServletRequest) request);
 		}
+		
+		String key = request.getParameter("key");
+		Key companyKey = null;
+		
+		if(map.containsKey("company")) {
+			companyKey = KeyFactory.createKey("Company", (String)map.get("company"));
+		} else {
+			companyKey = this.getCompanyKey(request);
+		}
+		
+		map.put("_company_key", companyKey);
+		map.put("_now", new Date());		
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		this.adjustRequestMap(datastore, map);
