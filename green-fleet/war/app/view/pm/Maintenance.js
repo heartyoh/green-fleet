@@ -229,7 +229,50 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 				var thisView = btn.up('pm_maintenance');
 				thisView.popup_maint();
 			}
-		} ]
+		}, 
+		/**
+		 * 삭제버튼 추가
+		 */
+		{
+			xtype : 'button',
+			text : T('button.del'),
+			handler : function(btn, event) {
+				
+				var grid = btn.up('pm_maintenance').down('#maintenance_grid');
+				var selectionModel = grid.getSelectionModel();
+				var model = selectionModel.getSelection();
+				
+				if(model.length == 0) {
+					Ext.Msg.alert('1개이상 선택 하세요');
+				}else {
+					Ext.MessageBox.show({
+						title : T('title.confirmation'),
+						buttons : Ext.MessageBox.YESNO,
+						msg : T('msg.confirm_delete'),
+						modal : true,
+						fn : function(btn1) {
+							if(btn1 != 'yes')
+								return;
+								
+							Ext.Ajax.request({
+								url : '/repair/delete',
+								method: 'POST',
+								params : {
+									key : model[0].data.key
+								},
+								success : function (result, request) {
+									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+									btn.up('pm_maintenance').refresh_maintenance_grid(model[0].data.vehicle_id);
+								},
+								failure : function(resutl, request) {
+									Ext.Msg.alert(T('msg.failed_to_delete'), T('msg.failed_to_delete'));
+								}
+							});
+						}
+					});
+				}
+			}
+		}]
 	},
 	
 	/**
@@ -305,6 +348,10 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 					padding : '10,5,5,5',
 					defaults : { anchor : '100%' },
 					items : [ {
+						name : 'oos',
+						xtype : 'checkbox',
+						boxLabel : T('label.oos')
+					}, {
 						name : 'repair_date',
 						fieldLabel : T('label.repair_date'),
 						xtype : 'datefield',

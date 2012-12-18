@@ -27,7 +27,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 
 	initComponent : function() {
 		var self = this;
-		this.disabled = GreenFleet.checkDisabled(this.xtype);
+//		this.disabled = GreenFleet.checkDisabled(this.xtype);
 		this.items = [ this.zrunstatus, this.zrunstatus_chart ];
 		this.callParent(arguments);
 		
@@ -58,6 +58,12 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		 * combo_view에 값을 기본값(monthly_view)을 설정
 		 */
 		this.sub('combo_view').setValue('monthly');
+		/**
+		 * 검색버튼 추가
+		 */
+		this.down('#search').on('click', function() {
+			self.refreshChart();
+		});
 	},
 	
 	/**
@@ -79,6 +85,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		this.driver = driverId;
 		this.searchSummary(driverId, driverName, null, null, null);
 	},
+	
 	
 	/**
 	 * driver run summary 조회 
@@ -144,10 +151,15 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		title : T('title.runstatus_history'),
 		flex : 1,
 		autoScroll : true,
+		layout : {
+			type : 'hbox',
+			align : 'stretch'
+		},
 		items : [{
-			xtype : 'grid',
+			xtype : 'gridpanel',
 			itemId : 'runstatus_grid',
 			store : 'DriverRunStore',
+			flex : 1,
 			columns : [ {
 				dataIndex : 'time_view',
 				hidden : true
@@ -240,7 +252,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				itemId : 'from_year',
 				displayField: 'year',
 			    valueField: 'year',
-			    value : new Date().getFullYear() - 1,
+			    value : (new Date().getMonth() + 1 == 12) ? new Date().getFullYear() : new Date().getFullYear() -1,
 				store : 'YearStore',
 				width : 60				
 			},
@@ -250,7 +262,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 				itemId : 'from_month',
 				displayField: 'month',
 			    valueField: 'month',
-			    value : new Date().getMonth() + 2,
+			    value : (new Date().getMonth() + 1 == 12) ? new Date().getMonth() - 10 : new Date().getMonth() + 1,
 				store : 'MonthStore',
 				width : 40		
 			},
@@ -303,6 +315,10 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 						combo.up('management_driver_runstatus').refreshChart();
 					}
 			    }
+			},
+			{
+				text : T('button.search'),
+				itemId : 'search'
 			}
 		]
 	},

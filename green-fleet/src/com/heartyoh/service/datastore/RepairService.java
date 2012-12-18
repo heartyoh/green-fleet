@@ -110,6 +110,8 @@ public class RepairService extends EntityService {
 		entity.setProperty("content", map.get("content"));
 		// 코멘트 
 		entity.setProperty("comment", map.get("comment"));
+		//고장 여부
+		entity.setProperty("oos", map.get("oos"));
 		
 		super.onSave(entity, map, datastore);
 	}
@@ -168,6 +170,7 @@ public class RepairService extends EntityService {
 	private void updateVehicleRunSum(Entity repair) throws Exception {
 		String vehicleId = (String)repair.getProperty("vehicle_id");
 		int repairTime = (Integer)repair.getProperty("repair_time");
+		String oos = (String)repair.getProperty("oos");
 		Map<String, Object> params = DataUtils.newMap("company", repair.getParent().getName());
 		Calendar c = Calendar.getInstance();
 		int year = c.get(Calendar.YEAR);
@@ -183,9 +186,13 @@ public class RepairService extends EntityService {
 		
 		int mntCnt = runSum.getMntCnt();
 		int mntTime = runSum.getMntTime();
+		int oosCnt = runSum.getOosCnt();
 		
 		runSum.setMntCnt(mntCnt + 1);
 		runSum.setMntTime(mntTime + repairTime);
+		if(oos != null && oos.equals("on")){
+			runSum.setOosCnt(oosCnt + 1);
+		}
 		DatasourceUtils.upsertEntity(runSum);
 	}
 	
