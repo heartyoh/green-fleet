@@ -350,7 +350,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 					items : [ {
 						name : 'oos',
 						xtype : 'checkbox',
-						boxLabel : T('label.oos')
+						boxLabel : T('label.outofservice')
 					}, {
 						name : 'repair_date',
 						fieldLabel : T('label.repair_date'),

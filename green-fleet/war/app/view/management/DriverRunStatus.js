@@ -62,7 +62,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		 * 검색버튼 추가
 		 */
 		this.down('#search').on('click', function() {
-			self.refreshChart();
+			self.searchSummary(null, null, null, null, null);
 		});
 	},
 	

@@ -182,8 +182,12 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				fieldLabel : T('label.to_date'),
 				format : F('date')
 			}, {
+				xtype : 'codecombo',
 				name : 'vehicle_type',
-				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
+				group : 'V-Type1',
+				fieldLabel : T('label.vehicle_type')
+//				name : 'vehicle_type',
+//				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
 			}, {
 				xtype : 'combo',
 				name : 'vehicle_id',
