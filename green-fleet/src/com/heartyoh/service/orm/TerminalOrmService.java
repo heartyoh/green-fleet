@@ -49,6 +49,11 @@ public class TerminalOrmService extends OrmEntityService {
 		return KEY_FIELDS;
 	}
 	
+	@Override
+	protected boolean useFilter() {
+		return true;
+	}
+	
 	@RequestMapping(value = "/terminal/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {		

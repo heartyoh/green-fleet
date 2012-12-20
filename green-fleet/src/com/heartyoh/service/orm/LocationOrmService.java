@@ -38,10 +38,15 @@ public class LocationOrmService extends OrmEntityService {
 	public String[] getKeyFields() {
 		return KEY_FIELDS;
 	}
+	
+	@Override
+	protected boolean useFilter() {
+		return true;
+	}
 
 	@Override
 	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {
-		Query query = new Query();
+		Query query = super.getRetrieveQuery(request);
 		query.addFilter("company", this.getCompany(request));
 		query.addOrder("updated_at", false);
 		return query;

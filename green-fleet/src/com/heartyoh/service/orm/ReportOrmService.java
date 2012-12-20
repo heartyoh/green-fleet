@@ -65,6 +65,11 @@ public class ReportOrmService extends OrmEntityService {
 	public String[] getKeyFields() {
 		return KEY_FILEDS;
 	}
+	
+	@Override
+	protected boolean useFilter() {
+		return true;
+	}
 
 	@RequestMapping(value = "/report/import", method = RequestMethod.POST)
 	public @ResponseBody

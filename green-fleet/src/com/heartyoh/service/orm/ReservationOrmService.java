@@ -51,6 +51,11 @@ public class ReservationOrmService extends OrmEntityService {
 	public String[] getKeyFields() {
 		return KEY_FILEDS;
 	}
+	
+	@Override
+	protected boolean useFilter() {
+		return true;
+	}
  
 	@Override
 	protected Query getRetrieveQuery(HttpServletRequest request) throws Exception {

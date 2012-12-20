@@ -45,6 +45,11 @@ public class UserService extends EntityService {
 	protected String getEntityName() {
 		return "CustomUser";
 	}
+	
+	@Override
+	protected boolean useFilter() {
+		return true;
+	}
 
 	@Override
 	protected String getIdValue(Map<String, Object> map) {
