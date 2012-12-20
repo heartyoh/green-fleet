@@ -78,29 +78,45 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 	 * vehicle list를 조회 
 	 */
 	searchVehicles : function(searchRemote) {
+		this.sub('vehicle_info').store.remoteFilter = searchRemote;
+		this.sub('vehicle_info').store.clearFilter(true);
 		
-		var store = this.sub('vehicle_info').store;
+		var idValue = this.sub('id_filter').getValue();
+		var regNoValue = this.sub('reg_no_filter').getValue();
 		
-		if(searchRemote) {
-			store.load();
+		this.sub('vehicle_info').store.filter([ {
+			property : 'id',
+			value : idValue
+		}, {
+			property : 'registration_number',
+			value : regNoValue
+		}/*, {
+			property : 'status',
+			value : statusValue
+		}*/ ]);
 		
-		} else {			
-			store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
-			//var statusValue = this.sub('status_filter').getValue();
-			
-			store.filter([ {
-				property : 'id',
-				value : idValue
-			}, {
-				property : 'registration_number',
-				value : regNoValue
-			}/*, {
-				property : 'status',
-				value : statusValue
-			}*/ ]);
-		}
+//		var store = this.sub('vehicle_info').store;
+//		
+//		if(searchRemote) {
+//			store.load();
+//		
+//		} else {			
+//			store.clearFilter(true);			
+//			var idValue = this.sub('id_filter').getValue();
+//			var regNoValue = this.sub('reg_no_filter').getValue();
+//			//var statusValue = this.sub('status_filter').getValue();
+//			
+//			store.filter([ {
+//				property : 'id',
+//				value : idValue
+//			}, {
+//				property : 'registration_number',
+//				value : regNoValue
+//			}/*, {
+//				property : 'status',
+//				value : statusValue
+//			}*/ ]);
+//		}
 	},
 	
 	/**

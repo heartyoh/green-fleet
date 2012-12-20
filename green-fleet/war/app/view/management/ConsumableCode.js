@@ -43,7 +43,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -51,12 +51,13 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true); 
 		});
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote; //
+		this.sub('grid').store.clearFilter(true); //
 
 		this.sub('grid').store.filter([ {
 			property : 'name',
@@ -207,7 +208,9 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						//main.sub('grid').store.load(callback);
+						main.sub('name_filter').setValue('');
+						main.search(true);
 					},
 					scope : main
 				}

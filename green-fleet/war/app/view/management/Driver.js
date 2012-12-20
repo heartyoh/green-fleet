@@ -78,24 +78,38 @@ Ext.define('GreenFleet.view.management.Driver', {
 	 * 운전자 조회 
 	 */
 	search : function(remote) {
-		if(remote) {
-			this.sub('driver_list').store.load();
-			
-		} else {
-			this.sub('driver_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var nameValue = this.sub('name_filter').getValue();
-			
-			if(idValue || nameValue) {
-				this.sub('driver_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'name',
-					value : nameValue
-				} ]);
-			}			
-		}
+		this.sub('driver_list').store.remoteFilter = remote;
+		this.sub('driver_list').store.clearFilter(true);
+		
+		var idValue = this.sub('id_filter').getValue();
+		var nameValue = this.sub('name_filter').getValue();
+
+		this.sub('driver_list').store.filter([ {
+			property : 'id',
+			value : idValue
+		}, {
+			property : 'name',
+			value : nameValue
+		} ]);
+		
+//		if(remote) {
+//			this.sub('driver_list').store.load();
+//			
+//		} else {
+//			this.sub('driver_list').store.clearFilter(true);			
+//			var idValue = this.sub('id_filter').getValue();
+//			var nameValue = this.sub('name_filter').getValue();
+//			
+//			if(idValue || nameValue) {
+//				this.sub('driver_list').store.filter([ {
+//					property : 'id',
+//					value : idValue
+//				}, {
+//					property : 'name',
+//					value : nameValue
+//				} ]);
+//			}			
+//		}
 	},
 	
 	/**

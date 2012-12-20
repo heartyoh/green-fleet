@@ -32,11 +32,11 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.sub('datetime_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -45,22 +45,33 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.search();
+			self.search(true);
 		});
 
 	},
 
 	search : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getSubmitValue()
-			}, {
-				property : 'datetime',
-				value : this.sub('datetime_filter').getSubmitValue()
-			} ],
-			callback : callback
-		});
+		this.sub('grid').store.remoteFilter = remote;
+		this.sub('grid').store.clearFilter(true);
+		
+		this.sub('grid').store.filter([ {
+			property : 'vehicle_id',
+			value : this.sub('vehicle_filter').getValue()
+		}, {
+			property : 'datetime',
+			value : this.sub('datetime_filter').getValue()
+		} ]);
+		
+//		this.sub('grid').store.load({
+//			filters : [ {
+//				property : 'vehicle_id',
+//				value : this.sub('vehicle_filter').getSubmitValue()
+//			}, {
+//				property : 'datetime',
+//				value : this.sub('datetime_filter').getSubmitValue()
+//			} ],
+//			callback : callback
+//		});
 	},
 
 	buildList : function(main) {
@@ -231,8 +242,16 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			} ],
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
+//				loader : {
+//					fn : main.search,
+//					scope : main
+//				}
 				loader : {
-					fn : main.search,
+					fn : function(callback) {
+						main.sub('vehicle_filter').setValue('');
+						main.sub('datetime_filter').setValue('');
+						main.search(true);
+					},
 					scope : main
 				}
 			} ]
