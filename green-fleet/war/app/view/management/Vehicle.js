@@ -146,7 +146,32 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			dataIndex : 'registration_number',
 			text : T('label.reg_no'),
 			flex : 1
-		} ],
+		}, {
+			menuDisabled: true,
+			sortable: false,
+			xtype: 'actioncolumn',
+			width: 25,
+			items: [{
+				icon: 'resources/image/dotRed.png',
+				tooltip: T('button.del'),
+				handler : function() {
+					new Ext.Window({
+			    		title : "Live Video",
+			    		width : 690,
+			    		height: 560,
+			    		layout : 'fit',
+			    		items : [{
+			        		xtype : "component",
+			        		autoEl : {
+			            		tag : "iframe",
+//			            		src : "http://www.ustream.tv/embed/10627186"
+			            		src : "http://61.33.6.173/smart"
+			        		}
+			    		}]
+					}).show();
+				}
+			}]
+		}],
 
 		tbar : [
 	    T('label.id'),

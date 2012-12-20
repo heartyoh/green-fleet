@@ -196,6 +196,29 @@ public class RepairService extends EntityService {
 		DatasourceUtils.upsertEntity(runSum);
 	}
 	
+	/**
+	 * vehicle_run_sum 테이블에 mnt_cnt, mnt_time 정보를 업데이트한다. 
+	 * 
+	 * @param repair
+	 * @throws Exception
+	 */
+	private void deleteVehicleRunSum(String company, String vehicleId, int repairTime, int year, int month) throws Exception{
+		Map<String, Object> params = DataUtils.newMap("company", company);
+		params.put("vehicle", vehicleId);
+		params.put("year", year);
+		params.put("month", month);
+		
+		VehicleRunSum runSum = (VehicleRunSum)DatasourceUtils.findEntity(VehicleRunSum.class, params);
+		
+		int mntCnt = runSum.getMntCnt();
+		int mntTime = runSum.getMntTime();
+		
+		runSum.setMntCnt(mntCnt - 1);
+		runSum.setMntTime(mntTime - repairTime);
+		
+		DatasourceUtils.upsertEntity(runSum);
+	}
+	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
 	public @ResponseBody
 	String imports(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -211,6 +234,19 @@ public class RepairService extends EntityService {
 	@RequestMapping(value = "/repair/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) {
+		String company = this.getCompany(request);
+		String vehicleId = request.getParameter("vehicleId");
+		int repairTime = Integer.parseInt(request.getParameter("repair_time"));
+		int year = Integer.parseInt(request.getParameter("year"));
+		int month = Integer.parseInt(request.getParameter("month"));
+		
+		try {
+			this.deleteVehicleRunSum(company, vehicleId, repairTime, year, month);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return super.delete(request, response);
 	}
 

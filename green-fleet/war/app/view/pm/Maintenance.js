@@ -258,7 +258,11 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 								url : '/repair/delete',
 								method: 'POST',
 								params : {
-									key : model[0].data.key
+									key : model[0].data.key,
+									vehicleId : model[0].data.vehicle_id,
+									repair_time: model[0].data.repair_time,
+									year : model[0].data.repair_date.getFullYear(),
+									month : model[0].data.repair_date.getMonth() + 1
 								},
 								success : function (result, request) {
 									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
