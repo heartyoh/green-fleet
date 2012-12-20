@@ -79,13 +79,6 @@ public class CompanyService extends EntityService {
 			}
 			super.postMultipart(entity, map, request);
 		}
-		
-//		String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
-//		if(image_file != null) {
-//			entity.setProperty("image_clip", image_file);
-//		}
-//
-//		super.postMultipart(entity, map, request);
 	}
 	
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
