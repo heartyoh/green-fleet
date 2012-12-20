@@ -58,6 +58,7 @@ public class CompanyService extends EntityService {
 		entity.setProperty("desc", map.get("desc"));
 		entity.setProperty("timezone", map.get("timezone"));
 		entity.setProperty("language", map.get("language") != null ? map.get("language") : "en");
+		entity.setProperty("address", map.get("address"));
 		
 		// TODO default 값은 추후 변경 
 		double lat = map.containsKey("lat") ? DataUtils.toDouble(map.get("lat")) : 37.55;
@@ -71,12 +72,20 @@ public class CompanyService extends EntityService {
 	@Override
 	protected void postMultipart(Entity entity, Map<String, Object> map, MultipartHttpServletRequest request)
 			throws IOException {
-		String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
-		if(image_file != null) {
-			entity.setProperty("image_clip", image_file);
+		if(!DataUtils.isEmpty(map.get("image_file"))){
+			String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
+			if(image_file != null) {
+				entity.setProperty("image_clip", image_file);
+			}
+			super.postMultipart(entity, map, request);
 		}
-
-		super.postMultipart(entity, map, request);
+		
+//		String image_file = saveFile(request, (MultipartFile) map.get("image_file"));
+//		if(image_file != null) {
+//			entity.setProperty("image_clip", image_file);
+//		}
+//
+//		super.postMultipart(entity, map, request);
 	}
 	
 	@RequestMapping(value = "/company/save", method = RequestMethod.POST)
