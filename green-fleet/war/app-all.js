@@ -3589,7 +3589,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			align : 'center',
 			items : [ {
 				icon : '/resources/image/iconAddOn.png',
-				tooltip : 'Consumables replacement',
+				tooltip : T('label.consumable_repl'),	//'Consumables replacement',
 				handler : function(grid, rowIndex, colIndex) {
 					var vehicleMileage = grid.up('pm_consumable').sub('vehicle_mileage').getValue();
 					var record = grid.store.getAt(rowIndex);
@@ -3612,7 +3612,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			align : 'center',
 			items : [ {
 				icon : '/resources/image/iconRefreshOn.png',
-				tooltip : 'Reset',
+				tooltip : T('button.reset'),	//'Reset',
 				handler : function(grid, rowIndex, colIndex) {
 					var record = grid.store.getAt(rowIndex);
 					Ext.Ajax.request({
@@ -4399,7 +4399,7 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 					items : [ {
 						name : 'oos',
 						xtype : 'checkbox',
-						boxLabel : T('label.oos')
+						boxLabel : T('label.outofservice')
 					}, {
 						name : 'repair_date',
 						fieldLabel : T('label.repair_date'),
@@ -4543,11 +4543,11 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		});
 		
 		this.down('[itemId=autofit]').on('change', function(check, newValue) {
-			if(newValue) {
+//			if(newValue) {
 				GreenFleet.setting.set('autofit', newValue);
 				
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
-			}
+//			}
 		});
 
 		this.down('[itemId=refreshterm]').on('change', function(combo, newValue) {
@@ -5004,17 +5004,21 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var driverStore = Ext.getStore('DriverBriefStore');
 			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
-			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('image_clip');
-			if (driverImageClip) {
-				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+			
+			if (driverRecord != null) {
+				var driver = driverRecord.get('id');
+				
+				var driverImageClip = driverRecord.get('image_clip');
+				if (driverImageClip) {
+					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+				} else {
+					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+				}
 			}
 
 			self.sub('title').update({
 				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : driver + ' (' + driverRecord.get('name') + ')'
+				driver : (driverRecord != null) ? driver + ' (' + driverRecord.get('name') + ')' : driver + ' ()'
 			});
 
 			/*
@@ -10797,7 +10801,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		 * 검색버튼 추가
 		 */
 		this.down('#search').on('click', function() {
-			self.refreshChart();
+			self.searchSummary(null, null, null, null, null);
 		});
 	},
 	
@@ -11368,7 +11372,7 @@ Ext.define('GreenFleet.view.management.VehicleSpeedSection', {
 		 * 검색버튼 추가
 		 */
 		this.down('#search').on('click', function() {
-			self.refreshChart();
+			self.searchSummary(null, null, null, null, null);
 		});
 	},
 	
@@ -12447,7 +12451,7 @@ Ext.define('GreenFleet.view.management.DriverRunStatus', {
 		 * 검색버튼 추가
 		 */
 		this.down('#search').on('click', function() {
-			self.refreshChart();
+			self.searchSummary(null, null, null, null, null);
 		});
 	},
 	
@@ -14232,8 +14236,12 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				fieldLabel : T('label.to_date'),
 				format : F('date')
 			}, {
+				xtype : 'codecombo',
 				name : 'vehicle_type',
-				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
+				group : 'V-Type1',
+				fieldLabel : T('label.vehicle_type')
+//				name : 'vehicle_type',
+//				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
 			}, {
 				xtype : 'combo',
 				name : 'vehicle_id',
@@ -14746,18 +14754,33 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 				width : 290,
 				height : 150,
 				shadow : true,
-				legend : {
-					position : 'right',
-					labelFont : '10px',
-					boxStroke : '#cfcfcf'
-				},
-				insetPadding : 15,
+				
+				insetPadding : 20,
 				theme : 'Base:gradients',
+				
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['value'],
+	                label: {
+	                    renderer: Ext.util.Format.numberRenderer('0,0')
+	                },
+	                //title: '',
+	                grid: true,
+	                minimum: 0
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['desc'],
+	                //title: ''
+	            }],
+	            
 				series : [ {
-					type : 'pie',
-					field : idx,
-					showInLegend : true,
-					donut : false,
+					type: 'column',
+	                axis: 'left',
+	                highlight: true,
+	                xField: 'name',
+	                yField: 'value',
 					tips : {
 						trackMouse : true,
 						width : 140,
@@ -14779,12 +14802,14 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 							margin : 20
 						}
 					},
-					label : {
-						field : 'desc',
-						display : 'rotate',
-						contrast : true,
-						font : '14px Arial'
-					},
+					label: {
+		                  display: 'insideEnd',
+		                  'text-anchor': 'middle',
+		                    field: 'value',
+		                    renderer: Ext.util.Format.numberRenderer('0'),
+		                    //orientation: 'vertical',
+		                    color: '#333'
+		                },
 					listeners : {
 						itemmousedown : function(target, event) {
 							GreenFleet.doMenu("consumable");
