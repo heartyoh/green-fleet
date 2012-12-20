@@ -106,17 +106,21 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var driverStore = Ext.getStore('DriverBriefStore');
 			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
-			var driver = driverRecord.get('id');
-			var driverImageClip = driverRecord.get('image_clip');
-			if (driverImageClip) {
-				self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+			
+			if (driverRecord != null) {
+				var driver = driverRecord.get('id');
+				
+				var driverImageClip = driverRecord.get('image_clip');
+				if (driverImageClip) {
+					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
+				} else {
+					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
+				}
 			}
 
 			self.sub('title').update({
 				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : driver + ' (' + driverRecord.get('name') + ')'
+				driver : (driverRecord != null) ? driver + ' (' + driverRecord.get('name') + ')' : driver + ' ()'
 			});
 
 			/*

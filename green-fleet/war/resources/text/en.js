@@ -436,7 +436,8 @@ T({
 		vehicle_model : 'Vehicle Model',
 		eco_level : 'Eco Driving Level',
 		mileage_of_month : 'Mileage of the month',
-		consumption_of_month : 'Consumption of the month'
+		consumption_of_month : 'Consumption of the month',
+		outofservice : 'OutOfService'
 	},
 	
 	format : {

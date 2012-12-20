@@ -280,7 +280,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			align : 'center',
 			items : [ {
 				icon : '/resources/image/iconAddOn.png',
-				tooltip : 'Consumables replacement',
+				tooltip : T('label.consumable_repl'),	//'Consumables replacement',
 				handler : function(grid, rowIndex, colIndex) {
 					var vehicleMileage = grid.up('pm_consumable').sub('vehicle_mileage').getValue();
 					var record = grid.store.getAt(rowIndex);
@@ -303,7 +303,7 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			align : 'center',
 			items : [ {
 				icon : '/resources/image/iconRefreshOn.png',
-				tooltip : 'Reset',
+				tooltip : T('button.reset'),	//'Reset',
 				handler : function(grid, rowIndex, colIndex) {
 					var record = grid.store.getAt(rowIndex);
 					Ext.Ajax.request({

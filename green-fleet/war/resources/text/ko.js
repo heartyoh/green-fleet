@@ -180,7 +180,7 @@ T({
 	},
 	
 	tab : {
-		info_by_vehicle : '차량별 정보',
+		info_by_vehicle : '차량별정보',
 		ctrl_by_vehicle : '차량별 체크인정보',
 		ctrl_by_driver : '운전자별 체크인정보',
 		maintenance : '유지보수',
@@ -436,7 +436,8 @@ T({
 		vehicle_model : '차량 모델',
 		eco_level : '경제주행 레벨',
 		mileage_of_month : '이달 주행거리',
-		consumption_of_month : '이달 연료소모량'
+		consumption_of_month : '이달 연료소모량',
+		outofservice : '고장'
 	},
 	
 	format : {
