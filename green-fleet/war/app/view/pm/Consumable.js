@@ -364,7 +364,60 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		}, {
 			header : T('label.comment'),
 			dataIndex : 'comment'
-		} ],
+		}, {
+			xtype : 'actioncolumn',
+			width : 25,
+			align : 'center',
+			items : [ {
+				icon : '/resources/image/dotRed.png',
+				tooltip : T('button.del'),
+				handler : function(grid, rowIndex, colIndex) {
+					var record = grid.store.getAt(rowIndex);
+					var conHistory = this.up('pm_consumable');
+					var currentLine = grid.store.data.length - 1;
+					var refreshRecord = grid.store.getAt(currentLine);
+					Ext.MessageBox.show({
+						title : T('title.confirmation'),
+						buttons : Ext.MessageBox.YESNO,
+						msg : T('msg.confirm_delete'),
+						modal : true,
+						fn : function(btn1) {
+							if(btn1 != 'yes')
+								return;
+								
+							Ext.Ajax.request({
+								url : '/vehicle_consumable/delete',
+								method : 'POST',
+								params : {
+									key : record.data.key,
+									vehicle_id : record.data.vehicle_id,
+									consumable_item : record.data.consumable_item
+								},
+								success : function(response) {
+									var resultObj = Ext.JSON.decode(response.responseText);
+									if (resultObj.success) {
+										
+										GreenFleet.msg(T('label.success'), resultObj.msg);
+										
+										var store = Ext.getStore('VehicleConsumableStore');
+										store.getProxy().extraParams.vehicle_id = refreshRecord.data.vehicle_id;
+										store.load();
+										
+										conHistory.sub('consumable_form').loadRecord(refreshRecord);
+										conHistory.refreshConsumableHistory(refreshRecord.data.vehicle_id, refreshRecord.data.consumable_item);
+									} else {
+										Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+									}
+								},
+								failure : function(response) {
+									Ext.MessageBox.alert(T('label.failure'), response.responseText);
+								}
+							});
+						}
+					});
+				}
+			} ]
+		}],
 		listeners : {
 			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
 				grid.up('pm_consumable').showConsumableChange(record);

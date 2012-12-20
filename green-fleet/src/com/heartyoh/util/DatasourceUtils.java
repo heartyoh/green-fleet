@@ -306,4 +306,8 @@ public class DatasourceUtils {
 	public static void upsertEntity(Object obj) throws Exception {
 		dml.upsert(obj);
 	}
+	
+	public static void deleteEntity(Object obj) throws Exception {
+		dml.delete(obj);
+	}
 }

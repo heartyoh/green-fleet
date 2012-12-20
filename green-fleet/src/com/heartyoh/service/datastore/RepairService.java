@@ -26,6 +26,7 @@ import com.google.appengine.api.datastore.Query;
 import com.heartyoh.model.Task;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.model.VehicleRunSum;
+import com.heartyoh.service.orm.OrmEntityService;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
 import com.heartyoh.util.GreenFleetConstant;
@@ -202,7 +203,7 @@ public class RepairService extends EntityService {
 	 * @param repair
 	 * @throws Exception
 	 */
-	private void deleteVehicleRunSum(String company, String vehicleId, int repairTime, int year, int month) throws Exception{
+	private void deleteVehicleRunSum(String company, String vehicleId, int repairTime, int year, int month, HttpServletRequest request) throws Exception{
 		Map<String, Object> params = DataUtils.newMap("company", company);
 		params.put("vehicle", vehicleId);
 		params.put("year", year);
@@ -212,11 +213,20 @@ public class RepairService extends EntityService {
 		
 		int mntCnt = runSum.getMntCnt();
 		int mntTime = runSum.getMntTime();
+		int oosCnt = runSum.getOosCnt();
 		
-		runSum.setMntCnt(mntCnt - 1);
-		runSum.setMntTime(mntTime - repairTime);
 		
-		DatasourceUtils.upsertEntity(runSum);
+		
+		if(mntCnt > 1) {
+			runSum.setMntCnt(mntCnt - 1);
+			runSum.setMntTime(mntTime - repairTime);
+
+			DatasourceUtils.upsertEntity(runSum);
+		}else if(mntCnt == 1) {
+			// Todo delete
+			DatasourceUtils.deleteEntity(runSum);
+		}
+		
 	}
 	
 	@RequestMapping(value = "/repair/import", method = RequestMethod.POST)
@@ -241,7 +251,7 @@ public class RepairService extends EntityService {
 		int month = Integer.parseInt(request.getParameter("month"));
 		
 		try {
-			this.deleteVehicleRunSum(company, vehicleId, repairTime, year, month);
+			this.deleteVehicleRunSum(company, vehicleId, repairTime, year, month, request);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
