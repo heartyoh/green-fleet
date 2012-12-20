@@ -54,11 +54,11 @@ Ext.define('GreenFleet.view.monitor.Map', {
 		});
 		
 		this.down('[itemId=autofit]').on('change', function(check, newValue) {
-			if(newValue) {
+//			if(newValue) {
 				GreenFleet.setting.set('autofit', newValue);
 				
 				self.refreshMap(Ext.getStore('VehicleFilteredStore'), newValue);
-			}
+//			}
 		});
 
 		this.down('[itemId=refreshterm]').on('change', function(combo, newValue) {

@@ -60,7 +60,7 @@ Ext.define('GreenFleet.view.management.VehicleRunStatus', {
 		 * 검색버튼 추가
 		 */
 		this.down('#search').on('click', function() {
-			self.refreshChart();
+			self.searchSummary(null, null, null, null, null);
 		});
 	},
 	
