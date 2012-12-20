@@ -113,18 +113,33 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 				width : 290,
 				height : 150,
 				shadow : true,
-				legend : {
-					position : 'right',
-					labelFont : '10px',
-					boxStroke : '#cfcfcf'
-				},
-				insetPadding : 15,
+				
+				insetPadding : 20,
 				theme : 'Base:gradients',
+				
+				axes: [{
+	                type: 'Numeric',
+	                position: 'left',
+	                fields: ['value'],
+	                label: {
+	                    renderer: Ext.util.Format.numberRenderer('0,0')
+	                },
+	                //title: '',
+	                grid: true,
+	                minimum: 0
+	            }, {
+	                type: 'Category',
+	                position: 'bottom',
+	                fields: ['desc'],
+	                //title: ''
+	            }],
+	            
 				series : [ {
-					type : 'pie',
-					field : idx,
-					showInLegend : true,
-					donut : false,
+					type: 'column',
+	                axis: 'left',
+	                highlight: true,
+	                xField: 'name',
+	                yField: 'value',
 					tips : {
 						trackMouse : true,
 						width : 140,
@@ -146,12 +161,14 @@ Ext.define('GreenFleet.view.dashboard.ConsumableHealth', {
 							margin : 20
 						}
 					},
-					label : {
-						field : 'desc',
-						display : 'rotate',
-						contrast : true,
-						font : '14px Arial'
-					},
+					label: {
+		                  display: 'insideEnd',
+		                  'text-anchor': 'middle',
+		                    field: 'value',
+		                    renderer: Ext.util.Format.numberRenderer('0'),
+		                    //orientation: 'vertical',
+		                    color: '#333'
+		                },
 					listeners : {
 						itemmousedown : function(target, event) {
 							GreenFleet.doMenu("consumable");
