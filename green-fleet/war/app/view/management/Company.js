@@ -105,6 +105,10 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'language',
 				text : T('label.language')
 			}, {
+				dataIndex : 'address',
+				text : T('label.address'),
+				width : 150
+			},{
 				dataIndex : 'lat',
 				text : T('label.latitude'),
 				type : 'number'
@@ -160,7 +164,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.company_details'),
-			height : 290,
+			height : 380,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -180,7 +184,8 @@ Ext.define('GreenFleet.view.management.Company', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : T('label.id')
+					fieldLabel : T('label.id'),
+					disabled : true
 				}, {
 					name : 'name',
 					fieldLabel : T('label.name')
@@ -207,9 +212,37 @@ Ext.define('GreenFleet.view.management.Company', {
 					allowBlank : true,
 					buttonText : T('button.file')
 				}, {
+					xtype: 'fieldcontainer',
+	                fieldLabel: T('label.address'),
+	                layout: 'hbox',
+	                defaults: {
+	                    hideLabel: true
+	                },
+	                items: [
+	                    {
+	                    	itemId : 'form_address',
+	                        xtype : 'textfield',
+	                        name : 'address',
+	                        fieldLabel : T('label.address'),
+	                        flex : 1
+	                    },
+	                    {
+	                        xtype : 'button',
+	                        text : T('button.search'),
+	                        margin : '0 0 0 5',
+	                        handler : function(btn, event) {
+	                        	var companyView = btn.up('management_company');
+	                        	var addressStr = btn.up('fieldcontainer').down('textfield').getValue();
+	                        	companyView.refreshLocByAddr(addressStr);                        	
+	                        }
+	                    }
+	                ]
+				},{
+					itemId : 'form_latitude',
 					name : 'lat',
 					fieldLabel : T('label.latitude')
 				}, {
+					itemId : 'form_longitude',
 					name : 'lng',
 					fieldLabel : T('label.longitude')					
 				}, {
@@ -250,5 +283,33 @@ Ext.define('GreenFleet.view.management.Company', {
 				}
 			} ]
 		}
-	}
+	},
+	
+	refreshLocByAddr : function(address) {
+		if(!address){
+			Ext.Msg.alert(T('msg.address_notfound_title'), T('msg.address_empty'));
+			return;
+		}
+		var self = this;
+		// 주소로 위치 검색
+	    this.getGeocoder().geocode({'address': address}, function(results, status) {
+	    	
+	    	if (status == google.maps.GeocoderStatus.OK) {	    		
+	    		var center = results[0].geometry.location;
+	    		self.sub('form_latitude').setValue(center.lat());
+	    		self.sub('form_longitude').setValue(center.lng());	
+	      } else {
+	    	  	self.setMarker(null);
+	    	  	//Ext.Msg.alert("Failed to search!", "Address (" + address + ") Not Found!");
+	    	  	Ext.Msg.alert(T('msg.address_notfound_title'), T('msg.address_notfound', {x:address}));
+	      }
+	    });
+	},
+	
+	getGeocoder : function() {
+		if(!this.geocoder){
+			this.geocoder = new google.maps.Geocoder();
+		}
+		return this.geocoder;
+	},
 });

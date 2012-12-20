@@ -22,6 +22,9 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'language',
 		type : 'string'
 	}, {
+		name : 'address',
+		type : 'string'
+	},{
 		name : 'lat',
 		type : 'float'
 	}, {
