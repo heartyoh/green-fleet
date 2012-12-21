@@ -297,14 +297,11 @@ Ext.define('GreenFleet.view.management.Company', {
 		var self = this;
 		// 주소로 위치 검색
 	    this.getGeocoder().geocode({'address': address}, function(results, status) {
-	    	
 	    	if (status == google.maps.GeocoderStatus.OK) {	    		
 	    		var center = results[0].geometry.location;
 	    		self.sub('form_latitude').setValue(center.lat());
 	    		self.sub('form_longitude').setValue(center.lng());	
 	      } else {
-	    	  	self.setMarker(null);
-	    	  	//Ext.Msg.alert("Failed to search!", "Address (" + address + ") Not Found!");
 	    	  	Ext.Msg.alert(T('msg.address_notfound_title'), T('msg.address_notfound', {x:address}));
 	      }
 	    });
