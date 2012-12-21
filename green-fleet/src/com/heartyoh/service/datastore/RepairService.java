@@ -217,15 +217,16 @@ public class RepairService extends EntityService {
 		
 		
 		
-		if(mntCnt > 1) {
+		if(mntCnt > 0) {
 			runSum.setMntCnt(mntCnt - 1);
 			runSum.setMntTime(mntTime - repairTime);
 
 			DatasourceUtils.upsertEntity(runSum);
-		}else if(mntCnt == 1) {
-			// Todo delete
-			DatasourceUtils.deleteEntity(runSum);
 		}
+//		else if(mntCnt == 1) {
+//			// Todo delete
+//			DatasourceUtils.deleteEntity(runSum);
+//		}
 		
 	}
 	

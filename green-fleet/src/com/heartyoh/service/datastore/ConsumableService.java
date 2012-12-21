@@ -5,6 +5,7 @@ package com.heartyoh.service.datastore;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,8 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 import com.heartyoh.model.ConsumableCode;
+import com.heartyoh.model.Filter;
+import com.heartyoh.model.Sorter;
 import com.heartyoh.model.Task;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.AlarmUtils;
@@ -397,21 +400,77 @@ public class ConsumableService extends HistoricEntityService {
 			Vehicle vehicle = (Vehicle)results[0];
 			Entity consumable = (Entity)results[1];
 			consumable.setProperty("updated_at", new Date());
+			String key = request.getParameter("key");
+			String vehicleId = request.getParameter("vehicle_id");
+			String consmItem = request.getParameter("consumable_item");
 			
-			Map<String, Object> map = toMap(request);
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 			CalculatorUtils.resetConsumable(DataUtils.toDouble(vehicle.getTotalDistance()), consumable);
 			
-			// 이력 저장을 위해 호출 
-//			this.saveEntity(consumable, map, datastore);
+			
+			Entity vch = DatastoreUtils.findByKey(KeyFactory.stringToKey(key));
+			
+			String msg = super.delete(request, response);
+			
+			Key companyKey = this.getCompanyKey(request);
+			
+			long accrued_cost = (Long) consumable.getProperty("accrued_cost");
+			String cost = (String)vch.getProperty("cost");
+			
+			List<Sorter> sorters = new ArrayList<Sorter>();
+			
+			Sorter sorter = new Sorter();
+			sorter.setProperty("updated_at");
+			sorter.setDirection("desc");
+			sorters.add(sorter);
+			
+			Map<String, Object> filters = 
+					DataUtils.newMap(new String[] { "vehicle_id", "consumable_item" }, 
+							new Object[] { vehicleId, consmItem });
+			
+			
+			Iterator<Entity> consumableHistories = DatastoreUtils.findEntities(companyKey, "ConsumableHistory", filters, sorters);
+			
+			if(consumableHistories == null || !consumableHistories.hasNext()) {
+				consumable.setProperty("accrued_cost", accrued_cost - Long.parseLong(cost));
+				consumable.setProperty("last_repl_date", null);
+				consumable.setProperty("next_repl_date", null);
+				consumable.setProperty("miles_last_repl", null);
+				consumable.setProperty("next_repl_mileage", null);
+			} else {
+				if(consumableHistories.hasNext()) {
+					Entity consumableHistory = consumableHistories.next();
+					
+					consumable.setProperty("accrued_cost", accrued_cost - Long.parseLong(cost));
+					
+					if("Mileage".equals((String)consumableHistory.getProperty("repl_unit"))) {
+						consumable.setProperty("miles_last_repl", consumableHistory.getProperty("miles_last_repl"));
+						consumable.setProperty("next_repl_mileage", consumableHistory.getProperty("next_repl_mileage"));
+					}else if("Time".equals((String)consumableHistory.getProperty("repl_unit"))) {
+						consumable.setProperty("last_repl_date", consumableHistory.getProperty("last_repl_date"));
+						consumable.setProperty("next_repl_date", consumableHistory.getProperty("next_repl_date"));
+					}else if("MileageTime".equals((String)consumableHistory.getProperty("repl_unit"))){
+						consumable.setProperty("last_repl_date", consumableHistory.getProperty("last_repl_date"));
+						consumable.setProperty("next_repl_date", consumableHistory.getProperty("next_repl_date"));
+						consumable.setProperty("miles_last_repl", consumableHistory.getProperty("miles_last_repl"));
+						consumable.setProperty("next_repl_mileage", consumableHistory.getProperty("next_repl_mileage"));
+					}
+				}
+			}
+			
+			datastore.put(consumable);
 			// vehicle의 건강 상태를 다시 업데이트
 			this.updateVehicleHealth(datastore, consumable.getParent(), vehicle);
 			
+
+			return msg;
+			
 		} catch (Throwable t) {
 			logger.error("Failed to replace consumable!", t);
+			
+			return this.getResultMsg(false, (t.getCause() != null) ? t.getCause().getMessage() : t.getMessage());
 		}
 		
-		return super.delete(request, response);
 	}
 	
 	@RequestMapping(value = "/vehicle_consumable/save", method = RequestMethod.POST)
