@@ -3673,7 +3673,60 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 		}, {
 			header : T('label.comment'),
 			dataIndex : 'comment'
-		} ],
+		}, {
+			xtype : 'actioncolumn',
+			width : 25,
+			align : 'center',
+			items : [ {
+				icon : '/resources/image/dotRed.png',
+				tooltip : T('button.del'),
+				handler : function(grid, rowIndex, colIndex) {
+					var record = grid.store.getAt(rowIndex);
+					var conHistory = this.up('pm_consumable');
+					var currentLine = grid.store.data.length - 1;
+					var refreshRecord = grid.store.getAt(currentLine);
+					Ext.MessageBox.show({
+						title : T('title.confirmation'),
+						buttons : Ext.MessageBox.YESNO,
+						msg : T('msg.confirm_delete'),
+						modal : true,
+						fn : function(btn1) {
+							if(btn1 != 'yes')
+								return;
+								
+							Ext.Ajax.request({
+								url : '/vehicle_consumable/delete',
+								method : 'POST',
+								params : {
+									key : record.data.key,
+									vehicle_id : record.data.vehicle_id,
+									consumable_item : record.data.consumable_item
+								},
+								success : function(response) {
+									var resultObj = Ext.JSON.decode(response.responseText);
+									if (resultObj.success) {
+										
+										GreenFleet.msg(T('label.success'), resultObj.msg);
+										
+										var store = Ext.getStore('VehicleConsumableStore');
+										store.getProxy().extraParams.vehicle_id = refreshRecord.data.vehicle_id;
+										store.load();
+										
+										conHistory.sub('consumable_form').loadRecord(refreshRecord);
+										conHistory.refreshConsumableHistory(refreshRecord.data.vehicle_id, refreshRecord.data.consumable_item);
+									} else {
+										Ext.MessageBox.alert(T('label.failure'), resultObj.msg);
+									}
+								},
+								failure : function(response) {
+									Ext.MessageBox.alert(T('label.failure'), response.responseText);
+								}
+							});
+						}
+					});
+				}
+			} ]
+		}],
 		listeners : {
 			itemdblclick : function(grid, record, htmlElement, indexOfItem, extEvent, eOpts) {
 				grid.up('pm_consumable').showConsumableChange(record);
@@ -4127,29 +4180,45 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 	 * vehicle list를 조회 
 	 */
 	searchVehicles : function(searchRemote) {
+		this.sub('vehicle_info').store.remoteFilter = searchRemote;
+		this.sub('vehicle_info').store.clearFilter(true);
 		
-		var store = this.sub('vehicle_info').store;
+		var idValue = this.sub('id_filter').getValue();
+		var regNoValue = this.sub('reg_no_filter').getValue();
 		
-		if(searchRemote) {
-			store.load();
+		this.sub('vehicle_info').store.filter([ {
+			property : 'id',
+			value : idValue
+		}, {
+			property : 'registration_number',
+			value : regNoValue
+		}/*, {
+			property : 'status',
+			value : statusValue
+		}*/ ]);
 		
-		} else {			
-			store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
-			//var statusValue = this.sub('status_filter').getValue();
-			
-			store.filter([ {
-				property : 'id',
-				value : idValue
-			}, {
-				property : 'registration_number',
-				value : regNoValue
-			}/*, {
-				property : 'status',
-				value : statusValue
-			}*/ ]);
-		}
+//		var store = this.sub('vehicle_info').store;
+//		
+//		if(searchRemote) {
+//			store.load();
+//		
+//		} else {			
+//			store.clearFilter(true);			
+//			var idValue = this.sub('id_filter').getValue();
+//			var regNoValue = this.sub('reg_no_filter').getValue();
+//			//var statusValue = this.sub('status_filter').getValue();
+//			
+//			store.filter([ {
+//				property : 'id',
+//				value : idValue
+//			}, {
+//				property : 'registration_number',
+//				value : regNoValue
+//			}/*, {
+//				property : 'status',
+//				value : statusValue
+//			}*/ ]);
+//		}
 	},
 	
 	/**
@@ -4307,7 +4376,11 @@ Ext.define('GreenFleet.view.pm.Maintenance', {
 								url : '/repair/delete',
 								method: 'POST',
 								params : {
-									key : model[0].data.key
+									key : model[0].data.key,
+									vehicleId : model[0].data.vehicle_id,
+									repair_time: model[0].data.repair_time,
+									year : model[0].data.repair_date.getFullYear(),
+									month : model[0].data.repair_date.getMonth() + 1
 								},
 								success : function (result, request) {
 									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
@@ -6068,11 +6141,11 @@ Ext.define('GreenFleet.view.management.Company', {
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -6081,7 +6154,7 @@ Ext.define('GreenFleet.view.management.Company', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true);
 		});
 
 		this.down('#image_clip').on('change', function(field, value) {
@@ -6094,8 +6167,9 @@ Ext.define('GreenFleet.view.management.Company', {
 		})		
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote;
+		this.sub('grid').store.clearFilter(true);
 
 		this.sub('grid').store.filter([ {
 			property : 'id',
@@ -6132,6 +6206,10 @@ Ext.define('GreenFleet.view.management.Company', {
 				dataIndex : 'language',
 				text : T('label.language')
 			}, {
+				dataIndex : 'address',
+				text : T('label.address'),
+				width : 150
+			},{
 				dataIndex : 'lat',
 				text : T('label.latitude'),
 				type : 'number'
@@ -6187,7 +6265,7 @@ Ext.define('GreenFleet.view.management.Company', {
 			bodyPadding : 10,
 			cls : 'hIndexbar',
 			title : T('title.company_details'),
-			height : 290,
+			height : 380,
 			layout : {
 				type : 'hbox',
 				align : 'stretch'
@@ -6207,7 +6285,8 @@ Ext.define('GreenFleet.view.management.Company', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : T('label.id')
+					fieldLabel : T('label.id'),
+					disabled : true
 				}, {
 					name : 'name',
 					fieldLabel : T('label.name')
@@ -6234,9 +6313,37 @@ Ext.define('GreenFleet.view.management.Company', {
 					allowBlank : true,
 					buttonText : T('button.file')
 				}, {
+					xtype: 'fieldcontainer',
+	                fieldLabel: T('label.address'),
+	                layout: 'hbox',
+	                defaults: {
+	                    hideLabel: true
+	                },
+	                items: [
+	                    {
+	                    	itemId : 'form_address',
+	                        xtype : 'textfield',
+	                        name : 'address',
+	                        fieldLabel : T('label.address'),
+	                        flex : 1
+	                    },
+	                    {
+	                        xtype : 'button',
+	                        text : T('button.search'),
+	                        margin : '0 0 0 5',
+	                        handler : function(btn, event) {
+	                        	var companyView = btn.up('management_company');
+	                        	var addressStr = btn.up('fieldcontainer').down('textfield').getValue();
+	                        	companyView.refreshLocByAddr(addressStr);                        	
+	                        }
+	                    }
+	                ]
+				},{
+					itemId : 'form_latitude',
 					name : 'lat',
 					fieldLabel : T('label.latitude')
 				}, {
+					itemId : 'form_longitude',
 					name : 'lng',
 					fieldLabel : T('label.longitude')					
 				}, {
@@ -6271,13 +6378,41 @@ Ext.define('GreenFleet.view.management.Company', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						main.sub('id_filter').setValue('');
+						main.sub('name_filter').setValue('');
+						main.search(true);
+						//main.sub('grid').store.load(callback);
 					},
 					scope : main
 				}
 			} ]
 		}
-	}
+	},
+	
+	refreshLocByAddr : function(address) {
+		if(!address){
+			Ext.Msg.alert(T('msg.address_notfound_title'), T('msg.address_empty'));
+			return;
+		}
+		var self = this;
+		// 주소로 위치 검색
+	    this.getGeocoder().geocode({'address': address}, function(results, status) {
+	    	if (status == google.maps.GeocoderStatus.OK) {	    		
+	    		var center = results[0].geometry.location;
+	    		self.sub('form_latitude').setValue(center.lat());
+	    		self.sub('form_longitude').setValue(center.lng());	
+	      } else {
+	    	  	Ext.Msg.alert(T('msg.address_notfound_title'), T('msg.address_notfound', {x:address}));
+	      }
+	    });
+	},
+	
+	getGeocoder : function() {
+		if(!this.geocoder){
+			this.geocoder = new google.maps.Geocoder();
+		}
+		return this.geocoder;
+	},
 });
 
 Ext.define('GreenFleet.view.management.User', {
@@ -6312,11 +6447,11 @@ Ext.define('GreenFleet.view.management.User', {
 		});
 		
 		this.sub('email_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 		
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 		
 		this.down('#search_reset').on('click', function() {
@@ -6325,7 +6460,7 @@ Ext.define('GreenFleet.view.management.User', {
 		});
 		
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true);
 		});
 		
 		this.down('#image_clip').on('change', function(field, value) {
@@ -6339,8 +6474,9 @@ Ext.define('GreenFleet.view.management.User', {
 		
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote;
+		this.sub('grid').store.clearFilter(true);
 
 		this.sub('grid').store.filter([ {
 			property : 'email',
@@ -6535,7 +6671,10 @@ Ext.define('GreenFleet.view.management.User', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						//main.sub('grid').store.load(callback);
+						main.sub('id_filter').setValue('');
+						main.sub('name_filter').setValue('');
+						main.search(true);
 					},
 					scope : main
 				}
@@ -6772,7 +6911,7 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -6780,12 +6919,13 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true); 
 		});
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote; //
+		this.sub('grid').store.clearFilter(true); //
 
 		this.sub('grid').store.filter([ {
 			property : 'name',
@@ -6936,7 +7076,9 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						//main.sub('grid').store.load(callback);
+						main.sub('name_filter').setValue('');
+						main.search(true);
 					},
 					scope : main
 				}
@@ -7977,7 +8119,7 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -7985,7 +8127,7 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true);
 		});
 	},
 	
@@ -8174,8 +8316,9 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 		}
 	},
 	
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote; 
+		this.sub('grid').store.clearFilter(true); 
 
 		this.sub('grid').store.filter([ {
 			property : 'name',
@@ -8250,7 +8393,7 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 			viewConfig : {
 
 			},
-			tbar : [ T('label.location'), {
+			tbar : [ T('label.name'), {
 				xtype : 'textfield',
 				name : 'name_filter',
 				itemId : 'name_filter',
@@ -8379,7 +8522,9 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						//main.sub('grid').store.load(callback);
+						main.sub('name_filter').setValue('');
+						main.search(true);
 					},
 					scope : main
 				}
@@ -8781,7 +8926,7 @@ Ext.define('GreenFleet.view.management.Report', {
 		});
 
 		this.sub('name_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -8789,12 +8934,13 @@ Ext.define('GreenFleet.view.management.Report', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true);
 		});		
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote;
+		this.sub('grid').store.clearFilter(true);
 
 		this.sub('grid').store.filter([ {
 			property : 'name',
@@ -8948,7 +9094,9 @@ Ext.define('GreenFleet.view.management.Report', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						//main.sub('grid').store.load(callback);
+						main.sub('name_filter').setValue('');
+						main.search(true);
 					},
 					scope : main
 				}
@@ -9035,25 +9183,38 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 	 * 차량 조회 
 	 */
 	search : function(remote) {
+		this.sub('vehicle_list').store.remoteFilter = remote; //
+		this.sub('vehicle_list').store.clearFilter(true); //
 		
-		if(remote) {
-			this.sub('vehicle_list').store.load();
-			
-		} else {
-			this.sub('vehicle_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var regNoValue = this.sub('reg_no_filter').getValue();
-			
-			if(idValue || regNoValue) {
-				this.sub('vehicle_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'registration_number',
-					value : regNoValue
-				} ]);
-			}			
-		}
+		var idValue = this.sub('id_filter').getValue();
+		var regNoValue = this.sub('reg_no_filter').getValue();
+
+		this.sub('vehicle_list').store.filter([ {
+			property : 'id',
+			value : idValue
+		}, {
+			property : 'registration_number',
+			value : regNoValue
+		} ]);
+		
+//		if(remote) {
+//			this.sub('vehicle_list').store.load();
+//			
+//		} else {
+//			this.sub('vehicle_list').store.clearFilter(true);			
+//			var idValue = this.sub('id_filter').getValue();
+//			var regNoValue = this.sub('reg_no_filter').getValue();
+//			
+//			if(idValue || regNoValue) {
+//				this.sub('vehicle_list').store.filter([ {
+//					property : 'id',
+//					value : idValue
+//				}, {
+//					property : 'registration_number',
+//					value : regNoValue
+//				} ]);
+//			}			
+//		}
 	},
 	
 	/**
@@ -9104,7 +9265,32 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			dataIndex : 'registration_number',
 			text : T('label.reg_no'),
 			flex : 1
-		} ],
+		}, {
+			menuDisabled: true,
+			sortable: false,
+			xtype: 'actioncolumn',
+			width: 25,
+			items: [{
+				icon: 'resources/image/dotRed.png',
+				tooltip: T('button.del'),
+				handler : function() {
+					new Ext.Window({
+			    		title : "Live Video",
+			    		width : 690,
+			    		height: 560,
+			    		layout : 'fit',
+			    		items : [{
+			        		xtype : "component",
+			        		autoEl : {
+			            		tag : "iframe",
+//			            		src : "http://www.ustream.tv/embed/10627186"
+			            		src : "http://61.33.6.173/smart"
+			        		}
+			    		}]
+					}).show();
+				}
+			}]
+		}],
 
 		tbar : [
 	    T('label.id'),
@@ -12140,24 +12326,38 @@ Ext.define('GreenFleet.view.management.Driver', {
 	 * 운전자 조회 
 	 */
 	search : function(remote) {
-		if(remote) {
-			this.sub('driver_list').store.load();
-			
-		} else {
-			this.sub('driver_list').store.clearFilter(true);			
-			var idValue = this.sub('id_filter').getValue();
-			var nameValue = this.sub('name_filter').getValue();
-			
-			if(idValue || nameValue) {
-				this.sub('driver_list').store.filter([ {
-					property : 'id',
-					value : idValue
-				}, {
-					property : 'name',
-					value : nameValue
-				} ]);
-			}			
-		}
+		this.sub('driver_list').store.remoteFilter = remote;
+		this.sub('driver_list').store.clearFilter(true);
+		
+		var idValue = this.sub('id_filter').getValue();
+		var nameValue = this.sub('name_filter').getValue();
+
+		this.sub('driver_list').store.filter([ {
+			property : 'id',
+			value : idValue
+		}, {
+			property : 'name',
+			value : nameValue
+		} ]);
+		
+//		if(remote) {
+//			this.sub('driver_list').store.load();
+//			
+//		} else {
+//			this.sub('driver_list').store.clearFilter(true);			
+//			var idValue = this.sub('id_filter').getValue();
+//			var nameValue = this.sub('name_filter').getValue();
+//			
+//			if(idValue || nameValue) {
+//				this.sub('driver_list').store.filter([ {
+//					property : 'id',
+//					value : idValue
+//				}, {
+//					property : 'name',
+//					value : nameValue
+//				} ]);
+//			}			
+//		}
 	},
 	
 	/**
@@ -13833,11 +14033,11 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		});
 
 		this.sub('id_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.sub('serial_no_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -13846,7 +14046,7 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.sub('grid').store.load();
+			self.search(true);
 		});
 		
 		this.down('#image_clip').on('change', function(field, value) {
@@ -13860,8 +14060,9 @@ Ext.define('GreenFleet.view.management.Terminal', {
 		
 	},
 
-	search : function() {
-		this.sub('grid').store.clearFilter();
+	search : function(remote) {
+		this.sub('grid').store.remoteFilter = remote;
+		this.sub('grid').store.clearFilter(true);
 
 		this.sub('grid').store.filter([ {
 			property : 'id',
@@ -14044,7 +14245,10 @@ Ext.define('GreenFleet.view.management.Terminal', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						main.sub('grid').store.load(callback);
+						//main.sub('grid').store.load(callback);
+						main.sub('id_filter').setValue('');//
+						main.sub('serial_no_filter').setValue('');//
+						main.search(true);//
 					},
 					scope : main
 				}
@@ -14086,11 +14290,11 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.sub('vehicle_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.sub('datetime_filter').on('change', function(field, value) {
-			self.search();
+			self.search(false);
 		});
 
 		this.down('#search_reset').on('click', function() {
@@ -14099,22 +14303,33 @@ Ext.define('GreenFleet.view.management.Reservation', {
 		});
 
 		this.down('#search').on('click', function() {
-			self.search();
+			self.search(true);
 		});
 
 	},
 
 	search : function(callback) {
-		this.sub('grid').store.load({
-			filters : [ {
-				property : 'vehicle_id',
-				value : this.sub('vehicle_filter').getSubmitValue()
-			}, {
-				property : 'datetime',
-				value : this.sub('datetime_filter').getSubmitValue()
-			} ],
-			callback : callback
-		});
+		this.sub('grid').store.remoteFilter = remote;
+		this.sub('grid').store.clearFilter(true);
+		
+		this.sub('grid').store.filter([ {
+			property : 'vehicle_id',
+			value : this.sub('vehicle_filter').getValue()
+		}, {
+			property : 'datetime',
+			value : this.sub('datetime_filter').getValue()
+		} ]);
+		
+//		this.sub('grid').store.load({
+//			filters : [ {
+//				property : 'vehicle_id',
+//				value : this.sub('vehicle_filter').getSubmitValue()
+//			}, {
+//				property : 'datetime',
+//				value : this.sub('datetime_filter').getSubmitValue()
+//			} ],
+//			callback : callback
+//		});
 	},
 
 	buildList : function(main) {
@@ -14285,8 +14500,16 @@ Ext.define('GreenFleet.view.management.Reservation', {
 			} ],
 			dockedItems : [ {
 				xtype : 'entity_form_buttons',
+//				loader : {
+//					fn : main.search,
+//					scope : main
+//				}
 				loader : {
-					fn : main.search,
+					fn : function(callback) {
+						main.sub('vehicle_filter').setValue('');
+						main.sub('datetime_filter').setValue('');
+						main.search(true);
+					},
 					scope : main
 				}
 			} ]
@@ -21249,6 +21472,9 @@ Ext.define('GreenFleet.store.CompanyStore', {
 		name : 'language',
 		type : 'string'
 	}, {
+		name : 'address',
+		type : 'string'
+	},{
 		name : 'lat',
 		type : 'float'
 	}, {
