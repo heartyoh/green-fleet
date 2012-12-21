@@ -366,10 +366,10 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 			dataIndex : 'comment'
 		}, {
 			xtype : 'actioncolumn',
-			width : 25,
+			width : 35,
 			align : 'center',
 			items : [ {
-				icon : '/resources/image/dotRed.png',
+				icon : '/resources/image/btn_close.png',
 				tooltip : T('button.del'),
 				handler : function(grid, rowIndex, colIndex) {
 					var record = grid.store.getAt(rowIndex);
