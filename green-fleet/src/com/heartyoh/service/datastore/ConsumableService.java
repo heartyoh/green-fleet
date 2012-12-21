@@ -391,6 +391,26 @@ public class ConsumableService extends HistoricEntityService {
 	@RequestMapping(value = "/vehicle_consumable/delete", method = RequestMethod.POST)
 	public @ResponseBody
 	String delete(HttpServletRequest request, HttpServletResponse response) {
+		
+		try {
+			Object[] results = this.findVehicleAndConsumable(request);
+			Vehicle vehicle = (Vehicle)results[0];
+			Entity consumable = (Entity)results[1];
+			consumable.setProperty("updated_at", new Date());
+			
+			Map<String, Object> map = toMap(request);
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+			CalculatorUtils.resetConsumable(DataUtils.toDouble(vehicle.getTotalDistance()), consumable);
+			
+			// 이력 저장을 위해 호출 
+//			this.saveEntity(consumable, map, datastore);
+			// vehicle의 건강 상태를 다시 업데이트
+			this.updateVehicleHealth(datastore, consumable.getParent(), vehicle);
+			
+		} catch (Throwable t) {
+			logger.error("Failed to replace consumable!", t);
+		}
+		
 		return super.delete(request, response);
 	}
 	
