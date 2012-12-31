@@ -186,17 +186,23 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'datefield',
 				name : 'start_date',
 				fieldLabel : T('label.from_date'),
-				format : F('date')
+				format : F('date'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'end_date',
 				fieldLabel : T('label.to_date'),
-				format : F('date')
+				format : F('date'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'codecombo',
 				name : 'vehicle_type',
 				group : 'V-Type1',
-				fieldLabel : T('label.vehicle_type')
+				fieldLabel : T('label.vehicle_type'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 //				name : 'vehicle_type',
 //				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
 			}, {
@@ -206,7 +212,9 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : T('label.vehicle')
+				fieldLabel : T('label.vehicle'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
@@ -214,7 +222,9 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				store : 'DriverBriefStore',
 				displayField : 'name',
 				valueField : 'id',
-				fieldLabel : T('label.driver')
+				fieldLabel : T('label.driver'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'status',
 				fieldLabel : T('label.status')

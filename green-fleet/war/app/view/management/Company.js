@@ -189,7 +189,9 @@ Ext.define('GreenFleet.view.management.Company', {
 					disabled : true
 				}, {
 					name : 'name',
-					fieldLabel : T('label.name')
+					fieldLabel : T('label.name'),
+					allowBlank: false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'desc',
 					fieldLabel : T('label.desc')

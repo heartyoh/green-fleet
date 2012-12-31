@@ -20,6 +20,8 @@
 		<!--script src='/_ah/channel/jsapi'></script-->
 		
 		<script>
+		var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
+		
 		var login = {
 			key : '<sec:authentication property="principal.key"/>',
 			email : '<sec:authentication property="principal.email"/>',

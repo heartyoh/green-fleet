@@ -391,7 +391,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 								params : {
 									key : record.data.key,
 									vehicle_id : record.data.vehicle_id,
-									consumable_item : record.data.consumable_item
+									consumable_item : record.data.consumable_item,
+									last_repl_date : record.data.last_repl_date
 								},
 								success : function(response) {
 									var resultObj = Ext.JSON.decode(response.responseText);

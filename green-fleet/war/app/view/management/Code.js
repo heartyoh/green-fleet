@@ -150,10 +150,14 @@ Ext.define('GreenFleet.view.management.Code', {
 				queryMode : 'local',
 				store : 'CodeGroupStore',
 				displayField : 'group',
-				valueField : 'group'
+				valueField : 'group',
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'code',
-				fieldLabel : T('label.code')
+				fieldLabel : T('label.code'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
 				fieldLabel : T('label.desc')

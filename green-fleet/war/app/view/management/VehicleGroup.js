@@ -453,10 +453,14 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				itemId : 'form_vehicle_group_key'
 			}, {
 				name : 'id',
-				fieldLabel : T('label.group')
+				fieldLabel : T('label.group'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc')
+				fieldLabel : T('label.desc'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',

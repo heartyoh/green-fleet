@@ -391,10 +391,14 @@
 				hidden : true
 			}, {
 				name : 'name',
-				fieldLabel : T('label.name')
+				fieldLabel : T('label.name'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
                 xtype: 'fieldcontainer',
                 fieldLabel: T('label.address'),
+				allowBlank: false,
+				afterLabelTextTpl: required,
                 layout: 'hbox',
                 defaults: {
                     hideLabel: true

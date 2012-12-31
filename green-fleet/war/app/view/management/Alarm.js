@@ -187,7 +187,8 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			{
 				name : 'name',
 				fieldLabel : T('label.name'),
-				allowBlank : false
+				allowBlank : false,
+				afterLabelTextTpl: required
 			},
 			{
 				xtype : 'codecombo',
@@ -195,6 +196,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				group : 'AlarmEventType',
 	            fieldLabel: T('label.event_type'),
 	            allowBank : false,
+				afterLabelTextTpl: required,
 				listeners : {
 					change : function(combo, currentValue, beforeValue) {
 						combo.up('form').down('fieldset').setVisible(currentValue == 'location');
@@ -225,32 +227,37 @@ Ext.define('GreenFleet.view.management.Alarm', {
 					store : 'LocationStore',
 					displayField : 'name',
 					valueField : 'name',
-					allowBlank : false
+					allowBlank : false,
+					afterLabelTextTpl: required
 	            }, {
 	            	itemId : 'form_vehicles',
 					name : 'vehicles',
 					xtype : 'textfield',
 					fieldLabel : T('label.vehicle'),
-					allowBlank : false
+					allowBlank : false,
+					afterLabelTextTpl: required
 	            }, {
 					xtype : 'codecombo',
 					name : 'evt_trg',
 					group : 'LocationEvent',
 		            fieldLabel: T('label.event_trigger'),
-		            allowBlank : false		            
+		            allowBlank : false,
+					afterLabelTextTpl: required	            
 	            }]
 	        },
 	        {
 				name : 'dest',
 				fieldLabel : T('label.send_to'),
 				emptyText : T('msg.select_users'),
-				allowBlank : false
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'codecombo',
 				name : 'type',
 				group : 'AlarmType',
 	            fieldLabel: T('label.type'),
-	            allowBlank : false
+	            allowBlank : false,
+				afterLabelTextTpl: required
 			},
 			{
                 xtype: 'container',
@@ -293,7 +300,8 @@ Ext.define('GreenFleet.view.management.Alarm', {
 	            name: 'msg',
 	            fieldLabel: T('label.message'),
 	            height: 100,
-				allowBlank : false
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',

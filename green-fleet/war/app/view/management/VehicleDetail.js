@@ -93,28 +93,37 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 				}, {
 					itemId: 'form_id',
 					name : 'id',
-					fieldLabel : T('label.id')
+					fieldLabel : T('label.id'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'registration_number',
-					fieldLabel : T('label.reg_no')
+					fieldLabel : T('label.reg_no'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'vehicle_model',
-					fieldLabel : T('label.vehicle_model')
+					fieldLabel : T('label.vehicle_model'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'manufacturer',
 					group : 'V-Maker',
-					fieldLabel : T('label.manufacturer')
+					fieldLabel : T('label.manufacturer'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'vehicle_type',
 					group : 'V-Type1',
-					fieldLabel : T('label.vehicle_type')
+					fieldLabel : T('label.vehicle_type'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'fuel_type',
 					group : 'V-Fuel',
-					fieldLabel : T('label.fuel_type')
+					fieldLabel : T('label.fuel_type'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'birth_year',
@@ -128,7 +137,8 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 					store : 'OwnershipStore',
 					displayField : 'desc',
 					valueField : 'name',
-					fieldLabel : T('label.ownership_type')
+					fieldLabel : T('label.ownership_type'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					itemId: 'form_status',

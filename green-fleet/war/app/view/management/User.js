@@ -189,10 +189,14 @@ Ext.define('GreenFleet.view.management.User', {
 							hidden : true
 						}, {
 							name : 'email',
-							fieldLabel : T('label.email')
+							fieldLabel : T('label.email'),
+							allowBlank: false,
+							afterLabelTextTpl: required
 						}, {
 							name : 'name',
-							fieldLabel : T('label.name')
+							fieldLabel : T('label.name'),
+							allowBlank: false,
+							afterLabelTextTpl: required
 						}, {
 							xtype : 'checkbox',
 							name : 'enabled',
@@ -206,13 +210,16 @@ Ext.define('GreenFleet.view.management.User', {
 						}, {
 							name : 'company',
 							fieldLabel : T('label.company'),
-							disable : true
+							disable : true,
+							allowBlank: false,
+							afterLabelTextTpl: required
 						}, {
 							xtype : 'codecombo',
 							name : 'grade',
 							group : 'UserGradeType',
 				            fieldLabel: T('label.grade'),
-				            allowBank : false
+				            allowBlank : false,
+							afterLabelTextTpl: required
 						}, {
 							xtype : 'combo',
 							name : 'language',

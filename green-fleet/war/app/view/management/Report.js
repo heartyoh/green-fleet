@@ -175,14 +175,20 @@ Ext.define('GreenFleet.view.management.Report', {
 					name : 'id',
 					fieldLabel : T('label.id'),
 					xtype : 'codecombo',
-					group : 'ReportType'						
+					group : 'ReportType',
+					allowBlank : false,
+					afterLabelTextTpl: required					
 				}, {
 					name : 'name',
-					fieldLabel : T('label.name')
+					fieldLabel : T('label.name'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {					
 					name : 'cycle',
 					xtype: 'checkboxgroup',
 		            fieldLabel: T('label.cycle'),
+					allowBlank : false,
+					afterLabelTextTpl: required,
 		            columns: 1,
 		            items: [
 		                { boxLabel: T('label.daily'), name: 'daily' },
@@ -193,7 +199,9 @@ Ext.define('GreenFleet.view.management.Report', {
 					name : 'send_to',
 					xtype : 'textarea',
 					rows : 6,
-					fieldLabel: T('label.send_to')
+					fieldLabel: T('label.send_to'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 					//xtype : 'user_selector',
 					//selector_label : T('label.send_to')
 				}, {

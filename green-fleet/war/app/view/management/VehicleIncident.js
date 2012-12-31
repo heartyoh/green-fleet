@@ -271,11 +271,15 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 					xtype : 'datefield',
 					name : 'datetime',
 					fieldLabel : T('label.datetime'),
-					format : F('datetime')					
+					format : F('datetime'),
+					allowBlank : false,
+					afterLabelTextTpl: required			
 				}, {
 					xtype : 'textfield',
 					name : 'vehicle_id',
-					fieldLabel : T('label.vehicle')
+					fieldLabel : T('label.vehicle'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'driver_id',
@@ -283,7 +287,9 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 					store : 'DriverBriefStore',
 					displayField : 'id',
 					valueField : 'id',
-					fieldLabel : T('label.driver')
+					fieldLabel : T('label.driver'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'terminal_id',
@@ -291,7 +297,9 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 					store : 'TerminalStore',
 					displayField : 'id',
 					valueField : 'id',
-					fieldLabel : T('label.terminal')
+					fieldLabel : T('label.terminal'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'textfield',
 					name : 'lat',

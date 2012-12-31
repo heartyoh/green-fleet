@@ -186,10 +186,14 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : T('label.id')
+					fieldLabel : T('label.id'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'serial_no',
-					fieldLabel : T('label.x_no', {x : T('label.serial')})
+					fieldLabel : T('label.x_no', {x : T('label.serial')}),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'vehicle_id',
@@ -197,7 +201,9 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					store : 'VehicleBriefStore',
 					displayField : 'id',
 					valueField : 'id',
-					fieldLabel : T('label.vehicle')
+					fieldLabel : T('label.vehicle'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'driver_id',

@@ -158,12 +158,16 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				hidden : true
 			}, {
 				name : 'name',
-				fieldLabel : T('label.code')
+				fieldLabel : T('label.code'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'repl_unit',
 				xtype : 'codecombo',
 				group : 'ReplacementUnit',				
-				fieldLabel : T('label.repl_unit')
+				fieldLabel : T('label.repl_unit'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'fst_repl_mileage',
 				xtype : 'numberfield',
@@ -181,13 +185,15 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				xtype : 'numberfield',
 				minValue : 0,
 				maxValue : 500000,				
-				fieldLabel : T('label.repl_mileage') + " (km)"
+				fieldLabel : T('label.repl_mileage') + " (km)",
+				afterLabelTextTpl: required
 			}, {
 				name : 'repl_time',
 				xtype : 'numberfield',
 				minValue : 0,
 				maxValue : 300,				
-				fieldLabel : T('label.repl_time') + "(month)"
+				fieldLabel : T('label.repl_time') + "(month)",
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
 				fieldLabel : T('label.desc')

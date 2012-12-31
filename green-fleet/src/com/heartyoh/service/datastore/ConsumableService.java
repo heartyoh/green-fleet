@@ -346,6 +346,31 @@ public class ConsumableService extends HistoricEntityService {
 	}
 	
 	/**
+	 *  일정관리 삭제
+	 * @throws Exception 
+	 */
+	private void deleteTask(Key companyKey, Vehicle vehicle, String consmItem, String lastRepDate) throws Exception {
+		Map<String, Object> filters = 
+				DataUtils.newMap(new String[] { "vehicle_id", "consumable_item" }, 
+						new Object[] { vehicle.getId(), consmItem });
+		Entity consumable = DatastoreUtils.findEntity(companyKey, "VehicleConsumable", filters);
+		
+		String cunsumableKey = KeyFactory.keyToString(consumable.getKey());
+		String category = GreenFleetConstant.TASK_TYPE_CONSUMABLES;
+		Date toDate = DataUtils.toTimestamp(lastRepDate, null);
+		
+		String vehicleSql = "select id from task where url = '" + cunsumableKey + "' and category = '" + category + "' and start_date = '" + toDate + "'";
+		List<Map> vehicleList = DatasourceUtils.selectBySql(vehicleSql, null);
+		
+		if(vehicleList.size() > 0) {
+//			DatasourceUtils.daleteTask(vehicleList.get(0).get("id"));
+			Long taskId = (Long) vehicleList.get(0).get("id");
+			DatasourceUtils.daleteTask(taskId);
+		}
+		
+	}
+	
+	/**
 	 * vehicle의 소모품 상태를 기반으로 건강 상태를 업데이트한다. 
 	 * 
 	 * @param datastore
@@ -403,6 +428,7 @@ public class ConsumableService extends HistoricEntityService {
 			String key = request.getParameter("key");
 			String vehicleId = request.getParameter("vehicle_id");
 			String consmItem = request.getParameter("consumable_item");
+			String lastRepDate = request.getParameter("last_repl_date");
 			
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 			CalculatorUtils.resetConsumable(DataUtils.toDouble(vehicle.getTotalDistance()), consumable);
@@ -410,12 +436,17 @@ public class ConsumableService extends HistoricEntityService {
 			
 			Entity vch = DatastoreUtils.findByKey(KeyFactory.stringToKey(key));
 			
+
+			this.deleteTask(consumable.getParent(), vehicle, consmItem, lastRepDate);
+			
+			
+			// ConsumableHistory delete
 			String msg = super.delete(request, response);
 			
 			Key companyKey = this.getCompanyKey(request);
 			
 			long accrued_cost = (Long) consumable.getProperty("accrued_cost");
-			String cost = (String)vch.getProperty("cost");
+			Long cost = (Long)vch.getProperty("cost");
 			
 			List<Sorter> sorters = new ArrayList<Sorter>();
 			
@@ -432,7 +463,7 @@ public class ConsumableService extends HistoricEntityService {
 			Iterator<Entity> consumableHistories = DatastoreUtils.findEntities(companyKey, "ConsumableHistory", filters, sorters);
 			
 			if(consumableHistories == null || !consumableHistories.hasNext()) {
-				consumable.setProperty("accrued_cost", accrued_cost - Long.parseLong(cost));
+				consumable.setProperty("accrued_cost", accrued_cost - cost);
 				consumable.setProperty("last_repl_date", null);
 				consumable.setProperty("next_repl_date", null);
 				consumable.setProperty("miles_last_repl", null);
@@ -441,7 +472,7 @@ public class ConsumableService extends HistoricEntityService {
 				if(consumableHistories.hasNext()) {
 					Entity consumableHistory = consumableHistories.next();
 					
-					consumable.setProperty("accrued_cost", accrued_cost - Long.parseLong(cost));
+					consumable.setProperty("accrued_cost", accrued_cost - cost);
 					
 					if("Mileage".equals((String)consumableHistory.getProperty("repl_unit"))) {
 						consumable.setProperty("miles_last_repl", consumableHistory.getProperty("miles_last_repl"));
@@ -462,7 +493,6 @@ public class ConsumableService extends HistoricEntityService {
 			// vehicle의 건강 상태를 다시 업데이트
 			this.updateVehicleHealth(datastore, consumable.getParent(), vehicle);
 			
-
 			return msg;
 			
 		} catch (Throwable t) {

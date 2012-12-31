@@ -246,10 +246,14 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 				store : 'TerminalStore',
 				displayField : T('label.id'),
 				valueField : 'id',
-				fieldLabel : T('label.terminal')
+				fieldLabel : T('label.terminal'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'vehicle_id',
-				fieldLabel : T('label.vehicle')
+				fieldLabel : T('label.vehicle'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
@@ -257,7 +261,9 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 				store : 'DriverBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : T('label.driver')
+				fieldLabel : T('label.driver'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'datetime',

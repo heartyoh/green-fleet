@@ -439,10 +439,14 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 				itemId : 'form_driver_group_key'
 			}, {
 				name : 'id',
-				fieldLabel : T('label.group')
+				fieldLabel : T('label.group'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc')
+				fieldLabel : T('label.desc'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
