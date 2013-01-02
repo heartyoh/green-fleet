@@ -17,7 +17,8 @@ Ext.define('GreenFleet', {
 		util : 'GreenFleet.mixin.Import',
 		setting : 'GreenFleet.mixin.Setting',
 		label : 'GreenFleet.mixin.Label',
-		auth : 'GreenFleet.mixin.Authority'
+		auth : 'GreenFleet.mixin.Authority',
+		map : 'GreenFleet.mixin.Map'
 	}
 });
 

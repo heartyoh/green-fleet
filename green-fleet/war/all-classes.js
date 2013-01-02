@@ -365,6 +365,55 @@ Ext.define('GreenFleet.mixin.Authority', function() {
 		checkDisabled : checkDisabled
 	};
 }());
+Ext.define('GreenFleet.mixin.Map',
+function() {
+    var getLocation = function(lat, lng, callback) {
+        if (lat !== undefined && lng !== undefined) {
+            var latlng = new google.maps.LatLng(lat, lng);
+
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+                'latLng': latlng
+            },
+            function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        callback(results[0].formatted_address);
+                    }
+                } else {
+                    callback('Geocoder fails due to : ' + status);
+                }
+            });
+        }
+    };
+
+    function distance(lat1, lng1, lat2, lng2, unit) {
+        var radlat1 = Math.PI * lat1 / 180
+        var radlat2 = Math.PI * lat2 / 180
+        var radlng1 = Math.PI * lng1 / 180
+        var radlng2 = Math.PI * lng2 / 180
+        var theta = lng1 - lng2
+        var radtheta = Math.PI * theta / 180
+        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        dist = Math.acos(dist)
+        dist = dist * 180 / Math.PI
+        dist = dist * 60 * 1.1515
+        if (unit == "K") {
+            dist = dist * 1.609344
+        }
+        if (unit == "N") {
+            dist = dist * 0.8684
+        }
+        return dist
+    };
+
+    return {
+        map: {
+            getLocation: getLocation,
+			distance: distance
+        }
+    };
+} ());
 Ext.define('GreenFleet.view.Viewport', {
 	extend : 'Ext.container.Viewport',
 
@@ -3700,7 +3749,8 @@ Ext.define('GreenFleet.view.pm.Consumable', {
 								params : {
 									key : record.data.key,
 									vehicle_id : record.data.vehicle_id,
-									consumable_item : record.data.consumable_item
+									consumable_item : record.data.consumable_item,
+									last_repl_date : record.data.last_repl_date
 								},
 								success : function(response) {
 									var resultObj = Ext.JSON.decode(response.responseText);
@@ -6289,7 +6339,9 @@ Ext.define('GreenFleet.view.management.Company', {
 					disabled : true
 				}, {
 					name : 'name',
-					fieldLabel : T('label.name')
+					fieldLabel : T('label.name'),
+					allowBlank: false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'desc',
 					fieldLabel : T('label.desc')
@@ -6606,10 +6658,14 @@ Ext.define('GreenFleet.view.management.User', {
 							hidden : true
 						}, {
 							name : 'email',
-							fieldLabel : T('label.email')
+							fieldLabel : T('label.email'),
+							allowBlank: false,
+							afterLabelTextTpl: required
 						}, {
 							name : 'name',
-							fieldLabel : T('label.name')
+							fieldLabel : T('label.name'),
+							allowBlank: false,
+							afterLabelTextTpl: required
 						}, {
 							xtype : 'checkbox',
 							name : 'enabled',
@@ -6623,13 +6679,16 @@ Ext.define('GreenFleet.view.management.User', {
 						}, {
 							name : 'company',
 							fieldLabel : T('label.company'),
-							disable : true
+							disable : true,
+							allowBlank: false,
+							afterLabelTextTpl: required
 						}, {
 							xtype : 'codecombo',
 							name : 'grade',
 							group : 'UserGradeType',
 				            fieldLabel: T('label.grade'),
-				            allowBank : false
+				            allowBlank : false,
+							afterLabelTextTpl: required
 						}, {
 							xtype : 'combo',
 							name : 'language',
@@ -6834,10 +6893,14 @@ Ext.define('GreenFleet.view.management.Code', {
 				queryMode : 'local',
 				store : 'CodeGroupStore',
 				displayField : 'group',
-				valueField : 'group'
+				valueField : 'group',
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'code',
-				fieldLabel : T('label.code')
+				fieldLabel : T('label.code'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
 				fieldLabel : T('label.desc')
@@ -7026,12 +7089,16 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				hidden : true
 			}, {
 				name : 'name',
-				fieldLabel : T('label.code')
+				fieldLabel : T('label.code'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'repl_unit',
 				xtype : 'codecombo',
 				group : 'ReplacementUnit',				
-				fieldLabel : T('label.repl_unit')
+				fieldLabel : T('label.repl_unit'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'fst_repl_mileage',
 				xtype : 'numberfield',
@@ -7049,13 +7116,15 @@ Ext.define('GreenFleet.view.management.ConsumableCode', {
 				xtype : 'numberfield',
 				minValue : 0,
 				maxValue : 500000,				
-				fieldLabel : T('label.repl_mileage') + " (km)"
+				fieldLabel : T('label.repl_mileage') + " (km)",
+				afterLabelTextTpl: required
 			}, {
 				name : 'repl_time',
 				xtype : 'numberfield',
 				minValue : 0,
 				maxValue : 300,				
-				fieldLabel : T('label.repl_time') + "(month)"
+				fieldLabel : T('label.repl_time') + "(month)",
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
 				fieldLabel : T('label.desc')
@@ -7541,10 +7610,14 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				itemId : 'form_vehicle_group_key'
 			}, {
 				name : 'id',
-				fieldLabel : T('label.group')
+				fieldLabel : T('label.group'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc')
+				fieldLabel : T('label.desc'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
@@ -8013,10 +8086,14 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 				itemId : 'form_driver_group_key'
 			}, {
 				name : 'id',
-				fieldLabel : T('label.group')
+				fieldLabel : T('label.group'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc')
+				fieldLabel : T('label.desc'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
@@ -8437,10 +8514,14 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 				hidden : true
 			}, {
 				name : 'name',
-				fieldLabel : T('label.name')
+				fieldLabel : T('label.name'),
+				allowBlank: false,
+				afterLabelTextTpl: required
 			}, {
                 xtype: 'fieldcontainer',
                 fieldLabel: T('label.address'),
+				allowBlank: false,
+				afterLabelTextTpl: required,
                 layout: 'hbox',
                 defaults: {
                     hideLabel: true
@@ -8730,7 +8811,8 @@ Ext.define('GreenFleet.view.management.Alarm', {
 			{
 				name : 'name',
 				fieldLabel : T('label.name'),
-				allowBlank : false
+				allowBlank : false,
+				afterLabelTextTpl: required
 			},
 			{
 				xtype : 'codecombo',
@@ -8738,6 +8820,7 @@ Ext.define('GreenFleet.view.management.Alarm', {
 				group : 'AlarmEventType',
 	            fieldLabel: T('label.event_type'),
 	            allowBank : false,
+				afterLabelTextTpl: required,
 				listeners : {
 					change : function(combo, currentValue, beforeValue) {
 						combo.up('form').down('fieldset').setVisible(currentValue == 'location');
@@ -8768,32 +8851,37 @@ Ext.define('GreenFleet.view.management.Alarm', {
 					store : 'LocationStore',
 					displayField : 'name',
 					valueField : 'name',
-					allowBlank : false
+					allowBlank : false,
+					afterLabelTextTpl: required
 	            }, {
 	            	itemId : 'form_vehicles',
 					name : 'vehicles',
 					xtype : 'textfield',
 					fieldLabel : T('label.vehicle'),
-					allowBlank : false
+					allowBlank : false,
+					afterLabelTextTpl: required
 	            }, {
 					xtype : 'codecombo',
 					name : 'evt_trg',
 					group : 'LocationEvent',
 		            fieldLabel: T('label.event_trigger'),
-		            allowBlank : false		            
+		            allowBlank : false,
+					afterLabelTextTpl: required	            
 	            }]
 	        },
 	        {
 				name : 'dest',
 				fieldLabel : T('label.send_to'),
 				emptyText : T('msg.select_users'),
-				allowBlank : false
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'codecombo',
 				name : 'type',
 				group : 'AlarmType',
 	            fieldLabel: T('label.type'),
-	            allowBlank : false
+	            allowBlank : false,
+				afterLabelTextTpl: required
 			},
 			{
                 xtype: 'container',
@@ -8836,7 +8924,8 @@ Ext.define('GreenFleet.view.management.Alarm', {
 	            name: 'msg',
 	            fieldLabel: T('label.message'),
 	            height: 100,
-				allowBlank : false
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
@@ -9050,14 +9139,20 @@ Ext.define('GreenFleet.view.management.Report', {
 					name : 'id',
 					fieldLabel : T('label.id'),
 					xtype : 'codecombo',
-					group : 'ReportType'						
+					group : 'ReportType',
+					allowBlank : false,
+					afterLabelTextTpl: required					
 				}, {
 					name : 'name',
-					fieldLabel : T('label.name')
+					fieldLabel : T('label.name'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {					
 					name : 'cycle',
 					xtype: 'checkboxgroup',
 		            fieldLabel: T('label.cycle'),
+					allowBlank : false,
+					afterLabelTextTpl: required,
 		            columns: 1,
 		            items: [
 		                { boxLabel: T('label.daily'), name: 'daily' },
@@ -9068,7 +9163,9 @@ Ext.define('GreenFleet.view.management.Report', {
 					name : 'send_to',
 					xtype : 'textarea',
 					rows : 6,
-					fieldLabel: T('label.send_to')
+					fieldLabel: T('label.send_to'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 					//xtype : 'user_selector',
 					//selector_label : T('label.send_to')
 				}, {
@@ -9515,28 +9612,37 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 				}, {
 					itemId: 'form_id',
 					name : 'id',
-					fieldLabel : T('label.id')
+					fieldLabel : T('label.id'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'registration_number',
-					fieldLabel : T('label.reg_no')
+					fieldLabel : T('label.reg_no'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'vehicle_model',
-					fieldLabel : T('label.vehicle_model')
+					fieldLabel : T('label.vehicle_model'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'manufacturer',
 					group : 'V-Maker',
-					fieldLabel : T('label.manufacturer')
+					fieldLabel : T('label.manufacturer'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'vehicle_type',
 					group : 'V-Type1',
-					fieldLabel : T('label.vehicle_type')
+					fieldLabel : T('label.vehicle_type'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'fuel_type',
 					group : 'V-Fuel',
-					fieldLabel : T('label.fuel_type')
+					fieldLabel : T('label.fuel_type'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'codecombo',
 					name : 'birth_year',
@@ -9550,7 +9656,8 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 					store : 'OwnershipStore',
 					displayField : 'desc',
 					valueField : 'name',
-					fieldLabel : T('label.ownership_type')
+					fieldLabel : T('label.ownership_type'),
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					itemId: 'form_status',
@@ -10058,11 +10165,15 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 					xtype : 'datefield',
 					name : 'datetime',
 					fieldLabel : T('label.datetime'),
-					format : F('datetime')					
+					format : F('datetime'),
+					allowBlank : false,
+					afterLabelTextTpl: required			
 				}, {
 					xtype : 'textfield',
 					name : 'vehicle_id',
-					fieldLabel : T('label.vehicle')
+					fieldLabel : T('label.vehicle'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'driver_id',
@@ -10070,7 +10181,9 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 					store : 'DriverBriefStore',
 					displayField : 'id',
 					valueField : 'id',
-					fieldLabel : T('label.driver')
+					fieldLabel : T('label.driver'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'terminal_id',
@@ -10078,7 +10191,9 @@ Ext.define('GreenFleet.view.management.VehicleIncident', {
 					store : 'TerminalStore',
 					displayField : 'id',
 					valueField : 'id',
-					fieldLabel : T('label.terminal')
+					fieldLabel : T('label.terminal'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'textfield',
 					name : 'lat',
@@ -10192,7 +10307,6 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 
 	afterImport : function() {
 		this.search();
-		this.sub('form').getForm().reset();
 	},
 
 	layout : {
@@ -10202,52 +10316,76 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 	
 	initComponent : function() {
 		var self = this;		
-		this.items = [ this.buildList(this), this.buildForm(this) ];		
+		this.items = [
+		  		   {
+		  		      xtype: 'panel',
+					  height : 30,
+					  
+					  layout : {
+							type : 'hbox',
+							align : 'stretch'
+					  }, 
+					  tbar : [ T('label.vehicle') + ' : ',{
+							xtype : 'combo',
+							name : 'vehicle_filter',
+							itemId : 'vehicle_filter',
+							queryMode : 'local',
+							store : 'VehicleBriefStore',
+							displayField : 'id',
+							valueField : 'id'
+						}, T('label.driver')+ ' : ',{
+							xtype : 'combo',
+							name : 'driver_filter',
+							itemId : 'driver_filter',
+							queryMode : 'local',
+							store : 'DriverBriefStore',
+							displayField : 'id',
+							valueField : 'id'
+						}, T('label.date')+ ' : ',{
+							xtype : 'datefield',
+							name : 'date_filter',
+							itemId : 'date_filter',
+							format : 'Y-m-d',
+							submitFormat : 'U',
+							maxValue : new Date(),
+							value : new Date()
+						}, {
+							text : T('button.search'),
+							itemId : 'search'
+						}, '  ', {
+							itemId : 'today'
+						} ,
+						{
+							itemId : 'yesterday'
+						} ,{
+							itemId : 'ago2days'
+						} ,{
+							itemId : 'ago3days'
+						} ]
+		  		   },
+		  		   {
+				    	xtype : 'container',
+				    	flex : 1,
+				    	anchor: '100% 100%',
+				    	layout : {
+					    	type : 'vbox',
+					    	align : 'stretch'
+					    },
+					    items : [  this.zmap ]
+				    }	
+		  		];
 		this.callParent(arguments);
 
-		/**
-		 * track list에서 하나 선택시 
-		 */
-		this.sub('grid').on('itemclick', function(grid, record) {
-    		// lat, lng 정보로 부터 위치 정보 얻어옴 
-			if(record.data.lat !== undefined && record.data.lng !== undefined) {
-    			var latlng = new google.maps.LatLng(record.data.lat, record.data.lng);
-    			geocoder = new google.maps.Geocoder();
-    			geocoder.geocode({
-    				'latLng' : latlng
-    			}, function(results, status) {
-    				if (status == google.maps.GeocoderStatus.OK) {
-    					if (results[0]) {
-    						var address = results[0].formatted_address;
-    						record.data.location = address;
-    						self.sub('form').loadRecord(record);
-    					}
-    				} else {
-    					console.log("Geocoder failed due to: " + status);
-    				}
-        		});    			
-    		}    					
-		});
-
-		/**
-		 * track grid의 store load 전 
-		 */
-		this.down('#grid').store.on('beforeload', function(store, operation, opt) {
-			var filters = self.getFilter();
-			if(filters && filters.length > 0) {
-				operation.params = operation.params || {};
-				operation.params['filter'] = Ext.JSON.encode(filters);
-			}
+		this.on('afterrender', function() {
+			self.getMap();
+			self.onInit();
+		});	
+		
+		this.on('resize', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
 		});
 		
-		/**
-		 * 초기화 버튼 선택시 
-		 */
-		this.down('#search_reset').on('click', function() {
-			self.sub('vehicle_filter').setValue('');
-			self.sub('driver_filter').setValue('');
-			self.sub('date_filter').setValue(new Date());
-		});
+		
 
 		/**
 		 * 검색 버튼 선택시 
@@ -10255,7 +10393,35 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 		this.down('#search').on('click', function() {
 			self.search();
 		});
+		
+		this.down('#today').on('click', function() {
+			var date = new Date();
+			self.sub('date_filter').setValue(date);
+			self.search();
+		});
+		
+		this.down('#yesterday').on('click', function() {
+			var date = new Date();
+			date.setDate(date.getDate() - 1);
+			self.sub('date_filter').setValue(date);
+			self.search();
+		});
+		
+		this.down('#ago2days').on('click', function() {
+			var date = new Date();
+			date.setDate(date.getDate() - 2);
+			self.sub('date_filter').setValue(date);
+			self.search();
+		});
+		
+		this.down('#ago3days').on('click', function() {
+			var date = new Date();
+			date.setDate(date.getDate() - 3);
+			self.sub('date_filter').setValue(date);
+			self.search();
+		});
 	},
+
 	
 	getFilter : function() {
 		
@@ -10281,7 +10447,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 		
 		return filters;
 	},	
-
+	
 	refresh : function(vehicleId, regNo) {
 		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
 		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
@@ -10293,192 +10459,492 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 	},
 	
 	search : function() {
-		this.sub('pagingtoolbar').moveFirst();
+		var self = this;
+		var store = Ext.getStore('TrackStore');
+		var filter = this.getFilter();
+		store.clearFilter(true);
+		store.filter(filter);
+		store.load(function(records) {
+			self.refreshMap(records);
+		});
 	},
+	
+	refreshMap : function(records) {
+		var self = this;
+		var map = this.getMap();
+		
+		this.resetTrackLines();
+		this.setTripMarkers(null);
+		this.resetPathMarkers();
+		this.clearInfoWindow();
 
-	buildList : function(main) {
-		return {
-			xtype : 'gridpanel',
-			itemId : 'grid',
-			store : 'TrackStore',
-			autoScroll : true,
-			flex : 1,
-			columns : [ new Ext.grid.RowNumberer(), {
-				dataIndex : 'key',
-				text : 'Key',
-				type : 'string',
-				hidden : true
-			}, {
-				dataIndex : 'datetime',
-				text : T('label.datetime'),
-				xtype : 'datecolumn',
-				format : F('datetime'),
-				width : 120
-			}, {
-				dataIndex : 'vehicle_id',
-				text : T('label.vehicle'),
-				type : 'string'
-			}, {
-				dataIndex : 'terminal_id',
-				text : T('label.terminal'),
-				type : 'string'
-			}, {
-				dataIndex : 'driver_id',
-				text : T('label.driver'),
-				type : 'string'
-			}, {
-				dataIndex : 'velocity',
-				text : T('label.velocity'),
-				type : 'number'
-			}, {
-				dataIndex : 'lat',
-				text : T('label.latitude'),
-				type : 'number'
-			}, {
-				dataIndex : 'lng',
-				text : T('label.longitude'),
-				type : 'number'
-			}, {
-				dataIndex : 'updated_at',
-				text : T('label.updated_at'),
-				xtype : 'datecolumn',
-				format : F('datetime'),
-				width : 120
-			}, {
-				dataIndex : 'created_at',
-				text : T('label.created_at'),
-				xtype : 'datecolumn',
-				format : F('datetime'),
-				width : 120
-			} ],
-			viewConfig : {
+		var trip;
+		var traces = [];
+		var bounds, latlng, last;
+		var v = [];
+		var distance = 0;
 
-			},
-			tbar : [ {
-				xtype : 'combo',
-				name : 'vehicle_filter',
-				itemId : 'vehicle_filter',
-				queryMode : 'local',
-				store : 'VehicleBriefStore',
-				displayField : 'id',
-				valueField : 'id',
-				fieldLabel : T('label.vehicle'),
-				width : 200
-			}, {
-				xtype : 'combo',
-				name : 'driver_filter',
-				itemId : 'driver_filter',
-				queryMode : 'local',
-				store : 'DriverBriefStore',
-				displayField : 'id',
-				valueField : 'id',
-				fieldLabel : T('label.driver'),
-				width : 200
-			}, {
-				xtype : 'datefield',
-				name : 'date_filter',
-				itemId : 'date_filter',
-				fieldLabel : T('label.date'),
-				format : 'Y-m-d',
-				submitFormat : 'U',
-				maxValue : new Date(),
-				value : new Date(),
-				width : 200
-			}, {
-				text : T('button.search'),
-				itemId : 'search'
-			}, {
-				text : T('button.reset'),
-				itemId : 'search_reset'
-			} ],
-			bbar: {
-				xtype : 'pagingtoolbar',
-				itemId : 'pagingtoolbar',
-	            store: 'TrackStore',
-	            displayInfo: true,
-	            cls : 'pagingtoolbar',
-	            displayMsg: 'Displaying tracks {0} - {1} of {2}',
-	            emptyMsg: "No tracks to display"
-	        }
-		}
-	},
-
-	buildForm : function(main) {
-		return {
-			xtype : 'form',
-			itemId : 'form',
-			bodyPadding : 10,
-			cls : 'hIndexbar',
-			title : T('title.tracking_details'),
-			autoScroll : true,
-			flex : 1,
-			defaults : {
-				xtype : 'textfield',
-				anchor : '100%'
-			},
-			items : [ {
-				name : 'key',
-				fieldLabel : 'Key',
-				hidden : true
-			}, {
-				xtype : 'combo',
-				name : 'terminal_id',
-				queryMode : 'local',
-				store : 'TerminalStore',
-				displayField : T('label.id'),
-				valueField : 'id',
-				fieldLabel : T('label.terminal')
-			}, {
-				name : 'vehicle_id',
-				fieldLabel : T('label.vehicle')
-			}, {
-				xtype : 'combo',
-				name : 'driver_id',
-				queryMode : 'local',
-				store : 'DriverBriefStore',
-				displayField : 'id',
-				valueField : 'id',
-				fieldLabel : T('label.driver')
-			}, {
-				xtype : 'datefield',
-				name : 'datetime',
-				fieldLabel : T('label.datetime'),
-				format : F('datetime')
-			}, {
-				name : 'velocity',
-				fieldLabel : T('label.velocity')
-			}, {
-				name : 'lat',
-				fieldLabel : T('label.latitude')
-			}, {
-				name : 'lng',
-				fieldLabel : T('label.longitude')
-			}, {
-				name : 'location',
-				fieldLabel : T('label.location'),
-				disabled : true
-			}, {
-				xtype : 'datefield',
-				name : 'updated_at',
-				disabled : true,
-				fieldLabel : T('label.updated_at'),
-				format : F('datetime')
-			}, {
-				xtype : 'datefield',
-				name : 'created_at',
-				disabled : true,
-				fieldLabel : T('label.created_at'),
-				format : F('datetime')
-			} ],
-			dockedItems : [ {
-				xtype : 'entity_form_buttons',
-				loader : {
-					fn : main.search,
-					scope : main
+		// TODO PathMarkers must be here.
+		Ext.Array.each(records, function(record) {
+			if(!trip) {
+				trip = new google.maps.Polyline({
+					map : map,
+					strokeColor : '#FF0000',
+					strokeOpacity : 1.0,
+					strokeWeight : 4
+				});
+				path = trip.getPath();
+				if(last) {
+					path.push(latlng);
+					traces.push(last);
+					v.push(last.get('velocity'));
 				}
-			} ]
+			}
+			
+			var lat = record.get('lat');
+			var lng = record.get('lng');
+
+			if(lat !== 0 || lng !== 0) {
+				latlng = new google.maps.LatLng(lat, lng);
+				if (!bounds)
+					bounds = new google.maps.LatLngBounds(latlng, latlng);
+				else
+					bounds.extend(latlng);
+			}
+			
+			// 30분 Gap은 새로운 Trip으로 판단한다.
+			if(last && (last.get('datetime') > record.get('datetime') + 30 * 60 * 1000)) {
+				var avg_v = Ext.Array.sum(v) / v.length;
+				self.addTrackLine(map, traces, trip, avg_v, distance);
+
+				trip = null;
+				path = [];
+				traces = [];
+				v = [];
+				distance = 0;
+			}
+				
+			if(trip) {
+				path.push(latlng);
+				traces.push(record);
+				v.push(record.get('velocity'));
+				if(traces.length > 1) {
+					distance += GreenFleet.map.distance(last.get('lat'), last.get('lng'), record.get('lat'), record.get('lng'), 'K');
+				}
+			}
+
+			last = record;
+		});
+
+		if (!bounds) {
+			var defaultLatlng = new google.maps.LatLng(System.props.lat, System.props.lng);
+			bounds = new google.maps.LatLngBounds(defaultLatlng, defaultLatlng);
+
+			var content = [
+				'<div class="bubbleWrap">',
+				'<div>&nbsp;&nbsp;&nbsp;'+T('msg.noDriving')+'</div>',
+				'</div>'
+			].join('');
+
+			if(!this.getInfoWindow()) {
+				this.setInfoWindow(GreenFleet.label.create({
+					map : map,
+					xoffset : -110,
+					yoffset : -100
+				}));
+			} else {
+				this.getInfoWindow().setMap(map);
+			}
+			this.getInfoWindow().set('position', defaultLatlng);
+			this.getInfoWindow().set('text', content);
+
+			this.getInfoWindow().setVisible(true);
+		} else {
+			var avg_v = Ext.Array.sum(v) / v.length;
+			this.addTrackLine(map, traces, trip, avg_v, distance);
 		}
+
+		if (bounds.isEmpty() || bounds.getNorthEast().equals(bounds.getSouthWest())) {
+			map.setCenter(bounds.getNorthEast());
+		} else {
+			map.fitBounds(bounds);
+		}
+	},
+	
+	getGeocoder : function() {
+		return this.geocoder;
+	},
+	
+	setGeocoder : function(geocoder) {
+		this.geocoder = geocoder;
+	},
+	
+	getMap : function() {
+		if(!this.map) {
+			this.setGeocoder(new google.maps.Geocoder());
+			this.map = new google.maps.Map(this.sub('mapbox').getEl().down('.map').dom, {
+				zoom : 10,
+				maxZoom : 19,
+				minZoom : 3,
+				center : new google.maps.LatLng(System.props.lat, System.props.lng),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			});
+		}
+		return this.map;
+	},
+
+	setMap : function(map) {
+		this.map = map;
+	},
+	
+	zmap : {
+		xtype : 'panel',
+		flex : 1,
+		itemId : 'mapbox',
+		html : '<div class="map" style="height:100%"></div>'
+	},
+	
+	
+	onInit : function() {
+		var self = this;
+		
+		var now = new Date();
+		this.sub('today').setText(Ext.Date.format(now, 'D Y-m-d'));
+		now.setDate(now.getDate() - 1);
+		this.sub('yesterday').setText(Ext.Date.format(now, 'D Y-m-d'));
+		now.setDate(now.getDate() - 1);
+		this.sub('ago2days').setText(Ext.Date.format(now, 'D Y-m-d'));
+		now.setDate(now.getDate() - 1);
+		this.sub('ago3days').setText(Ext.Date.format(now, 'D Y-m-d'));
+		
+		function showPathMarkers() {
+			var pathMarkers = self.getPathMarkers();
+			if(!pathMarkers)
+				return;
+			
+			var density = Math.max(1, (16 - self.getMap().getZoom()) * 3);
+			var x = 0;
+			for(var i = 0;i < pathMarkers.length;i++) {
+				setTimeout(function() {
+					pathMarkers[x++].setOptions({
+						visible : x % density ? false : true,
+						realVisible : x % density ? false : true,
+						animation : google.maps.Animation.DROP
+					});
+				}, i * 20);
+			}
+		}
+		
+		function unselectTrip() {
+			self.unselectTrip();
+		}
+		
+		this.on('painted', function() {
+			switch(self.config.queryOn) {
+				case 'driver' :
+					GreenFleet.setting.on('driver', self.refresh, self);
+					break;
+				case 'vehicle' :
+					GreenFleet.setting.on('vehicle', self.refresh, self);
+					break;
+				default :
+					GreenFleet.setting.on('driver', self.delayRefresh, self);
+					GreenFleet.setting.on('vehicle', self.delayRefresh, self);
+			}
+
+			self.delayRefresh();
+		});
+		
+		this.on('erased', function() {
+			switch(self.config.queryOn) {
+				case 'driver' :
+					GreenFleet.setting.un('driver', self.refresh, self);
+					break;
+				case 'vehicle' :
+					GreenFleet.setting.un('vehicle', self.refresh, self);
+					break;
+				default :
+					GreenFleet.setting.un('driver', self.delayRefresh, self);
+					GreenFleet.setting.un('vehicle', self.delayRefresh, self);
+			}
+		});
+		
+		this.on('resize', function() {
+			google.maps.event.trigger(self.getMap(), 'resize');
+		});
+
+		google.maps.event.addListener(self.getMap(), 'click', unselectTrip);
+		google.maps.event.addListener(self.getMap(), 'zoom_changed', showPathMarkers);
+	},
+	
+	
+	
+	
+	resetTrackLines : function() {
+		if(this.tracklines) {
+			Ext.Array.each(this.tracklines, function(line) {
+				line.setMap(null);
+			});
+		}
+		
+		this.tracklines = [];
+	},
+	
+	unselectTrip: function() {
+		this.clearInfoWindow();
+		if(this.selectedTrack) {
+			this.selectedTrack.setOptions({
+				strokeColor : '#FF0000',
+				strokeOpacity : 1,
+				strokeWeight : 4
+			});
+		}
+		
+		if(this.tripMarkers){
+			for(var i=0; i<this.tripMarkers.length; i++){
+				this.tripMarkers[i].setVisible(true);
+			}
+		}
+		
+		if(this.pathMarkers){
+			for(var i=0; i<this.pathMarkers.length; i++){
+				if(this.pathMarkers[i].realVisible){
+					this.pathMarkers[i].setVisible(true);
+				}
+			}
+		}
+	},
+	
+	addTrackLine : function(map, traces, line, avg_v, distance) {
+		var self = this;
+		this.tracklines.push(line);
+		
+		var path = line.getPath();
+
+		var first = new google.maps.Marker({
+			position : path.getAt(0),
+			map : map
+		});
+		var end = new google.maps.Marker({
+			position : path.getAt(path.getLength() - 1),
+			icon : 'resources/image/iconStartPoint.png',
+			map : map
+		});
+		this.addTripMarkers(first);
+		this.addTripMarkers(end);
+		
+		var i = 0;
+		path.forEach(function(point) {
+			var marker = new google.maps.Marker({
+				position : point,
+				icon : 'resources/image/iconPin.png',
+				map : map,
+				visible : false,
+				trace : traces[i++]
+			});
+			self.addPathMarkers(marker);
+			google.maps.event.addListener(marker, 'click', selectPath);
+		});
+		
+		function selectPath(e) {
+			var marker = this;
+			
+			self.unselectTrip();
+
+			self.selectedTrack = line;
+			
+			line.setOptions({
+				strokeColor : '#CF0000',
+				strokeOpacity : 0.2,
+				strokeWeight : 2
+			});
+			
+			for(var i=0; i<self.tripMarkers.length; i++){
+				self.tripMarkers[i].setVisible(false);
+			}
+			
+			for(var i=0; i<self.pathMarkers.length; i++){
+				self.pathMarkers[i].setVisible(false);
+			}
+			
+			self.clearInfoWindow();
+
+			var trace = this.trace;
+			var lat = trace.get('lat');
+			var lng = trace.get('lng');
+			
+			GreenFleet.map.getLocation(lat, lng, function(address) {
+				var content = [
+					'<div class="bubbleWrap">',
+						'<div class="close"></div>',
+						'<div class="trackBubble">',
+							'<div>' + address + '</div>',
+							'<div><span>'+ T('label.latitude') + '/' + T('label.longitude') +'</span>' + trace.get('lat').toFixed(2) + ' / ' + trace.get('lng').toFixed(2) + '</div>',
+							'<div><span>'+ T('label.velocity') +'</span>' + trace.get('velocity') + ' KM/H' + '</div>',
+							'<div><span>'+ T('label.time') +'</span>' + Ext.Date.format(trace.get('datetime'), 'Y-m-d H:i:s') + '</div>',
+						'</div>',
+					'</div>'
+				].join('');
+
+				if(!self.infowindow) {
+					self.infowindow = GreenFleet.label.create({
+						map : marker.getMap(),
+						xoffset : -110,
+						yoffset : -150
+					});
+				}
+				self.infowindow.set('position', e.latLng);
+				self.infowindow.set('text', content);
+
+				self.infowindow.setVisible(true);
+			});
+		}
+
+		function selectTrip(e) {
+			var marker = this;
+
+			
+			self.unselectTrip();
+
+			self.selectedTrack = line;
+			
+			line.setOptions({
+				strokeColor : '#CF0000',
+				strokeOpacity : 0.2,
+				strokeWeight : 2
+			});
+			
+			for(var i=0; i<self.tripMarkers.length; i++){
+				self.tripMarkers[i].setVisible(false);
+			}
+			
+			for(var i=0; i<self.pathMarkers.length; i++){
+				self.pathMarkers[i].setVisible(false);
+			}
+			
+			var path = line.getPath();
+			
+			var startTime = Ext.Date.format(traces[traces.length - 1].get('datetime'), 'Y-m-d H:i:s');
+			var endTime = Ext.Date.format(traces[0].get('datetime'), 'Y-m-d H:i:s');
+			var driverId = traces[0].get('driver_id');
+			var vehicleId = traces[0].get('vehicle_id');
+			
+			var driver = Ext.getStore('DriverBriefStore').getById(driverId);
+			var vehicle = Ext.getStore('VehicleMapStore').getById(vehicleId);
+			
+			var content = [
+				'<div class="bubbleWrap">',
+					'<div class="close"></div>',
+					'<div class="trackBubble">',
+						'<div><span>'+ T('label.vehicle') +'</span>' + vehicleId + ' - ' + vehicle.get('registration_number') + '</div>',
+						'<div><span>'+ T('label.driver') +'</span>' + driverId + ' - ' + driver.get('name') + '</div>',
+						'<div><span>'+ T('label.driving') + T('label.start') +'</span>' + startTime + '</div>',
+						'<div><span>'+ T('label.driving') + T('label.end') +'</span>' + endTime + '</div>',
+						'<div><span>'+ T('label.average_speed') +'</span>' + Math.floor(avg_v) + ' KM/H</div>',
+						'<div><span>'+ T('label.run_dist') +'</span>' + distance.toFixed(2) + ' KM</div>',
+					'</div>',
+				'</div>'
+			].join('');
+
+			if(!self.infowindow) {
+				self.infowindow = GreenFleet.label.create({
+					map : marker.getMap(),
+					xoffset : -110,
+					yoffset : -150
+				});
+			}
+			self.infowindow.set('position', e.latLng);
+			self.infowindow.set('text', content);
+
+			self.infowindow.setVisible(true);
+		}
+
+		// TODO Remove EventListeners
+		google.maps.event.addListener(line, 'click', selectTrip);
+		google.maps.event.addListener(first, 'click', selectTrip);
+		google.maps.event.addListener(end, 'click', selectTrip);
+	},
+	
+	getTrackLines : function() {
+		return this.tracklines;
+	},
+	
+	getPathMarkers : function() {
+		return this.pathMarkers;
+	},
+	
+	setPathMarkers : function(markers) {
+		if(this.pathMarkers) {
+			Ext.each(this.pathMarkers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+		this.pathMarkers = markers;
+	},
+	
+	addPathMarkers : function(markers) {
+		if(!this.pathMarkers)
+			this.pathMarkers = [];
+		this.pathMarkers.push(markers);
+	},
+	
+	resetPathMarkers : function() {
+		if(this.pathMarkers) {
+			Ext.each(this.pathMarkers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+		
+		this.pathMarkers = null;
+	},
+
+	getTripMarkers : function() {
+		return this.tripMarkers;
+	},
+
+	setTripMarkers : function(markers) {
+		if (this.tripMarkers) {
+			Ext.each(this.tripMarkers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.tripMarkers = markers;
+	},
+	
+	addTripMarkers : function(markers) {
+		if(!this.tripMarkers)
+			this.tripMarkers = [];
+		this.tripMarkers.push(markers);
+	},
+
+	resetTripMarkers : function() {
+		if (this.tripMarkers) {
+			Ext.each(this.tripMarkers, function(marker) {
+				marker.setMap(null);
+			});
+		}
+
+		this.tripMarkers = null;
+	},
+
+	clearInfoWindow : function() {
+		if(this.infowindow)
+			this.infowindow.setVisible(false);
+	},
+	
+	getInfoWindow : function() {
+		return this.infowindow;
+	},
+
+	setInfoWindow : function(infowindow) {
+		if (this.infowindow) {
+			this.infowindow.setMap(null);
+		}
+		
+		this.infowindow = infowindow;
 	}
+	
 });
 Ext.define('GreenFleet.view.management.VehicleCheckin', {
 	extend : 'Ext.panel.Panel',
@@ -12523,9 +12989,13 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 			}, {
 				name : 'id',
 				fieldLabel : T('label.id')
+//				allowBlank : false,
+//				afterLabelTextTpl: required
 			}, {
 				name : 'name',
 				fieldLabel : T('label.name')
+//				allowBlank : false,
+//				afterLabelTextTpl: required
 			}, {
 				xtype : 'codecombo',
 				name : 'division',
@@ -14177,10 +14647,14 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					hidden : true
 				}, {
 					name : 'id',
-					fieldLabel : T('label.id')
+					fieldLabel : T('label.id'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					name : 'serial_no',
-					fieldLabel : T('label.x_no', {x : T('label.serial')})
+					fieldLabel : T('label.x_no', {x : T('label.serial')}),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'vehicle_id',
@@ -14188,7 +14662,9 @@ Ext.define('GreenFleet.view.management.Terminal', {
 					store : 'VehicleBriefStore',
 					displayField : 'id',
 					valueField : 'id',
-					fieldLabel : T('label.vehicle')
+					fieldLabel : T('label.vehicle'),
+					allowBlank : false,
+					afterLabelTextTpl: required
 				}, {
 					xtype : 'combo',
 					name : 'driver_id',
@@ -14444,17 +14920,23 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				xtype : 'datefield',
 				name : 'start_date',
 				fieldLabel : T('label.from_date'),
-				format : F('date')
+				format : F('date'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'datefield',
 				name : 'end_date',
 				fieldLabel : T('label.to_date'),
-				format : F('date')
+				format : F('date'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'codecombo',
 				name : 'vehicle_type',
 				group : 'V-Type1',
-				fieldLabel : T('label.vehicle_type')
+				fieldLabel : T('label.vehicle_type'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 //				name : 'vehicle_type',
 //				fieldLabel : T('label.x_type', {x : T('label.vehicle')})
 			}, {
@@ -14464,7 +14946,9 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				store : 'VehicleBriefStore',
 				displayField : 'id',
 				valueField : 'id',
-				fieldLabel : T('label.vehicle')
+				fieldLabel : T('label.vehicle'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'combo',
 				name : 'driver_id',
@@ -14472,7 +14956,9 @@ Ext.define('GreenFleet.view.management.Reservation', {
 				store : 'DriverBriefStore',
 				displayField : 'name',
 				valueField : 'id',
-				fieldLabel : T('label.driver')
+				fieldLabel : T('label.driver'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'status',
 				fieldLabel : T('label.status')

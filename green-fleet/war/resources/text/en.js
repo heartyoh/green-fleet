@@ -437,7 +437,11 @@ T({
 		eco_level : 'Eco Driving Level',
 		mileage_of_month : 'Mileage of the month',
 		consumption_of_month : 'Consumption of the month',
-		outofservice : 'OutOfService'
+		outofservice : 'OutOfService',
+		today : 'today',
+		yesterday : 'yesterday',
+		ago2days : '2 days ago',
+		ago3days : '3 days ago'
 	},
 	
 	format : {
@@ -470,6 +474,7 @@ T({
 		driver_eco_drv_result_msg : 'Eco-drive index of this driver is {x} level.<br/> If you manage driving habits, annual <span>cost savings of ${y}</span> or more are available and reducing the risk of accidents.',
 		address_notfound : 'Address ({x}) Not Found!',
 		address_notfound_title : 'Failed to search',
-		address_empty : 'Please enter an address'
+		address_empty : 'Please enter an address',
+		noDriving : 'Period of driving history.'
 	}
 });

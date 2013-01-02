@@ -76,7 +76,7 @@ T({
 		terminal_list : '단말기 리스트',
 		terminal_details : '단말기 상세',
 		driver_list : '운전자 리스트',
-		driver_details : '운전자상세',
+		driver_details : '운전자 상세',
 		reservation_list : '예약 리스트',
 		reservation_details : '예약 상세',
 		consumable_code_list : '소모품 코드 리스트',
@@ -110,8 +110,8 @@ T({
 		vehicle_speed_section : '차량별속도구간',
 		runstatus_history : '운행 이력',
 		runstatus_chart : '운행현황 차트',
-		driver_runstatus : '운전자별주행현황',
-		driver_speed_section : '운전자별속도구간',
+		driver_runstatus : '운전자별 주행현황',
+		driver_speed_section : '운전자별 속도구간',
 		speed_section_chart : '속도구간 차트',
 		report_list : '리포트 리스트',
 		report_details : '리포트 상세',
@@ -437,7 +437,11 @@ T({
 		eco_level : '경제주행 레벨',
 		mileage_of_month : '이달 주행거리',
 		consumption_of_month : '이달 연료소모량',
-		outofservice : '고장'
+		outofservice : '고장',
+		today : '오늘',
+		yesterday : '어제',
+		ago2days : '2 일전',
+		ago3days : '3 일전'
 	},
 	
 	format : {
@@ -470,6 +474,7 @@ T({
 		driver_eco_drv_result_msg : '이 운전자의 에코드라이브 지수는 {x}레벨입니다.<br/> 운전습관을 적절하게 관리하면, <span>연간 {y}만원</span> 이상의유류비 절약이 가능하며, 사고 위험을 현저히 낮출 수 있습니다',
 		address_notfound : '주소({x})를 찾을수 없습니다.!',
 		address_notfound_title : '찾기실패',
-		address_empty : '주소를 입력하세요'
+		address_empty : '주소를 입력하세요',
+		noDriving : '기간내 주행이력이 없습니다.'
 	}
 });

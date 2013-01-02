@@ -257,3 +257,27 @@ span.mapTipID{
 .x-form-itemselector-remove {background-image: url(../image/iconArrowLeft.gif);}
 .x-form-itemselector-down {background-image: url(../image/iconArrowDown.gif);}
 .x-form-itemselector-bottom {background-image: url(../image/iconArrowBottom.gif);}
+
+
+.shotHList + .x-map .bubbleWrap{padding:5px}
+
+/*map bubble*/
+.bubbleWrap{
+	background:url('../image/bgBubble.png') repeat-x;border:2px solid #009bdc;border-width:2px 3px 2px 3px;min-width:210px;
+	-webkit-border-radius:12px;border-radius:12px;padding-bottom:5px;
+	color:#ccc;font-size:14px;
+}
+.bubbleWrap.statusIncident{border-color:#e64201}
+.bubbleWrap.statusIdle{border-color:#111}
+.bubbleWrap.statusMaint{border-color:#4a64d8}
+.bubbleWrap img{width:50px;height:40px;-webkit-border-radius:4px;border-radius:4px;display:inline-block;margin:0px;float:left;margin-right:7px}
+.bubbleWrap .showVehicleInfo,.bubbleWrap .showDriverInfo{margin-top:3px}
+.bubbleWrap .close{background:url('../image/btnClose.png') no-repeat;position:absolute;margin-top:-16px;margin-left:200px;width:25px;height:25px;display:block}
+.bubbleWrap .infoCell{background:url('../image/bgBubbleInfo.png') 100% 100% no-repeat;padding:5px 5px 3px 5px;overflow:hidden}
+.bubbleWrap .showVehicleTrack{
+	background:url('../image/bgBubbleInfo.png') 100% 100% no-repeat;
+	padding:4px 10px 7px 7px;font-size:15px;
+}
+.trackBubble div{padding:4px 5px 1px 5px;border-bottom:1px solid #585858;font-size:12px;color:#ccc}
+.trackBubble div:first-child{font-size:13px;color:#fff;font-weight:bold}
+.trackBubble div span{width:55px;display:inline-block;color:#999}
