@@ -73,14 +73,14 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 				hidden : true
 			}, {
 				name : 'id',
-				fieldLabel : T('label.id')
-//				allowBlank : false,
-//				afterLabelTextTpl: required
+				fieldLabel : T('label.id'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				name : 'name',
-				fieldLabel : T('label.name')
-//				allowBlank : false,
-//				afterLabelTextTpl: required
+				fieldLabel : T('label.name'),
+				allowBlank : false,
+				afterLabelTextTpl: required
 			}, {
 				xtype : 'codecombo',
 				name : 'division',
