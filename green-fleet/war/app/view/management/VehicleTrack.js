@@ -255,7 +255,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 					map : map,
 					xoffset : -110,
 					yoffset : -100
-				}));
+				}, true));
 			} else {
 				this.getInfoWindow().setMap(map);
 			}
@@ -495,7 +495,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 						map : marker.getMap(),
 						xoffset : -110,
 						yoffset : -150
-					});
+					}, true);
 				}
 				self.infowindow.set('position', e.latLng);
 				self.infowindow.set('text', content);
@@ -555,7 +555,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 					map : marker.getMap(),
 					xoffset : -110,
 					yoffset : -150
-				});
+				}, true);
 			}
 			self.infowindow.set('position', e.latLng);
 			self.infowindow.set('text', content);

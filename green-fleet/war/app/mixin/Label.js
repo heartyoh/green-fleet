@@ -1,11 +1,13 @@
 Ext.define('GreenFleet.mixin.Label', function() {
-	function Label(opt_options) {
+	function Label(opt_options, noSpan) {
 		// Initialization
 		this.setValues(opt_options);
 
 		// Label specific
 		var span = this.span_ = document.createElement('span');
-		this.span_.setAttribute('class', 'mapTipID');
+		if(!noSpan){
+			this.span_.setAttribute('class', 'mapTipID');
+		}
 
 		var div = this.div_ = document.createElement('div');
 		div.appendChild(span);
@@ -61,8 +63,8 @@ Ext.define('GreenFleet.mixin.Label', function() {
 	
 	return {
 		label : {
-			create : function(config) {
-				return new Label(config);
+			create : function(config, noSpan) {
+				return new Label(config, noSpan);
 			}
 		}
 	};
