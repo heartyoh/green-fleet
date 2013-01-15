@@ -475,6 +475,7 @@ T({
 		address_notfound : '주소({x})를 찾을수 없습니다.!',
 		address_notfound_title : '찾기실패',
 		address_empty : '주소를 입력하세요',
-		noDriving : '기간내 주행이력이 없습니다.'
+		noDriving : '기간내 주행이력이 없습니다.',
+		confirm_logout : '로그아웃 하시겠습니까?'
 	}
 });

@@ -32,7 +32,7 @@ Ext.define('GreenFleet.view.SystemMenu', {
 		type : 'logout',
 		cls : 'btnLogout',
 		handler : function() {
-			Ext.MessageBox.confirm('Confirm', 'Are you sure you want to do that?', function(confirm) {
+			Ext.MessageBox.confirm(T('label.confirm'), T('msg.confirm_logout'), function(confirm) {
 				if (confirm === 'yes') {
 					document.location.href = '/logout.htm';
 				}

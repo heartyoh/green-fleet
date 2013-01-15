@@ -475,6 +475,7 @@ T({
 		address_notfound : 'Address ({x}) Not Found!',
 		address_notfound_title : 'Failed to search',
 		address_empty : 'Please enter an address',
-		noDriving : 'Period of driving history.'
+		noDriving : 'Period of driving history.',
+		confirm_logout : 'Are you sure you want to do that?'
 	}
 });

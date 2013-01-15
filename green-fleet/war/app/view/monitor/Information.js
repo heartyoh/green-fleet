@@ -94,6 +94,10 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var vehicleStore = Ext.getStore('VehicleBriefStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
+			
+			var terminalStore = Ext.getStore('TerminalStore').load();
+			var terminalRecord = terminalStore.findRecord('vehicle_id', vehicleRecord.get('id'));
+			
 			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
 				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
@@ -105,22 +109,32 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
 			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
+			var driverRecord = null;
+			
+			if(terminalRecord != null){
+				driverRecord = driverStore.findRecord('id', terminalRecord.get('driver_id'));
+			}else{
+				driverRecord = driverStore.findRecord('id', '');
+			}
+			
+			
+			var driverInfo = '';
 			
 			if (driverRecord != null) {
-				var driver = driverRecord.get('id');
-				
+				driverInfo = driverRecord.get('id') + '(' + driverRecord.get('name') + ')';				
 				var driverImageClip = driverRecord.get('image_clip');
 				if (driverImageClip) {
 					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
 				} else {
 					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 				}
+			} else {
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 			}
 
 			self.sub('title').update({
 				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : (driverRecord != null) ? driver + ' (' + driverRecord.get('name') + ')' : driver + ' ()'
+				driver : driverInfo
 			});
 
 			/*
