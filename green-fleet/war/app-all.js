@@ -252,13 +252,15 @@ Ext.define('GreenFleet.mixin.Setting', function() {
 	}
 }());
 Ext.define('GreenFleet.mixin.Label', function() {
-	function Label(opt_options) {
+	function Label(opt_options, noSpan) {
 		// Initialization
 		this.setValues(opt_options);
 
 		// Label specific
 		var span = this.span_ = document.createElement('span');
-		this.span_.setAttribute('class', 'mapTipID');
+		if(!noSpan){
+			this.span_.setAttribute('class', 'mapTipID');
+		}
 
 		var div = this.div_ = document.createElement('div');
 		div.appendChild(span);
@@ -314,8 +316,8 @@ Ext.define('GreenFleet.mixin.Label', function() {
 	
 	return {
 		label : {
-			create : function(config) {
-				return new Label(config);
+			create : function(config, noSpan) {
+				return new Label(config, noSpan);
 			}
 		}
 	};
@@ -1713,7 +1715,7 @@ Ext.define('GreenFleet.view.SideMenu', {
 		type : 'logout',
 		cls : 'btnLogout',
 		handler : function() {
-			Ext.MessageBox.confirm('Confirm', 'Are you sure you want to do that?', function(confirm) {
+			Ext.MessageBox.confirm(T('label.confirm'), T('msg.confirm_logout'), function(confirm) {
 				if (confirm === 'yes') {
 					document.location.href = '/logout.htm';
 				}
@@ -1940,81 +1942,94 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 		
 		this.down('#save').on('click', function() {
 			
-			Ext.MessageBox.show({
-				title : T('title.confirmation'),
-				buttons : Ext.MessageBox.YESNO,
-				msg : self.confirmMsgSave,
-				modal : true,
-				fn : function(btn) {
+			var client = self.up('[entityUrl]');
+			var url = client.entityUrl;						
+			var form = client.sub('form').getForm();
+			
+			if(form.isValid()) {
+				Ext.MessageBox.show({
+					title : T('title.confirmation'),
+					buttons : Ext.MessageBox.YESNO,
+					msg : self.confirmMsgSave,
+					modal : true,
+					fn : function(btn) {
 					
-					if(btn != 'yes') 
-						return;
+						if(btn != 'yes') 
+							return;
 					
-					var client = self.up('[entityUrl]');
-					var url = client.entityUrl;						
-					var form = client.sub('form').getForm();
+					
 
-					if (form.isValid()) {
-						form.submit({
-							url : url + '/save',
-							success : function(form, action) {
-								if(self.loader && typeof(self.loader.fn) === 'function') {
-									self.loader.fn.call(self.loader.scope || client, function(records) {
-										var listGrid = client.sub('grid');
-										if(listGrid && action.result.key) {
-											var store = listGrid.store;
-											form.loadRecord(store.findRecord('key', action.result.key));											
-										}
-									});
-								}
+						if (form.isValid()) {
+							form.submit({
+								url : url + '/save',
+								success : function(form, action) {
+									if(self.loader && typeof(self.loader.fn) === 'function') {
+										self.loader.fn.call(self.loader.scope || client, function(records) {
+											var listGrid = client.sub('grid');
+											if(listGrid && action.result.key) {
+												var store = listGrid.store;
+												form.loadRecord(store.findRecord('key', action.result.key));											
+											}
+										});
+									}
 								
-								if(action.result.success)
-									GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
-								else
+									if(action.result.success)
+										GreenFleet.msg(T('label.success'), T('msg.processed_successfully'));
+									else
+										Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
+								},
+								failure : function(form, action) {
 									Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
-							},
-							failure : function(form, action) {
-								Ext.Msg.alert(T('msg.failed_to_save'), action.result.msg);
-							}
-						});
-					}					
-				}
-			});
+								}
+							});
+						}					
+					}
+				});
+			}else {
+				Ext.Msg.alert(T('title.information'), T('msg.no_matching_data_found'));
+			}
+			
+			
 		});
 
 		this.down('#delete').on('click', function() {
 			
-			Ext.MessageBox.show({
-				title : T('title.confirmation'),
-				buttons : Ext.MessageBox.YESNO,
-				msg : self.confirmMsgDelete,
-				modal : true,
-				fn : function(btn) {
+			var client = self.up('[entityUrl]');
+			var url = client.entityUrl;				
+			var form = client.sub('form').getForm();
+			
+			if(form.isValid()) {
+				Ext.MessageBox.show({
+					title : T('title.confirmation'),
+					buttons : Ext.MessageBox.YESNO,
+					msg : self.confirmMsgDelete,
+					modal : true,
+					fn : function(btn) {
 					
-					if(btn != 'yes') 
-						return;
+						if(btn != 'yes') 
+							return;
 					
-					var client = self.up('[entityUrl]');
-					var url = client.entityUrl;				
-					var form = client.sub('form').getForm();
-
-					if (form.isValid()) {
-						form.submit({
-							url : url + '/delete',
-							success : function(form, action) {
-								//client.sub('grid').store.load();
-								if(self.loader && typeof(self.loader.fn) === 'function') {
-									self.loader.fn.call(self.loader.scope || client, null);
+						if (form.isValid()) {
+							form.submit({
+								url : url + '/delete',
+								success : function(form, action) {
+									//client.sub('grid').store.load();
+									if(self.loader && typeof(self.loader.fn) === 'function') {
+										self.loader.fn.call(self.loader.scope || client, null);
+									}
+									form.reset();
+								},
+								failure : function(form, action) {
+									Ext.Msg.alert(T('msg.failed_to_delete'), action.result.msg);
 								}
-								form.reset();
-							},
-							failure : function(form, action) {
-								Ext.Msg.alert(T('msg.failed_to_delete'), action.result.msg);
-							}
-						});
-					}					
-				}
-			});			
+							});
+						}					
+					}
+				});
+			}else {
+				Ext.Msg.alert(T('title.information'), T('msg.none_selected'));
+			}
+						
 		});
 
 		this.down('#reset').on('click', function() {
@@ -5115,6 +5130,10 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 */
 			var vehicleStore = Ext.getStore('VehicleBriefStore');
 			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
+			
+			var terminalStore = Ext.getStore('TerminalStore').load();
+			var terminalRecord = terminalStore.findRecord('vehicle_id', vehicleRecord.get('id'));
+			
 			var vehicleImageClip = vehicleRecord.get('image_clip');
 			if (vehicleImageClip) {
 				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
@@ -5126,22 +5145,32 @@ Ext.define('GreenFleet.view.monitor.Information', {
 			 * Get Driver Information (Image, Name, ..) from DriverStore
 			 */
 			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = driverStore.findRecord('id', record.get('driver_id'));
+			var driverRecord = null;
+			
+			if(terminalRecord != null){
+				driverRecord = driverStore.findRecord('id', terminalRecord.get('driver_id'));
+			}else{
+				driverRecord = driverStore.findRecord('id', '');
+			}
+			
+			
+			var driverInfo = '';
 			
 			if (driverRecord != null) {
-				var driver = driverRecord.get('id');
-				
+				driverInfo = driverRecord.get('id') + '(' + driverRecord.get('name') + ')';				
 				var driverImageClip = driverRecord.get('image_clip');
 				if (driverImageClip) {
 					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
 				} else {
 					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 				}
+			} else {
+				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
 			}
 
 			self.sub('title').update({
 				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : (driverRecord != null) ? driver + ' (' + driverRecord.get('name') + ')' : driver + ' ()'
+				driver : driverInfo
 			});
 
 			/*
@@ -10551,7 +10580,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 					map : map,
 					xoffset : -110,
 					yoffset : -100
-				}));
+				}, true));
 			} else {
 				this.getInfoWindow().setMap(map);
 			}
@@ -10791,7 +10820,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 						map : marker.getMap(),
 						xoffset : -110,
 						yoffset : -150
-					});
+					}, true);
 				}
 				self.infowindow.set('position', e.latLng);
 				self.infowindow.set('text', content);
@@ -10851,7 +10880,7 @@ Ext.define('GreenFleet.view.management.VehicleTrack', {
 					map : marker.getMap(),
 					xoffset : -110,
 					yoffset : -150
-				});
+				}, true);
 			}
 			self.infowindow.set('position', e.latLng);
 			self.infowindow.set('text', content);
@@ -12988,14 +13017,14 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 				hidden : true
 			}, {
 				name : 'id',
-				fieldLabel : T('label.id')
-//				allowBlank : false,
-//				afterLabelTextTpl: required
+				fieldLabel : T('label.id'),
+				allowBlank: false,
+				afterLabelTextTpl: window.required
 			}, {
 				name : 'name',
-				fieldLabel : T('label.name')
-//				allowBlank : false,
-//				afterLabelTextTpl: required
+				fieldLabel : T('label.name'),
+				allowBlank: false,
+				afterLabelTextTpl: window.required
 			}, {
 				xtype : 'codecombo',
 				name : 'division',
