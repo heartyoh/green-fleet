@@ -1956,8 +1956,6 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 					
 						if(btn != 'yes') 
 							return;
-					
-					
 
 						if (form.isValid()) {
 							form.submit({
@@ -4961,6 +4959,9 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	}, {
 		dataIndex : 'lng',
 		text : T('label.longitude')
+	}, {
+		dataIndex : 'image_clip',
+		hidden : true
 	} ],
 	viewConfig : {
 
@@ -5122,86 +5123,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.sub('id').on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
 			
-			self.sub('distance').setValue(record.get('total_distance'));
-			self.sub('running_time').setValue(record.get('total_run_time'));
-			/*
-			 * Get Vehicle Information (Image, Registration #, ..) from
-			 * VehicleStore
+			/**
+			 * 상단의 Vehicle Information 정보를 표시
 			 */
-			var vehicleStore = Ext.getStore('VehicleBriefStore');
-			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
-			
-			var terminalStore = Ext.getStore('TerminalStore').load();
-			var terminalRecord = terminalStore.findRecord('vehicle_id', vehicleRecord.get('id'));
-			
-			var vehicleImageClip = vehicleRecord.get('image_clip');
-			if (vehicleImageClip) {
-				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
-			} else {
-				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
-			}
+			self.showDisplayForm(record, vehicle);
 
-			/*
-			 * Get Driver Information (Image, Name, ..) from DriverStore
-			 */
-			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = null;
-			
-			if(terminalRecord != null){
-				driverRecord = driverStore.findRecord('id', terminalRecord.get('driver_id'));
-			}else{
-				driverRecord = driverStore.findRecord('id', '');
-			}
-			
-			
-			var driverInfo = '';
-			
-			if (driverRecord != null) {
-				driverInfo = driverRecord.get('id') + '(' + driverRecord.get('name') + ')';				
-				var driverImageClip = driverRecord.get('image_clip');
-				if (driverImageClip) {
-					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-				} else {
-					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-				}
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-			}
-
-			self.sub('title').update({
-				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : driverInfo
-			});
-
-			/*
-			 * Get Address of the location by ReverseGeoCode.
-			 */
-			var location = record.get('location');
-			if (location == null || location.length == 0) {
-				var lat = record.get('lat');
-				var lng = record.get('lng');
-
-				if (lat !== undefined && lng !== undefined) {
-					var latlng = new google.maps.LatLng(lat, lng);
-
-					geocoder = new google.maps.Geocoder();
-					geocoder.geocode({
-						'latLng' : latlng
-					}, function(results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
-							if (results[0]) {
-								var address = results[0].formatted_address
-								record.set('location', address);
-								self.sub('location').setValue(address);
-							}
-						} else {
-							console.log("Geocoder failed due to: " + status);
-						}
-					});
-				}
-			}
-
-			/*
+			/**
 			 * TrackStore를 다시 로드함.
 			 */
 			self.getTrackStore().load({
@@ -5219,7 +5146,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				} ]
 			});
 
-			/*
+			/**
 			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().load({
@@ -5234,6 +5161,73 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				]
 			});
 		});
+	},
+	
+	/**
+	 * Vehicle Information에 표시한다.
+	 */
+	showDisplayForm : function(record, vehicleId) {
+
+		var self = this;
+		var terminalStore = Ext.getStore('TerminalStore').load({
+			scope : this,
+			callback : function(terminalRecords, operation, success) {
+				if(success) {
+					var terminalRecord = terminalStore.findRecord('vehicle_id', record.get('id'));
+					if(terminalRecord) {
+						this.sub('terminal').setValue(terminalRecord.get('id'));
+						this.sub('driver').setValue(terminalRecord.get('driver_id'));
+					}
+					
+					var vehicleImg = (record.get('image_clip') && record.get('image_clip') != '') ? 'download?blob-key=' + record.get('image_clip') : 'resources/image/bgVehicle.png';
+					self.sub('vehicleImage').setSrc(vehicleImg);
+					
+					var driverStore = Ext.getStore('DriverBriefStore');
+					var driverRecord = null;
+					var driverInfo = '';
+					
+					if(terminalRecord) {
+						driverRecord = driverStore.findRecord('id', terminalRecord.get('driver_id'));
+						driverInfo = driverRecord.get('id') + '(' + driverRecord.get('name') + ')';
+						var driverImg = (driverRecord.get('image_clip') && driverRecord.get('image_clip') != '') ? 'download?blob-key=' + driverRecord.get('image_clip') : 'resources/image/bgDriver.png';
+						self.sub('driverImage').setSrc(driverImg);
+					}
+					
+					self.sub('title').update({
+						vehicle : vehicleId + ' (' + record.get('registration_number') + ')',
+						driver : driverInfo
+					});
+				}
+			}
+		});
+
+		/*
+		 * Get Address of the location by ReverseGeoCode.
+		 */
+		var location = record.get('location');
+		if (location == null || location.length == 0) {
+			var lat = record.get('lat');
+			var lng = record.get('lng');
+
+			if (lat !== undefined && lng !== undefined) {
+				var latlng = new google.maps.LatLng(lat, lng);
+
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode({
+					'latLng' : latlng
+				}, function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
+							var address = results[0].formatted_address
+							record.set('location', address);
+							self.sub('location').setValue(address);
+						}
+					} else {
+						console.log("Geocoder failed due to: " + status);
+					}
+				});
+			}
+		}
 	},
 
 	setVehicle : function(vehicleRecord) {
@@ -5481,13 +5475,15 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				itemId : 'location'
 			}, {
 				xtype : 'displayfield',
-				name : 'distance',
+				//name : 'distance',
+				name : 'total_distance',
 				cls : 'dotUnderline',
 				itemId : 'distance',
 				fieldLabel : T('label.run_dist')
 			}, {
 				xtype : 'displayfield',
-				name : 'running_time',
+				//name : 'running_time',
+				name : 'total_run_time',
 				fieldLabel : T('label.run_time'),
 				itemId : 'running_time',
 				cls : 'dotUnderline'
@@ -6759,8 +6755,7 @@ Ext.define('GreenFleet.view.management.User', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						//main.sub('grid').store.load(callback);
-						main.sub('id_filter').setValue('');
+						main.sub('email_filter').setValue('');
 						main.sub('name_filter').setValue('');
 						main.search(true);
 					},
@@ -7644,9 +7639,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc'),
-				allowBlank: false,
-				afterLabelTextTpl: required
+				fieldLabel : T('label.desc')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
@@ -8120,9 +8113,7 @@ Ext.define('GreenFleet.view.management.DriverGroup', {
 				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc'),
-				allowBlank: false,
-				afterLabelTextTpl: required
+				fieldLabel : T('label.desc')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
@@ -9567,14 +9558,13 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	/**
 	 * 차량 상세 페이지 리프레쉬 
 	 */
-	refresh : function(vehicleId, regNo) {		
+	refresh : function(vehicleId, regNo) {	
 		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
 		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
 			return;
 				
 		var self = this;
-		this.vehicle = vehicleId;
-		
+		this.vehicle = vehicleId;		
 		self.formSetDisabled(true);
 	
 		Ext.Ajax.request({
@@ -9615,7 +9605,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	},
 	
 	vehicleForm : function(main) {
-		return{
+		return {
 			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',	
@@ -9699,47 +9689,55 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 				}, {
 					itemId: 'form_health_status',
 					name : 'health_status',
-					fieldLabel : T('label.health')							
+					fieldLabel : T('label.health'),
+					readOnly : true
 				}, {
 					itemId: 'form_total_distance',
 					name : 'total_distance',
-					fieldLabel : T('label.total_distance')
+					fieldLabel : T('label.total_distance'),
+					readOnly : true
 				}, {
 					itemId: 'form_total_run_time',
 					name : 'total_run_time',
-					fieldLabel : T('label.total_run_time')
+					fieldLabel : T('label.total_run_time'),
+					readOnly : true
 				}, {
 					itemId: 'form_official_effcc',
 					name : 'official_effcc',
-					fieldLabel : T('label.official_effcc')
+					fieldLabel : T('label.official_effcc'),
+					readOnly : true
 				}, {
 					itemId: 'form_avg_effcc',
 					name : 'avg_effcc',
-					fieldLabel : T('label.avg_effcc')
+					fieldLabel : T('label.avg_effcc'),
+					readOnly : true
 				}, {
 					itemId: 'form_eco_index',
 					name : 'eco_index',
-					fieldLabel : T('label.eco_index')
+					fieldLabel : T('label.eco_index'),
+					readOnly : true
 				}, {
 					itemId: 'form_eco_run_rate',
 					name : 'eco_run_rate',
-					fieldLabel : T('label.eco_run_rate')
+					fieldLabel : T('label.eco_run_rate'),
+					readOnly : true
 				}, {
 					itemId: 'form_remaining_fuel',
 					name : 'remaining_fuel',
-					fieldLabel : T('label.remaining_fuel')
+					fieldLabel : T('label.remaining_fuel'),
+					readOnly : true
 				}, {
 					name : 'location',
 					fieldLabel : T('label.location'),
-					disabled : true
+					readOnly : true
 				}, {
 					name : 'lat',
 					fieldLabel : T('label.latitude'),
-					disabled : true
+					readOnly : true
 				}, {
 					name : 'lng',
 					fieldLabel : T('label.longitude'),
-					disabled : true
+					readOnly : true
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
@@ -9772,16 +9770,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	},
 	
 	formSetDisabled : function(mode){
-		this.sub('form_id').setDisabled(mode);
-		this.sub('form_status').setDisabled(mode);
-		this.sub('form_health_status').setDisabled(mode);
-		this.sub('form_total_run_time').setDisabled(mode);
-		this.sub('form_total_distance').setDisabled(mode);
-		this.sub('form_official_effcc').setDisabled(mode);
-		this.sub('form_avg_effcc').setDisabled(mode);
-		this.sub('form_eco_index').setDisabled(mode);
-		this.sub('form_eco_run_rate').setDisabled(mode);
-		this.sub('form_remaining_fuel').setDisabled(mode);
+		this.sub('form_id').setReadOnly(mode);
 	}
 	
 });
@@ -12957,7 +12946,7 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 	initComponent : function() {
 		var self = this;
 		this.callParent(arguments);
-		this.add(this.driverForm);		
+		this.add(this.driverForm());		
 	},
 	
 	/**
@@ -12969,7 +12958,8 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 			return;
 		
 		var self = this;
-		this.driver = driverId;	
+		this.driver = driverId;		
+		this.formSetReadOnly(true);
 		
 		Ext.Ajax.request({
 			url : 'driver/find',
@@ -12990,7 +12980,8 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 		});		
 	},
 	
-	driverForm : {
+	driverForm : function() {
+		return {
 		xtype : 'panel',
 		itemId : 'details',
 		bodyPadding : 10,
@@ -13017,6 +13008,7 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 				hidden : true
 			}, {
 				name : 'id',
+				itemId : 'driver_id',
 				fieldLabel : T('label.id'),
 				allowBlank: false,
 				afterLabelTextTpl: window.required
@@ -13046,19 +13038,29 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 				fieldLabel : T('label.phone_x', {x : 2})
 			}, {
 				name : 'total_distance',
-				fieldLabel : T('label.total_distance')
+				itemId : 'driver_total_distance',
+				fieldLabel : T('label.total_distance'),
+				readOnly : true
 			}, {
 				name : 'total_run_time',
-				fieldLabel : T('label.total_run_time')
+				itemId : 'driver_total_runtime',
+				fieldLabel : T('label.total_run_time'),
+				readOnly : true
 			}, {
 				name : 'avg_effcc',
-				fieldLabel : T('label.avg_effcc')
+				itemId : 'driver_avg_effcc',
+				fieldLabel : T('label.avg_effcc'),
+				readOnly : true
 			}, {
 				name : 'eco_index',
-				fieldLabel : T('label.eco_index')
+				itemId : 'driver_eco_index',
+				fieldLabel : T('label.eco_index'),
+				readOnly : true
 			}, {
 				name : 'eco_run_rate',
-				fieldLabel : T('label.eco_run_rate')
+				itemId : 'driver_eco_run_rate',
+				fieldLabel : T('label.eco_run_rate'),
+				readOnly : true
 			}, {
 				xtype : 'filefield',
 				name : 'image_file',
@@ -13081,9 +13083,17 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 					var driverStore = Ext.getStore('DriverBriefStore');
 					driverStore.load(callback);
 				},
+				resetFn : function(callback) {
+					this.formSetReadOnly(false);
+				},
 				scope : this
 			}
 		} ]
+		}
+	},
+	
+	formSetReadOnly : function(mode) {
+		this.sub('driver_id').setReadOnly(mode);
 	}
 });
 Ext.define('GreenFleet.view.management.DriverRunStatus', {
