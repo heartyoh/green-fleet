@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -75,9 +76,41 @@ public class VehicleOrmService extends OrmEntityService {
 	
 	@RequestMapping(value = "/vehicle", method = RequestMethod.GET)
 	public @ResponseBody
-	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	Map<String, Object> retrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return super.retrieve(request, response);
-	}	
+		/*Map<String, Object> list = super.retrieve(request, response);
+		List vehicleList = (List)list.get("items");
+		List<String> vehicleIdList = new ArrayList<String>();
+		for(int i = 0 ; i < list.size() ; i++) {
+			vehicleIdList.add((String)list.get(i));
+		}
+		
+		String sql = "select vehicle_id, id, driver_id from terminal where vehicle_id in(:vehicleIdList)";
+		Map<String, Object> params = DataUtils.newMap("company", this.getCompany(request));
+		params.put("vehicleIdList", vehicleIdList);
+		List<Map> terminalList = this.dml.selectListBySql(sql, params, Map.class, 0, 0);
+		
+		for(int i = 0 ; i < vehicleList.size() ; i++) {
+			Map vehicle = (Map)vehicleList.get(i);
+			String vehicleId = (String)vehicle.get("id");
+			Map terminal = this.getTerminalMap(terminalList, vehicleId);
+			if(terminal != null) {
+				vehicle.put("terminal_id", terminal.get("id"));
+				vehicle.put("driver_id", terminal.get("driver_id"));
+			}
+		}
+		return list;*/
+	}
+	
+	/*private Map getTerminalMap(List<Map> terminalList, String vehicleId) {
+		for(int j = 0 ; j < terminalList.size() ; j++) {
+			Map terminal = terminalList.get(j);
+			if(vehicleId.equalsIgnoreCase((String)terminal.get("vehicle_id"))) {
+				return terminal;
+			}
+		}
+		return null;
+	}*/
 	
 	@RequestMapping(value = "/vehicle/save", method = RequestMethod.POST)
 	public @ResponseBody

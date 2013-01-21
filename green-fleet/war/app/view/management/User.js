@@ -261,8 +261,7 @@ Ext.define('GreenFleet.view.management.User', {
 				xtype : 'entity_form_buttons',
 				loader : {
 					fn : function(callback) {
-						//main.sub('grid').store.load(callback);
-						main.sub('id_filter').setValue('');
+						main.sub('email_filter').setValue('');
 						main.sub('name_filter').setValue('');
 						main.search(true);
 					},

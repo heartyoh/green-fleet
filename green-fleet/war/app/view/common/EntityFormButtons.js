@@ -48,8 +48,6 @@ Ext.define('GreenFleet.view.common.EntityFormButtons', {
 					
 						if(btn != 'yes') 
 							return;
-					
-					
 
 						if (form.isValid()) {
 							form.submit({

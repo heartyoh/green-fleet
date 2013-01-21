@@ -80,6 +80,9 @@ Ext.define('GreenFleet.view.monitor.InfoByVehicle', {
 	}, {
 		dataIndex : 'lng',
 		text : T('label.longitude')
+	}, {
+		dataIndex : 'image_clip',
+		hidden : true
 	} ],
 	viewConfig : {
 

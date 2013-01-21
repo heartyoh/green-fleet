@@ -86,86 +86,12 @@ Ext.define('GreenFleet.view.monitor.Information', {
 		this.sub('id').on('change', function(field, vehicle) {
 			var record = self.getForm().getRecord();
 			
-			self.sub('distance').setValue(record.get('total_distance'));
-			self.sub('running_time').setValue(record.get('total_run_time'));
-			/*
-			 * Get Vehicle Information (Image, Registration #, ..) from
-			 * VehicleStore
+			/**
+			 * 상단의 Vehicle Information 정보를 표시
 			 */
-			var vehicleStore = Ext.getStore('VehicleBriefStore');
-			var vehicleRecord = vehicleStore.findRecord('id', record.get('id'));
-			
-			var terminalStore = Ext.getStore('TerminalStore').load();
-			var terminalRecord = terminalStore.findRecord('vehicle_id', vehicleRecord.get('id'));
-			
-			var vehicleImageClip = vehicleRecord.get('image_clip');
-			if (vehicleImageClip) {
-				self.sub('vehicleImage').setSrc('download?blob-key=' + vehicleImageClip);
-			} else {
-				self.sub('vehicleImage').setSrc('resources/image/bgVehicle.png');
-			}
+			self.showDisplayForm(record, vehicle);
 
-			/*
-			 * Get Driver Information (Image, Name, ..) from DriverStore
-			 */
-			var driverStore = Ext.getStore('DriverBriefStore');
-			var driverRecord = null;
-			
-			if(terminalRecord != null){
-				driverRecord = driverStore.findRecord('id', terminalRecord.get('driver_id'));
-			}else{
-				driverRecord = driverStore.findRecord('id', '');
-			}
-			
-			
-			var driverInfo = '';
-			
-			if (driverRecord != null) {
-				driverInfo = driverRecord.get('id') + '(' + driverRecord.get('name') + ')';				
-				var driverImageClip = driverRecord.get('image_clip');
-				if (driverImageClip) {
-					self.sub('driverImage').setSrc('download?blob-key=' + driverImageClip);
-				} else {
-					self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-				}
-			} else {
-				self.sub('driverImage').setSrc('resources/image/bgDriver.png');
-			}
-
-			self.sub('title').update({
-				vehicle : vehicle + ' (' + vehicleRecord.get('registration_number') + ')',
-				driver : driverInfo
-			});
-
-			/*
-			 * Get Address of the location by ReverseGeoCode.
-			 */
-			var location = record.get('location');
-			if (location == null || location.length == 0) {
-				var lat = record.get('lat');
-				var lng = record.get('lng');
-
-				if (lat !== undefined && lng !== undefined) {
-					var latlng = new google.maps.LatLng(lat, lng);
-
-					geocoder = new google.maps.Geocoder();
-					geocoder.geocode({
-						'latLng' : latlng
-					}, function(results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
-							if (results[0]) {
-								var address = results[0].formatted_address
-								record.set('location', address);
-								self.sub('location').setValue(address);
-							}
-						} else {
-							console.log("Geocoder failed due to: " + status);
-						}
-					});
-				}
-			}
-
-			/*
+			/**
 			 * TrackStore를 다시 로드함.
 			 */
 			self.getTrackStore().load({
@@ -183,7 +109,7 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				} ]
 			});
 
-			/*
+			/**
 			 * IncidentStore를 다시 로드함.
 			 */
 			self.getIncidentStore().load({
@@ -198,6 +124,73 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				]
 			});
 		});
+	},
+	
+	/**
+	 * Vehicle Information에 표시한다.
+	 */
+	showDisplayForm : function(record, vehicleId) {
+
+		var self = this;
+		var terminalStore = Ext.getStore('TerminalStore').load({
+			scope : this,
+			callback : function(terminalRecords, operation, success) {
+				if(success) {
+					var terminalRecord = terminalStore.findRecord('vehicle_id', record.get('id'));
+					if(terminalRecord) {
+						this.sub('terminal').setValue(terminalRecord.get('id'));
+						this.sub('driver').setValue(terminalRecord.get('driver_id'));
+					}
+					
+					var vehicleImg = (record.get('image_clip') && record.get('image_clip') != '') ? 'download?blob-key=' + record.get('image_clip') : 'resources/image/bgVehicle.png';
+					self.sub('vehicleImage').setSrc(vehicleImg);
+					
+					var driverStore = Ext.getStore('DriverBriefStore');
+					var driverRecord = null;
+					var driverInfo = '';
+					
+					if(terminalRecord) {
+						driverRecord = driverStore.findRecord('id', terminalRecord.get('driver_id'));
+						driverInfo = driverRecord.get('id') + '(' + driverRecord.get('name') + ')';
+						var driverImg = (driverRecord.get('image_clip') && driverRecord.get('image_clip') != '') ? 'download?blob-key=' + driverRecord.get('image_clip') : 'resources/image/bgDriver.png';
+						self.sub('driverImage').setSrc(driverImg);
+					}
+					
+					self.sub('title').update({
+						vehicle : vehicleId + ' (' + record.get('registration_number') + ')',
+						driver : driverInfo
+					});
+				}
+			}
+		});
+
+		/*
+		 * Get Address of the location by ReverseGeoCode.
+		 */
+		var location = record.get('location');
+		if (location == null || location.length == 0) {
+			var lat = record.get('lat');
+			var lng = record.get('lng');
+
+			if (lat !== undefined && lng !== undefined) {
+				var latlng = new google.maps.LatLng(lat, lng);
+
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode({
+					'latLng' : latlng
+				}, function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
+							var address = results[0].formatted_address
+							record.set('location', address);
+							self.sub('location').setValue(address);
+						}
+					} else {
+						console.log("Geocoder failed due to: " + status);
+					}
+				});
+			}
+		}
 	},
 
 	setVehicle : function(vehicleRecord) {
@@ -445,13 +438,15 @@ Ext.define('GreenFleet.view.monitor.Information', {
 				itemId : 'location'
 			}, {
 				xtype : 'displayfield',
-				name : 'distance',
+				//name : 'distance',
+				name : 'total_distance',
 				cls : 'dotUnderline',
 				itemId : 'distance',
 				fieldLabel : T('label.run_dist')
 			}, {
 				xtype : 'displayfield',
-				name : 'running_time',
+				//name : 'running_time',
+				name : 'total_run_time',
 				fieldLabel : T('label.run_time'),
 				itemId : 'running_time',
 				cls : 'dotUnderline'

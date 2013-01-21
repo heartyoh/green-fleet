@@ -19,14 +19,13 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	/**
 	 * 차량 상세 페이지 리프레쉬 
 	 */
-	refresh : function(vehicleId, regNo) {		
+	refresh : function(vehicleId, regNo) {	
 		// vehicleId 값이 없거나 이전에 선택한 vehicleId와 현재 선택된 vehicleId가 같다면 skip 
 		if(!vehicleId || vehicleId == '' || vehicleId == this.vehicle)
 			return;
 				
 		var self = this;
-		this.vehicle = vehicleId;
-		
+		this.vehicle = vehicleId;		
 		self.formSetDisabled(true);
 	
 		Ext.Ajax.request({
@@ -67,7 +66,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	},
 	
 	vehicleForm : function(main) {
-		return{
+		return {
 			xtype : 'panel',
 			bodyPadding : 10,
 			cls : 'hIndexbar',	
@@ -151,47 +150,55 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 				}, {
 					itemId: 'form_health_status',
 					name : 'health_status',
-					fieldLabel : T('label.health')							
+					fieldLabel : T('label.health'),
+					readOnly : true
 				}, {
 					itemId: 'form_total_distance',
 					name : 'total_distance',
-					fieldLabel : T('label.total_distance')
+					fieldLabel : T('label.total_distance'),
+					readOnly : true
 				}, {
 					itemId: 'form_total_run_time',
 					name : 'total_run_time',
-					fieldLabel : T('label.total_run_time')
+					fieldLabel : T('label.total_run_time'),
+					readOnly : true
 				}, {
 					itemId: 'form_official_effcc',
 					name : 'official_effcc',
-					fieldLabel : T('label.official_effcc')
+					fieldLabel : T('label.official_effcc'),
+					readOnly : true
 				}, {
 					itemId: 'form_avg_effcc',
 					name : 'avg_effcc',
-					fieldLabel : T('label.avg_effcc')
+					fieldLabel : T('label.avg_effcc'),
+					readOnly : true
 				}, {
 					itemId: 'form_eco_index',
 					name : 'eco_index',
-					fieldLabel : T('label.eco_index')
+					fieldLabel : T('label.eco_index'),
+					readOnly : true
 				}, {
 					itemId: 'form_eco_run_rate',
 					name : 'eco_run_rate',
-					fieldLabel : T('label.eco_run_rate')
+					fieldLabel : T('label.eco_run_rate'),
+					readOnly : true
 				}, {
 					itemId: 'form_remaining_fuel',
 					name : 'remaining_fuel',
-					fieldLabel : T('label.remaining_fuel')
+					fieldLabel : T('label.remaining_fuel'),
+					readOnly : true
 				}, {
 					name : 'location',
 					fieldLabel : T('label.location'),
-					disabled : true
+					readOnly : true
 				}, {
 					name : 'lat',
 					fieldLabel : T('label.latitude'),
-					disabled : true
+					readOnly : true
 				}, {
 					name : 'lng',
 					fieldLabel : T('label.longitude'),
-					disabled : true
+					readOnly : true
 				}, {
 					xtype : 'filefield',
 					name : 'image_file',
@@ -224,16 +231,7 @@ Ext.define('GreenFleet.view.management.VehicleDetail', {
 	},
 	
 	formSetDisabled : function(mode){
-		this.sub('form_id').setDisabled(mode);
-		this.sub('form_status').setDisabled(mode);
-		this.sub('form_health_status').setDisabled(mode);
-		this.sub('form_total_run_time').setDisabled(mode);
-		this.sub('form_total_distance').setDisabled(mode);
-		this.sub('form_official_effcc').setDisabled(mode);
-		this.sub('form_avg_effcc').setDisabled(mode);
-		this.sub('form_eco_index').setDisabled(mode);
-		this.sub('form_eco_run_rate').setDisabled(mode);
-		this.sub('form_remaining_fuel').setDisabled(mode);
+		this.sub('form_id').setReadOnly(mode);
 	}
 	
 });

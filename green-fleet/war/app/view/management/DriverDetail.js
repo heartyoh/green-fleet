@@ -13,7 +13,7 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 	initComponent : function() {
 		var self = this;
 		this.callParent(arguments);
-		this.add(this.driverForm);		
+		this.add(this.driverForm());		
 	},
 	
 	/**
@@ -25,7 +25,8 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 			return;
 		
 		var self = this;
-		this.driver = driverId;	
+		this.driver = driverId;		
+		this.formSetReadOnly(true);
 		
 		Ext.Ajax.request({
 			url : 'driver/find',
@@ -46,7 +47,8 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 		});		
 	},
 	
-	driverForm : {
+	driverForm : function() {
+		return {
 		xtype : 'panel',
 		itemId : 'details',
 		bodyPadding : 10,
@@ -73,6 +75,7 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 				hidden : true
 			}, {
 				name : 'id',
+				itemId : 'driver_id',
 				fieldLabel : T('label.id'),
 				allowBlank: false,
 				afterLabelTextTpl: window.required
@@ -102,19 +105,29 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 				fieldLabel : T('label.phone_x', {x : 2})
 			}, {
 				name : 'total_distance',
-				fieldLabel : T('label.total_distance')
+				itemId : 'driver_total_distance',
+				fieldLabel : T('label.total_distance'),
+				readOnly : true
 			}, {
 				name : 'total_run_time',
-				fieldLabel : T('label.total_run_time')
+				itemId : 'driver_total_runtime',
+				fieldLabel : T('label.total_run_time'),
+				readOnly : true
 			}, {
 				name : 'avg_effcc',
-				fieldLabel : T('label.avg_effcc')
+				itemId : 'driver_avg_effcc',
+				fieldLabel : T('label.avg_effcc'),
+				readOnly : true
 			}, {
 				name : 'eco_index',
-				fieldLabel : T('label.eco_index')
+				itemId : 'driver_eco_index',
+				fieldLabel : T('label.eco_index'),
+				readOnly : true
 			}, {
 				name : 'eco_run_rate',
-				fieldLabel : T('label.eco_run_rate')
+				itemId : 'driver_eco_run_rate',
+				fieldLabel : T('label.eco_run_rate'),
+				readOnly : true
 			}, {
 				xtype : 'filefield',
 				name : 'image_file',
@@ -137,8 +150,16 @@ Ext.define('GreenFleet.view.management.DriverDetail', {
 					var driverStore = Ext.getStore('DriverBriefStore');
 					driverStore.load(callback);
 				},
+				resetFn : function(callback) {
+					this.formSetReadOnly(false);
+				},
 				scope : this
 			}
 		} ]
+		}
+	},
+	
+	formSetReadOnly : function(mode) {
+		this.sub('driver_id').setReadOnly(mode);
 	}
 });

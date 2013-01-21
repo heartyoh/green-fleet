@@ -458,9 +458,7 @@ Ext.define('GreenFleet.view.management.VehicleGroup', {
 				afterLabelTextTpl: required
 			}, {
 				name : 'desc',
-				fieldLabel : T('label.desc'),
-				allowBlank: false,
-				afterLabelTextTpl: required
+				fieldLabel : T('label.desc')
 			}, {
 				xtype : 'datefield',
 				name : 'updated_at',
