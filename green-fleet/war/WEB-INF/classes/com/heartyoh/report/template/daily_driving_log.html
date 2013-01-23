@@ -1,0 +1,43 @@
+<div>일일 주행일지 (<span>{date}</span>)<div><br/>
+
+<table frame="hsides" rules="rows">
+	<tr>
+		<th>운전자 ID</th>
+		<th>운전자 이름</th>
+		<th>차량 ID</th>
+		<th>등록번호</th>
+		<th>주행거리</th>
+		<th>주행시간</th>
+		<th>연료소모량</th>
+		<th>연비</th>
+	</tr>
+				
+	{DRIVINGS}			
+</table>
+
+<br/>
+
+<div>일일 소모품 교체 리포트</div><br/>
+
+<table frame="hsides" rules="rows">
+	<tr>
+		<th>차량 ID</th>
+		<th>등록번호</th>
+		<th>소모품 항목</th>
+	</tr>
+				
+	{CONSUMABLES}			
+</table>
+<br/>
+
+<div>일일 정비 리포트</div><br/>
+
+<table frame="hsides" rules="rows">
+	<tr>
+		<th>차량 ID</th>
+		<th>등록번호</th>
+		<th>정비내역</th>
+	</tr>
+				
+	{MAINTENANCES}			
+</table>

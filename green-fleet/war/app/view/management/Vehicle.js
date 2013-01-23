@@ -221,14 +221,16 @@ Ext.define('GreenFleet.view.management.Vehicle', {
 			xtype : 'management_vehicle_consumables'
 		}, {
 			xtype : 'management_vehicle_track'
-		}, {
-			xtype : 'management_vehicle_incident'
-		}, {
+		},
+//		{
+//			xtype : 'management_vehicle_incident'
+//		},
+		{
 			xtype : 'management_vehicle_checkin'
 		}, {
 			xtype : 'management_vehicle_runstatus'
 		}, {
 			xtype : 'management_vehicle_speed'
 		} ]
-	},	
+	}
 });
