@@ -1,4 +1,5 @@
 .DS_Store
 *.class
-war/WEB-INF/classes
+*/war/WEB-INF/classes/
+
 
