@@ -5,6 +5,7 @@
 
 <html>
 	<head>
+		<meta http-equiv="X-UA-Compatible" content="chrome=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<title>Green Fleet</title>
