@@ -83,7 +83,7 @@ public class VehicleGroupOrmService extends OrmEntityService {
 				
 		String prevId = "";
 		Map newItem = null;
-		List<String> vehicles = null;
+		List<String> vehicles = new ArrayList<String>();
 		List<Map> results = new ArrayList<Map>();
 		
 		for(Map item : items) {
