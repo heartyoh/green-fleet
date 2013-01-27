@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.appengine.api.datastore.Entity;
+import com.heartyoh.model.Terminal;
 import com.heartyoh.model.Vehicle;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatasourceUtils;
@@ -106,8 +108,8 @@ public class SimulationService {
 		for(Entity company : companies) {
 			String companyId = (String)company.getProperty("id");
 			
-			// 일단 vitizen에 대해서만 ...
-			if(!"vitizen".equalsIgnoreCase(companyId)) 
+			// 일단 palmvision에 대해서만 ...
+			if(!"palmvision".equalsIgnoreCase(companyId)) 
 				continue;
 			
 			List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyId);
@@ -169,6 +171,25 @@ public class SimulationService {
 	}
 	
 	/**
+	 * vehicleId와 매핑된 terminalId를 리턴 
+	 *  
+	 * @param vehicleId
+	 * @return
+	 */
+	private String[] getTerminalDriverId(List terminals, String vehicleId) {
+		String[] result = new String[2];
+		for(Object obj : terminals) {
+			Terminal terminal = (Terminal)obj;
+			if(vehicleId.equalsIgnoreCase(terminal.getVehicleId())) {
+				result[0] = terminal.getId();
+				result[1] = terminal.getDriverId();
+				break;
+			}
+		}
+		return result;
+	}
+	
+	/**
 	 * 
 	 * @param c
 	 * @param count
@@ -201,7 +222,7 @@ public class SimulationService {
 	public @ResponseBody
 	String simulateCheckinData(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		String url = "http://" + request.getServerName() + ":" + request.getServerPort() + "/checkin_data/save";		
+		String url = "http://" + request.getServerName() + ":" + request.getServerPort() + "/checkin_data/save";
 		List<Entity> companies = DatastoreUtils.findAllCompany();
 		//Date currentDate = DataUtils.addDate(DataUtils.getToday(), -1);
 		Date currentDate = DataUtils.getToday();
@@ -214,11 +235,13 @@ public class SimulationService {
 			if(!this.checkCompany(companyId)) 
 				continue;
 			
-			List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyId);			
-			
+			List<Vehicle> vehicles = DatasourceUtils.findAllVehicles(companyId);
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("company", companyId);
+			List terminals = DatasourceUtils.findEntities(Terminal.class, params);
 			for(Vehicle vehicle : vehicles) {
-				Map<String, Object> data = this.randomGenCheckinData(currentDateStr, vehicle);
-				try {			
+				Map<String, Object> data = this.randomGenCheckinData(currentDateStr, vehicle, terminals);
+				try {
 					String result = this.invokeService(url, data);
 					logger.info("Vehicle [" + vehicle.getId() + "] Date [" + currentDateStr + "] - Checkin Service (" + result + ")");
 				} catch(Exception e) {
@@ -239,12 +262,18 @@ public class SimulationService {
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, Object> randomGenCheckinData(String dateStr, Vehicle vehicle) throws Exception {
+	private Map<String, Object> randomGenCheckinData(String dateStr, Vehicle vehicle, List terminals) throws Exception {
 		
 		String dateTimeStr = dateStr + " 14:50:00";
 		String engineStartTimeStr = dateStr + " 09:30:00";
 		String engineEndTimeStr = dateStr + " 14:30:00";
-		String terminalId = this.getTerminalId(vehicle.getId());
+		String[] terminalDriverId = this.getTerminalDriverId(terminals, vehicle.getId());
+		String terminalId = "";
+		String driverId = "";
+		if(terminalDriverId != null && terminalDriverId.length == 2) {
+			terminalId = terminalDriverId[0];
+			driverId = terminalDriverId[1];
+		}
 		
 		Map<String, Object> checkinData = DataUtils.newMap("company", vehicle.getCompany());
 		checkinData.put("vehicle_id", vehicle.getId());
@@ -252,7 +281,7 @@ public class SimulationService {
 		checkinData.put("engine_end_time", engineEndTimeStr);
 		checkinData.put("datetime", dateTimeStr);		
 		checkinData.put("terminal_id", terminalId);
-		checkinData.put("driver_id", vehicle.getDriverId());
+		checkinData.put("driver_id", driverId);
 		
 		Random rand = new Random(System.currentTimeMillis());
 		String distance = "" + (175 + rand.nextInt(35));
