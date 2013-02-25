@@ -1698,7 +1698,8 @@ Ext.define('GreenFleet.view.SideMenu', {
 			        autoEl : {
 			            tag : "iframe",
 //			            src : "http://www.ustream.tv/embed/10627186"
-			            src : "http://61.33.6.173/smart"
+//			            src : "http://61.33.6.173/smart"
+			            src : "http://183.101.210.170/vcore/blackbox2"
 			        }
 			    }]
 			}).show();
