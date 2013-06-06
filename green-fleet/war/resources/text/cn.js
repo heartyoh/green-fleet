@@ -189,15 +189,15 @@ T({
 	},
 	
 	button : {
-		search : '검색',
-		reset : '초기화',
-		save : '저장',
-		add : '추가',
-		del : '삭제',
-		cancel : '취소',
-		sync : '동기화',
-		file : '파일...',
-		close : '닫기'
+		search : '搜索',
+		reset : '初始化',
+		save : '储存',
+		add : '添加',
+		del : '删除',
+		cancel : '取消',
+		sync : '同步化',
+		file : '文件...',
+		close : '关闭'
 	},
 	
 	label : {
