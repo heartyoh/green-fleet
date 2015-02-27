@@ -120,6 +120,13 @@ public class FileService {
 		if(blobKeyStr.startsWith("/gs/")) {
 			String namePart = blobKeyStr.substring(blobKeyStr.lastIndexOf("/") + 1);
 			response.setHeader("Content-Disposition", "inline;filename=\"" + namePart + "\"");
+			
+			String extension = namePart.substring(namePart.lastIndexOf(".")+1, namePart.length());
+			
+			if(extension.equals("mp4")){
+				response.setHeader("Content-Type", "video/mp4");
+			}
+			
 			blobKey = this.blobstoreService.createGsBlobKey(blobKeyStr);
 		} else {
 			blobKey = new BlobKey(blobKeyStr);
