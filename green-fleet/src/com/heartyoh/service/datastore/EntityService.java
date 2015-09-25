@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -33,10 +35,15 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.files.AppEngineFile;
-import com.google.appengine.api.files.FileServiceFactory;
-import com.google.appengine.api.files.FileWriteChannel;
-import com.google.appengine.api.files.GSFileOptions.GSFileOptionsBuilder;
+//import com.google.appengine.api.files.AppEngineFile;
+//import com.google.appengine.api.files.FileServiceFactory;
+//import com.google.appengine.api.files.FileWriteChannel;
+//import com.google.appengine.api.files.GSFileOptions.GSFileOptionsBuilder;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+//import com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
@@ -66,12 +73,19 @@ public abstract class EntityService {
 			String name = (String) e.nextElement();
 			map.put(name, request.getParameter(name));
 		}
+		
+		if(!map.containsKey("company"))
+			map.put("company", "palmvision");
+		
 		return map;
 	}
 	
 	protected Key getCompanyKey(HttpServletRequest request) {
 		CustomUser user = SessionUtils.currentUser();
 		String company = (user != null) ? user.getCompany() : request.getParameter("company");
+		
+		company = (company == null || company.equalsIgnoreCase("")) ? "palmvision" : company;
+		
 		return KeyFactory.createKey("Company", company);
 	}
 	
@@ -172,18 +186,22 @@ public abstract class EntityService {
 
 	protected static String saveFile(MultipartHttpServletRequest request, MultipartFile file) throws IOException {
 		if (file != null && file.getSize() > 0) {
-			//CustomUser user = SessionUtils.currentUser();
-			//String company = (user != null) ? user.getCompany() : request.getParameter("company");
+			CustomUser user = SessionUtils.currentUser();
+			String company = (user != null) ? user.getCompany() : request.getParameter("company");
 			
-			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
-			AppEngineFile appfile = fileService.createNewBlobFile(file.getContentType(), file.getOriginalFilename());
+			GcsService gcsService = GcsServiceFactory.createGcsService();
+			com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder optionsBuilder = new com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder()
+			.mimeType(file.getContentType());
+//			.acl("public_read");
+//			.addUserMetadata("company", company);
+			GcsFilename gcsFilename = new GcsFilename("green-fleets", company + "/images/" + file.getOriginalFilename());
 			
-			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, true);
+			GcsOutputChannel gcsOutputChannel = gcsService.createOrReplace(gcsFilename, optionsBuilder.build());
+			gcsOutputChannel.write(ByteBuffer.wrap(file.getBytes()));
+//			gcsOutputChannel.waitForOutstandingWrites();
+			gcsOutputChannel.close();
 
-			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
-			writeChannel.closeFinally();
-			
-			return fileService.getBlobKey(appfile).getKeyString();
+			return "https://green-fleets.storage.googleapis.com/" + company + "/images/" + file.getOriginalFilename();
 		}
 		return null;
 	}
@@ -193,24 +211,19 @@ public abstract class EntityService {
 			CustomUser user = SessionUtils.currentUser();
 			String company = (user != null) ? user.getCompany() : request.getParameter("company");
 			
-			com.google.appengine.api.files.FileService fileService = FileServiceFactory.getFileService();
+			GcsService gcsService = GcsServiceFactory.createGcsService();
+			com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder optionsBuilder = new com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder()
+				.mimeType(file.getContentType());
+//				.acl("public_read");
+//				.addUserMetadata("company", company);
+			GcsFilename gcsFilename = new GcsFilename("green-fleets", company + "/incident/" + file.getOriginalFilename());
 			
-			GSFileOptionsBuilder optionsBuilder = new GSFileOptionsBuilder()
-		       .setBucket("green-fleets")
-		       .setKey(company + "/incident/" + file.getOriginalFilename())
-		       .setMimeType(file.getContentType());
-		       //.setAcl("public_read");
-//		       .addUserMetadata("company", "vitizen");
-		    AppEngineFile appfile =
-		         fileService.createNewGSFile(optionsBuilder.build());			
+			GcsOutputChannel gcsOutputChannel = gcsService.createOrReplace(gcsFilename, optionsBuilder.build());
+			gcsOutputChannel.write(ByteBuffer.wrap(file.getBytes()));
+//			gcsOutputChannel.waitForOutstandingWrites();
+			gcsOutputChannel.close();
 			
-			FileWriteChannel writeChannel = fileService.openWriteChannel(appfile, true);
-
-			writeChannel.write(ByteBuffer.wrap(file.getBytes()));
-			writeChannel.closeFinally();
-			
-			//return "http://commondatastorage.googleapis.com/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
-			return "/gs/green-fleets/" + company + "/incident/" + file.getOriginalFilename();
+			return "https://green-fleets.storage.googleapis.com/" + company + "/incident/" + file.getOriginalFilename();
 		}
 		return null;
 	}
