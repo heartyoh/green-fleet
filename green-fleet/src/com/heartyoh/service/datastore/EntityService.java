@@ -43,6 +43,7 @@ import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 //import com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
@@ -188,20 +189,22 @@ public abstract class EntityService {
 		if (file != null && file.getSize() > 0) {
 			CustomUser user = SessionUtils.currentUser();
 			String company = (user != null) ? user.getCompany() : request.getParameter("company");
+
+			company = (company == null) ? "palmvision" : company;
 			
-			GcsService gcsService = GcsServiceFactory.createGcsService();
+			GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 			com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder optionsBuilder = new com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder()
 			.mimeType(file.getContentType());
 //			.acl("public_read");
 //			.addUserMetadata("company", company);
-			GcsFilename gcsFilename = new GcsFilename("green-fleets", company + "/images/" + file.getOriginalFilename());
+			GcsFilename gcsFilename = new GcsFilename("green-fleets.appspot.com", company + "/images/" + file.getOriginalFilename());
 			
 			GcsOutputChannel gcsOutputChannel = gcsService.createOrReplace(gcsFilename, optionsBuilder.build());
 			gcsOutputChannel.write(ByteBuffer.wrap(file.getBytes()));
 //			gcsOutputChannel.waitForOutstandingWrites();
 			gcsOutputChannel.close();
 
-			return "https://green-fleets.storage.googleapis.com/" + company + "/images/" + file.getOriginalFilename();
+			return "https://storage.googleapis.com/green-fleets.appspot.com/" + company + "/images/" + file.getOriginalFilename();
 		}
 		return null;
 	}
@@ -211,19 +214,21 @@ public abstract class EntityService {
 			CustomUser user = SessionUtils.currentUser();
 			String company = (user != null) ? user.getCompany() : request.getParameter("company");
 			
-			GcsService gcsService = GcsServiceFactory.createGcsService();
+			company = (company == null) ? "palmvision" : company;
+			
+			GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 			com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder optionsBuilder = new com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder()
 				.mimeType(file.getContentType());
 //				.acl("public_read");
 //				.addUserMetadata("company", company);
-			GcsFilename gcsFilename = new GcsFilename("green-fleets", company + "/incident/" + file.getOriginalFilename());
+			GcsFilename gcsFilename = new GcsFilename("green-fleets.appspot.com", company + "/incident/" + file.getOriginalFilename());
 			
 			GcsOutputChannel gcsOutputChannel = gcsService.createOrReplace(gcsFilename, optionsBuilder.build());
 			gcsOutputChannel.write(ByteBuffer.wrap(file.getBytes()));
 //			gcsOutputChannel.waitForOutstandingWrites();
 			gcsOutputChannel.close();
 			
-			return "https://green-fleets.storage.googleapis.com/" + company + "/incident/" + file.getOriginalFilename();
+			return "https://storage.googleapis.com/green-fleets.appspot.com/" + company + "/incident/" + file.getOriginalFilename();
 		}
 		return null;
 	}
