@@ -189,13 +189,12 @@ public abstract class EntityService {
 		if (file != null && file.getSize() > 0) {
 			CustomUser user = SessionUtils.currentUser();
 			String company = (user != null) ? user.getCompany() : request.getParameter("company");
-
 			company = (company == null) ? "palmvision" : company;
 			
 			GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 			com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder optionsBuilder = new com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder()
-			.mimeType(file.getContentType());
-//			.acl("public_read");
+			.mimeType(file.getContentType())
+			.acl("public_read");
 //			.addUserMetadata("company", company);
 			GcsFilename gcsFilename = new GcsFilename("green-fleets.appspot.com", company + "/images/" + file.getOriginalFilename());
 			
@@ -213,13 +212,12 @@ public abstract class EntityService {
 		if (file != null && file.getSize() > 0) {
 			CustomUser user = SessionUtils.currentUser();
 			String company = (user != null) ? user.getCompany() : request.getParameter("company");
-			
 			company = (company == null) ? "palmvision" : company;
 			
 			GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 			com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder optionsBuilder = new com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder()
-				.mimeType(file.getContentType());
-//				.acl("public_read");
+				.mimeType(file.getContentType())
+				.acl("public_read");
 //				.addUserMetadata("company", company);
 			GcsFilename gcsFilename = new GcsFilename("green-fleets.appspot.com", company + "/incident/" + file.getOriginalFilename());
 			
