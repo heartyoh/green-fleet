@@ -3,6 +3,9 @@ package com.heartyoh.service.datastore;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Enumeration;
@@ -23,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -35,22 +36,24 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
-//import com.google.appengine.api.files.AppEngineFile;
-//import com.google.appengine.api.files.FileServiceFactory;
-//import com.google.appengine.api.files.FileWriteChannel;
-//import com.google.appengine.api.files.GSFileOptions.GSFileOptionsBuilder;
+import com.google.appengine.labs.repackaged.org.json.JSONArray;
+import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
-//import com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder;
 import com.heartyoh.model.CustomUser;
 import com.heartyoh.model.Filter;
 import com.heartyoh.model.Sorter;
 import com.heartyoh.util.DataUtils;
 import com.heartyoh.util.DatastoreUtils;
 import com.heartyoh.util.SessionUtils;
+//import com.google.appengine.api.files.AppEngineFile;
+//import com.google.appengine.api.files.FileServiceFactory;
+//import com.google.appengine.api.files.FileWriteChannel;
+//import com.google.appengine.api.files.GSFileOptions.GSFileOptionsBuilder;
+//import com.google.appengine.tools.cloudstorage.GcsFileOptions.Builder;
 
 /**
  * 각 엔티티의 콘트롤러 클래스의 부모 클래스 
@@ -219,6 +222,7 @@ public abstract class EntityService {
 				.mimeType(file.getContentType())
 				.acl("public_read");
 //				.addUserMetadata("company", company);
+			
 			GcsFilename gcsFilename = new GcsFilename("green-fleets.appspot.com", company + "/incident/" + file.getOriginalFilename());
 			
 			GcsOutputChannel gcsOutputChannel = gcsService.createOrReplace(gcsFilename, optionsBuilder.build());
@@ -226,9 +230,44 @@ public abstract class EntityService {
 //			gcsOutputChannel.waitForOutstandingWrites();
 			gcsOutputChannel.close();
 			
-			return "https://storage.googleapis.com/green-fleets.appspot.com/" + company + "/incident/" + file.getOriginalFilename();
+			
+			String OriginFullName = file.getOriginalFilename();
+			int pos = OriginFullName.lastIndexOf(".");
+			String fileName = OriginFullName.substring(0, pos);
+			String extension = OriginFullName.substring(OriginFullName.lastIndexOf(".")+1, OriginFullName.length());
+			
+			if(extension.equals("avi"))
+				callZencoder(file.getOriginalFilename(), company, fileName);
+			
+			return "https://storage.googleapis.com/green-fleets.appspot.com/" + company + "/incident/" + fileName + ".mp4";
 		}
 		return null;
+	}
+	
+	protected static void callZencoder(String originalFileFullName, String company, String fileName) {
+		try {
+			URL url = new URL("https://app.zencoder.com/api/v2/jobs");
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestProperty("Zencoder-Api-Key", "970a8e4431da8623d4a00f533c7b4640");
+	        connection.setRequestProperty("Content-Type", "application/json");
+	        
+	        connection.setDoInput(true);
+	        connection.setDoOutput(true);
+	        connection.setRequestMethod("POST");
+	        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+	        
+	        String msg = "{\"input\": \"gcs://green-fleets.appspot.com/" + company + "/incident/" + originalFileFullName + "\",\"outputs\":[{\"url\":\"gcs://green-fleets.appspot.com/" + company + "/incident/" + fileName + ".mp4\", \"headers\" : {\"x-goog-acl\" : \"public-read\"}} ]}";          
+	        
+	        writer.write(msg);
+	        writer.flush();
+	        writer.close();
+	        
+	        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            } else {
+            }
+		} catch (Exception e) {
+			
+		}
 	}
 
 	protected void preMultipart(Map<String, Object> map, MultipartHttpServletRequest request) throws IOException {
