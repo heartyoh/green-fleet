@@ -248,7 +248,7 @@ public abstract class EntityService {
 		try {
 			URL url = new URL("https://app.zencoder.com/api/v2/jobs");
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestProperty("Zencoder-Api-Key", "970a8e4431da8623d4a00f533c7b4640");
+			connection.setRequestProperty("Zencoder-Api-Key", "275b34d6afc0b3a0de8f2aeed3b49718");
 	        connection.setRequestProperty("Content-Type", "application/json");
 	        
 	        connection.setDoInput(true);
